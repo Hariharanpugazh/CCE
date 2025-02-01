@@ -7,4 +7,5 @@ urlpatterns = [
     path("login/", admin_login, name="admin_login"),
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
     path("superadmin_login/",super_admin_login,name="super_admin_login"),
+    path("upload_achievement/",post_achievement,name="upload_acheivement"),
 ]

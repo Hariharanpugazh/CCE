@@ -6,6 +6,7 @@ from pymongo import MongoClient
 from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
 import re  # Add this import for regex
+import base64  # Add this import for base64 encoding
 
 # Create your views here.
 JWT_SECRET = 'secret'
@@ -29,6 +30,7 @@ def generate_tokens(admin_user):
 client = MongoClient('mongodb+srv://ajaysihub:WhMxy4vtS6X8mWtT@atty.85tp6.mongodb.net/')
 db = client['CCE']
 admin_collection = db['admin']
+achievement_collection = db['achievement']
 
 @csrf_exempt
 def admin_signup(request):
@@ -164,3 +166,43 @@ def super_admin_login(request):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def post_achievement(request):
+    if request.method == 'POST':
+        try:
+            # Get text data from request
+            name = request.POST.get("name")
+            department = request.POST.get("department")
+            achievement = request.POST.get("achievement")
+            batch = request.POST.get("batch")
+
+            # Check if an image was uploaded
+            if "photo" in request.FILES:
+                image_file = request.FILES["photo"]
+                # Convert the image to base64
+                image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+            else:
+                return JsonResponse({"error": "No image file provided."}, status=400)
+
+            # Prepare the document to insert
+            achievement_data = {
+                "name": name,
+                "department": department,
+                "achievement": achievement,
+                "batch": batch,
+                "photo": image_base64,  # Store as base64
+            }
+
+            # Insert into MongoDB
+            achievement_collection.insert_one(achievement_data)
+
+            return JsonResponse({"message": "Achievement posted successfully."}, status=201)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
