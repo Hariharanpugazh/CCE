@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+import base6
 import re  # Add this import for regex
 
 # Create your views here.
@@ -35,6 +36,7 @@ db = client['CCE']
 admin_collection = db['admin']
 internship_collection = db['internships']
 job_collection = db['jobs']
+achievement_collection = db['achievement']
 
 @csrf_exempt
 def admin_signup(request):
@@ -318,3 +320,40 @@ def job_post(request):
             {"error": str(e)}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+    
+@csrf_exempt
+def post_achievement(request):
+    if request.method == 'POST':
+        try:
+            # Get text data from request
+            name = request.POST.get("name")
+            department = request.POST.get("department")
+            achievement = request.POST.get("achievement")
+            batch = request.POST.get("batch")
+
+            # Check if an image was uploaded
+            if "photo" in request.FILES:
+                image_file = request.FILES["photo"]
+                # Convert the image to base64
+                image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+            else:
+                return JsonResponse({"error": "No image file provided."}, status=400)
+
+            # Prepare the document to insert
+            achievement_data = {
+                "name": name,
+                "department": department,
+                "achievement": achievement,
+                "batch": batch,
+                "photo": image_base64,  # Store as base64
+            }
+
+            # Insert into MongoDB
+            achievement_collection.insert_one(achievement_data)
+
+            return JsonResponse({"message": "Achievement posted successfully."}, status=201)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
