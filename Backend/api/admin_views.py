@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from django.http import JsonResponse
 from pymongo import MongoClient
+from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
 import re  # Add this import for regex
@@ -29,6 +30,7 @@ def generate_tokens(admin_user):
 client = MongoClient('mongodb+srv://ajaysihub:WhMxy4vtS6X8mWtT@atty.85tp6.mongodb.net/')
 db = client['CCE']
 admin_collection = db['admin']
+internship_collection = db['internships']
 
 @csrf_exempt
 def admin_signup(request):
@@ -64,7 +66,7 @@ def admin_signup(request):
             # Insert the document into the collection
             admin_collection.insert_one(admin_user)
 
-            return JsonResponse({'message': 'Admin user created successfully'}, status=201)
+            return JsonResponse({'message': 'Admin user created successfully'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:
@@ -164,3 +166,72 @@ def super_admin_login(request):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+@csrf_exempt
+def post_internship(request):
+    if request.method == 'POST':
+        try:
+            # Get JWT token from cookies
+            jwt_token = request.COOKIES.get("jwt")
+            if not jwt_token:
+                raise AuthenticationFailed("Authentication credentials were not provided.")
+        
+            # Decode JWT token
+            try:
+                decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"]) 
+            except jwt.ExpiredSignatureError:
+                raise AuthenticationFailed("Access token has expired. Please log in again.")
+            except jwt.InvalidTokenError:
+                raise AuthenticationFailed("Invalid token. Please log in again.")
+            
+            admin_id = decoded_token['admin_id']  # Extract admin_id from decoded token
+            # Parse incoming data
+            data = json.loads(request.body)
+            # Ensure required fields are provided in the data
+            required_fields = ['title', 'company_name', 'location', 'duration', 'stipend', 'application_deadline', 'skills_required', 'job_description', 'company_website', 'internship_type']
+            for field in required_fields:
+                if field not in data:
+                    return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
+            # Convert application_deadline to datetime
+            try:
+                application_deadline = datetime.strptime(data['application_deadline'], "%Y-%m-%d")
+            except ValueError:
+                return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
+            # Prepare internship data for storage
+            internship_data = {
+                "title": data["title"],
+                "company_name": data["company_name"],
+                "location": data["location"],
+                "duration": data["duration"],
+                "stipend": data["stipend"],
+                "application_deadline": application_deadline,
+                "skills_required": data["skills_required"],
+                "job_description": data["job_description"],
+                "company_website": data["company_website"],
+                "admin_id": admin_id,
+                "internship_type": data["internship_type"],
+                "publish": False,  # Internship initially unpublished
+            }
+            # Insert into MongoDB
+            internship_collection.insert_one(internship_data)
+            # Return success response
+            return JsonResponse({"message": "Internship posted successfully, awaiting approval."}, status=200)
+        except AuthenticationFailed as auth_error:
+            return JsonResponse({"error": str(auth_error)}, status=401)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+@csrf_exempt
+def get_internships(request):
+    try:
+        # Fetch approved internships
+        internships = internship_collection.find({"publish": True})
+        # Convert MongoDB cursor to list of dictionaries
+        internship_list = []
+        for internship in internships:
+            internship['_id'] = str(internship['_id'])  # Convert ObjectId to string
+            internship_list.append(internship)
+        # Return the list of internships
+        return JsonResponse({"internships": internship_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
