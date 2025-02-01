@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Britti";
+  src: local("Britti"),
+    url(./assets/fonts/BrittiSans/BrittiSans-Regular.otf) format("otf");
+}
+
+body {
+  font-family: Britti, sans-serif;
+}

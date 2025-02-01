@@ -4,8 +4,13 @@ from datetime import datetime, timedelta, timezone
 from django.http import JsonResponse
 from pymongo import MongoClient
 from bson import ObjectId
+from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+import base64
 import re  # Add this import for regex
 
 # Create your views here.
@@ -18,8 +23,8 @@ def generate_tokens(admin_user):
     """
     access_payload = {
         'admin_user': str(admin_user),
-        'exp': datetime.now() + timedelta(minutes=600),  # Access token expiration
-        'iat': datetime.now(),
+        "exp": datetime.utcnow() + timedelta(days=1),
+        "iat": datetime.utcnow(),
     }
 
     # Encode the token
@@ -30,7 +35,9 @@ def generate_tokens(admin_user):
 client = MongoClient('mongodb+srv://ajaysihub:WhMxy4vtS6X8mWtT@atty.85tp6.mongodb.net/')
 db = client['CCE']
 admin_collection = db['admin']
+internship_collection = db['internships']
 job_collection = db['jobs']
+achievement_collection = db['achievement']
 
 @csrf_exempt
 def admin_signup(request):
@@ -66,7 +73,7 @@ def admin_signup(request):
             # Insert the document into the collection
             admin_collection.insert_one(admin_user)
 
-            return JsonResponse({'message': 'Admin user created successfully'}, status=201)
+            return JsonResponse({'message': 'Admin user created successfully'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:

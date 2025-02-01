@@ -10,6 +10,10 @@ urlpatterns = [
     path("superadmin_signup/", super_admin_signup, name="super_admin_signup"),
     path("superadmin_login/", super_admin_login, name="super_admin_login"),
     path("review-job/<str:job_id>/", review_job, name="approve_job"),
+    path("internship/post/", post_internship, name="post_internship"),
+    path('internship/', get_internships, name='get_internships'),
+    path("job_post/", job_post, name="job_post"),
+    path("upload_achievement/",post_achievement,name="upload_acheivement"),
     
     # student
     path("stud/signup/", student_signup, name="student_signup"),
