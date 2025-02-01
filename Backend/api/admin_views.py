@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from django.http import JsonResponse
 from pymongo import MongoClient
+from bson import ObjectId
 from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
 import re  # Add this import for regex
@@ -29,6 +30,7 @@ def generate_tokens(admin_user):
 client = MongoClient('mongodb+srv://ajaysihub:WhMxy4vtS6X8mWtT@atty.85tp6.mongodb.net/')
 db = client['CCE']
 admin_collection = db['admin']
+job_collection = db['jobs']
 
 @csrf_exempt
 def admin_signup(request):
@@ -164,3 +166,50 @@ def super_admin_login(request):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+# function to approve or reject job request
+@csrf_exempt
+def review_job(request, job_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            action = data.get("action")
+
+            if action not in ["approve", "reject"]:
+                return JsonResponse({"error": "Invalid action"}, status=400)
+
+            job = job_collection.find_one({"_id": ObjectId(job_id)})
+            if not job:
+                return JsonResponse({"error": "Job not found"}, status=404)
+
+            if action == "approve":
+                job_collection.update_one(
+                    {"_id": ObjectId(job_id)},
+                    {
+                        "$set": {
+                            "is_publish": True,
+                            "updated_at": datetime.now(),
+                        }
+                    },
+                )
+                return JsonResponse(
+                    {"message": "Job approved and published successfully"}, status=200
+                )
+            elif action == "reject":
+                job_collection.update_one(
+                    {"_id": ObjectId(job_id)},
+                    {
+                        "$set": {
+                            "is_publish": False,
+                            "updated_at": datetime.now(),
+                        }
+                    },
+                )
+                return JsonResponse(
+                    {"message": "Job rejected successfully"}, status=200
+                )
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
