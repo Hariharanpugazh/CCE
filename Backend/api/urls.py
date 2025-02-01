@@ -5,4 +5,8 @@ from .admin_views import *
 urlpatterns = [
     path("signup/", admin_signup, name="admin_signup"),
     path("login/", admin_login, name="admin_login"),
+    
+    #student
+    path("stud/signup/", student_signup, name="student_signup"),
+    path("stud/login/", student_login, name="student_login"),
 ]
