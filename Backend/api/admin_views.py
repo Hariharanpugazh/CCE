@@ -6,6 +6,9 @@ from pymongo import MongoClient
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
 import re  # Add this import for regex
 
 # Create your views here.
@@ -18,8 +21,8 @@ def generate_tokens(admin_user):
     """
     access_payload = {
         'admin_user': str(admin_user),
-        'exp': datetime.now() + timedelta(minutes=600),  # Access token expiration
-        'iat': datetime.now(),
+        "exp": datetime.utcnow() + timedelta(days=1),
+        "iat": datetime.utcnow(),
     }
 
     # Encode the token
@@ -31,6 +34,7 @@ client = MongoClient('mongodb+srv://ajaysihub:WhMxy4vtS6X8mWtT@atty.85tp6.mongod
 db = client['CCE']
 admin_collection = db['admin']
 internship_collection = db['internships']
+job_collection = db['jobs']
 
 @csrf_exempt
 def admin_signup(request):
@@ -235,3 +239,82 @@ def get_internships(request):
         return JsonResponse({"internships": internship_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+    
+#Jobs
+@csrf_exempt
+@api_view(['POST'])
+def job_post(request):
+    # For Django, access cookies using request.COOKIES
+    auth_header = request.headers.get('Authorization')
+    if not auth_header.startswith("Bearer "):
+            return Response(
+                {"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED
+            )
+    token = auth_header.split(" ")[1]
+    print(token)
+    if not token:
+        return Response({"error": "JWT cookie not found"}, status=status.HTTP_401_UNAUTHORIZED)
+    payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    user_id = payload.get('admin_user')
+    print(user_id)
+    try:
+        data = json.loads(request.body)
+        title = data.get('title')
+        company_name = data.get('company_name')
+        company_overview = data.get('company_overview')
+        company_website = data.get('company_website')
+        job_description = data.get('job_description')
+        key_responsibilities = data.get('key_responsibilities')
+        skills_required = data.get('required_skills')
+        education_requirements = data.get('education_requirements')
+        experience_level = data.get('experience_level')
+        salary_range = data.get('salary_range')
+        benefits = data.get('benefits')
+        location = data.get('job_location')
+        work_type = data.get('work_type')
+        work_schedule = data.get('work_schedule')
+        application_instructions = data.get('application_instructions')
+        application_deadline = data.get('application_deadline')
+        contact_email = data.get('contact_email')
+        contact_phone = data.get('contact_phone')
+        job_post = {
+            "job_data": {
+                "title": title,
+                "company_name": company_name,
+                "company_overview": company_overview,
+                "company_website": company_website,
+                "job_description": job_description,
+                "key_responsibilities": key_responsibilities,
+                "required_skills": skills_required,
+                "education_requirements": education_requirements,
+                "experience_level": experience_level,
+                "salary_range": salary_range,
+                "benefits": benefits,
+                "job_location": location,
+                "work_type": work_type,
+                "work_schedule": work_schedule,
+                "application_instructions": application_instructions,
+                "application_deadline": application_deadline,
+                "contact_email": contact_email,
+                "contact_phone": contact_phone,
+            },
+            "user_id": user_id,
+            "is_publish": False,
+        }
+        try:
+            job_collection.insert_one(job_post)
+            
+        except Exception as e:
+            return Response(
+                {"error": "Database error occurred"}, 
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        return Response(
+            {"message": "Job stored successfully, waiting for approval"}, 
+            status=status.HTTP_201_CREATED
+        )
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
