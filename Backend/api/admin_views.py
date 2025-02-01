@@ -2,6 +2,7 @@ import jwt
 import json
 from datetime import datetime, timedelta, timezone
 from django.http import JsonResponse
+from bson import ObjectId
 from pymongo import MongoClient
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth.hashers import make_password, check_password
