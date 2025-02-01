@@ -357,3 +357,45 @@ def post_achievement(request):
             return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@csrf_exempt
+def review_job(request, job_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            action = data.get("action")
+            if action not in ["approve", "reject"]:
+                return JsonResponse({"error": "Invalid action"}, status=400)
+            job = job_collection.find_one({"_id": ObjectId(job_id)})
+            if not job:
+                return JsonResponse({"error": "Job not found"}, status=404)
+            if action == "approve":
+                job_collection.update_one(
+                    {"_id": ObjectId(job_id)},
+                    {
+                        "$set": {
+                            "is_publish": True,
+                            "updated_at": datetime.now(),
+                        }
+                    },
+                )
+                return JsonResponse(
+                    {"message": "Job approved and published successfully"}, status=200
+                )
+            elif action == "reject":
+                job_collection.update_one(
+                    {"_id": ObjectId(job_id)},
+                    {
+                        "$set": {
+                            "is_publish": False,
+                            "updated_at": datetime.now(),
+                        }
+                    },
+                )
+                return JsonResponse(
+                    {"message": "Job rejected successfully"}, status=200
+                )
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
