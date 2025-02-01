@@ -14,8 +14,8 @@ urlpatterns = [
     path('internship/', get_internships, name='get_internships'),
     path("job_post/", job_post, name="job_post"),
     path("upload_achievement/",post_achievement,name="upload_acheivement"),
-    
-    # student
+        
+    #student
     path("stud/signup/", student_signup, name="student_signup"),
     path("stud/login/", student_login, name="student_login"),
 ]
