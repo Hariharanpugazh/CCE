@@ -1,35 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "./App.css";
+import { AppPages } from "./utils/constants";
+
+import './assets/fonts/BrittiSans/BrittiSans-Regular.otf'
+import StudentLogin from "./pages/StudentLogin";
+import SuperAdminLogin from "./pages/SuperAdminLogin";
+import AdminLogin from "./pages/AdminLogin";
+import InternShipDashboard from "./pages/students/InternshipDashboard";
+import JobDashboard from "./pages/students/JobDashboard";
+import AdminInternShipDashboard from "./pages/admin/adminInternDashboard";
+import AdminJobsDashboard from "./pages/admin/adminJobsDashboard";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card text-3xl">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        {/* students */}
+        <Route path={"/"} element={<StudentLogin />} />
+        <Route path="/login" element={<StudentLogin />} />
+        <Route path="/internships" element={<InternShipDashboard />} />
+        <Route path="/jobs" element={<JobDashboard />} />
+
+        {/* Admin */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/internships" element={<AdminInternShipDashboard />} />
+        <Route path="/admin/jobs" element={<AdminJobsDashboard />} />
+
+
+        {/* super admin */}
+        <Route path={AppPages.superUserLogin.route} element={<SuperAdminLogin />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
