@@ -28,12 +28,13 @@ export default function LoginCard({ page, formDataSetter, formData, onSubmit }) 
             </p>
           </div>
 
-          <form onSubmit={onSubmit} className="w-3/4 flex flex-col items-end">
-            <div className="space-y-2">
-              <InputField args={{ placeholder: "Enter your Email", required: true }} value={formData.email} setter={(val) => formDataSetter(prevData => ({...prevData, email: val}))} />
-              <InputField args={{ placeholder: "Enter your Password", required: true }} value={formData.password} setter={(val) => formDataSetter(prevData => ({...prevData, password: val}))} />
+          <form onSubmit={onSubmit} className="w-3/4 flex flex-col items-center">
+            <div className="space-y-2 mb-6 text-right">
+              <InputField args={{ placeholder: "Enter your Email", required: true }} value={formData.email} setter={(val) => formDataSetter(prevData => ({ ...prevData, email: val }))} />
+              <InputField args={{ placeholder: "Enter your Password", required: true }} value={formData.password} setter={(val) => formDataSetter(prevData => ({ ...prevData, password: val }))} />
+
+              <p className="cursor-pointer text-sm"> Forgot Password? </p>
             </div>
-            <p className="cursor-pointer text-sm mb-4 mt-2"> Forgot Password? </p>
 
             <button className="p-3 rounded-2xl bg-[#FECC00] w-full font-semibold">
               Login

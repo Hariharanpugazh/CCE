@@ -7,6 +7,9 @@ import StudentLogin from "./pages/StudentLogin";
 import SuperAdminLogin from "./pages/SuperAdminLogin";
 import AdminLogin from "./pages/AdminLogin";
 import InternShipDashboard from "./pages/students/InternshipDashboard";
+import JobDashboard from "./pages/students/JobDashboard";
+import AdminInternShipDashboard from "./pages/admin/adminInternDashboard";
+import AdminJobsDashboard from "./pages/admin/adminJobsDashboard";
 
 function App() {
   return (
@@ -14,11 +17,15 @@ function App() {
       <Routes>
         {/* students */}
         <Route path={"/"} element={<StudentLogin />} />
-        <Route path={AppPages.studentLogin.route} element={<StudentLogin />} />
-        <Route path={AppPages.internShipDashboard.route} element={<InternShipDashboard />} />
+        <Route path="/login" element={<StudentLogin />} />
+        <Route path="/internships" element={<InternShipDashboard />} />
+        <Route path="/jobs" element={<JobDashboard />} />
 
-        {/* admin */}
-        <Route path={AppPages.adminLogin.route} element={<AdminLogin />} />
+        {/* Admin */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/internships" element={<AdminInternShipDashboard />} />
+        <Route path="/admin/jobs" element={<AdminJobsDashboard />} />
+
 
         {/* super admin */}
         <Route path={AppPages.superUserLogin.route} element={<SuperAdminLogin />} />

@@ -29,6 +29,18 @@ const AppPages = {
     route: "/jobs",
     name: "jobDashboard",
     displayName: "Jobs",
+  },
+
+  adminInternShipDashboard: {
+    route: "/admin/internships",
+    name: "internDashboard",
+    displayName: "Internships",
+  },
+
+  adminJobDashboard: {
+    route: "/admin/jobs",
+    name: "jobDashboard",
+    displayName: "Jobs",
   }
 };
 

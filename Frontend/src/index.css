@@ -1,4 +1,5 @@
-@import "tailwindcss";
+/* @import "tailwindcss"; */
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
 
 @font-face {
   font-family: "Britti";
@@ -8,4 +9,14 @@
 
 body {
   font-family: Britti, sans-serif;
+}
+
+* {
+  transition: all ease 0.3s;
+}
+
+.bi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
