@@ -247,80 +247,56 @@ def get_internships(request):
 @csrf_exempt
 @api_view(['POST'])
 def job_post(request):
-    # For Django, access cookies using request.COOKIES
     auth_header = request.headers.get('Authorization')
-    if not auth_header.startswith("Bearer "):
-            return Response(
-                {"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED
-            )
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
+
     token = auth_header.split(" ")[1]
-    print(token)
-    if not token:
-        return Response({"error": "JWT cookie not found"}, status=status.HTTP_401_UNAUTHORIZED)
-    payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-    user_id = payload.get('admin_user')
-    print(user_id)
     try:
+        # Decode the JWT token
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        admin_id = payload.get('admin_user')  # Extract admin_id from token
+        if not admin_id:
+            return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+        
         data = json.loads(request.body)
-        title = data.get('title')
-        company_name = data.get('company_name')
-        company_overview = data.get('company_overview')
-        company_website = data.get('company_website')
-        job_description = data.get('job_description')
-        key_responsibilities = data.get('key_responsibilities')
-        skills_required = data.get('required_skills')
-        education_requirements = data.get('education_requirements')
-        experience_level = data.get('experience_level')
-        salary_range = data.get('salary_range')
-        benefits = data.get('benefits')
-        location = data.get('job_location')
-        work_type = data.get('work_type')
-        work_schedule = data.get('work_schedule')
-        application_instructions = data.get('application_instructions')
-        application_deadline = data.get('application_deadline')
-        contact_email = data.get('contact_email')
-        contact_phone = data.get('contact_phone')
+        # Prepare job data
         job_post = {
             "job_data": {
-                "title": title,
-                "company_name": company_name,
-                "company_overview": company_overview,
-                "company_website": company_website,
-                "job_description": job_description,
-                "key_responsibilities": key_responsibilities,
-                "required_skills": skills_required,
-                "education_requirements": education_requirements,
-                "experience_level": experience_level,
-                "salary_range": salary_range,
-                "benefits": benefits,
-                "job_location": location,
-                "work_type": work_type,
-                "work_schedule": work_schedule,
-                "application_instructions": application_instructions,
-                "application_deadline": application_deadline,
-                "contact_email": contact_email,
-                "contact_phone": contact_phone,
+                "title": data.get('title'),
+                "company_name": data.get('company_name'),
+                "company_overview": data.get('company_overview'),
+                "company_website": data.get('company_website'),
+                "job_description": data.get('job_description'),
+                "key_responsibilities": data.get('key_responsibilities'),
+                "required_skills": data.get('required_skills'),
+                "education_requirements": data.get('education_requirements'),
+                "experience_level": data.get('experience_level'),
+                "salary_range": data.get('salary_range'),
+                "benefits": data.get('benefits'),
+                "job_location": data.get('job_location'),
+                "work_type": data.get('work_type'),
+                "work_schedule": data.get('work_schedule'),
+                "application_instructions": data.get('application_instructions'),
+                "application_deadline": data.get('application_deadline'),
+                "contact_email": data.get('contact_email'),
+                "contact_phone": data.get('contact_phone'),
             },
-            "user_id": user_id,
+            "user_id": admin_id,  # Save the admin_id from the token
             "is_publish": False,
+            "updated_at": datetime.now()
         }
-        try:
-            job_collection.insert_one(job_post)
-            
-        except Exception as e:
-            return Response(
-                {"error": "Database error occurred"}, 
-                status=status.HTTP_503_SERVICE_UNAVAILABLE
-            )
-        return Response(
-            {"message": "Job stored successfully, waiting for approval"}, 
-            status=status.HTTP_201_CREATED
-        )
+        # Insert the job post into the database
+        job_collection.insert_one(job_post)
+        return Response({"message": "Job stored successfully, waiting for approval"}, status=status.HTTP_201_CREATED)
+    except jwt.ExpiredSignatureError:
+        return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+    except jwt.DecodeError:
+        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
-        return Response(
-            {"error": str(e)}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     
 @csrf_exempt
 def post_achievement(request):
@@ -359,6 +335,18 @@ def post_achievement(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
+@csrf_exempt
+def get_jobs(request):
+    try:
+        jobs = job_collection.find()
+        job_list = []
+        for job in jobs:
+            job["_id"] = str(job["_id"])  # Convert ObjectId to string
+            job_list.append(job)
+        return JsonResponse({"jobs": job_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+    
 @csrf_exempt
 def review_job(request, job_id):
     if request.method == "POST":
@@ -400,3 +388,18 @@ def review_job(request, job_id):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+@csrf_exempt
+def get_published_jobs(request):
+    """
+    Fetch all jobs with is_publish set to True.
+    """
+    try:
+        published_jobs = job_collection.find({"is_publish": True})
+        job_list = []
+        for job in published_jobs:
+            job["_id"] = str(job["_id"])  # Convert ObjectId to string
+            job_list.append(job)
+        return JsonResponse({"jobs": job_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

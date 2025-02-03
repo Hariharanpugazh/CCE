@@ -15,10 +15,12 @@ urlpatterns = [
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
     path("superadmin_login/",super_admin_login,name="super_admin_login"),
     path("review-job/<str:job_id>/", review_job, name="approve_job"),
+    path('jobs', get_jobs, name='get_jobs'),
 
     
     #student
     path("stud/signup/", student_signup, name="student_signup"),
     path("stud/login/", student_login, name="student_login"),
+    path('published-jobs/', get_published_jobs, name='get_published_jobs'),
 
 ]

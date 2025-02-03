@@ -27,7 +27,7 @@ export default function StudentLogin() {
             if (response.ok) {
                 // Set JWT token as a cookie
                 Cookies.set("jwt", data.token.jwt, { expires: 1 }); // Expires in 1 day
-                navigate("/student-dashboard"); // Redirect to student dashboard
+                navigate("/internships"); // Redirect to student dashboard
             } else {
                 alert(data.error || "Login failed");
             }

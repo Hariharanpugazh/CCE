@@ -27,7 +27,7 @@ export default function AdminLogin() {
             if (response.ok) {
                 // Correctly extract the JWT token and set it
                 Cookies.set("jwt", data.tokens.jwt, { expires: 1 }); // Use `tokens.jwt` if the response contains it
-                navigate("/admin-dashboard"); // Redirect to admin dashboard
+                navigate("/admin/internships"); // Redirect to admin dashboard
             } else {
                 alert(data.error || "Login failed");
             }
