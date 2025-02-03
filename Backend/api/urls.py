@@ -8,6 +8,8 @@ urlpatterns = [
     path("login/", admin_login, name="admin_login"),
     path("internship/post/", post_internship, name="post_internship"),
     path('internship/', get_internships, name='get_internships'),
+    path("job_post/", job_post, name="job_post"),
+    path("upload_achievement/",post_achievement,name="upload_acheivement"),
 
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import LoginCard from "../components/Login/LoginCard";
-import { apiBaseURL, AppPages } from "../utils/constants";
+import { apiEndpoints, AppPages } from "../utils/constants";
 import axios from "axios";
 
 export default function StudentLogin() {
@@ -9,12 +9,17 @@ export default function StudentLogin() {
     password: "",
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = axios.post(`${apiBaseURL}/`);
-    } catch (error) {}
+      const response = await axios.post(apiEndpoints.studentLogin, formData);
+      alert(response.message)
+      console.log(response)
+    } catch (error) {
+        alert(error.response?.data.error || error.message)
+        console.log(error)
+    }
   };
 
   return (

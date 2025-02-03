@@ -30,8 +30,8 @@ export default function LoginCard({ page, formDataSetter, formData, onSubmit }) 
 
           <form onSubmit={onSubmit} className="w-3/4 flex flex-col items-end">
             <div className="space-y-2">
-              <InputField args={{ placeHolder: "Enter your Email", required: true }} value={formData.email} setter={(val) => formDataSetter(prevData => ({...prevData, email: val}))} />
-              <InputField args={{ placeHolder: "Enter your Password", required: true }} value={formData.password} setter={(val) => formDataSetter(prevData => ({...prevData, password: val}))} />
+              <InputField args={{ placeholder: "Enter your Email", required: true }} value={formData.email} setter={(val) => formDataSetter(prevData => ({...prevData, email: val}))} />
+              <InputField args={{ placeholder: "Enter your Password", required: true }} value={formData.password} setter={(val) => formDataSetter(prevData => ({...prevData, password: val}))} />
             </div>
             <p className="cursor-pointer text-sm mb-4 mt-2"> Forgot Password? </p>
 

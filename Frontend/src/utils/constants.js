@@ -21,18 +21,18 @@ const AppPages = {
 }
 
 const apiEndpoints = {
-    adminSignup: `${apiBaseURL}/signup/`,
-    adminLogin: `${apiBaseURL}/login/`,
-    postInternship: `${apiBaseURL}/internship/post/`,
-    getInternships: `${apiBaseURL}/internship/`,
+    adminSignup: `${apiBaseURL}/api/signup/`,
+    adminLogin: `${apiBaseURL}/api/login/`,
+    postInternship: `${apiBaseURL}/api/internship/post/`,
+    getInternships: `${apiBaseURL}/api/internship/`,
     
     // Superadmin
-    superAdminSignup: `${apiBaseURL}/superadmin_signup/`,
-    superAdminLogin: `${apiBaseURL}/superadmin_login/`,
+    superAdminSignup: `${apiBaseURL}/api/superadmin_signup/`,
+    superAdminLogin: `${apiBaseURL}/api/superadmin_login/`,
     
     // Student
-    studentSignup: `${apiBaseURL}/stud/signup/`,
-    studentLogin: `${apiBaseURL}/stud/login/`,
+    studentSignup: `${apiBaseURL}/api/stud/signup/`,
+    studentLogin: `${apiBaseURL}/api/stud/login/`,
   };
 
 export {AppPages, apiBaseURL, apiEndpoints}
