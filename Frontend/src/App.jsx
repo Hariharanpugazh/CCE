@@ -12,9 +12,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path={"/"} element={<StudentLogin />} />
-        <Route path={AppPages.studentLogin.route} element={<StudentLogin />} />
-        <Route path={AppPages.superUserLogin.route} element={<SuperAdminLogin />} />
-        <Route path={AppPages.adminLogin.route} element={<AdminLogin />} />
+        <Route path={"/login"} element={<StudentLogin />} />
+        <Route path={"/superadmin"} element={<SuperAdminLogin />} />
+        <Route path={"/admin"} element={<AdminLogin />} />
       </Routes>
     </BrowserRouter>
   );
