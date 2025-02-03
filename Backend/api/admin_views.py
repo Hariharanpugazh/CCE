@@ -32,7 +32,7 @@ def generate_tokens(admin_user):
     return {'jwt': token}
 
 # MongoDB connection
-client = MongoClient('mongodb+srv://ajaysihub:WhMxy4vtS6X8mWtT@atty.85tp6.mongodb.net/')
+client = MongoClient('mongodb+srv://ihub:ihub@cce.ksniz.mongodb.net/')
 db = client['CCE']
 admin_collection = db['admin']
 internship_collection = db['internships']
