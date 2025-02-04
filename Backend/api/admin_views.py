@@ -420,3 +420,55 @@ def get_published_jobs(request):
         return JsonResponse({"jobs": job_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+# ===================== ACHIEVEMENTS =====================
+
+@csrf_exempt
+def get_achievements(request):
+    try:
+        achievements = achievement_collection.find()
+        achievement_list = [
+            {**achievement, "_id": str(achievement["_id"])}  # Convert ObjectId to string
+            for achievement in achievements
+        ]
+        return JsonResponse({"achievements": achievement_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def review_achievement(request, achievement_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            action = data.get("action")
+            if action not in ["approve", "reject"]:
+                return JsonResponse({"error": "Invalid action"}, status=400)
+
+            achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
+            if not achievement:
+                return JsonResponse({"error": "Achievement not found"}, status=404)
+
+            is_publish = True if action == "approve" else False
+            achievement_collection.update_one(
+                {"_id": ObjectId(achievement_id)},
+                {"$set": {"is_publish": is_publish, "updated_at": datetime.now()}}
+            )
+
+            message = "Achievement approved and published successfully" if is_publish else "Achievement rejected successfully"
+            return JsonResponse({"message": message}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def get_published_achievements(request):
+    try:
+        published_achievements = achievement_collection.find({"is_publish": True})
+        achievement_list = [
+            {**achievement, "_id": str(achievement["_id"])}  # Convert ObjectId to string
+            for achievement in published_achievements
+        ]
+        return JsonResponse({"achievements": achievement_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
