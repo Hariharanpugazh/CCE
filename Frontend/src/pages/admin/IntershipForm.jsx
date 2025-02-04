@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const InternshipForm = () => {
+const InternPostForm = () => {
   const [formData, setFormData] = useState({
     title: '',
     company_name: '',
@@ -16,6 +16,7 @@ const InternshipForm = () => {
   });
 
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,20 +28,32 @@ const InternshipForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setMessage('');
+
     try {
-      const response = await axios.post('http://localhost:8000/api/internship/post/', formData, {
-        withCredentials: true, // Ensure cookies are sent with the request
-      });
+      const response = await axios.post(
+        'http://localhost:8000/api/post_internship/', // Correct URL
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );      
       setMessage(response.data.message);
     } catch (error) {
-      setMessage(`Error: ${error.response.data.error}`);
+      setMessage(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
       <h2 className="text-2xl font-bold mb-6 text-center">Post an Internship</h2>
-      {message && <p className="text-red-500 mb-4">{message}</p>}
+      {message && <p className={`mb-4 ${message.startsWith('Error') ? 'text-red-500' : 'text-green-500'}`}>{message}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-gray-700">Title:</label>
@@ -153,13 +166,14 @@ const InternshipForm = () => {
         </div>
         <button
           type="submit"
-          className="w-full px-4 py-2 mt-4 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50"
+          disabled={isSubmitting}
+          className={`w-full px-4 py-2 mt-4 text-white ${isSubmitting ? 'bg-gray-500' : 'bg-blue-600 hover:bg-blue-700'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50`}
         >
-          Post Internship
+          {isSubmitting ? 'Submitting...' : 'Post Internship'}
         </button>
       </form>
     </div>
   );
 };
 
-export default InternshipForm;
+export default InternPostForm;

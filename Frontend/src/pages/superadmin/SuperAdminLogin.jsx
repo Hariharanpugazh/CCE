@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import LoginCard from "../components/Login/LoginCard";
-import { AppPages } from "../utils/constants";
+import LoginCard from "../../components/Login/LoginCard";
+import { AppPages } from "../../utils/constants";
 
 export default function SuperAdminLogin() {
     const [formData, setFormData] = useState({

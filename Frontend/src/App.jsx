@@ -2,11 +2,9 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import Cookies from "js-cookie";  // Import js-cookie
 import "./App.css";
 import { AppPages } from "./utils/constants";
-
-// Import Pages
-import StudentLogin from "./pages/StudentLogin";
-import SuperAdminLogin from "./pages/SuperAdminLogin";
-import AdminLogin from "./pages/AdminLogin";
+import StudentLogin from "./pages/students/StudentLogin";
+import SuperAdminLogin from "./pages/superadmin/SuperAdminLogin";
+import AdminLogin from "./pages/admin/AdminLogin";
 import InternShipDashboard from "./pages/students/InternshipDashboard";
 import JobDashboard from "./pages/students/JobDashboard";
 import AdminInternShipDashboard from "./pages/admin/adminInternDashboard";
@@ -16,6 +14,9 @@ import MailPage from "./pages/superadmin/MailPage";
 import JobPostForm from "./pages/admin/JobPostForm";
 import AchievementPostForm from "./pages/admin/AchievementPostForm";
 import InternshipForm from "./pages/admin/IntershipForm";
+import AchievementDashboard from "./pages/students/AchievementDashboard";
+import HomeDashboard from "./pages/students/HomeDashboard";
+import LandingPage from "./pages/Landing";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -32,14 +33,17 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        
+        <Route path={"/"} element={<LandingPage />} />
+
         {/* Student Routes */}
-        <Route path={"/"} element={<StudentLogin />} />
-        <Route path="/login" element={<StudentLogin />} />
+        <Route path="/student" element={<StudentLogin />} />
 
         {/* Protected Student Routes */}
+        <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>}/>
         <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>}/>
         <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>}/>
-
+        <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>}/>
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
 
@@ -53,7 +57,7 @@ function App() {
         {/* Super Admin Login */}
         <Route path={"/superadmin"} element={<SuperAdminLogin />} />
         <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>}/>
-        <Route path="/mail" element={<MailPage />} />
+        <Route path={"/mail"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>}/>
       </Routes>
     </BrowserRouter>
   );

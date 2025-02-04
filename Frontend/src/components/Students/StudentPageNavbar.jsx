@@ -14,7 +14,7 @@ export default function StudentPageNavbar() {
     Cookies.remove("jwt");
 
     // Redirect to the login page
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   return (
@@ -22,22 +22,29 @@ export default function StudentPageNavbar() {
       <span className="flex-1 max-w-[25%]"></span>
 
       <div className="flex flex-1 justify-evenly space-x-5 items-center">
-        <p
+      <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = AppPages.jobDashboard.route)}
+          onClick={() => (window.location.href = "/home")}
         >
           Home
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
+          onClick={() => (window.location.href = AppPages.jobDashboard.route)}
+        >
+          Jobs
+        </p>
+        <p
+          className="cursor-pointer hover:underline hover:text-blue-400"
           onClick={() => (window.location.href = AppPages.internShipDashboard.route)}
         >
-          Opportunities
+          Internships
         </p>
         <p className="cursor-pointer hover:underline hover:text-blue-400">
           Study Material
         </p>
-        <p className="cursor-pointer hover:underline hover:text-blue-400">
+        <p className="cursor-pointer hover:underline hover:text-blue-400"
+          onClick={() => (window.location.href = "/achievements")}>
           Achievements
         </p>
         <p className="cursor-pointer hover:underline hover:text-blue-400">
