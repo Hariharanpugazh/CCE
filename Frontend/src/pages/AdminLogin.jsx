@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import LoginCard from "../components/Login/LoginCard";
@@ -10,6 +10,11 @@ export default function AdminLogin() {
         password: "",
     });
     const navigate = useNavigate();
+
+    // Clear cookies when entering the login page
+    useEffect(() => {
+        Cookies.remove("jwt");
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,9 +30,8 @@ export default function AdminLogin() {
             const data = await response.json();
 
             if (response.ok) {
-                // Correctly extract the JWT token and set it
-                Cookies.set("jwt", data.tokens.jwt, { expires: 1 }); // Use `tokens.jwt` if the response contains it
-                navigate("/admin/internships"); // Redirect to admin dashboard
+                Cookies.set("jwt", data.tokens.jwt, { expires: 1, path: "/" });
+                navigate("/admin/internships");
             } else {
                 alert(data.error || "Login failed");
             }
