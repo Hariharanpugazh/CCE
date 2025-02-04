@@ -228,6 +228,7 @@ def post_internship(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
 @csrf_exempt
 def get_internships(request):
     try:
@@ -297,43 +298,59 @@ def job_post(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    
 @csrf_exempt
+@api_view(['POST'])
 def post_achievement(request):
-    if request.method == 'POST':
-        try:
-            # Get text data from request
-            name = request.POST.get("name")
-            department = request.POST.get("department")
-            achievement = request.POST.get("achievement")
-            batch = request.POST.get("batch")
+    auth_header = request.headers.get('Authorization')
 
-            # Check if an image was uploaded
-            if "photo" in request.FILES:
-                image_file = request.FILES["photo"]
-                # Convert the image to base64
-                image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
-            else:
-                return JsonResponse({"error": "No image file provided."}, status=400)
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
 
-            # Prepare the document to insert
-            achievement_data = {
-                "name": name,
-                "department": department,
-                "achievement": achievement,
-                "batch": batch,
-                "photo": image_base64,  # Store as base64
-            }
+    token = auth_header.split(" ")[1]
+    try:
+        # Decode the JWT token
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        admin_id = payload.get('admin_user')  # Extract admin_id from token
+        if not admin_id:
+            return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
 
-            # Insert into MongoDB
-            achievement_collection.insert_one(achievement_data)
+        # Get text data from request
+        name = request.POST.get("name")
+        department = request.POST.get("department")
+        achievement = request.POST.get("achievement")
+        batch = request.POST.get("batch")
 
-            return JsonResponse({"message": "Achievement posted successfully."}, status=201)
+        # Check if an image was uploaded
+        if "photo" in request.FILES:
+            image_file = request.FILES["photo"]
+            # Convert the image to base64
+            image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+        else:
+            return Response({"error": "No image file provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
+        # Prepare the document to insert
+        achievement_data = {
+            "name": name,
+            "department": department,
+            "achievement": achievement,
+            "batch": batch,
+            "photo": image_base64,  # Store as base64
+            "user_id": admin_id,  # Save the admin_id from the token
+            "is_publish": False,  # Initially false, waiting for approval
+            "updated_at": datetime.now()
+        }
 
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+        # Insert into MongoDB
+        achievement_collection.insert_one(achievement_data)
+
+        return Response({"message": "Achievement stored successfully, waiting for approval"}, status=status.HTTP_201_CREATED)
+
+    except jwt.ExpiredSignatureError:
+        return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+    except jwt.DecodeError:
+        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @csrf_exempt
 def get_jobs(request):

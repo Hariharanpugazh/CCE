@@ -14,6 +14,7 @@ import AdminJobsDashboard from "./pages/admin/adminJobsDashboard";
 import SuperadminDashboard from "./pages/superadmin/SuperadminDashboard"
 import MailPage from "./pages/superadmin/MailPage";
 import JobPostForm from "./pages/admin/JobPostForm";
+import AchievementPostForm from "./pages/admin/AchievementPostForm";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -45,6 +46,7 @@ function App() {
         <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>}/>
         <Route path="/admin/jobs" element={ <ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />
         <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
+        <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
 
         {/* Super Admin Login */}
         <Route path={"/superadmin"} element={<SuperAdminLogin />} />
