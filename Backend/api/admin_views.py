@@ -159,39 +159,41 @@ def forgot_password(request):
         return Response({"message": "Password reset token sent to your email"}, status=200)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
-    
-@api_view(["POST"])
-@permission_classes([AllowAny])
+
+from django.contrib.auth.hashers import make_password
+
+
+@csrf_exempt
 def reset_password(request):
-    try:
-        email = request.data.get('email')
-        token = request.data.get('token')
-        new_password = request.data.get('password')
+    """Handle password reset"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            new_password = data.get('newPassword')
 
-        # Find the user by email and validate token
-        user = admin_collection.find_one({"email": email})
-        if not user or user.get('password_reset_token') != token:
-            return Response({"error": "Invalid token"}, status=400)
+            if not email or not new_password:
+                return JsonResponse({"error": "Email and new password are required."}, status=400)
 
-        # Check if token is expired
-        if datetime.utcnow() > user.get('password_reset_expires'):
-            return Response({"error": "Token has expired"}, status=400)
+            # Hash the new password using Django's built-in make_password
+            hashed_password = make_password(new_password)
 
-        # Hash the new password
-        hashed_password = make_password(new_password)
-        print(hashed_password)
+            # Update the password in the database with the hashed password
+            result = admin_collection.update_one(
+                {"email": email},
+                {"$set": {"password": hashed_password}}
+            )
 
+            if result.modified_count == 0:
+                return JsonResponse({"error": "User not found."}, status=404)
 
-        # Update the user's password and clear the reset token
-        admin_collection.update_one(
-            {"email": email},
-            {"$set": {"password": hashed_password, "password_reset_token": None, "password_reset_expires": None}}
-        )
+            return JsonResponse({"message": "Password reset successfully"}, status=200)
 
-        return Response({"message": "Password reset successful"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
 
-    except Exception as e:
-        return Response({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 
 @csrf_exempt
