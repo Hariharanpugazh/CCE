@@ -18,6 +18,8 @@ import AchievementDashboard from "./pages/students/AchievementDashboard";
 import HomeDashboard from "./pages/students/HomeDashboard";
 import LandingPage from "./pages/common/Landing";
 import ContactForm from "./pages/students/Contact";
+import JobPreview from "./pages/students/Jobpreview";
+import JobEdit from "./pages/admin/Jobedit";
 
 
 
@@ -47,7 +49,8 @@ function App() {
         <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>}/>
         <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>}/>
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>}/>
-        <Route path="contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
+        <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
+        <Route path="/job-preview/:id" element= {<ProtectedRoute> <JobPreview /> </ProtectedRoute>}/>
         
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
@@ -57,6 +60,7 @@ function App() {
         <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
         <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
         <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
+        <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
 
         {/* Super Admin Login */}
         <Route path={"/superadmin"} element={<SuperAdminLogin />} />

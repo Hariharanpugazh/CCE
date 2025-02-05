@@ -3,11 +3,15 @@ import axios from "axios";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import StudentPageSearchBar from "../../components/Students/StudentPageSearchBar";
 import PageHeader from "../../components/Common/StudentPageHeader";
+import { AppPages } from "../../utils/constants";
+import ApplicationCard from "../../components/Students/ApplicationCard";
 
 export default function InternshipDashboard() {
   const [internships, setInternships] = useState([]);
   const [filter, setFilter] = useState("All");
   const [error, setError] = useState("");
+  const [filteredInterns, setFilteredInterns] = useState([])
+  const [searchPhrase, setSearchPhrase] = useState("")
 
   // Fetch published internships from the backend
   useEffect(() => {
@@ -15,6 +19,7 @@ export default function InternshipDashboard() {
       try {
         const response = await axios.get("http://localhost:8000/api/published-internship/");
         setInternships(response.data.internships);
+        setFilteredInterns(response.data.internships)
       } catch (err) {
         console.error("Error fetching published internships:", err);
         setError("Failed to load internships.");
@@ -24,15 +29,27 @@ export default function InternshipDashboard() {
     fetchPublishedInternships();
   }, []);
 
+  useEffect(() => {
+    if (searchPhrase === "") {
+      setFilteredInterns(internships)
+    } else {
+      setFilteredInterns(internships.filter((intern) => intern.title.includes(searchPhrase)
+        ||
+        intern.company_name.includes(searchPhrase)
+        ||
+        intern.job_description.includes(searchPhrase)
+        ||
+        intern.skills_required.includes(searchPhrase)
+        ||
+        intern.internship_type.includes(searchPhrase)
+      ))
+    }
+  }, [searchPhrase])
+
   return (
     <div className="flex flex-col">
       <StudentPageNavbar />
-      <PageHeader page="Internship Dashboard" filter={filter} setFilter={setFilter} />
-
-      {/* Search bar */}
-      <div className="w-[80%] self-center">
-        <StudentPageSearchBar />
-      </div>
+      <PageHeader page={AppPages.internShipDashboard} filter={filter} setFilter={setFilter} searchPhrase={searchPhrase} setSearchPhrase={setSearchPhrase} />
 
       {/* Internship cards */}
       <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -41,18 +58,13 @@ export default function InternshipDashboard() {
         ) : internships.length === 0 ? (
           <p className="text-gray-600">No internships available at the moment.</p>
         ) : (
-          internships.map((internship) => (
-            <div
-              key={internship._id}
-              className="p-4 border rounded-lg shadow-md bg-white flex flex-col justify-between"
-            >
-              <h2 className="text-xl font-bold text-gray-800">{internship.title}</h2>
-              <p className="text-gray-600 mt-2">{internship.company_name}</p>
-              <p className="text-gray-500 mt-2">{internship.location}</p>
-              <p className="text-gray-500 mt-2">Stipend: {internship.stipend}</p>
-              <p className="text-gray-500 mt-2">Duration: {internship.duration}</p>
-            </div>
-          ))
+          filteredInterns.length === 0 ? <p className="alert alert-danger w-full col-span-full text-center">
+            !! No Internships Found !!
+          </p>
+            :
+            filteredInterns.map((intern) => (
+              <ApplicationCard application={{ ...intern }} />
+            ))
         )}
       </div>
     </div>

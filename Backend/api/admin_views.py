@@ -384,6 +384,65 @@ def get_published_jobs(request):
         return JsonResponse({"jobs": job_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+@csrf_exempt
+def get_job_by_id(request, job_id):
+    """
+    Fetch a single job by its ID.
+    """
+    try:
+        job = job_collection.find_one({"_id": ObjectId(job_id)})
+        if not job:
+            return JsonResponse({"error": "Job not found"}, status=404)
+
+        job["_id"] = str(job["_id"])  # Convert ObjectId to string
+        return JsonResponse({"job": job}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def update_job(request, job_id):
+    """
+    Update a job by its ID.
+    """
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            job = job_collection.find_one({"_id": ObjectId(job_id)})
+            if not job:
+                return JsonResponse({"error": "Job not found"}, status=404)
+
+            # Exclude the _id field from the update
+            if '_id' in data:
+                del data['_id']
+
+            job_collection.update_one({"_id": ObjectId(job_id)}, {"$set": data})
+            updated_job = job_collection.find_one({"_id": ObjectId(job_id)})
+            updated_job["_id"] = str(updated_job["_id"])  # Convert ObjectId to string
+            return JsonResponse({"job": updated_job}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
+    
+@csrf_exempt
+def delete_job(request, job_id):
+    """
+    Delete a job by its ID.
+    """
+    if request.method == 'DELETE':
+        try:
+            job = job_collection.find_one({"_id": ObjectId(job_id)})
+            if not job:
+                return JsonResponse({"error": "Job not found"}, status=404)
+
+            job_collection.delete_one({"_id": ObjectId(job_id)})
+            return JsonResponse({"message": "Job deleted successfully"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 

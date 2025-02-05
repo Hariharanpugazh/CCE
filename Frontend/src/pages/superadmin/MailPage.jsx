@@ -110,167 +110,218 @@ export default function MailPage() {
     }
   };
 
+  // Handle View action for Jobs, Achievements, and Internships
+  const handleView = (id, type) => {
+    if (type === "job") {
+      navigate(`/job-edit/${id}`);
+    } else if (type === "achievement") {
+      navigate(`/achievement-edit/${id}`);
+    } else {
+      navigate(`/internship-edit/${id}`);
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center bg-gray-50 min-h-screen">
+    <div className="container mx-auto p-4">
       <h1 className="text-2xl font-semibold text-gray-800 mb-4">Mail Inbox</h1>
-      {message && <p className="text-green-600 mb-4">{message}</p>}
-      {error && <p className="text-red-600 mb-4">{error}</p>}
+      {message && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+          <strong className="font-bold">Success!</strong>
+          <span className="block sm:inline">{message}</span>
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
 
       {/* Job Approvals Section */}
-      <div className="w-full max-w-6xl bg-white shadow-md rounded-lg p-4 mb-6">
+      <div className="mt-4">
         <h2 className="text-xl font-bold mb-4">Job Approvals</h2>
         {jobs.length === 0 ? (
           <p className="text-gray-600">No jobs to review.</p>
         ) : (
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 px-4 py-2">Title</th>
-                <th className="border border-gray-300 px-4 py-2">Company</th>
-                <th className="border border-gray-300 px-4 py-2">Description</th>
-                <th className="border border-gray-300 px-4 py-2">Location</th>
-                <th className="border border-gray-300 px-4 py-2">Salary</th>
-                <th className="border border-gray-300 px-4 py-2">Deadline</th>
-                <th className="border border-gray-300 px-4 py-2">Status</th>
-                <th className="border border-gray-300 px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {jobs.map((job) => (
-                <tr key={job._id}>
-                  <td className="border border-gray-300 px-4 py-2">{job.job_data.title}</td>
-                  <td className="border border-gray-300 px-4 py-2">{job.job_data.company_name}</td>
-                  <td className="border border-gray-300 px-4 py-2">{job.job_data.job_description}</td>
-                  <td className="border border-gray-300 px-4 py-2">{job.job_data.job_location}</td>
-                  <td className="border border-gray-300 px-4 py-2">{job.job_data.salary_range}</td>
-                  <td className="border border-gray-300 px-4 py-2">{job.job_data.application_deadline}</td>
-                  <td className="border border-gray-300 px-4 py-2">{job.is_publish ? "Published" : "Pending"}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {!job.is_publish && (
-                      <>
-                        <button
-                          className="px-3 py-1 bg-green-500 text-white rounded mr-2"
-                          onClick={() => handleAction(job._id, "approve", "job")}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          className="px-3 py-1 bg-red-500 text-white rounded"
-                          onClick={() => handleAction(job._id, "reject", "job")}
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 px-4 py-2">Title</th>
+                  <th className="border border-gray-300 px-4 py-2">Company</th>
+                  <th className="border border-gray-300 px-4 py-2">Description</th>
+                  <th className="border border-gray-300 px-4 py-2">Location</th>
+                  <th className="border border-gray-300 px-4 py-2">Salary</th>
+                  <th className="border border-gray-300 px-4 py-2">Deadline</th>
+                  <th className="border border-gray-300 px-4 py-2">Status</th>
+                  <th className="border border-gray-300 px-4 py-2">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {jobs.map((job) => (
+                  <tr key={job._id}>
+                    <td className="border border-gray-300 px-4 py-2">{job.job_data.title}</td>
+                    <td className="border border-gray-300 px-4 py-2">{job.job_data.company_name}</td>
+                    <td className="border border-gray-300 px-4 py-2">{job.job_data.job_description}</td>
+                    <td className="border border-gray-300 px-4 py-2">{job.job_data.job_location}</td>
+                    <td className="border border-gray-300 px-4 py-2">{job.job_data.salary_range}</td>
+                    <td className="border border-gray-300 px-4 py-2">{job.job_data.application_deadline}</td>
+                    <td className="border border-gray-300 px-4 py-2">{job.is_publish ? "Published" : "Pending"}</td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <div className="flex space-x-2">
+                        {!job.is_publish && (
+                          <>
+                            <button
+                              className="px-3 py-1 bg-green-500 text-white rounded"
+                              onClick={() => handleAction(job._id, "approve", "job")}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className="px-3 py-1 bg-red-500 text-white rounded"
+                              onClick={() => handleAction(job._id, "reject", "job")}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                        <button
+                          className="px-3 py-1 bg-blue-500 text-white rounded"
+                          onClick={() => handleView(job._id, "job")}
+                        >
+                          View
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
       {/* Achievement Approvals Section */}
-      <div className="w-full max-w-6xl bg-white shadow-md rounded-lg p-4 mb-6">
+      <div className="mt-4">
         <h2 className="text-xl font-bold mb-4">Achievement Approvals</h2>
         {achievements.length === 0 ? (
           <p className="text-gray-600">No achievements to review.</p>
         ) : (
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 px-4 py-2">Name</th>
-                <th className="border border-gray-300 px-4 py-2">Department</th>
-                <th className="border border-gray-300 px-4 py-2">Achievement</th>
-                <th className="border border-gray-300 px-4 py-2">Batch</th>
-                <th className="border border-gray-300 px-4 py-2">Status</th>
-                <th className="border border-gray-300 px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {achievements.map((achievement) => (
-                <tr key={achievement._id}>
-                  <td className="border border-gray-300 px-4 py-2">{achievement.name}</td>
-                  <td className="border border-gray-300 px-4 py-2">{achievement.department}</td>
-                  <td className="border border-gray-300 px-4 py-2">{achievement.achievement}</td>
-                  <td className="border border-gray-300 px-4 py-2">{achievement.batch}</td>
-                  <td className="border border-gray-300 px-4 py-2">{achievement.is_publish ? "Published" : "Pending"}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {!achievement.is_publish && (
-                      <>
-                        <button
-                          className="px-3 py-1 bg-green-500 text-white rounded mr-2"
-                          onClick={() => handleAction(achievement._id, "approve", "achievement")}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          className="px-3 py-1 bg-red-500 text-white rounded"
-                          onClick={() => handleAction(achievement._id, "reject", "achievement")}
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 px-4 py-2">Name</th>
+                  <th className="border border-gray-300 px-4 py-2">Department</th>
+                  <th className="border border-gray-300 px-4 py-2">Achievement</th>
+                  <th className="border border-gray-300 px-4 py-2">Batch</th>
+                  <th className="border border-gray-300 px-4 py-2">Status</th>
+                  <th className="border border-gray-300 px-4 py-2">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {achievements.map((achievement) => (
+                  <tr key={achievement._id}>
+                    <td className="border border-gray-300 px-4 py-2">{achievement.name}</td>
+                    <td className="border border-gray-300 px-4 py-2">{achievement.department}</td>
+                    <td className="border border-gray-300 px-4 py-2">{achievement.achievement}</td>
+                    <td className="border border-gray-300 px-4 py-2">{achievement.batch}</td>
+                    <td className="border border-gray-300 px-4 py-2">{achievement.is_publish ? "Published" : "Pending"}</td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <div className="flex space-x-2">
+                        {!achievement.is_publish && (
+                          <>
+                            <button
+                              className="px-3 py-1 bg-green-500 text-white rounded"
+                              onClick={() => handleAction(achievement._id, "approve", "achievement")}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className="px-3 py-1 bg-red-500 text-white rounded"
+                              onClick={() => handleAction(achievement._id, "reject", "achievement")}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                        <button
+                          className="px-3 py-1 bg-blue-500 text-white rounded"
+                          onClick={() => handleView(achievement._id, "achievement")}
+                        >
+                          View
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
       {/* Internship Approvals Section */}
-      <div className="w-full max-w-6xl bg-white shadow-md rounded-lg p-4">
+      <div className="mt-4">
         <h2 className="text-xl font-bold mb-4">Internship Approvals</h2>
         {internships.length === 0 ? (
           <p className="text-gray-600">No internships to review.</p>
         ) : (
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 px-4 py-2">Title</th>
-                <th className="border border-gray-300 px-4 py-2">Company</th>
-                <th className="border border-gray-300 px-4 py-2">Location</th>
-                <th className="border border-gray-300 px-4 py-2">Stipend</th>
-                <th className="border border-gray-300 px-4 py-2">Duration</th>
-                <th className="border border-gray-300 px-4 py-2">Deadline</th>
-                <th className="border border-gray-300 px-4 py-2">Status</th>
-                <th className="border border-gray-300 px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {internships.map((internship) => (
-                <tr key={internship._id}>
-                  <td className="border border-gray-300 px-4 py-2">{internship.title}</td>
-                  <td className="border border-gray-300 px-4 py-2">{internship.company_name}</td>
-                  <td className="border border-gray-300 px-4 py-2">{internship.location}</td>
-                  <td className="border border-gray-300 px-4 py-2">{internship.stipend}</td>
-                  <td className="border border-gray-300 px-4 py-2">{internship.duration}</td>
-                  <td className="border border-gray-300 px-4 py-2">{internship.application_deadline}</td>
-                  <td className="border border-gray-300 px-4 py-2">{internship.publish ? "Published" : "Pending"}</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {!internship.publish && (
-                      <>
-                        <button
-                          className="px-3 py-1 bg-green-500 text-white rounded mr-2"
-                          onClick={() => handleAction(internship._id, "approve", "internship")}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          className="px-3 py-1 bg-red-500 text-white rounded"
-                          onClick={() => handleAction(internship._id, "reject", "internship")}
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 px-4 py-2">Title</th>
+                  <th className="border border-gray-300 px-4 py-2">Company</th>
+                  <th className="border border-gray-300 px-4 py-2">Location</th>
+                  <th className="border border-gray-300 px-4 py-2">Stipend</th>
+                  <th className="border border-gray-300 px-4 py-2">Duration</th>
+                  <th className="border border-gray-300 px-4 py-2">Deadline</th>
+                  <th className="border border-gray-300 px-4 py-2">Status</th>
+                  <th className="border border-gray-300 px-4 py-2">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {internships.map((internship) => (
+                  <tr key={internship._id}>
+                    <td className="border border-gray-300 px-4 py-2">{internship.title}</td>
+                    <td className="border border-gray-300 px-4 py-2">{internship.company_name}</td>
+                    <td className="border border-gray-300 px-4 py-2">{internship.location}</td>
+                    <td className="border border-gray-300 px-4 py-2">{internship.stipend}</td>
+                    <td className="border border-gray-300 px-4 py-2">{internship.duration}</td>
+                    <td className="border border-gray-300 px-4 py-2">{internship.application_deadline}</td>
+                    <td className="border border-gray-300 px-4 py-2">{internship.publish ? "Published" : "Pending"}</td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <div className="flex space-x-2">
+                        {!internship.publish && (
+                          <>
+                            <button
+                              className="px-3 py-1 bg-green-500 text-white rounded"
+                              onClick={() => handleAction(internship._id, "approve", "internship")}
+                            >
+                              Approve
+                            </button>
+                            <button
+                              className="px-3 py-1 bg-red-500 text-white rounded"
+                              onClick={() => handleAction(internship._id, "reject", "internship")}
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                        <button
+                          className="px-3 py-1 bg-blue-500 text-white rounded"
+                          onClick={() => handleView(internship._id, "internship")}
+                        >
+                          View
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

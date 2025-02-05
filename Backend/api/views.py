@@ -8,6 +8,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
 from django.conf import settings
+from bson import ObjectId
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -33,6 +34,7 @@ def generate_tokens(student_user):
 client = MongoClient("mongodb+srv://ihub:ihub@cce.ksniz.mongodb.net/")
 db = client["CCE"]
 student_collection = db["students"]
+admin_collection = db["admin"]
 contactus_collection = db["contact_us"]
 
 # function to check if password is strong
@@ -166,4 +168,56 @@ def contact_us(request):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
+    
 
+@csrf_exempt
+def get_profile(request, userId):
+    if request.method == "GET":
+        try:
+            # Find the student user by id
+            user = student_collection.find_one({"_id": ObjectId(userId)}) 
+            
+            if not user:
+                user = admin_collection.find_one({"_id": ObjectId(userId)})
+                user['source'] = 'admin' if user else None 
+            else:
+                user['source'] = 'student'
+
+            if not user:
+                return JsonResponse(
+                    {"error": "User with this id does not exist"}, status=400
+                )     
+            
+            if user.get('source') == 'student':
+                # Handle student user
+                data = {
+                    "name": user.get("name"),
+                    "email": user.get("email"),
+                    "department": user.get("department"),
+                    "year": user.get("year"),
+                    "role": "student",
+                }
+                return JsonResponse(
+                    {"message": "Student user found", "data": data}, status=200
+                )
+            elif user.get('source') == 'admin':
+                # Handle admin user
+                data = {
+                    "name": user.get("name"),
+                    "email": user.get("email"),
+                    "department": user.get("department"),
+                    "role": "admin",
+                }
+                return JsonResponse(
+                    {"message": "Admin user found", "data":data}, status=200
+                )
+            
+            else:
+                return JsonResponse(
+                    {"error": "User source not found"}, status=400
+                )
+            
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
