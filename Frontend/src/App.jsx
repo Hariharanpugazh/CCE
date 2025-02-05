@@ -25,6 +25,9 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SuperJobsDashboard from "./pages/superadmin/superJobsDashboard";
 import SuperInternShipDashboard from "./pages/superadmin/superInternDashboard";
+import InternshipPreview from "./pages/students/InternshipPreview";
+import AdminAchievementDashboard from "./pages/admin/adminAchievementDashboard";
+import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashboard";
 
 
 // Protected Route Component
@@ -66,8 +69,8 @@ function App() {
         <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
         <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
-        <Route path="/job-preview/:id" element= {<ProtectedRoute> <JobPreview /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
+        <Route path="/internship-preview/:id" element={<InternshipPreview />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
@@ -75,6 +78,7 @@ function App() {
         {/* Protected Admin Routes */}
         <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>} />
         <Route path="/admin/jobs" element={ <ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />
+        <Route path="/admin/achievements" element={ <ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
         <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
         <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
         <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
@@ -87,6 +91,7 @@ function App() {
         <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin/jobs"} element={<ProtectedRoute> <SuperJobsDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin/internships"} element={<ProtectedRoute> <SuperInternShipDashboard /> </ProtectedRoute>} />
+        <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
         <Route path={"/mail"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>

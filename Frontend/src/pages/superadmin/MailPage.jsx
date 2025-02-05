@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 export default function MailPage() {
   const [jobs, setJobs] = useState([]);
@@ -123,6 +124,7 @@ export default function MailPage() {
 
   return (
     <div className="container mx-auto p-4">
+      <SuperAdminPageNavbar />
       <h1 className="text-2xl font-semibold text-gray-800 mb-4">Mail Inbox</h1>
       {message && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">

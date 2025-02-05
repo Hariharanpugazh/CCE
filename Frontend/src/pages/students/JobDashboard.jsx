@@ -33,18 +33,22 @@ export default function JobDashboard() {
   // Fetch published jobs from the backend
   useEffect(() => {
     const fetchPublishedJobs = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/api/published-jobs/");
-        setJobs(response.data.jobs); // Assuming backend response contains `jobs`
-        setFilteredJobs(response.data.jobs)
-      } catch (err) {
-        console.error("Error fetching published jobs:", err);
-        setError("Failed to load jobs.");
-      }
+        try {
+            const response = await axios.get("http://localhost:8000/api/published-jobs/");
+            const jobsWithType = response.data.jobs.map((job) => ({
+                ...job,
+                type: "job", // Add type field
+            }));
+            setJobs(jobsWithType); // Set jobs with type
+            setFilteredJobs(jobsWithType); // Update filtered jobs
+        } catch (err) {
+            console.error("Error fetching published jobs:", err);
+            setError("Failed to load jobs.");
+        }
     };
 
     fetchPublishedJobs();
-  }, []);
+}, []);
 
   return (
     <div className="flex flex-col">

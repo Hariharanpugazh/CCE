@@ -43,7 +43,7 @@ export default function SuperAdminPageNavbar() {
           Study Material
         </p>
         <p className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = "/achievements")}>
+          onClick={() => (window.location.href = "/superadmin/achievements")}>
           Achievements
         </p>
         <p className="cursor-pointer hover:underline hover:text-blue-400">

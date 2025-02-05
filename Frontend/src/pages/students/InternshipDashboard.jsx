@@ -16,18 +16,22 @@ export default function InternshipDashboard() {
   // Fetch published internships from the backend
   useEffect(() => {
     const fetchPublishedInternships = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/api/published-internship/");
-        setInternships(response.data.internships);
-        setFilteredInterns(response.data.internships)
-      } catch (err) {
-        console.error("Error fetching published internships:", err);
-        setError("Failed to load internships.");
-      }
+        try {
+            const response = await axios.get("http://localhost:8000/api/published-internship/");
+            const internshipsWithType = response.data.internships.map((internship) => ({
+                ...internship,
+                type: "internship", // Add type field
+            }));
+            setInternships(internshipsWithType); // Set internships with type
+            setFilteredInterns(internshipsWithType); // Update filtered internships
+        } catch (err) {
+            console.error("Error fetching published internships:", err);
+            setError("Failed to load internships.");
+        }
     };
 
     fetchPublishedInternships();
-  }, []);
+}, []);
 
   useEffect(() => {
     if (searchPhrase === "") {

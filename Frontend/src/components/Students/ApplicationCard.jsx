@@ -46,11 +46,17 @@ export default function ApplicationCard({ application }) {
 
     const handleCardClick = () => {
         if (application._id) {
-            navigate(`/job-preview/${application._id}`); // Use the ObjectId from the MongoDB document
+            if (application.type === "internship") {
+                navigate(`/internship-preview/${application._id}`);
+            } else if (application.type === "job") {
+                navigate(`/job-preview/${application._id}`);
+            } else {
+                console.error("Unknown application type:", application.type);
+            }
         } else {
             console.error("ObjectId is missing in the application:", application);
         }
-    };      
+    };             
 
     const handleApplyClick = (event) => {
         event.stopPropagation(); // Prevent triggering card click
