@@ -143,3 +143,11 @@ CORS_ALLOW_HEADERS = [
     "X-CSRFToken",
     "X-Requested-With",
 ]
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "lochana.t.ihub@snsgroups.com"
+EMAIL_HOST_PASSWORD = "mkke ccek jcog pjci"
+ADMIN_EMAIL = "lochanavishagan14@gmail.com"  # Change to your admin email

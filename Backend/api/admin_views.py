@@ -510,3 +510,5 @@ def get_internships(request):
         return JsonResponse({"internships": internship_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+    
+

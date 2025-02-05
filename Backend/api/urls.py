@@ -17,9 +17,6 @@ urlpatterns = [
 
     #Jobs
     path('jobs', get_jobs, name='get_jobs'),
-<<<<<<< HEAD
-    path("upload_achievement/",post_achievement,name="upload_acheivement"),
-=======
     path("review-job/<str:job_id>/", review_job, name="approve_job"),
 
     #Achievements
@@ -36,6 +33,6 @@ urlpatterns = [
     path('published-jobs/', get_published_jobs, name='get_published_jobs'),
     path('published-achievement/', get_published_achievements, name='get_published_achievements'),
     path('published-internship/', get_published_internships, name='get_published_internships'),
+    path("contact-us/",contact_us,name="contact-us"),
 
->>>>>>> 1677d6ed569ebedc7c46f471e4355dd36c884ead
 ]

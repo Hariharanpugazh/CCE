@@ -12,4 +12,4 @@ pycparser==2.22
 pymongo==4.11
 sqlparse==0.5.3
 tzdata==2025.1
-pyjwt==2.10.1
+pyJWT==2.10.1

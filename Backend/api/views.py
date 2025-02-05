@@ -6,6 +6,8 @@ from django.http import JsonResponse
 from pymongo import MongoClient
 from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
+from django.conf import settings
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -31,6 +33,7 @@ def generate_tokens(student_user):
 client = MongoClient("mongodb+srv://ihub:ihub@cce.ksniz.mongodb.net/")
 db = client["CCE"]
 student_collection = db["students"]
+contactus_collection = db["contact_us"]
 
 # function to check if password is strong
 def is_strong_password(password):
@@ -125,3 +128,42 @@ def student_login(request):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
+    
+# ===================== CONTACT US =====================
+
+@csrf_exempt
+def contact_us(request):
+    if request.method == "POST":
+        try:
+            # Parse JSON request body
+            data = json.loads(request.body)
+            name = data.get("name")
+            contact = data.get("contact")
+            message = data.get("message")
+
+            # Validate input fields
+            if any(not field for field in [name, contact, message]):
+                return JsonResponse({"error": "All fields are required"}, status=400)
+
+            # Send email notification to admin
+            subject = "New Contact Us Message"
+            email_message = f"New message from {name}\n\nContact: {contact}\n\nMessage:\n{message}"
+
+            send_mail(
+                subject,
+                email_message,
+                settings.EMAIL_HOST_USER,  # Sender email
+                [settings.ADMIN_EMAIL],  # Admin email recipient
+                fail_silently=False,
+            )
+
+            return JsonResponse({"message": "Your message has been received and sent to admin!"}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON data"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
