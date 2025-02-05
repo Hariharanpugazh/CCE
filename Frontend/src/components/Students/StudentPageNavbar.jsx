@@ -5,7 +5,7 @@ import { FiUser } from "react-icons/fi";
 
 export default function StudentPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
-  
+
   const handleLogout = () => {
     // Clear the JWT cookie
     Cookies.remove("jwt");
@@ -50,30 +50,30 @@ export default function StudentPageNavbar() {
       </div>
 
       <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative">
-        <div className="flex space-x-2 items-center">
+        <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => { setProfileMenuOpen(toggle => !toggle); setCreateMenuOpen(false) }}>
           <p>Profile</p>
           <FiUser className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer" style={{ width: "2rem" }} />
-        </div>
 
-        {/* Profile Menu */}
-        {isProfileMenuOpen && (
-          <div className="absolute top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50">
-            <ul className="flex flex-col">
-              <li
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                onClick={() => (window.location.href = "/profile")}
-              >
-                Profile
-              </li>
-              <li
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                onClick={handleLogout}
-              >
-                Logout
-              </li>
-            </ul>
-          </div>
-        )}
+          {/* Profile Menu */}
+          {isProfileMenuOpen && (
+            <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50 absolute p-2">
+              <ul className="flex flex-col">
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/profile")}
+                >
+                  Profile
+                </li>
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );
