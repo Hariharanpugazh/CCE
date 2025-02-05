@@ -38,6 +38,7 @@ admin_collection = db['admin']
 internship_collection = db['internships']
 job_collection = db['jobs']
 achievement_collection = db['achievement']
+superadmin_collection = db['superadmin']
 
 @csrf_exempt
 def admin_signup(request):
@@ -120,7 +121,7 @@ def super_admin_signup(request):
                 return JsonResponse({'error': 'Email must contain domain id'}, status=400)
 
             # Check if the email already exists
-            if admin_collection.find_one({'email': email}):
+            if superadmin_collection.find_one({'email': email}):
                 return JsonResponse({'error': 'Super admin user with this email already exists'}, status=400)
 
             # Check if the password is strong
@@ -135,11 +136,10 @@ def super_admin_signup(request):
                 'name': name,
                 'email': email,
                 'password': password,
-                'role': 'super_admin'
             }
 
             # Insert the document into the collection
-            admin_collection.insert_one(super_admin_user)
+            superadmin_collection.insert_one(super_admin_user)
 
             return JsonResponse({'message': 'Super admin user created successfully'}, status=201)
         except Exception as e:
@@ -160,7 +160,7 @@ def super_admin_login(request):
                 return JsonResponse({'error': 'Email must contain domain id'}, status=400)
 
             # Find the super admin user by email
-            super_admin_user = admin_collection.find_one({'email': email, 'role': 'super_admin'})
+            super_admin_user = superadmin_collection.find_one({'email': email})
             super_admin_id = super_admin_user.get('_id')
 
             if super_admin_user and check_password(password, super_admin_user['password']):
@@ -174,7 +174,7 @@ def super_admin_login(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
     
-# ===================== JOBS =====================
+# ============================================================== JOBS ======================================================================================
 
 @csrf_exempt
 @api_view(['POST'])
