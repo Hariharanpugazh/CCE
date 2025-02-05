@@ -256,6 +256,7 @@ def get_jobs(request):
         return JsonResponse({"jobs": job_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
     
 @csrf_exempt
 def review_job(request, job_id):

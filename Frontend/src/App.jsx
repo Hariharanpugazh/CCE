@@ -20,7 +20,6 @@ import LandingPage from "./pages/common/Landing";
 import ContactForm from "./pages/students/Contact";
 import JobPreview from "./pages/students/Jobpreview";
 
-
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const token = Cookies.get("jwt"); // Get JWT token from cookies
