@@ -19,6 +19,8 @@ urlpatterns = [
 
     #common
     path("profile/<str:userId>/", get_profile, name="get_profile"),
+    path("forgot-password/", forgot_password, name="forgot_password"),
+    path("reset-password/", reset_password, name="reset_password"),
     
     #Jobs
     path('jobs', get_jobs, name='get_jobs'),

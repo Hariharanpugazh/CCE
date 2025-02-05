@@ -301,6 +301,9 @@ def job_post(request):
                 "application_deadline": data.get('application_deadline'),
                 "contact_email": data.get('contact_email'),
                 "contact_phone": data.get('contact_phone'),
+                "job_link": data.get('job_link'),
+                "selectedCategory": data.get('selectedCategory'),
+                "selectedWorkType": data.get('selectedWorkType')
             },
             "user_id": admin_id,  # Save the admin_id from the token
             "is_publish": False,

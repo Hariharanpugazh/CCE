@@ -57,6 +57,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
