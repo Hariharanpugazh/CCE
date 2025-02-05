@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { jwtDecode } from "jwt-decode"; // ✅ Correct Import
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom"; // Assuming you are using React Router for navigation
 
 export default function JobPostForm() {
   const [formData, setFormData] = useState({
@@ -27,6 +28,21 @@ export default function JobPostForm() {
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
+
+    const decodedToken = jwtDecode(token);
+    if (decodedToken.role !== "superadmin" && decodedToken.role !== "admin") {
+      // Optionally, you can redirect the user to a different page
+      navigate("/");
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -48,7 +64,6 @@ export default function JobPostForm() {
         return;
       }
 
-      // ✅ Directly use named import
       const decodedToken = jwtDecode(token);
       console.log("Decoded Token:", decodedToken);
 
@@ -73,13 +88,15 @@ export default function JobPostForm() {
     }
   };
 
-  
+  if (error) {
+    return <div className="text-red-600">{error}</div>;
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-4 bg-white shadow-md rounded-lg">
       <h2 className="text-2xl font-bold mb-4">Post a Job</h2>
 
       {message && <p className="text-green-600 mb-4">{message}</p>}
-      {error && <p className="text-red-600 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -266,7 +283,6 @@ export default function JobPostForm() {
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          
         >
           Submit Job
         </button>
