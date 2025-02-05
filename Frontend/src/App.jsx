@@ -20,6 +20,7 @@ import LandingPage from "./pages/common/Landing";
 import ContactForm from "./pages/students/Contact";
 
 
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const token = Cookies.get("jwt"); // Get JWT token from cookies
@@ -39,7 +40,7 @@ function App() {
         <Route path={"/"} element={<LandingPage />} />
 
         {/* Student Routes */}
-        <Route path="/student" element={<StudentLogin />} />
+        <Route path="/student" element={<StudentLogin />} /> 
 
         {/* Protected Student Routes */}
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>}/>
@@ -50,7 +51,6 @@ function App() {
         
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
-
         {/* Protected Admin Routes */}
         <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>}/>
         <Route path="/admin/jobs" element={ <ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />

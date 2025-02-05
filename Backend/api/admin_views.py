@@ -1,17 +1,23 @@
 import jwt
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from django.http import JsonResponse
 from bson import ObjectId
 from pymongo import MongoClient
 from rest_framework.exceptions import AuthenticationFailed
 from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 import base64
 import re  # Add this import for regex
+from django.core.mail import send_mail
+from django.conf import settings
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+import random
+import string
 
 # Create your views here.
 JWT_SECRET = 'secret'
@@ -122,6 +128,71 @@ def admin_login(request):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+def generate_reset_token(length=6):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def forgot_password(request):
+    try:
+        email = request.data.get('email')
+        user = admin_collection.find_one({"email": email})
+        if not user:
+            return Response({"error": "Email not found"}, status=400)
+        
+        reset_token = generate_reset_token()
+        expiration_time = datetime.utcnow() + timedelta(hours=1)
+        
+        admin_collection.update_one(
+            {"email": email},
+            {"$set": {"password_reset_token": reset_token, "password_reset_expires": expiration_time}}
+        )
+        
+        send_mail(
+            'Password Reset Request',
+            f'Use this token to reset your password: {reset_token}',
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+        )
+        
+        return Response({"message": "Password reset token sent to your email"}, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reset_password(request):
+    try:
+        email = request.data.get('email')
+        token = request.data.get('token')
+        new_password = request.data.get('password')
+
+        # Find the user by email and validate token
+        user = admin_collection.find_one({"email": email})
+        if not user or user.get('password_reset_token') != token:
+            return Response({"error": "Invalid token"}, status=400)
+
+        # Check if token is expired
+        if datetime.utcnow() > user.get('password_reset_expires'):
+            return Response({"error": "Token has expired"}, status=400)
+
+        # Hash the new password
+        hashed_password = make_password(new_password)
+        print(hashed_password)
+
+
+        # Update the user's password and clear the reset token
+        admin_collection.update_one(
+            {"email": email},
+            {"$set": {"password": hashed_password, "password_reset_token": None, "password_reset_expires": None}}
+        )
+
+        return Response({"message": "Password reset successful"}, status=200)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
 
 @csrf_exempt
 def super_admin_signup(request):

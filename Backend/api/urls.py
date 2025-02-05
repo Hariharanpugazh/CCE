@@ -6,6 +6,8 @@ urlpatterns = [
     #admin
     path("signup/", admin_signup, name="admin_signup"),
     path("login/", admin_login, name="admin_login"),
+    path("forgot-password/", forgot_password, name="forgot_password"),
+    path("reset-password/", reset_password, name="reset_password"),
     path('post_internship/', post_internship, name='post_internship'),
     path('internship/', get_internships, name='get_internships'),
     path("job_post/", job_post, name="job_post"),
