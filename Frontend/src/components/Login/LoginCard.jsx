@@ -34,11 +34,11 @@ export default function LoginCard({ page, formDataSetter, formData, onSubmit }) 
               <InputField args={{ placeholder: "Enter your Password", required: true }} value={formData.password} setter={(val) => formDataSetter(prevData => ({ ...prevData, password: val }))} />
 
               <p className="cursor-pointer text-sm"> Forgot Password? </p>
-            </div>
 
-            <button className="p-3 rounded-2xl bg-[#FECC00] w-full font-semibold">
-              Login
-            </button>
+              <button className="p-3 rounded-2xl bg-[#FECC00] w-full font-semibold">
+                Login
+              </button>
+            </div>
           </form>
         </div>
       </div>
