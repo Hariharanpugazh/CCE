@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
-import { FiUser } from "react-icons/fi";
+import { FiMail, FiUser } from "react-icons/fi";
 
-export default function StudentPageNavbar() {
+export default function SuperAdminPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
 
   const handleLogout = () => {
@@ -13,6 +13,7 @@ export default function StudentPageNavbar() {
     // Redirect to the login page
     window.location.href = "/";
   };
+
 
   return (
     <nav className="flex justify-between p-4 items-stretch pt-8 relative">
@@ -49,8 +50,8 @@ export default function StudentPageNavbar() {
         </p>
       </div>
 
-      <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative">
-        <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => { setProfileMenuOpen(toggle => !toggle); setCreateMenuOpen(false) }}>
+      <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm space-x-4">
+        <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => setProfileMenuOpen(toggle => !toggle)}>
           <p>Profile</p>
           <FiUser className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer" style={{ width: "2rem" }} />
 
@@ -73,6 +74,15 @@ export default function StudentPageNavbar() {
               </ul>
             </div>
           )}
+        </div>
+
+        <div className="flex space-x-2 items-center">
+          <p>Inbox</p>
+          <FiMail
+            className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer" style={{ width: "2rem" }}
+            title="Mail"
+            onClick={() => window.location.href = "/mail"}
+          />
         </div>
       </div>
     </nav>
