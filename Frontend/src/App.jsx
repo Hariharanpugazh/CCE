@@ -20,10 +20,12 @@ import LandingPage from "./pages/common/Landing";
 import ContactForm from "./pages/students/Contact";
 import JobPreview from "./pages/students/Jobpreview";
 import JobEdit from "./pages/admin/Jobedit";
+import InternshipEdit from "./pages/admin/InternshipEdit";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SuperJobsDashboard from "./pages/superadmin/superJobsDashboard";
 import SuperInternShipDashboard from "./pages/superadmin/superInternDashboard";
+
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -76,7 +78,9 @@ function App() {
         <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
         <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
         <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
-        <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>} />
+        <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
+        <Route path="/internship-edit/:id" element= {<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>}/>
+
 
         {/* Super Admin Login */}
         <Route path={"/superadmin"} element={<SuperAdminLogin />} />

@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom'; // Assuming you are using React Router for navigation
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { FaCalendarAlt } from 'react-icons/fa';
 
 const InternPostForm = () => {
   const [formData, setFormData] = useState({
@@ -12,16 +16,26 @@ const InternPostForm = () => {
     duration: '',
     stipend: '',
     application_deadline: '',
-    skills_required: '',
+    skills_required: [],
     job_description: '',
     company_website: '',
     internship_type: '',
+    job_link: '', // Added job link to the form data
   });
 
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [isTypeOpen, setIsTypeOpen] = useState(false);
   const navigate = useNavigate();
+
+  const internshipTypes = [
+    'Full-time',
+    'Part-time',
+    'Contract',
+    'Temporary',
+    'Volunteer',
+  ];
 
   useEffect(() => {
     const token = Cookies.get('jwt');
@@ -31,10 +45,14 @@ const InternPostForm = () => {
     }
 
     const decodedToken = jwtDecode(token);
+    const currentTime = Date.now() / 1000;
+    if (decodedToken.exp < currentTime) {
+      setError('Token has expired. Please log in again.');
+      return;
+    }
+
     if (decodedToken.role !== 'superadmin' && decodedToken.role !== 'admin') {
       setError('You do not have permission to access this page.');
-      // Optionally, you can redirect the user to a different page
-      // navigate('/unauthorized');
     }
   }, [navigate]);
 
@@ -46,6 +64,42 @@ const InternPostForm = () => {
     });
   };
 
+  const handleTypeChange = (type) => {
+    setFormData({
+      ...formData,
+      internship_type: type,
+    });
+    setIsTypeOpen(false);
+  };
+
+  const handleDateChange = (date) => {
+    setFormData({
+      ...formData,
+      application_deadline: date,
+    });
+  };
+
+  const handleSkillsChange = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      const skill = e.target.value.trim();
+      if (skill && !formData.skills_required.includes(skill)) {
+        setFormData({
+          ...formData,
+          skills_required: [...formData.skills_required, skill],
+        });
+        e.target.value = '';
+      }
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove) => {
+    setFormData({
+      ...formData,
+      skills_required: formData.skills_required.filter(skill => skill !== skillToRemove),
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -53,25 +107,32 @@ const InternPostForm = () => {
 
     try {
       const token = Cookies.get('jwt');
-
       if (!token) {
         setError('No token found. Please log in.');
         setIsSubmitting(false);
         return;
       }
 
+      // Format the application_deadline to YYYY-MM-DD
+      const formattedData = {
+        ...formData,
+        application_deadline: formData.application_deadline.toISOString().split('T')[0],
+      };
+
       const response = await axios.post(
-        'http://localhost:8000/api/post_internship/', // Correct URL
-        formData,
+        'http://localhost:8000/api/post-internship/',
+        formattedData,
         {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
       setMessage(response.data.message);
       setError('');
+      window.location.href = `${window.location.origin}/internships`;
     } catch (error) {
       setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
       setMessage('');
@@ -85,128 +146,164 @@ const InternPostForm = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold mb-6 text-center">Post an Internship</h2>
-      {message && <p className={`mb-4 ${message.startsWith('Error') ? 'text-red-500' : 'text-green-500'}`}>{message}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-gray-700">Title:</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
+    <motion.div
+      className="max-w-7xl mx-auto p-8 bg-white shadow-xl rounded-2xl relative"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
+      <h2 className="text-3xl font-bold mb-4 text-gray-800 text-center">Post an Internship</h2>
+
+      {message && <p className="text-green-600 mb-4 text-center">{message}</p>}
+
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {Object.keys(formData).map((field) => {
+          if (field !== 'application_deadline' && field !== 'skills_required' && field !== 'internship_type' && field !== 'job_link') {
+            return (
+              <div key={field} className="col-span-1">
+                <label className="block text-sm font-semibold mb-2 capitalize">
+                  {field.replace(/_/g, ' ')} <span className="text-red-600">*</span>
+                </label>
+                <motion.input
+                  type={field.includes('email') ? 'email' : field.includes('phone') ? 'tel' : 'text'}
+                  name={field}
+                  value={formData[field]}
+                  onChange={handleChange}
+                  required
+                  whileHover={{ backgroundColor: '#e0f2ff' }}
+                  className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                  placeholder={`Enter ${field.replace(/_/g, ' ')}`}
+                />
+              </div>
+            );
+          }
+          return null;
+        })}
+
+        <div className="col-span-1">
+          <label className="block text-sm font-semibold mb-2 capitalize">
+            Job Link <span className="text-red-600">*</span>
+          </label>
+          <motion.input
+            type="url"
+            name="job_link"
+            value={formData.job_link}
             onChange={handleChange}
             required
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
+            whileHover={{ backgroundColor: '#e0f2ff' }}
+            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+            placeholder="Enter job link"
           />
         </div>
-        <div>
-          <label className="block text-gray-700">Company Name:</label>
-          <input
-            type="text"
-            name="company_name"
-            value={formData.company_name}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Location:</label>
-          <input
-            type="text"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Duration:</label>
-          <input
-            type="text"
-            name="duration"
-            value={formData.duration}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Stipend:</label>
-          <input
-            type="text"
-            name="stipend"
-            value={formData.stipend}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Application Deadline:</label>
-          <input
-            type="date"
-            name="application_deadline"
-            value={formData.application_deadline}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-          />
-        </div>
-        <div>
-          <label className="block text-gray-700">Skills Required:</label>
-          <input
+
+        <div className="col-span-1">
+          <label className="block text-sm font-semibold mb-2 capitalize">
+            Skills Required <span className="text-red-600">*</span>
+          </label>
+          <motion.input
             type="text"
             name="skills_required"
-            value={formData.skills_required}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
+            onKeyDown={handleSkillsChange}
+            whileHover={{ backgroundColor: '#e0f2ff' }}
+            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+            placeholder="Enter required skills and press Enter"
           />
+          <div className="mt-2 flex flex-wrap gap-2">
+            {formData.skills_required.map((skill, index) => (
+              <div key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center gap-2">
+                <span>{skill}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveSkill(skill)}
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  x
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-        <div>
-          <label className="block text-gray-700">Job Description:</label>
-          <textarea
-            name="job_description"
-            value={formData.job_description}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-          ></textarea>
+
+        <div className="col-span-1 relative">
+          <label className="block text-sm font-semibold mb-2 capitalize">
+            Internship Type <span className="text-red-600">*</span>
+          </label>
+          <motion.div
+            className="cursor-pointer w-full border border-gray-300 p-2.5 rounded-lg flex justify-between items-center transition-all duration-300"
+            onClick={() => setIsTypeOpen(!isTypeOpen)}
+            whileHover={{
+              backgroundColor: '#D1E7FF',
+              borderColor: '#3B82F6',
+            }}
+            style={{
+              borderColor: isTypeOpen ? '#3B82F6' : '#D1D5DB',
+              backgroundColor: isTypeOpen ? '#D1E7FF' : 'white',
+            }}
+          >
+            <span className="text-sm text-gray-700">
+              {formData.internship_type || 'Select Internship Type'}
+            </span>
+            <motion.span
+              whileHover={{
+                scale: 1.2,
+              }}
+              className="text-sm text-gray-700"
+            >
+              {isTypeOpen ? '▲' : '▼'}
+            </motion.span>
+          </motion.div>
+
+          {isTypeOpen && (
+            <div className="absolute z-10 mt-2 space-y-2 p-3 border border-gray-300 rounded-lg w-full bg-white shadow-lg">
+              {internshipTypes.map((type) => (
+                <div key={type} className="flex items-center">
+                  <input
+                    type="radio"
+                    name="internship_type"
+                    value={type}
+                    checked={formData.internship_type === type}
+                    onChange={() => handleTypeChange(type)}
+                    className="mr-2"
+                  />
+                  <span>{type}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        <div>
-          <label className="block text-gray-700">Company Website:</label>
-          <input
-            type="url"
-            name="company_website"
-            value={formData.company_website}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-          />
+
+        <div className="col-span-1">
+          <label className="block text-sm font-semibold mb-2 capitalize">
+            Application Deadline <span className="text-red-600">*</span>
+          </label>
+          <div className="relative">
+            <DatePicker
+              selected={formData.application_deadline}
+              onChange={handleDateChange}
+              dateFormat="yyyy-MM-dd"
+              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow pl-10"
+              placeholderText="Select a date"
+            />
+            <FaCalendarAlt
+              onClick={(e) => {
+                e.target.previousSibling.focus();
+              }}
+              className="absolute left-3 top-3 text-gray-500 cursor-pointer"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-gray-700">Internship Type:</label>
-          <input
-            type="text"
-            name="internship_type"
-            value={formData.internship_type}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-          />
-        </div>
-        <button
+
+        <motion.button
           type="submit"
           disabled={isSubmitting}
-          className={`w-full px-4 py-2 mt-4 text-white ${isSubmitting ? 'bg-gray-500' : 'bg-blue-600 hover:bg-blue-700'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50`}
+          className="col-span-2 bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-transform shadow-lg"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           {isSubmitting ? 'Submitting...' : 'Post Internship'}
-        </button>
+        </motion.button>
       </form>
-    </div>
+    </motion.div>
   );
 };
 

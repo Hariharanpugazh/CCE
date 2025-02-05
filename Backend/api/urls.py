@@ -8,7 +8,7 @@ urlpatterns = [
     path("login/", admin_login, name="admin_login"),
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
-    path('post_internship/', post_internship, name='post_internship'),
+    path('post-internship/', post_internship, name='post_internship'),
     path('internship/', get_internships, name='get_internships'),
     path("job_post/", job_post, name="job_post"),
     path("upload_achievement/",post_achievement,name="upload_acheivement"),
@@ -37,6 +37,9 @@ urlpatterns = [
     #Internships
     path('internship/', get_internships, name='get_internship'),
     path('review-internship/<str:internship_id>/', review_internship, name='review_internship'),
+    path('internship/<str:internship_id>/', get_internship_id, name='get_internship'),
+    path('internship-edit/<str:internship_id>/', update_internship, name='update_internship'),
+    path('internship-delete/<str:internship_id>/', delete_internship, name='delete_internship'),
     
     #student
     path("stud/signup/", student_signup, name="student_signup"),
