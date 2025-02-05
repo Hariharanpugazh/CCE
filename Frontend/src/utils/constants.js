@@ -47,7 +47,7 @@ const AppPages = {
 const apiEndpoints = {
   adminSignup: `${apiBaseURL}/api/signup/`,
   adminLogin: `${apiBaseURL}/api/login/`,
-  postInternship: `${apiBaseURL}/api/internship/post/`,
+  postInternship: `${apiBaseURL}/api/internship_post`,
   getInternships: `${apiBaseURL}/api/internship/`,
 
   // Superadmin

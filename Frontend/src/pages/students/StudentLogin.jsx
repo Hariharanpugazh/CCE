@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie"; // Import js-cookie
-import LoginCard from "../components/Login/LoginCard";
-import { AppPages } from "../utils/constants";
+import LoginCard from "../../components/Login/LoginCard";
+import { AppPages } from "../../utils/constants";
 
 export default function StudentLogin() {
     const [formData, setFormData] = useState({
@@ -27,7 +27,7 @@ export default function StudentLogin() {
             if (response.ok) {
                 // Set JWT token as a cookie
                 Cookies.set("jwt", data.token.jwt, { expires: 1 }); // Expires in 1 day
-                navigate("/student-dashboard"); // Redirect to student dashboard
+                navigate("/home"); // Redirect to student dashboard
             } else {
                 alert(data.error || "Login failed");
             }

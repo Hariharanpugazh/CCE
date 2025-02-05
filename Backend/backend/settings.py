@@ -129,8 +129,17 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (frontend and Postman)
+
+CORS_ALLOW_CREDENTIALS = True  # Allow credentials (cookies)
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+]
+
+CORS_ALLOW_HEADERS = [
+    "Content-Type",
+    "Authorization",
+    "X-CSRFToken",
+    "X-Requested-With",
 ]
