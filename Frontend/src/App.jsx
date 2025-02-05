@@ -20,6 +20,8 @@ import LandingPage from "./pages/common/Landing";
 import ContactForm from "./pages/students/Contact";
 import JobPreview from "./pages/students/Jobpreview";
 import JobEdit from "./pages/admin/Jobedit";
+import SuperJobsDashboard from "./pages/superadmin/superJobsDashboard";
+import SuperInternShipDashboard from "./pages/superadmin/superInternDashboard";
 
 
 
@@ -38,35 +40,39 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        
+
         <Route path={"/"} element={<LandingPage />} />
 
         {/* Student Routes */}
-        <Route path="/student" element={<StudentLogin />} /> 
+        <Route path="/student" element={<StudentLogin />} />
 
         {/* Protected Student Routes */}
-        <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>}/>
-        <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>}/>
-        <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>}/>
-        <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>}/>
-        <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
-        <Route path="/job-preview/:id" element= {<ProtectedRoute> <JobPreview /> </ProtectedRoute>}/>
+        <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
+        <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
+        <Route path="/jobs" element={<ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
+        <Route path="/achievements" element={<ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
+        <Route path="/contact" element={<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
+        <Route path="/job-preview/:id" element={<ProtectedRoute> <JobPreview /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
-        
+
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
         {/* Protected Admin Routes */}
-        <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>}/>
-        <Route path="/admin/jobs" element={ <ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />
-        <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
+        <Route path="/admin/internships" element={<ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>} />
+        <Route path="/admin/jobs" element={<ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />
+        <Route path="/jobpost" element={<ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
         <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
         <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
-        <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
+        <Route path="/job-edit/:id" element={<ProtectedRoute> <JobEdit /> </ProtectedRoute>} />
 
         {/* Super Admin Login */}
         <Route path={"/superadmin"} element={<SuperAdminLogin />} />
-        <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>}/>
-        <Route path={"/mail"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>}/>
+        <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
+
+        <Route path={"/superadmin/jobs"} element={<ProtectedRoute> <SuperJobsDashboard /> </ProtectedRoute>} />
+
+        <Route path={"/superadmin/internships"} element={<ProtectedRoute> <SuperInternShipDashboard /> </ProtectedRoute>} />
+        <Route path={"/mail"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );
