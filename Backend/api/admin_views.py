@@ -313,6 +313,22 @@ def get_published_jobs(request):
         return JsonResponse({"jobs": job_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+@csrf_exempt
+def get_job_by_id(request, job_id):
+    """
+    Fetch a single job by its ID.
+    """
+    try:
+        job = job_collection.find_one({"_id": ObjectId(job_id)})
+        if not job:
+            return JsonResponse({"error": "Job not found"}, status=404)
+
+        job["_id"] = str(job["_id"])  # Convert ObjectId to string
+        return JsonResponse({"job": job}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 
