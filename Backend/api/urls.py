@@ -44,6 +44,8 @@ urlpatterns = [
     #student
     path("stud/signup/", student_signup, name="student_signup"),
     path("stud/login/", student_login, name="student_login"),
+    path('student-forgot-password/', student_forgot_password, name='student_forgot_password'),
+    path('student-reset-password/', student_reset_password, name='student_reset_password'),
     path('published-jobs/', get_published_jobs, name='get_published_jobs'),
     path('published-achievement/', get_published_achievements, name='get_published_achievements'),
     path('published-internship/', get_published_internships, name='get_published_internships'),

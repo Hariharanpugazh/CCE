@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import wavyPattern from "../../assets/images/wavy-circles.png";
 
-export default function LoginCard({ page, formDataSetter, formData, onSubmit, isLocked, lockoutTime }) {
+export default function LoginCard({ page, formDataSetter, formData, onSubmit, isLocked, lockoutTime, onForgotPassword, onResetPassword }) {
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     const togglePasswordVisibility = () => {
@@ -73,8 +73,8 @@ export default function LoginCard({ page, formDataSetter, formData, onSubmit, is
                             </div>
 
                             {/* Forgot Password */}
-                            <button type="button" className="cursor-pointer text-sm">
-                                Forgot Password?
+                            <button type="button" onClick={onForgotPassword} className="cursor-pointer text-sm">
+                              Forgot Password?
                             </button>
                         </div>
 

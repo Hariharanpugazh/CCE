@@ -153,6 +153,9 @@ def admin_login(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
+def generate_reset_token(length=6):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def forgot_password(request):
@@ -181,38 +184,53 @@ def forgot_password(request):
     except Exception as e:
         return Response({"error": str(e)}, status=500)
     
-@api_view(["POST"])
-@permission_classes([AllowAny])
+from django.contrib.auth.hashers import make_password
+
+@csrf_exempt
 def reset_password(request):
-    try:
-        email = request.data.get('email')
-        token = request.data.get('token')
-        new_password = request.data.get('password')
+    """Reset Password Function"""
+    if request.method == 'POST':
+        try:
+            # Parse the request payload
+            data = json.loads(request.body)
+            email = data.get('email')
+            new_password = data.get('newPassword')
 
-        # Find the user by email and validate token
-        user = admin_collection.find_one({"email": email})
-        if not user or user.get('password_reset_token') != token:
-            return Response({"error": "Invalid token"}, status=400)
+            # Validate the request data
+            if not email or not new_password:
+                return JsonResponse({"error": "Email and new password are required."}, status=400)
 
-        # Check if token is expired
-        if datetime.utcnow() > user.get('password_reset_expires'):
-            return Response({"error": "Token has expired"}, status=400)
+            # Fetch the user by email
+            user = admin_collection.find_one({"email": email})
+            if not user:
+                return JsonResponse({"error": "User not found."}, status=404)
 
-        # Hash the new password
-        hashed_password = make_password(new_password)
-        print(hashed_password)
+            # Hash the new password
+            hashed_password = make_password(new_password)
 
+            # Ensure hashed password starts with "pbkdf2_sha256$"
+            if not hashed_password.startswith("pbkdf2_sha256$"):
+                return JsonResponse({"error": "Failed to hash the password correctly."}, status=500)
 
-        # Update the user's password and clear the reset token
-        admin_collection.update_one(
-            {"email": email},
-            {"$set": {"password": hashed_password, "password_reset_token": None, "password_reset_expires": None}}
-        )
+            # Update the password in MongoDB
+            result = admin_collection.update_one(
+                {"email": email},
+                {"$set": {
+                    "password": hashed_password,
+                    "password_reset_token": None,  # Clear reset token
+                    "password_reset_expires": None  # Clear expiration time
+                }}
+            )
 
-        return Response({"message": "Password reset successful"}, status=200)
+            if result.modified_count == 0:
+                return JsonResponse({"error": "Failed to update the password in MongoDB."}, status=500)
 
-    except Exception as e:
-        return Response({"error": str(e)}, status=500)
+            return JsonResponse({"message": "Password reset successfully"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
 
 @csrf_exempt

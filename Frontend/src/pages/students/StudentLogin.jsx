@@ -12,7 +12,11 @@ export default function StudentLogin() {
     const [formData, setFormData] = useState({
         email: "",
         password: "",
+        token: "",
+        newPassword: "",
+        confirmPassword: "",
     });
+    
     const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [isResetPassword, setIsResetPassword] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
@@ -32,6 +36,7 @@ export default function StudentLogin() {
         }
     }, [lockoutTime]);
 
+    /** Handle Student Login */
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isLocked) return;
@@ -42,20 +47,19 @@ export default function StudentLogin() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({ email: formData.email, password: formData.password }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                // Set JWT token as a cookie
                 Cookies.set("jwt", data.token.jwt, { expires: 1 }); // Expires in 1 day
                 toast.success("Login successful! Redirecting...");
                 navigate("/home"); // Redirect to student dashboard
             } else {
                 if (data.error.includes("Too many failed attempts")) {
                     setIsLocked(true);
-                    setLockoutTime(120); // 5-minute lockout
+                    setLockoutTime(120); // 2-minute lockout
                 }
                 toast.error(data.error || "Login failed");
             }
@@ -65,67 +69,120 @@ export default function StudentLogin() {
         }
     };
 
+    /** Handle Forgot Password */
     const handleForgotPassword = () => {
         setIsForgotPassword(true);
     };
 
+    /** Handle Reset Password */
     const handleResetPassword = () => {
         setIsResetPassword(true);
     };
 
-    const handleForgotPasswordSubmit = async (e) => {
+/** Submit Forgot Password */
+const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    const email = formData.email;
+
+    try {
+        const response = await fetch("http://localhost:8000/api/student-forgot-password/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            toast.success(data.message);
+
+            // Transition to Reset Password step
+            setIsForgotPassword(false);
+            setIsResetPassword(true);
+
+            // Prepare formData for Reset Password step
+            setFormData({
+                email: email, // Keep email pre-filled
+                token: "", // Clear token field for user input
+                newPassword: "", // Clear new password field
+                confirmPassword: "", // Clear confirm password field
+            });
+        } else {
+            toast.error(data.error || "Something went wrong!");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        toast.error("Failed to send reset email. Please try again.");
+    }
+};
+
+
+    /** Submit Reset Password */
+    const handleResetPasswordSubmit = async (e) => {
         e.preventDefault();
-        const email = formData.email;
+
+        if (formData.newPassword !== formData.confirmPassword) {
+            toast.error("Passwords do not match!");
+            return;
+        }
 
         try {
-            const response = await fetch("http://localhost:8000/api/forgot-password/", {
+            const response = await fetch("http://localhost:8000/api/student-reset-password/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({
+                    email: formData.email,
+                    token: formData.token,
+                    newPassword: formData.newPassword,
+                }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                toast.success(data.message);
+                toast.success("Password reset successful! Redirecting to login...");
+                setTimeout(() => {
+                    setIsResetPassword(false);
+                    setIsForgotPassword(false);
+                }, 3000);
             } else {
-                toast.error(data.error || "Something went wrong!");
+                toast.error(data.error || "Failed to reset password");
             }
         } catch (error) {
-            console.error("Error:", error);
-            toast.error("Failed to send reset email. Please try again.");
+            console.error("Error during password reset:", error);
+            toast.error("Something went wrong. Please try again.");
         }
     };
 
-    const handleResetPasswordSubmit = async (e) => {
-        e.preventDefault();
-        // Handle reset password logic here
-    };
+/** Render Forgot Password Page */
+if (isForgotPassword) {
+    return (
+        <ForgotPasswordCard
+            page={AppPages.forgotPassword}
+            formData={formData}
+            formDataSetter={setFormData}
+            onSubmit={handleForgotPasswordSubmit}
+        />
+    );
+}
 
-    if (isForgotPassword) {
-        return (
-            <ForgotPasswordCard
-                page={AppPages.forgotPassword}
-                formData={formData}
-                formDataSetter={setFormData}
-                onSubmit={handleForgotPasswordSubmit}
-            />
-        );
-    }
+/** Render Reset Password Page */
+if (isResetPassword) {
+    return (
+        <ResetPasswordCard
+            page={AppPages.resetPassword}
+            formData={formData}
+            formDataSetter={setFormData}
+            onSubmit={handleResetPasswordSubmit}
+        />
+    );
+}
 
-    if (isResetPassword) {
-        return (
-            <ResetPasswordCard
-                page={AppPages.resetPassword}
-                formData={formData}
-                formDataSetter={setFormData}
-                onSubmit={handleResetPasswordSubmit}
-            />
-        );
-    }
-
+    /** Render Login Page */
     return (
         <>
             <LoginCard

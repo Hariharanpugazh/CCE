@@ -1,8 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"; // Toast notifications
+import "react-toastify/dist/ReactToastify.css"; // Toast styles
 import InputField from "../Common/InputField";
 import wavyPattern from "../../assets/images/wavy-circles.png";
 
 export default function ResetPasswordCard({ page, formDataSetter, formData, onSubmit }) {
+  const [loading, setLoading] = useState(false); // Loader state
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true); // Start loading
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      toast.error("Passwords do not match!");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await onSubmit(e); // Call the reset password function
+      toast.success("Password reset successfully! Redirecting to login...");
+      setTimeout(() => navigate("/"), 3000); // Redirect to login after 3 seconds
+    } catch (error) {
+      toast.error("Failed to reset password. Please try again.");
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
+
   return (
     <div className="w-screen h-screen flex items-center justify-center relative overflow-hidden">
       {/* bg image */}
@@ -20,11 +47,11 @@ export default function ResetPasswordCard({ page, formDataSetter, formData, onSu
           <div className="flex flex-col space-y-2 items-center">
             <p className="text-4xl font-medium">{page.displayName}</p>
             <p className="text-[#838383] text-sm w-3/4 text-center">
-              Enter your new password and the OTP token sent to your email.
+              Enter your new password and OTP sent to your email.
             </p>
           </div>
 
-          <form onSubmit={onSubmit} className="w-3/4 flex flex-col items-center">
+          <form onSubmit={handleSubmit} className="w-3/4 flex flex-col items-center">
             <div className="space-y-2 mb-6 text-right">
               <InputField
                 args={{ placeholder: "Enter your Email", required: true }}
@@ -48,8 +75,15 @@ export default function ResetPasswordCard({ page, formDataSetter, formData, onSu
               />
             </div>
 
-            <button className="p-3 rounded-2xl bg-[#FECC00] w-full font-semibold">
-              Reset Password
+            {/* Button with Loader */}
+            <button
+              type="submit"
+              className={`p-3 rounded-2xl w-full font-semibold ${
+                loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#FECC00]"
+              }`}
+              disabled={loading}
+            >
+              {loading ? "Resetting Password..." : "Reset Password"}
             </button>
           </form>
         </div>

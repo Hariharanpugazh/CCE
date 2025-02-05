@@ -16,6 +16,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import random
 import string
+import traceback
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -150,7 +151,87 @@ def student_login(request):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+def generate_reset_token(length=6):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def student_forgot_password(request):
+    try:
+        email = request.data.get('email')
+        user = student_collection.find_one({"email": email})
+        if not user:
+            return Response({"error": "Email not found"}, status=400)
+
+        reset_token = generate_reset_token()
+        expiration_time = datetime.utcnow() + timedelta(hours=1)
+
+        student_collection.update_one(
+            {"email": email},
+            {"$set": {"password_reset_token": reset_token, "password_reset_expires": expiration_time}}
+        )
+
+        send_mail(
+            'Password Reset Request',
+            f'Use this token to reset your password: {reset_token}',
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+        )
+
+        return Response({"message": "Password reset token sent to your email"}, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+@csrf_exempt
+def student_reset_password(request):
+    """Reset Password for Students"""
+    if request.method == 'POST':
+        try:
+            # Parse the request payload
+            data = json.loads(request.body)
+            email = data.get('email')
+            token = data.get('token')
+            new_password = data.get('newPassword')
+
+            # Validate the request data
+            if not email or not token or not new_password:
+                return JsonResponse({"error": "Email, token, and new password are required."}, status=400)
+
+            # Fetch the user by email
+            user = student_collection.find_one({"email": email})
+            if not user:
+                return JsonResponse({"error": "User not found."}, status=404)
+
+            # Validate the token and expiration
+            if user.get("password_reset_token") != token:
+                return JsonResponse({"error": "Invalid password reset token."}, status=403)
+
+            if user.get("password_reset_expires") and datetime.utcnow() > user["password_reset_expires"]:
+                return JsonResponse({"error": "Password reset token has expired."}, status=403)
+
+            # Hash the new password
+            hashed_password = make_password(new_password)
+
+            # Update the password in MongoDB
+            result = student_collection.update_one(
+                {"email": email},
+                {"$set": {
+                    "password": hashed_password,
+                    "password_reset_token": None,  # Clear reset token
+                    "password_reset_expires": None  # Clear expiration time
+                }}
+            )
+
+            if result.modified_count == 0:
+                return JsonResponse({"error": "Failed to update the password in MongoDB."}, status=500)
+
+            return JsonResponse({"message": "Password reset successfully"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
     
 # ===================== CONTACT US =====================
 
@@ -241,68 +322,4 @@ def get_profile(request, userId):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-    
-def generate_reset_token(length=6):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def forgot_password(request):
-    try:
-        email = request.data.get('email')
-        user = admin_collection.find_one({"email": email})
-        if not user:
-            return Response({"error": "Email not found"}, status=400)
-
-        reset_token = generate_reset_token()
-        expiration_time = datetime.utcnow() + timedelta(hours=1)
-
-        admin_collection.update_one(
-            {"email": email},
-            {"$set": {"password_reset_token": reset_token, "password_reset_expires": expiration_time}}
-        )
-
-        send_mail(
-            'Password Reset Request',
-            f'Use this token to reset your password: {reset_token}',
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-        )
-
-        return Response({"message": "Password reset token sent to your email"}, status=200)
-    except Exception as e:
-        return Response({"error": str(e)}, status=500)
-
-from django.contrib.auth.hashers import make_password
-
-
-@csrf_exempt
-def reset_password(request):
-    """Handle password reset"""
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            email = data.get('email')
-            new_password = data.get('newPassword')
-
-            if not email or not new_password:
-                return JsonResponse({"error": "Email and new password are required."}, status=400)
-
-            # Hash the new password using Django's built-in make_password
-            hashed_password = make_password(new_password)
-
-            # Update the password in the database with the hashed password
-            result = admin_collection.update_one(
-                {"email": email},
-                {"$set": {"password": hashed_password}}
-            )
-
-            if result.modified_count == 0:
-                return JsonResponse({"error": "User not found."}, status=404)
-
-            return JsonResponse({"message": "Password reset successfully"}, status=200)
-
-        except Exception as e:
-            return JsonResponse({"error": f"An error occurred: {str(e)}"}, status=500)
-
-    return JsonResponse({"error": "Invalid request method"}, status=405)
