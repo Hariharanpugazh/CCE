@@ -22,6 +22,8 @@ import JobPreview from "./pages/students/Jobpreview";
 import JobEdit from "./pages/admin/Jobedit";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import SuperJobsDashboard from "./pages/superadmin/superJobsDashboard";
+import SuperInternShipDashboard from "./pages/superadmin/superInternDashboard";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -64,9 +66,10 @@ function App() {
         <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element= {<ProtectedRoute> <JobPreview /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
-        
+
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
+          
         {/* Protected Admin Routes */}
         <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>} />
         <Route path="/admin/jobs" element={ <ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />
@@ -78,6 +81,8 @@ function App() {
         {/* Super Admin Login */}
         <Route path={"/superadmin"} element={<SuperAdminLogin />} />
         <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
+        <Route path={"/superadmin/jobs"} element={<ProtectedRoute> <SuperJobsDashboard /> </ProtectedRoute>} />
+        <Route path={"/superadmin/internships"} element={<ProtectedRoute> <SuperInternShipDashboard /> </ProtectedRoute>} />
         <Route path={"/mail"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
