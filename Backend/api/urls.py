@@ -18,6 +18,7 @@ urlpatterns = [
     #Jobs
     path('jobs', get_jobs, name='get_jobs'),
     path("review-job/<str:job_id>/", review_job, name="approve_job"),
+    path('job/<str:job_id>/', get_job_by_id, name='get_job_by_id'),
 
     #Achievements
     path('achievements', get_achievements, name='get_achievements'),
