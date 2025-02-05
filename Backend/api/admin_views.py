@@ -12,7 +12,6 @@ from rest_framework.response import Response
 from rest_framework import status
 import base64
 import re  # Add this import for regex
-import base64  # Add this import for base64 encoding
 
 # Create your views here.
 JWT_SECRET = 'secret'
@@ -174,10 +173,6 @@ def super_admin_login(request):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-<<<<<<< HEAD
-
-
-=======
     
 # ===================== JOBS =====================
 
@@ -246,45 +241,6 @@ def get_jobs(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
     
-def post_achievement(request):
-    if request.method == 'POST':
-        try:
-            # Get text data from request
-            name = request.POST.get("name")
-            department = request.POST.get("department")
-            achievement = request.POST.get("achievement")
-            batch = request.POST.get("batch")
-
-            # Check if an image was uploaded
-            if "photo" in request.FILES:
-                image_file = request.FILES["photo"]
-                # Convert the image to base64
-                image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
-            else:
-                return JsonResponse({"error": "No image file provided."}, status=400)
-
-            # Prepare the document to insert
-            achievement_data = {
-                "name": name,
-                "department": department,
-                "achievement": achievement,
-                "batch": batch,
-                "photo": image_base64,  # Store as base64
-            }
-
-            # Insert into MongoDB
-            achievement_collection.insert_one(achievement_data)
-
-            return JsonResponse({"message": "Achievement posted successfully."}, status=201)
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-
-    return JsonResponse({"error": "Invalid request method"}, status=405)
-
-<<<<<<< HEAD
-
-=======
 @csrf_exempt
 def review_job(request, job_id):
     if request.method == "POST":
@@ -326,4 +282,231 @@ def review_job(request, job_id):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
->>>>>>> 1677d6ed569ebedc7c46f471e4355dd36c884ead
+    
+@csrf_exempt
+def get_published_jobs(request):
+    """
+    Fetch all jobs with is_publish set to True.
+    """
+    try:
+        published_jobs = job_collection.find({"is_publish": True})
+        job_list = []
+        for job in published_jobs:
+            job["_id"] = str(job["_id"])  # Convert ObjectId to string
+            job_list.append(job)
+        return JsonResponse({"jobs": job_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+# ===================== ACHIEVEMENTS =====================
+
+@csrf_exempt
+@api_view(['POST'])
+def post_achievement(request):
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    token = auth_header.split(" ")[1]
+    try:
+        # Decode the JWT token
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        admin_id = payload.get('admin_user')  # Extract admin_id from token
+        if not admin_id:
+            return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Get text data from request
+        name = request.POST.get("name")
+        department = request.POST.get("department")
+        achievement = request.POST.get("achievement")
+        batch = request.POST.get("batch")
+
+        # Check if an image was uploaded
+        if "photo" in request.FILES:
+            image_file = request.FILES["photo"]
+            # Convert the image to base64
+            image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+        else:
+            return Response({"error": "No image file provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Prepare the document to insert
+        achievement_data = {
+            "name": name,
+            "department": department,
+            "achievement": achievement,
+            "batch": batch,
+            "photo": image_base64,  # Store as base64
+            "user_id": admin_id,  # Save the admin_id from the token
+            "is_publish": False,  # Initially false, waiting for approval
+            "updated_at": datetime.now()
+        }
+
+        # Insert into MongoDB
+        achievement_collection.insert_one(achievement_data)
+
+        return Response({"message": "Achievement stored successfully, waiting for approval"}, status=status.HTTP_201_CREATED)
+
+    except jwt.ExpiredSignatureError:
+        return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+    except jwt.DecodeError:
+        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@csrf_exempt
+def get_achievements(request):
+    try:
+        achievements = achievement_collection.find()
+        achievement_list = [
+            {**achievement, "_id": str(achievement["_id"])}  # Convert ObjectId to string
+            for achievement in achievements
+        ]
+        return JsonResponse({"achievements": achievement_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def review_achievement(request, achievement_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            action = data.get("action")
+            if action not in ["approve", "reject"]:
+                return JsonResponse({"error": "Invalid action"}, status=400)
+
+            achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
+            if not achievement:
+                return JsonResponse({"error": "Achievement not found"}, status=404)
+
+            is_publish = True if action == "approve" else False
+            achievement_collection.update_one(
+                {"_id": ObjectId(achievement_id)},
+                {"$set": {"is_publish": is_publish, "updated_at": datetime.now()}}
+            )
+
+            message = "Achievement approved and published successfully" if is_publish else "Achievement rejected successfully"
+            return JsonResponse({"message": message}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def get_published_achievements(request):
+    try:
+        published_achievements = achievement_collection.find({"is_publish": True})
+        achievement_list = [
+            {**achievement, "_id": str(achievement["_id"])}  # Convert ObjectId to string
+            for achievement in published_achievements
+        ]
+        return JsonResponse({"achievements": achievement_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+    
+# ===================== INTERNSHIPS =====================
+
+@csrf_exempt
+def post_internship(request):
+    if request.method == 'POST':
+        try:
+            # Get JWT token from cookies
+            jwt_token = request.COOKIES.get("jwt")
+            if not jwt_token:
+                raise AuthenticationFailed("Authentication credentials were not provided.")
+        
+            # Decode JWT token
+            try:
+                decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"]) 
+            except jwt.ExpiredSignatureError:
+                raise AuthenticationFailed("Access token has expired. Please log in again.")
+            except jwt.InvalidTokenError:
+                raise AuthenticationFailed("Invalid token. Please log in again.")
+            
+            admin_id = decoded_token['admin_user']  # Extract admin_id from decoded token
+            # Parse incoming data
+            data = json.loads(request.body)
+            # Ensure required fields are provided in the data
+            required_fields = ['title', 'company_name', 'location', 'duration', 'stipend', 'application_deadline', 'skills_required', 'job_description', 'company_website', 'internship_type']
+            for field in required_fields:
+                if field not in data:
+                    return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
+            # Convert application_deadline to datetime
+            try:
+                application_deadline = datetime.strptime(data['application_deadline'], "%Y-%m-%d")
+            except ValueError:
+                return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
+            # Prepare internship data for storage
+            internship_data = {
+                "title": data["title"],
+                "company_name": data["company_name"],
+                "location": data["location"],
+                "duration": data["duration"],
+                "stipend": data["stipend"],
+                "application_deadline": application_deadline,
+                "skills_required": data["skills_required"],
+                "job_description": data["job_description"],
+                "company_website": data["company_website"],
+                "admin_id": admin_id,
+                "internship_type": data["internship_type"],
+                "publish": False,  # Internship initially unpublished
+            }
+            # Insert into MongoDB
+            internship_collection.insert_one(internship_data)
+            # Return success response
+            return JsonResponse({"message": "Internship posted successfully, awaiting approval."}, status=200)
+        except AuthenticationFailed as auth_error:
+            return JsonResponse({"error": str(auth_error)}, status=401)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+@csrf_exempt
+def get_published_internships(request):
+    try:
+        published_internships = internship_collection.find({"publish": True})
+        internship_list = [
+            {**internship, "_id": str(internship["_id"])}  # Convert ObjectId to string
+            for internship in published_internships
+        ]
+        return JsonResponse({"internships": internship_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def review_internship(request, internship_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            action = data.get("action")
+            if action not in ["approve", "reject"]:
+                return JsonResponse({"error": "Invalid action"}, status=400)
+
+            internship = internship_collection.find_one({"_id": ObjectId(internship_id)})
+            if not internship:
+                return JsonResponse({"error": "Internship not found"}, status=404)
+
+            is_publish = True if action == "approve" else False
+            internship_collection.update_one(
+                {"_id": ObjectId(internship_id)},
+                {"$set": {"publish": is_publish, "updated_at": datetime.now()}}
+            )
+
+            message = "Internship approved and published successfully" if is_publish else "Internship rejected successfully"
+            return JsonResponse({"message": message}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def get_internships(request):
+    try:
+        internships = internship_collection.find()
+        internship_list = [
+            {**internship, "_id": str(internship["_id"])}  # Convert ObjectId to string
+            for internship in internships
+        ]
+        return JsonResponse({"internships": internship_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
