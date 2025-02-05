@@ -17,6 +17,9 @@ import InternshipForm from "./pages/admin/IntershipForm";
 import AchievementDashboard from "./pages/students/AchievementDashboard";
 import HomeDashboard from "./pages/students/HomeDashboard";
 import LandingPage from "./pages/common/Landing";
+import ContactForm from "./pages/students/Contact";
+import JobPreview from "./pages/students/Jobpreview";
+
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -44,6 +47,8 @@ function App() {
         <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>}/>
         <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>}/>
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>}/>
+        <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
+        <Route path="/job-preview/:id" element= {<ProtectedRoute> <JobPreview /> </ProtectedRoute>}/>
         
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
