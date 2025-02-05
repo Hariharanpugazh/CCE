@@ -68,7 +68,7 @@ export default function JobDashboard() {
             </p>
               :
               filteredJobs.map((job) => (
-                <ApplicationCard application={{ ...job.job_data, updated_at: job.updated_at }} />
+                <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} />
               ))
         }
       </div>
