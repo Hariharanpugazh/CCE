@@ -1,0 +1,96 @@
+import { useState } from "react";
+import axios from "axios";
+
+const ContactForm = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    contact: "",
+    message: "",
+  });
+
+  const [status, setStatus] = useState(null);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus(null);
+
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/api/contact-us/", formData, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      setStatus({ success: true, message: response.data.message });
+      setFormData({ name: "", contact: "", message: "" });
+    } catch (error) {
+      setStatus({ success: false, message: error.response?.data.error || "Something went wrong!" });
+    }
+  };
+
+  return (
+    <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-white p-6">
+      {/* Left Section */}
+      <div className="md:w-1/2 text-left p-6">
+        <h2 className="text-3xl font-bold mb-4">Get in touch with us today!</h2>
+        <p className="text-gray-600 mb-6">
+          Whatever you need, whenever you need, our team is here to help and support you every step of the way.
+        </p>
+        <div className="mb-4">
+          <p className="font-semibold">📧 Message Us</p>
+          <p className="text-gray-600">support@gmail.com</p>
+        </div>
+        <div>
+          <p className="font-semibold">📞 Call Us</p>
+          <p className="text-gray-600">+91 98765 54321</p>
+        </div>
+      </div>
+
+      {/* Right Section - Contact Form */}
+      <div className="md:w-1/2 bg-white shadow-lg rounded-lg p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="Your Name"
+            className="w-full p-3 border rounded-lg bg-yellow-100"
+            required
+          />
+          <input
+            type="text"
+            name="contact"
+            value={formData.contact}
+            onChange={handleChange}
+            placeholder="Your Contact"
+            className="w-full p-3 border rounded-lg bg-yellow-100"
+            required
+          />
+          <textarea
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            placeholder="How can we help..."
+            className="w-full p-3 border rounded-lg bg-yellow-100 h-32"
+            required
+          ></textarea>
+          <button type="submit" className="w-full bg-yellow-400 text-black font-bold p-3 rounded-lg">
+            Send Message
+          </button>
+        </form>
+
+        {/* Success / Error Message */}
+        {status && (
+          <p className={`mt-4 text-center ${status.success ? "text-green-600" : "text-red-600"}`}>
+            {status.message}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ContactForm;
