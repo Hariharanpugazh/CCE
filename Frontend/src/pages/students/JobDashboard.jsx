@@ -8,8 +8,27 @@ import { AppPages } from "../../utils/constants";
 
 export default function JobDashboard() {
   const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([])
   const [filter, setFilter] = useState("All");
   const [error, setError] = useState("");
+  const [searchPhrase, setSearchPhrase] = useState("")
+
+  useEffect(() => {
+    if (searchPhrase === "") {
+      setFilteredJobs(jobs)
+    } else {
+      setFilteredJobs(jobs.filter((job) => job.job_data.title.includes(searchPhrase)
+        ||
+        job.job_data.company_name.includes(searchPhrase)
+        ||
+        job.job_data.job_description.includes(searchPhrase)
+        ||
+        job.job_data.required_skills.includes(searchPhrase)
+        ||
+        job.job_data.work_type.includes(searchPhrase)
+      ))
+    }
+  }, [searchPhrase])
 
   // Fetch published jobs from the backend
   useEffect(() => {
@@ -17,6 +36,7 @@ export default function JobDashboard() {
       try {
         const response = await axios.get("http://localhost:8000/api/published-jobs/");
         setJobs(response.data.jobs); // Assuming backend response contains `jobs`
+        setFilteredJobs(response.data.jobs)
       } catch (err) {
         console.error("Error fetching published jobs:", err);
         setError("Failed to load jobs.");
@@ -29,24 +49,28 @@ export default function JobDashboard() {
   return (
     <div className="flex flex-col">
       <StudentPageNavbar />
-      <PageHeader page={AppPages.jobDashboard} filter={filter} setFilter={setFilter} />
+      <PageHeader page={AppPages.jobDashboard} filter={filter} setFilter={setFilter} searchPhrase={searchPhrase} setSearchPhrase={setSearchPhrase} />
 
       {/* Search bar */}
       <div className="w-[80%] self-center">
-        <StudentPageSearchBar />
+        {/* <StudentPageSearchBar /> */}
       </div>
 
       {/* Job cards */}
       <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-        {error ? (
+        {error ?
           <p className="text-red-600">{error}</p>
-        ) : jobs.length === 0 ? (
-          <p className="text-gray-600">No jobs available at the moment.</p>
-        ) : (
-          jobs.map((job) => (
-            <ApplicationCard application={{...job.job_data, updated_at: job.updated_at}} />
-          ))
-        )}
+          : jobs.length === 0 ?
+            <p className="text-gray-600">No jobs available at the moment.</p>
+            :
+            filteredJobs.length === 0 ? <p className="alert alert-danger w-full col-span-full text-center">
+              !! No Jobs Found !!
+            </p>
+              :
+              filteredJobs.map((job) => (
+                <ApplicationCard application={{ ...job.job_data, updated_at: job.updated_at }} />
+              ))
+        }
       </div>
     </div>
   );
