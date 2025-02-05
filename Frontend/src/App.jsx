@@ -23,7 +23,7 @@ const ProtectedRoute = ({ children }) => {
   const token = Cookies.get("jwt"); // Get JWT token from cookies
 
   if (!token) {
-    return <Navigate to="/login" replace />; // Redirect to login if no token
+    return <Navigate to="/" replace />; // Redirect to login if no token
   }
 
   return children; // Render the protected page if token exists
