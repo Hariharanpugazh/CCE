@@ -41,7 +41,19 @@ const AppPages = {
     route: "/admin/jobs",
     name: "jobDashboard",
     displayName: "Jobs",
-  }
+  },
+
+  forgotPassword: {
+    route: "/forgot-password",
+    name: "forgotPassword",
+    displayName: "Forgot Password",
+  },
+
+  resetPassword: {
+    route: "/reset-password",
+    name: "resetPassword",
+    displayName: "Reset Password",
+  },
 };
 
 const apiEndpoints = {
