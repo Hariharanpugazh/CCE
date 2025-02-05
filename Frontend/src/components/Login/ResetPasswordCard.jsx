@@ -1,9 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import InputField from "../Common/InputField";
 import wavyPattern from "../../assets/images/wavy-circles.png";
 
-export default function LoginCard({ page, formDataSetter, formData, onSubmit, onForgotPassword, onResetPassword }) {
+export default function ResetPasswordCard({ page, formDataSetter, formData, onSubmit }) {
   return (
     <div className="w-screen h-screen flex items-center justify-center relative overflow-hidden">
       {/* bg image */}
@@ -21,7 +20,7 @@ export default function LoginCard({ page, formDataSetter, formData, onSubmit, on
           <div className="flex flex-col space-y-2 items-center">
             <p className="text-4xl font-medium">{page.displayName}</p>
             <p className="text-[#838383] text-sm w-3/4 text-center">
-              Welcome Back! Please log in to get access to your account.
+              Enter your new password and the OTP token sent to your email.
             </p>
           </div>
 
@@ -33,18 +32,24 @@ export default function LoginCard({ page, formDataSetter, formData, onSubmit, on
                 setter={(val) => formDataSetter((prevData) => ({ ...prevData, email: val }))}
               />
               <InputField
-                args={{ placeholder: "Enter your Password", required: true }}
-                value={formData.password}
-                setter={(val) => formDataSetter((prevData) => ({ ...prevData, password: val }))}
+                args={{ placeholder: "Enter OTP Token", required: true }}
+                value={formData.token}
+                setter={(val) => formDataSetter((prevData) => ({ ...prevData, token: val }))}
               />
-
-              <button type="button" onClick={onForgotPassword} className="cursor-pointer text-sm">
-                Forgot Password?
-              </button>
+              <InputField
+                args={{ placeholder: "Enter your New Password", required: true }}
+                value={formData.newPassword}
+                setter={(val) => formDataSetter((prevData) => ({ ...prevData, newPassword: val }))}
+              />
+              <InputField
+                args={{ placeholder: "Confirm your New Password", required: true }}
+                value={formData.confirmPassword}
+                setter={(val) => formDataSetter((prevData) => ({ ...prevData, confirmPassword: val }))}
+              />
             </div>
 
             <button className="p-3 rounded-2xl bg-[#FECC00] w-full font-semibold">
-              Login
+              Reset Password
             </button>
           </form>
         </div>
