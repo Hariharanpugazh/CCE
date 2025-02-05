@@ -44,6 +44,10 @@ student_collection = db["students"]
 admin_collection = db["admin"]
 contactus_collection = db["contact_us"]
 
+# Dictionary to track failed login attempts
+failed_login_attempts = {}
+lockout_duration = timedelta(minutes=2)  # Time to lock out after 3 failed attempts
+
 # function to check if password is strong
 def is_strong_password(password):
     if len(password) < 8:
@@ -104,7 +108,6 @@ def student_signup(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
-
 @csrf_exempt
 def student_login(request):
     if request.method == "POST":
@@ -113,25 +116,35 @@ def student_login(request):
             email = data.get("email")
             password = data.get("password")
 
+            # Check lockout status
+            if email in failed_login_attempts:
+                lockout_data = failed_login_attempts[email]
+                if lockout_data['count'] >= 3 and datetime.now() < lockout_data['lockout_until']:
+                    return JsonResponse({'error': 'Too many failed attempts. Please try again later.'}, status=403)
+
             # Find the student user by email
             student_user = student_collection.find_one({"email": email})
-
             if not student_user:
-                return JsonResponse(
-                    {"error": "Student user with this email does not exist"}, status=400
-                )
+                return JsonResponse({"error": "Student user with this email does not exist"}, status=404)
 
-            if not check_password(password, student_user["password"]):
-                return JsonResponse(
-                    {"error": "Invalid password"}, status=400  
-                )
+            if check_password(password, student_user["password"]):
+                # Clear failed attempts after successful login
+                failed_login_attempts.pop(email, None)
 
-            # Generate JWT token
-            student_id = student_user.get("_id")
-            tokens = generate_tokens(student_id)
-            return JsonResponse(
-                {"message": "Login successful", "token": tokens}, status=200
-            )
+                # Generate JWT token
+                student_id = student_user.get("_id")
+                tokens = generate_tokens(student_id)
+                return JsonResponse({"message": "Login successful", "token": tokens}, status=200)
+            else:
+                # Track failed attempts
+                if email not in failed_login_attempts:
+                    failed_login_attempts[email] = {'count': 1, 'lockout_until': None}
+                else:
+                    failed_login_attempts[email]['count'] += 1
+                    if failed_login_attempts[email]['count'] >= 3:
+                        failed_login_attempts[email]['lockout_until'] = datetime.now() + lockout_duration
+
+                return JsonResponse({"error": "Invalid password"}, status=401)
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)

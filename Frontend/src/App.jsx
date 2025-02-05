@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import Cookies from "js-cookie";  // Import js-cookie
+import Cookies from "js-cookie"; // Import js-cookie
 import "./App.css";
 import { AppPages } from "./utils/constants";
 import StudentLogin from "./pages/students/StudentLogin";
@@ -9,7 +9,7 @@ import InternShipDashboard from "./pages/students/InternshipDashboard";
 import JobDashboard from "./pages/students/JobDashboard";
 import AdminInternShipDashboard from "./pages/admin/adminInternDashboard";
 import AdminJobsDashboard from "./pages/admin/adminJobsDashboard";
-import SuperadminDashboard from "./pages/superadmin/SuperadminDashboard"
+import SuperadminDashboard from "./pages/superadmin/SuperadminDashboard";
 import MailPage from "./pages/superadmin/MailPage";
 import JobPostForm from "./pages/admin/JobPostForm";
 import AchievementPostForm from "./pages/admin/AchievementPostForm";
@@ -21,7 +21,10 @@ import ContactForm from "./pages/students/Contact";
 import JobPreview from "./pages/students/Jobpreview";
 import JobEdit from "./pages/admin/Jobedit";
 import InternshipEdit from "./pages/admin/InternshipEdit";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import SuperJobsDashboard from "./pages/superadmin/superJobsDashboard";
+import SuperInternShipDashboard from "./pages/superadmin/superInternDashboard";
 
 
 // Protected Route Component
@@ -38,25 +41,39 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <BrowserRouter>
+      {/* Add ToastContainer here */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000} // Automatically close toasts after 3 seconds
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light" // Optional: Adjust theme as per your design
+      />
       <Routes>
-        
         <Route path={"/"} element={<LandingPage />} />
 
         {/* Student Routes */}
-        <Route path="/student" element={<StudentLogin />} /> 
+        <Route path="/student" element={<StudentLogin />} />
 
         {/* Protected Student Routes */}
-        <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>}/>
-        <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>}/>
-        <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>}/>
-        <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>}/>
+        <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
+        <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
+        <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
+        <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
         <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
-        <Route path="/job-preview/:id" element= {<ProtectedRoute> <JobPreview /> </ProtectedRoute>}/>
-        
+        <Route path="/job-preview/:id" element= {<ProtectedRoute> <JobPreview /> </ProtectedRoute>} />
+        <Route path="/job-preview/:id" element={<JobPreview />} />
+
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
+          
         {/* Protected Admin Routes */}
-        <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>}/>
+        <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>} />
         <Route path="/admin/jobs" element={ <ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />
         <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
         <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
@@ -64,10 +81,13 @@ function App() {
         <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
         <Route path="/internship-edit/:id" element= {<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>}/>
 
+
         {/* Super Admin Login */}
         <Route path={"/superadmin"} element={<SuperAdminLogin />} />
-        <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>}/>
-        <Route path={"/mail"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>}/>
+        <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
+        <Route path={"/superadmin/jobs"} element={<ProtectedRoute> <SuperJobsDashboard /> </ProtectedRoute>} />
+        <Route path={"/superadmin/internships"} element={<ProtectedRoute> <SuperInternShipDashboard /> </ProtectedRoute>} />
+        <Route path={"/mail"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

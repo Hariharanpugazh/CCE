@@ -62,6 +62,10 @@ job_collection = db['jobs']
 achievement_collection = db['achievement']
 superadmin_collection = db['superadmin']
 
+# Dictionary to track failed login attempts
+failed_login_attempts = {}
+lockout_duration = timedelta(minutes=2)  # Time to lock out after 3 failed attempts
+
 @csrf_exempt
 def admin_signup(request):
     if request.method == 'POST':
@@ -114,23 +118,40 @@ def admin_login(request):
             if "@sns" not in email:
                 return JsonResponse({'error': 'Email must contain domain id'}, status=400)
 
+            # Check lockout status
+            if email in failed_login_attempts:
+                lockout_data = failed_login_attempts[email]
+                if lockout_data['count'] >= 3 and datetime.now() < lockout_data['lockout_until']:
+                    return JsonResponse({'error': 'Too many failed attempts. Please try again later.'}, status=403)
+
             # Find the admin user by email
             admin_user = admin_collection.find_one({'email': email})
-            admin_id = admin_user.get('_id')
+            if not admin_user:
+                return JsonResponse({'error': 'Email does not exist'}, status=404)
 
-            if admin_user and check_password(password, admin_user['password']):
+            if check_password(password, admin_user['password']):
+                # Clear failed attempts after successful login
+                failed_login_attempts.pop(email, None)
+
                 # Generate JWT token
+                admin_id = admin_user.get('_id')
                 tokens = generate_tokens(admin_id)
                 return JsonResponse({'message': 'Login successful', 'tokens': tokens}, status=200)
             else:
-                return JsonResponse({'error': 'Invalid email or password'}, status=401)
+                # Track failed attempts
+                if email not in failed_login_attempts:
+                    failed_login_attempts[email] = {'count': 1, 'lockout_until': None}
+                else:
+                    failed_login_attempts[email]['count'] += 1
+                    if failed_login_attempts[email]['count'] >= 3:
+                        failed_login_attempts[email]['lockout_until'] = datetime.now() + lockout_duration
+
+                return JsonResponse({'error': 'Invalid password'}, status=401)
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-    
-def generate_reset_token(length=6):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -246,16 +267,36 @@ def super_admin_login(request):
             if "@sns" not in email:
                 return JsonResponse({'error': 'Email must contain domain id'}, status=400)
 
+            # Check lockout status
+            if email in failed_login_attempts:
+                lockout_data = failed_login_attempts[email]
+                if lockout_data['count'] >= 3 and datetime.now() < lockout_data['lockout_until']:
+                    return JsonResponse({'error': 'Too many failed attempts. Please try again later.'}, status=403)
+
             # Find the super admin user by email
             super_admin_user = superadmin_collection.find_one({'email': email})
-            super_admin_id = super_admin_user.get('_id')
+            if not super_admin_user:
+                return JsonResponse({'error': 'Email does not exist'}, status=404)
 
-            if super_admin_user and check_password(password, super_admin_user['password']):
+            if check_password(password, super_admin_user['password']):
+                # Clear failed attempts after successful login
+                failed_login_attempts.pop(email, None)
+
                 # Generate JWT token
+                super_admin_id = super_admin_user.get('_id')
                 tokens = generate_tokens_superadmin(super_admin_id)
                 return JsonResponse({'message': 'Login successful', 'tokens': tokens}, status=200)
             else:
-                return JsonResponse({'error': 'Invalid email or password'}, status=401)
+                # Track failed attempts
+                if email not in failed_login_attempts:
+                    failed_login_attempts[email] = {'count': 1, 'lockout_until': None}
+                else:
+                    failed_login_attempts[email]['count'] += 1
+                    if failed_login_attempts[email]['count'] >= 3:
+                        failed_login_attempts[email]['lockout_until'] = datetime.now() + lockout_duration
+
+                return JsonResponse({'error': 'Invalid password'}, status=401)
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:

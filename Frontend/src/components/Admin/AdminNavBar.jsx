@@ -28,13 +28,13 @@ export default function AdminPageNavbar() {
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = AppPages.jobDashboard.route)}
+          onClick={() => (window.location.href = AppPages.adminJobDashboard.route)}
         >
           Jobs
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = AppPages.internShipDashboard.route)}
+          onClick={() => (window.location.href = AppPages.adminInternShipDashboard.route)}
         >
           Internships
         </p>
