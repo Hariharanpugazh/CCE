@@ -23,6 +23,22 @@ def generate_tokens(admin_user):
     """
     access_payload = {
         'admin_user': str(admin_user),
+        'role':'admin',
+        "exp": datetime.utcnow() + timedelta(days=1),
+        "iat": datetime.utcnow(),
+    }
+
+    # Encode the token
+    token = jwt.encode(access_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return {'jwt': token}
+
+def generate_tokens_superadmin(superadmin_user):
+    """
+    Generate tokens for authentication. Modify this with JWT implementation if needed.
+    """
+    access_payload = {
+        'superadmin_user': str(superadmin_user),
+        'role':'superadmin',
         "exp": datetime.utcnow() + timedelta(days=1),
         "iat": datetime.utcnow(),
     }
@@ -141,7 +157,7 @@ def super_admin_signup(request):
             # Insert the document into the collection
             superadmin_collection.insert_one(super_admin_user)
 
-            return JsonResponse({'message': 'Super admin user created successfully'}, status=201)
+            return JsonResponse({'message': 'Super admin user created successfully'}, status=200)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:
@@ -165,7 +181,7 @@ def super_admin_login(request):
 
             if super_admin_user and check_password(password, super_admin_user['password']):
                 # Generate JWT token
-                tokens = generate_tokens(super_admin_id)
+                tokens = generate_tokens_superadmin(super_admin_id)
                 return JsonResponse({'message': 'Login successful', 'tokens': tokens}, status=200)
             else:
                 return JsonResponse({'error': 'Invalid email or password'}, status=401)

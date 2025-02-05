@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 export default function MailPage() {
   const [jobs, setJobs] = useState([]);
@@ -8,42 +10,54 @@ export default function MailPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
+  const navigate = useNavigate();
+  const token = Cookies.get("jwt"); // Retrieve JWT from cookies
+
+  // Decode JWT to check user role
+  useEffect(() => {
+    if (!token) {
+      navigate("/login"); // Redirect if no token
+      return;
+    }
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+      if (payload.role !== "superadmin") {
+        navigate("/"); // Redirect if not superadmin
+      }
+    } catch (err) {
+      console.error("Invalid token:", err);
+      navigate("/superadmin");
+    }
+  }, [token, navigate]);
+
   // Fetch jobs, achievements, and internships from backend
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/jobs");
-        setJobs(response.data.jobs);
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+
+        const [jobsRes, achievementsRes, internshipsRes] = await Promise.all([
+          axios.get("http://localhost:8000/api/jobs", config),
+          axios.get("http://localhost:8000/api/achievements", config),
+          axios.get("http://localhost:8000/api/internship/", config),
+        ]);
+
+        setJobs(jobsRes.data.jobs);
+        setAchievements(achievementsRes.data.achievements);
+        setInternships(internshipsRes.data.internships);
       } catch (err) {
-        console.error("Error fetching jobs:", err);
-        setError("Failed to load jobs.");
+        console.error("Error fetching data:", err);
+        setError("Failed to load data.");
       }
     };
 
-    const fetchAchievements = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/api/achievements");
-        setAchievements(response.data.achievements);
-      } catch (err) {
-        console.error("Error fetching achievements:", err);
-        setError("Failed to load achievements.");
-      }
-    };
-
-    const fetchInternships = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/api/internship/");
-        setInternships(response.data.internships);
-      } catch (err) {
-        console.error("Error fetching internships:", err);
-        setError("Failed to load internships.");
-      }
-    };
-
-    fetchJobs();
-    fetchAchievements();
-    fetchInternships();
-  }, []);
+    fetchData();
+  }, [token]);
 
   // Handle Approve/Reject action for Jobs, Achievements, and Internships
   const handleAction = async (id, action, type) => {
@@ -61,28 +75,29 @@ export default function MailPage() {
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
       setMessage(response.data.message);
 
       if (type === "job") {
-        setJobs((prevJobs) =>
-          prevJobs.map((job) =>
+        setJobs((prev) =>
+          prev.map((job) =>
             job._id === id ? { ...job, is_publish: action === "approve" } : job
           )
         );
       } else if (type === "achievement") {
-        setAchievements((prevAchievements) =>
-          prevAchievements.map((achievement) =>
+        setAchievements((prev) =>
+          prev.map((achievement) =>
             achievement._id === id
               ? { ...achievement, is_publish: action === "approve" }
               : achievement
           )
         );
       } else {
-        setInternships((prevInternships) =>
-          prevInternships.map((internship) =>
+        setInternships((prev) =>
+          prev.map((internship) =>
             internship._id === id
               ? { ...internship, publish: action === "approve" }
               : internship
