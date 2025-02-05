@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom"; // Assuming you are using React Router for navigation
 
 export default function AchievementPostForm() {
   const [formData, setFormData] = useState({
@@ -16,6 +17,22 @@ export default function AchievementPostForm() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
+
+    const decodedToken = jwtDecode(token);
+    if (decodedToken.role !== "superadmin" && decodedToken.role !== "admin") {
+      setError("You do not have permission to access this page.");
+      // Optionally, you can redirect the user to a different page
+      // navigate("/unauthorized");
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -77,12 +94,15 @@ export default function AchievementPostForm() {
     }
   };
 
+  if (error) {
+    return <div className="text-red-600">{error}</div>;
+  }
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <h2 className="text-3xl font-bold mb-6 text-center">Post an Achievement</h2>
 
       {message && <p className="text-green-600 mb-4">{message}</p>}
-      {error && <p className="text-red-600 mb-4">{error}</p>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Name */}
