@@ -49,6 +49,7 @@ function App() {
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>}/>
         <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element= {<ProtectedRoute> <JobPreview /> </ProtectedRoute>}/>
+        <Route path="/job-preview/:id" element={<JobPreview />} />
         
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
