@@ -44,6 +44,7 @@ function App() {
         <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>}/>
         <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>}/>
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>}/>
+        
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
 
