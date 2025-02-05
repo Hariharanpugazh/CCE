@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { ToastContainer, toast } from "react-toastify"; // ✅ Toast Notifications
+import "react-toastify/dist/ReactToastify.css"; // ✅ Toastify Styles
 import LoginCard from "../../components/Login/LoginCard";
 import ForgotPasswordCard from "../../components/Login/ForgotPasswordCard";
 import ResetPasswordCard from "../../components/Login/ResetPasswordCard";
@@ -16,6 +18,8 @@ export default function AdminLogin() {
     });
     const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [isResetPassword, setIsResetPassword] = useState(false);
+    const [isLocked, setIsLocked] = useState(false);
+    const [lockoutTime, setLockoutTime] = useState(0);
     const navigate = useNavigate();
 
     // Clear cookies when entering the login page
@@ -23,8 +27,22 @@ export default function AdminLogin() {
         Cookies.remove("jwt");
     }, []);
 
+    // ⏳ Timer for lockout countdown
+    useEffect(() => {
+        if (lockoutTime > 0) {
+            const interval = setInterval(() => {
+                setLockoutTime((prev) => prev - 1);
+            }, 1000);
+            return () => clearInterval(interval);
+        } else {
+            setIsLocked(false);
+        }
+    }, [lockoutTime]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isLocked) return;
+
         try {
             const response = await fetch("http://localhost:8000/api/login/", {
                 method: "POST",
@@ -38,13 +56,18 @@ export default function AdminLogin() {
 
             if (response.ok) {
                 Cookies.set("jwt", data.tokens.jwt, { expires: 1, path: "/" });
+                toast.success("Login successful! Redirecting...");
                 navigate("/admin/internships");
             } else {
-                alert(data.error || "Login failed");
+                if (data.error.includes("Too many failed attempts")) {
+                    setIsLocked(true);
+                    setLockoutTime(120); // ⏳ 5-minute lockout
+                }
+                toast.error(data.error || "Login failed");
             }
         } catch (error) {
             console.error("Error during login:", error);
-            alert("Something went wrong. Please try again.");
+            toast.error("Something went wrong. Please try again.");
         }
     };
 
@@ -72,15 +95,15 @@ export default function AdminLogin() {
             const data = await response.json();
 
             if (response.ok) {
-                alert(data.message);
+                toast.success(data.message);
                 setIsForgotPassword(false);
-                setIsResetPassword(true); // Navigate to ResetPasswordCard
+                setIsResetPassword(true);
             } else {
-                alert(data.error || "Something went wrong!");
+                toast.error(data.error || "Something went wrong!");
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("Failed to send reset email. Please try again.");
+            toast.error("Failed to send reset email. Please try again.");
         }
     };
 
@@ -89,7 +112,7 @@ export default function AdminLogin() {
         const { email, token, newPassword, confirmPassword } = formData;
 
         if (newPassword !== confirmPassword) {
-            alert("Passwords do not match!");
+            toast.error("Passwords do not match!");
             return;
         }
 
@@ -105,14 +128,14 @@ export default function AdminLogin() {
             const data = await response.json();
 
             if (response.ok) {
-                alert(data.message);
+                toast.success(data.message);
                 navigate("/admin");
             } else {
-                alert(data.error || "Something went wrong!");
+                toast.error(data.error || "Something went wrong!");
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("Failed to reset password. Please try again.");
+            toast.error("Failed to reset password. Please try again.");
         }
     };
 
@@ -139,13 +162,18 @@ export default function AdminLogin() {
     }
 
     return (
-        <LoginCard
-            page={AppPages.adminLogin}
-            formData={formData}
-            formDataSetter={setFormData}
-            onSubmit={handleSubmit}
-            onForgotPassword={handleForgotPassword}
-            onResetPassword={handleResetPassword}
-        />
+        <>
+            <LoginCard
+                page={AppPages.adminLogin}
+                formData={formData}
+                formDataSetter={setFormData}
+                onSubmit={handleSubmit}
+                onForgotPassword={handleForgotPassword}
+                onResetPassword={handleResetPassword}
+                isLocked={isLocked}
+                lockoutTime={lockoutTime}
+            />
+            <ToastContainer position="top-right" autoClose={3000} />
+        </>
     );
 }

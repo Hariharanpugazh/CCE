@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie"; // Import js-cookie
+import { ToastContainer, toast } from "react-toastify"; // Import Toast notifications
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
 import LoginCard from "../../components/Login/LoginCard";
 import ForgotPasswordCard from "../../components/Login/ForgotPasswordCard";
 import ResetPasswordCard from "../../components/Login/ResetPasswordCard";
@@ -13,10 +15,27 @@ export default function StudentLogin() {
     });
     const [isForgotPassword, setIsForgotPassword] = useState(false);
     const [isResetPassword, setIsResetPassword] = useState(false);
+    const [isLocked, setIsLocked] = useState(false);
+    const [lockoutTime, setLockoutTime] = useState(0);
     const navigate = useNavigate();
+
+    // Timer for lockout countdown
+    useEffect(() => {
+        if (lockoutTime > 0) {
+            const interval = setInterval(() => {
+                setLockoutTime((prev) => prev - 1);
+            }, 1000);
+
+            return () => clearInterval(interval);
+        } else {
+            setIsLocked(false);
+        }
+    }, [lockoutTime]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (isLocked) return;
+
         try {
             const response = await fetch("http://localhost:8000/api/stud/login/", {
                 method: "POST",
@@ -31,13 +50,18 @@ export default function StudentLogin() {
             if (response.ok) {
                 // Set JWT token as a cookie
                 Cookies.set("jwt", data.token.jwt, { expires: 1 }); // Expires in 1 day
+                toast.success("Login successful! Redirecting...");
                 navigate("/home"); // Redirect to student dashboard
             } else {
-                alert(data.error || "Login failed");
+                if (data.error.includes("Too many failed attempts")) {
+                    setIsLocked(true);
+                    setLockoutTime(120); // 5-minute lockout
+                }
+                toast.error(data.error || "Login failed");
             }
         } catch (error) {
             console.error("Error during login:", error);
-            alert("Something went wrong. Please try again.");
+            toast.error("Something went wrong. Please try again.");
         }
     };
 
@@ -65,13 +89,13 @@ export default function StudentLogin() {
             const data = await response.json();
 
             if (response.ok) {
-                alert(data.message);
+                toast.success(data.message);
             } else {
-                alert(data.error || "Something went wrong!");
+                toast.error(data.error || "Something went wrong!");
             }
         } catch (error) {
             console.error("Error:", error);
-            alert("Failed to send reset email. Please try again.");
+            toast.error("Failed to send reset email. Please try again.");
         }
     };
 
@@ -103,13 +127,18 @@ export default function StudentLogin() {
     }
 
     return (
-        <LoginCard
-            page={AppPages.studentLogin}
-            formData={formData}
-            formDataSetter={setFormData}
-            onSubmit={handleSubmit}
-            onForgotPassword={handleForgotPassword}
-            onResetPassword={handleResetPassword}
-        />
+        <>
+            <LoginCard
+                page={AppPages.studentLogin}
+                formData={formData}
+                formDataSetter={setFormData}
+                onSubmit={handleSubmit}
+                onForgotPassword={handleForgotPassword}
+                onResetPassword={handleResetPassword}
+                isLocked={isLocked}
+                lockoutTime={lockoutTime}
+            />
+            <ToastContainer position="top-right" autoClose={3000} />
+        </>
     );
 }
