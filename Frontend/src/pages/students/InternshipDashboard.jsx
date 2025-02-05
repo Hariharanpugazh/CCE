@@ -3,6 +3,8 @@ import axios from "axios";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import StudentPageSearchBar from "../../components/Students/StudentPageSearchBar";
 import PageHeader from "../../components/Common/StudentPageHeader";
+import { AppPages } from "../../utils/constants";
+import ApplicationCard from "../../components/Students/ApplicationCard";
 
 export default function InternshipDashboard() {
   const [internships, setInternships] = useState([]);
@@ -27,7 +29,7 @@ export default function InternshipDashboard() {
   return (
     <div className="flex flex-col">
       <StudentPageNavbar />
-      <PageHeader page="Internship Dashboard" filter={filter} setFilter={setFilter} />
+      <PageHeader page={AppPages.internShipDashboard} filter={filter} setFilter={setFilter} />
 
       {/* Search bar */}
       <div className="w-[80%] self-center">
@@ -42,16 +44,7 @@ export default function InternshipDashboard() {
           <p className="text-gray-600">No internships available at the moment.</p>
         ) : (
           internships.map((internship) => (
-            <div
-              key={internship._id}
-              className="p-4 border rounded-lg shadow-md bg-white flex flex-col justify-between"
-            >
-              <h2 className="text-xl font-bold text-gray-800">{internship.title}</h2>
-              <p className="text-gray-600 mt-2">{internship.company_name}</p>
-              <p className="text-gray-500 mt-2">{internship.location}</p>
-              <p className="text-gray-500 mt-2">Stipend: {internship.stipend}</p>
-              <p className="text-gray-500 mt-2">Duration: {internship.duration}</p>
-            </div>
+            <ApplicationCard application={internship} />
           ))
         )}
       </div>
