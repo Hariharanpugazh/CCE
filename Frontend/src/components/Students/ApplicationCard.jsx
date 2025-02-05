@@ -59,6 +59,10 @@ function timeAgo(dateString) {
 export default function ApplicationCard({ application }) {
     console.log(application)
 
+    const handleapplyclick = () => {
+        window.location.href = application.job_link;
+    }
+
     return <div className="flex flex-col p-3 border border-gray-200 rounded-lg justify-between">
         {/* title */}
         <div className="flex justify-between items-start">
@@ -101,7 +105,7 @@ export default function ApplicationCard({ application }) {
         {/* apply now */}
         <div className="flex justify-between items-center mt-5">
             <p className="text-[#FFC800] text-xl"> {application.salary_range}/- </p>
-            <button className="bg-[#FFC800] p-2 rounded text-xs cursor-pointer">
+            <button className="bg-[#FFC800] p-2 rounded text-xs cursor-pointer" onClick={handleapplyclick}> 
                 Apply Now
             </button>
         </div>

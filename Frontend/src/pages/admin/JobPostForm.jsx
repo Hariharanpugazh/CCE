@@ -123,6 +123,7 @@ export default function JobPostForm() {
       );
 
       setMessage(response.data.message);
+      window.location.href = `${window.location.origin}/jobs`; // Redirect to jobs dashboard after successful job post
       setError("");
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong");
