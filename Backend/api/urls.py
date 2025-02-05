@@ -33,4 +33,6 @@ urlpatterns = [
     path('published-jobs/', get_published_jobs, name='get_published_jobs'),
     path('published-achievement/', get_published_achievements, name='get_published_achievements'),
     path('published-internship/', get_published_internships, name='get_published_internships'),
+    path("contact-us/",contact_us,name="contact-us"),
+
 ]
