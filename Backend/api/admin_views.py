@@ -298,7 +298,7 @@ def get_published_jobs(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-# ===================== ACHIEVEMENTS =====================
+# ============================================================== ACHIEVEMENTS ============================================================================================================================
 
 @csrf_exempt
 @api_view(['POST'])
@@ -404,7 +404,7 @@ def get_published_achievements(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
     
-# ===================== INTERNSHIPS =====================
+# ============================================================== INTERNSHIPS ===================================================================================
 
 @csrf_exempt
 def post_internship(request):
