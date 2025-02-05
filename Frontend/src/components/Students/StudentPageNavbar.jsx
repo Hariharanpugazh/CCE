@@ -1,14 +1,11 @@
 import { useState } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
+import { FiUser } from "react-icons/fi";
 
 export default function StudentPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
-
-  const toggleProfileMenu = () => {
-    setProfileMenuOpen(!isProfileMenuOpen);
-  };
-
+  
   const handleLogout = () => {
     // Clear the JWT cookie
     Cookies.remove("jwt");
@@ -21,8 +18,8 @@ export default function StudentPageNavbar() {
     <nav className="flex justify-between p-4 items-stretch pt-8 relative">
       <span className="flex-1 max-w-[25%]"></span>
 
-      <div className="flex flex-1 justify-evenly space-x-5 items-center">
-      <p
+      <div className="flex flex-1 justify-evenly space-x-5 items-center text-lg">
+        <p
           className="cursor-pointer hover:underline hover:text-blue-400"
           onClick={() => (window.location.href = "/home")}
         >
@@ -53,11 +50,10 @@ export default function StudentPageNavbar() {
       </div>
 
       <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative">
-        <p>My Profile</p>
-        <i
-          className="ml-2 text-2xl bi bi-person-circle text-theme-yellow cursor-pointer"
-          onClick={toggleProfileMenu}
-        ></i>
+        <div className="flex space-x-2 items-center">
+          <p>Profile</p>
+          <FiUser className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer" style={{ width: "2rem" }} />
+        </div>
 
         {/* Profile Menu */}
         {isProfileMenuOpen && (

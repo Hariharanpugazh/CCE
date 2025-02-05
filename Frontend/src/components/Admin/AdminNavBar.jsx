@@ -1,13 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
+import { FiMail, FiPlus, FiUser } from "react-icons/fi";
 
 export default function AdminPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
-
-  const toggleProfileMenu = () => {
-    setProfileMenuOpen(!isProfileMenuOpen);
-  };
+  const [isCreateMenuOpen, setCreateMenuOpen] = useState(false);
 
   const handleLogout = () => {
     // Clear the JWT cookie
@@ -21,8 +19,8 @@ export default function AdminPageNavbar() {
     <nav className="flex justify-between p-4 items-stretch pt-8 relative">
       <span className="flex-1 max-w-[25%]"></span>
 
-      <div className="flex flex-1 justify-evenly space-x-5 items-center">
-      <p
+      <div className="flex flex-1 justify-evenly space-x-5 items-center text-lg">
+        <p
           className="cursor-pointer hover:underline hover:text-blue-400"
           onClick={() => (window.location.href = "/home")}
         >
@@ -52,32 +50,67 @@ export default function AdminPageNavbar() {
         </p>
       </div>
 
-      <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative">
-        <p>My Profile</p>
-        <i
-          className="ml-2 text-2xl bi bi-person-circle text-theme-yellow cursor-pointer"
-          onClick={toggleProfileMenu}
-        ></i>
+      <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm space-x-4">
+        <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => { setProfileMenuOpen(toggle => !toggle); setCreateMenuOpen(false) }}>
+          <p>Profile</p>
+          <FiUser className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer" style={{ width: "2rem" }} />
 
-        {/* Profile Menu */}
-        {isProfileMenuOpen && (
-          <div className="absolute top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50">
-            <ul className="flex flex-col">
-              <li
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                onClick={() => (window.location.href = "/profile")}
-              >
-                Profile
-              </li>
-              <li
-                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                onClick={handleLogout}
-              >
-                Logout
-              </li>
-            </ul>
-          </div>
-        )}
+          {/* Profile Menu */}
+          {isProfileMenuOpen && (
+            <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50 absolute p-2">
+              <ul className="flex flex-col">
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/profile")}
+                >
+                  Profile
+                </li>
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <div className="flex space-x-2 items-center relative cursor-pointer" onClick={() => { setCreateMenuOpen(toggle => !toggle); setProfileMenuOpen(false) }}>
+          <p>Create New</p>
+          <FiPlus
+            className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer" style={{ width: "2rem" }}
+            title="Create"
+          />
+
+          {/* Profile Menu */}
+          {isCreateMenuOpen && (
+            <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50 absolute p-2">
+              <ul className="flex flex-col">
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/internpost")}
+                >
+                  Internship
+                </li>
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/jobpost")}
+                >
+                  Job Post
+                </li>
+
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/achievement")}
+                >
+                  Achievement Post
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+
       </div>
     </nav>
   );
