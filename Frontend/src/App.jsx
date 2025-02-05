@@ -19,6 +19,8 @@ import HomeDashboard from "./pages/students/HomeDashboard";
 import LandingPage from "./pages/common/Landing";
 import ContactForm from "./pages/students/Contact";
 import JobPreview from "./pages/students/Jobpreview";
+import JobEdit from "./pages/admin/Jobedit";
+
 
 
 // Protected Route Component
@@ -40,7 +42,7 @@ function App() {
         <Route path={"/"} element={<LandingPage />} />
 
         {/* Student Routes */}
-        <Route path="/student" element={<StudentLogin />} />
+        <Route path="/student" element={<StudentLogin />} /> 
 
         {/* Protected Student Routes */}
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>}/>
@@ -53,13 +55,13 @@ function App() {
         
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
-
         {/* Protected Admin Routes */}
         <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>}/>
         <Route path="/admin/jobs" element={ <ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />
         <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
         <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
         <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
+        <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
 
         {/* Super Admin Login */}
         <Route path={"/superadmin"} element={<SuperAdminLogin />} />

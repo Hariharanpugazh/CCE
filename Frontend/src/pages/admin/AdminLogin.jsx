@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import LoginCard from "../../components/Login/LoginCard";
+import ForgotPasswordCard from "../../components/Login/ForgotPasswordCard";
+import ResetPasswordCard from "../../components/Login/ResetPasswordCard";
 import { AppPages } from "../../utils/constants";
 import ForgotPasswordCard from "../../components/Login/ForgotPasswordCard";
 import ResetPasswordCard from "../../components/Login/ResetPasswordCard";
