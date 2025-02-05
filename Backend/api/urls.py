@@ -15,6 +15,9 @@ urlpatterns = [
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
     path("superadmin_login/",super_admin_login,name="super_admin_login"),
 
+    #common
+    path("profile/<str:userId>/", get_profile, name="get_profile"),
+    
     #Jobs
     path('jobs', get_jobs, name='get_jobs'),
     path("review-job/<str:job_id>/", review_job, name="approve_job"),
