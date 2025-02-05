@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom'; // Assuming you are using React Router for navigation
 
 const InternPostForm = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +20,23 @@ const InternPostForm = () => {
 
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = Cookies.get('jwt');
+    if (!token) {
+      setError('No token found. Please log in.');
+      return;
+    }
+
+    const decodedToken = jwtDecode(token);
+    if (decodedToken.role !== 'superadmin' && decodedToken.role !== 'admin') {
+      setError('You do not have permission to access this page.');
+      // Optionally, you can redirect the user to a different page
+      // navigate('/unauthorized');
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,23 +52,37 @@ const InternPostForm = () => {
     setMessage('');
 
     try {
+      const token = Cookies.get('jwt');
+
+      if (!token) {
+        setError('No token found. Please log in.');
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await axios.post(
         'http://localhost:8000/api/post_internship/', // Correct URL
         formData,
         {
-          withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
         }
-      );      
+      );
       setMessage(response.data.message);
+      setError('');
     } catch (error) {
-      setMessage(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
+      setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
+      setMessage('');
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (error) {
+    return <div className="text-red-600">{error}</div>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
