@@ -5,8 +5,6 @@ import LoginCard from "../../components/Login/LoginCard";
 import ForgotPasswordCard from "../../components/Login/ForgotPasswordCard";
 import ResetPasswordCard from "../../components/Login/ResetPasswordCard";
 import { AppPages } from "../../utils/constants";
-import ForgotPasswordCard from "../../components/Login/ForgotPasswordCard";
-import ResetPasswordCard from "../../components/Login/ResetPasswordCard";
 
 export default function AdminLogin() {
     const [formData, setFormData] = useState({

@@ -20,10 +20,10 @@ const JobPreview = () => {
             <div className="border-b pb-4 mb-6">
                 <h2 className="text-3xl font-bold text-gray-900">{job.job_data.title}</h2>
                 <p className="text-lg text-gray-700 mt-2">{job.job_data.company_name}</p>
-                <a 
-                    href={job.job_data.company_website} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                <a
+                    href={job.job_data.company_website}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-blue-600 hover:underline text-sm"
                 >
                     Visit Company Website
@@ -55,7 +55,16 @@ const JobPreview = () => {
             {/* Skills & Education */}
             <div className="border-b pb-4 mb-6">
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Required Skills & Qualifications</h3>
-                <p className="text-gray-700"><strong>Skills:</strong> {job.job_data.required_skills}</p>
+                <div className="text-gray-700 mb-2">
+                    <strong>Skills:</strong>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {job.job_data.required_skills.map((skill, index) => (
+                            <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+                                {skill}
+                            </span>
+                        ))}
+                    </div>
+                </div>
                 <p className="text-gray-700"><strong>Education:</strong> {job.job_data.education_requirements}</p>
             </div>
 
@@ -81,10 +90,10 @@ const JobPreview = () => {
 
             {/* Apply Button */}
             <div className="text-center mt-8">
-                <a 
-                    href={job.job_data.company_website} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                <a
+                    href={job.job_data.company_website}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md"
                 >
                     Apply Now

@@ -324,12 +324,36 @@ def get_jobs(request):
     try:
         jobs = job_collection.find()
         job_list = []
+
         for job in jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
+            
+            # Ensure job_data exists and has application_deadline
+            if "job_data" in job and "application_deadline" in job["job_data"]:
+                if job["job_data"]["application_deadline"]:  # Check if it's not None
+                    deadline = job["job_data"]["application_deadline"]
+                    
+                    try:
+                        # Try parsing full datetime format
+                        formatted_deadline = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
+                    except ValueError:
+                        try:
+                            # If the first format fails, try the plain date format
+                            formatted_deadline = datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
+                        except ValueError:
+                            # If neither format works, keep it as is (to avoid crashes)
+                            formatted_deadline = deadline
+                    
+                    job["job_data"]["application_deadline"] = formatted_deadline  # Update formatted value
+            
             job_list.append(job)
+
         return JsonResponse({"jobs": job_list}, status=200)
+
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
     
 @csrf_exempt
 def review_job(request, job_id):
@@ -563,18 +587,20 @@ def post_internship(request):
             jwt_token = request.COOKIES.get("jwt")
             if not jwt_token:
                 raise AuthenticationFailed("Authentication credentials were not provided.")
-        
+
             # Decode JWT token
             try:
-                decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"]) 
+                decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
+                print("Decoded Token:", decoded_token)  # Debugging: Check the decoded token
             except jwt.ExpiredSignatureError:
                 raise AuthenticationFailed("Access token has expired. Please log in again.")
             except jwt.InvalidTokenError:
                 raise AuthenticationFailed("Invalid token. Please log in again.")
-            
+
             admin_id = decoded_token['admin_user']  # Extract admin_id from decoded token
             # Parse incoming data
             data = json.loads(request.body)
+            print("Incoming Data:", data)  # Debugging: Check the incoming data
             # Ensure required fields are provided in the data
             required_fields = ['title', 'company_name', 'location', 'duration', 'stipend', 'application_deadline', 'skills_required', 'job_description', 'company_website', 'internship_type']
             for field in required_fields:
@@ -596,6 +622,7 @@ def post_internship(request):
                 "skills_required": data["skills_required"],
                 "job_description": data["job_description"],
                 "company_website": data["company_website"],
+                "job_link": data.get('job_link'),
                 "admin_id": admin_id,
                 "internship_type": data["internship_type"],
                 "publish": False,  # Internship initially unpublished
@@ -648,16 +675,94 @@ def review_internship(request, internship_id):
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
+from datetime import datetime
+
 @csrf_exempt
 def get_internships(request):
     try:
         internships = internship_collection.find()
         internship_list = [
-            {**internship, "_id": str(internship["_id"])}  # Convert ObjectId to string
+            {
+                **internship,
+                "_id": str(internship["_id"]),  # Convert ObjectId to string
+                "application_deadline": internship["application_deadline"].strftime("%Y-%m-%d")  # Convert to date only
+            }
             for internship in internships
         ]
         return JsonResponse({"internships": internship_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+@csrf_exempt
+def get_internship_id(request, internship_id):
+    """
+    Get an internship by its ID.
+    """
+    if request.method == 'GET':
+        try:
+            internship = internship_collection.find_one({"_id": ObjectId(internship_id)})
+            if not internship:
+                return JsonResponse({"error": "Internship not found"}, status=404)
+
+            internship["_id"] = str(internship["_id"])  # Convert ObjectId to string
+
+            # Convert application_deadline to only date format (YYYY-MM-DD)
+            if "application_deadline" in internship and internship["application_deadline"]:
+                if isinstance(internship["application_deadline"], datetime):  # If it's a datetime object
+                    internship["application_deadline"] = internship["application_deadline"].strftime("%Y-%m-%d")
+                else:  # If it's a string, ensure it's correctly formatted
+                    try:
+                        internship["application_deadline"] = datetime.strptime(internship["application_deadline"], "%Y-%m-%dT%H:%M:%S").strftime("%Y-%m-%d")
+                    except ValueError:
+                        pass  # Ignore if the format is unexpected
+
+            return JsonResponse({"internship": internship}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
     
+@csrf_exempt
+def delete_internship(request, internship_id):
+    """
+    Delete an internship by its ID.
+    """
+    if request.method == 'DELETE':
+        try:
+            internship = internship_collection.find_one({"_id": ObjectId(internship_id)})
+            if not internship:
+                return JsonResponse({"error": "Internship not found"}, status=404)
+
+            internship_collection.delete_one({"_id": ObjectId(internship_id)})
+            return JsonResponse({"message": "Internship deleted successfully"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+@csrf_exempt
+def update_internship(request, internship_id):
+    """
+    Update an internship by its ID.
+    """
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            internship = internship_collection.find_one({"_id": ObjectId(internship_id)})
+            if not internship:
+                return JsonResponse({"error": "Internship not found"}, status=404)
+
+            # Exclude the _id field from the update
+            if '_id' in data:
+                del data['_id']
+
+            internship_collection.update_one({"_id": ObjectId(internship_id)}, {"$set": data})
+            updated_internship = internship_collection.find_one({"_id": ObjectId(internship_id)})
+            updated_internship["_id"] = str(updated_internship["_id"])  # Convert ObjectId to string
+            return JsonResponse({"internship": updated_internship}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
 
