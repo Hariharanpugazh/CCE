@@ -93,7 +93,7 @@ function App() {
         <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
         <Route path="/internship-edit/:id" element= {<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>}/>
         <Route path="/manage-jobs" element= {<ProtectedRoute> <ManageJobs /> </ProtectedRoute>}/>
-
+      
 
         {/* Super Admin Login */}
         <Route path={"/superadmin"} element={<SuperAdminLogin />} />

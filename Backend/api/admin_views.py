@@ -535,7 +535,7 @@ def super_job_post(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @csrf_exempt
-def get_jobs(request):
+def get_jobs_for_mail(request):
     try:
         jobs = job_collection.find()
         job_list = []
@@ -1024,6 +1024,7 @@ def update_internship(request, internship_id):
 def manage_jobs(request):
     if request.method == 'GET':
         jwt_token = request.COOKIES.get('jwt')
+        print(jwt_token)
         if not jwt_token:
             return JsonResponse({'error': 'JWT token missing'}, status=401)
 
@@ -1048,3 +1049,70 @@ def manage_jobs(request):
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+@csrf_exempt
+def get_jobs(request):
+    if request.method == 'GET':
+        jwt_token = request.COOKIES.get('jwt')
+        if not jwt_token:
+            return JsonResponse({'error': 'JWT token missing'}, status=401)
+
+        try:
+            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            admin_user = decoded_token.get('admin_user')
+
+            # Fetch jobs from MongoDB based on admin_user
+            jobs = job_collection.find({'admin_id': admin_user})
+            jobs_list = []
+            for job in jobs:
+                job['_id'] = str(job['_id'])
+                jobs_list.append(job)
+
+            return JsonResponse({'jobs': jobs_list}, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'error': 'JWT token has expired'}, status=401)
+        except jwt.InvalidTokenError as e:
+            return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+# @csrf_exempt
+# def get_jobs(request):
+#     if request.method == 'GET':
+#         jwt_token = request.COOKIES.get('jwt')
+#         print(jwt_token)
+#         if not jwt_token:
+#             return JsonResponse({'error': 'JWT token missing'}, status=401)
+
+#         try:
+#             decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+#             admin_user = decoded_token.get('admin_user')
+
+#             # Fetch jobs from MongoDB based on admin_user
+#             jobs = job_collection.find({'admin_id': admin_user})
+#             jobs_list = []
+#             for job in jobs:
+#                 job['_id'] = str(job['_id'])
+#                 job['type'] = 'job'  # Add a type field to differentiate between jobs and internships
+#                 jobs_list.append(job)
+
+#             # Fetch internships from MongoDB based on admin_user
+#             internships = internship_collection.find({'admin_id': admin_user})
+#             for internship in internships:
+#                 internship['_id'] = str(internship['_id'])
+#                 internship['type'] = 'internship'  # Add a type field to differentiate between jobs and internships
+#                 jobs_list.append(internship)
+
+#             return JsonResponse({'jobs': jobs_list}, status=200)
+
+#         except jwt.ExpiredSignatureError:
+#             return JsonResponse({'error': 'JWT token has expired'}, status=401)
+#         except jwt.InvalidTokenError as e:
+#             return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
+#         except Exception as e:
+#             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+#     else:
+#         return JsonResponse({'error': 'Invalid request method'}, status=405)

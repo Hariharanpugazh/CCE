@@ -57,7 +57,7 @@ export default function AdminLogin() {
             if (response.ok) {
                 Cookies.set("jwt", data.tokens.jwt, { expires: 1, path: "/" });
                 toast.success("Login successful! Redirecting...");
-                navigate("/admin/internships");
+                navigate("/admin/home");
             } else {
                 if (data.error.includes("Too many failed attempts")) {
                     setIsLocked(true);

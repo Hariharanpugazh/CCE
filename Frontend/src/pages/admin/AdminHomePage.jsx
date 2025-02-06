@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus, FaFilter } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import Cookies from 'js-cookie';
+import ApplicationCard from "../../components/Students/ApplicationCard";
 
 const AdminHome = () => {
-  const [internships, setInternships] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [filter, setFilter] = useState("All");
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
@@ -20,16 +22,27 @@ const AdminHome = () => {
   ];
 
   useEffect(() => {
-    const fetchPublishedInternships = async () => {
+    const fetchJobs = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/published-internship/");
-        setInternships(response.data.internships);
+        const token = Cookies.get('jwt');
+        if (!token) {
+          setError("JWT token missing.");
+          return;
+        }
+
+        const response = await axios.get("http://localhost:8000/api/get-jobs/", {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          withCredentials: true
+        });
+        setJobs(response.data.jobs);
       } catch (err) {
-        console.error("Error fetching published internships:", err);
-        setError("Failed to load internships.");
+        console.error("Error fetching jobs:", err);
+        setError("Failed to load jobs.");
       }
     };
-    fetchPublishedInternships();
+    fetchJobs();
   }, []);
 
   const handleButtonClick = (status) => {
@@ -100,48 +113,11 @@ const AdminHome = () => {
             </div>
           </div>
 
-          {/* Create Test Section */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="w-full max-w-md cursor-pointer">
-              <div className="flex-col relative overflow-hidden h-auto text-foreground box-border outline-none focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 shadow-medium transition-transform-background motion-reduce:transition-none p-12 bg-transparent border-2 border-dashed rounded-2xl flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-plus w-12 h-12 bg-transparent rounded-full text-gray-500"
-                >
-                  <path d="M5 12h14"></path>
-                  <path d="M12 5v14"></path>
-                </svg>
-                <h2 className="m-2 mb-2 text-gray-500">Create Your Job Here...</h2>
-              </div>
-            </div>
-
-            {/* Test Status Section */}
-            <TestStatusCard
-              status="Jobs Permanent"
-              assigned={4}
-              completed={1}
-              yetToComplete={3}
-              date="02/04/2025"
-              time="03:00 PM"
-              type="MCQ"
-            />
-            <TestStatusCard
-              status="Jobs Internship"
-              assigned={9}
-              completed={4}
-              yetToComplete={5}
-              date="01/29/2025"
-              time="11:57 PM"
-              type="MCQ"
-            />
+          {/* Render Job Cards */}
+          <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
+            {jobs.map((job) => (
+              <ApplicationCard key={job._id} application={job.job_data} />
+            ))}
           </div>
         </div>
       </div>
@@ -149,10 +125,5 @@ const AdminHome = () => {
   );
 };
 
-const TestStatusCard = ({ status, assigned, completed, yetToComplete, date, time, type }) => (
-  <div className="bg-white p-6 rounded-lg shadow-md">
-    <h3 className="text-lg font-semibold text-gray-700 mb-2">{status}</h3>
-  </div>
-);
-
 export default AdminHome;
+

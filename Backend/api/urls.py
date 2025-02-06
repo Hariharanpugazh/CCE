@@ -30,11 +30,12 @@ urlpatterns = [
     path("verify-otp/", verify_otp, name="verify_otp"),
     
     #Jobs
-    path('jobs', get_jobs, name='get_jobs'),
+    path('jobs', get_jobs_for_mail, name='get_jobs'),
     path("review-job/<str:job_id>/", review_job, name="approve_job"),
     path('job/<str:job_id>/', get_job_by_id, name='get_job_by_id'),
     path('job-edit/<str:job_id>/', update_job, name='update_job'),
     path('job-delete/<str:job_id>/', delete_job, name='delete_job'),
+    path('get-jobs/', get_jobs, name='get_jobs'),
     
 
     #Achievements
