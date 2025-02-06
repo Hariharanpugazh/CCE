@@ -4,7 +4,7 @@ import { AppPages } from "../../utils/constants";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import PageHeader from "../../components/Common/StudentPageHeader";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
-import ApplicationCard from "../../components/Students/ApplicationCard";
+import ApplicationCard from "../../components/Students/ApplicationCard"; 
 
 export default function AdminInternShipDashboard() {
     const [internships, setInternships] = useState([]);
