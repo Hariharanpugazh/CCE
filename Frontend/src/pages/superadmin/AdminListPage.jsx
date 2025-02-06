@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminListPage({ filter, sortConfig, requestSort }) {
     const [admins, setAdmins] = useState([]);
     const [error, setError] = useState("");
+    const navigate = useNavigate();
 
     // Fetch admin details from the backend
     useEffect(() => {
@@ -38,8 +40,13 @@ export default function AdminListPage({ filter, sortConfig, requestSort }) {
             return 0;
         });
 
+    // Handle admin card click
+    const handleAdminClick = (adminId) => {
+        navigate(`/admin-details/${adminId}`);
+    };
+
     return (
-        <div className="container mx-auto p-4">
+        <div className="container text-center mx-auto p-4">
             <h2 className="text-2xl font-bold mb-4">Admin List</h2>
             {error ? (
                 <p className="text-red-600">{error}</p>
@@ -71,7 +78,11 @@ export default function AdminListPage({ filter, sortConfig, requestSort }) {
                     </thead>
                     <tbody>
                         {filteredAdmins.map((admin) => (
-                            <tr key={admin._id}>
+                            <tr
+                                key={admin._id}
+                                onClick={() => handleAdminClick(admin._id)}
+                                className="cursor-pointer hover:bg-gray-100"
+                            >
                                 <td className="py-2 px-4 border-b">{admin.name || 'N/A'}</td>
                                 <td className="py-2 px-4 border-b">{admin.email || 'N/A'}</td>
                                 <td className="py-2 px-4 border-b">{admin.role || 'N/A'}</td>
