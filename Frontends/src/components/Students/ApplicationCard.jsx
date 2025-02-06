@@ -56,11 +56,11 @@ export default function ApplicationCard({ application }) {
         } else {
             console.error("ObjectId is missing in the application:", application);
         }
-    };             
+    };
 
     const handleApplyClick = (event) => {
         event.stopPropagation(); // Prevent triggering card click
-        window.location.href = application.job_link;
+        window.open(application.job_link, "_blank", "noopener noreferrer");
     };
 
     return (
@@ -109,7 +109,7 @@ export default function ApplicationCard({ application }) {
                     className="underline text-xs truncate w-[65%] leading-none cursor-pointer"
                     onClick={(e) => {
                         e.stopPropagation(); // Prevent triggering card click
-                        window.location.href = application.company_website;
+                        window.open(application.company_website, "_blank", "noopener noreferrer");
                     }}
                 >
                     {application.company_website}
