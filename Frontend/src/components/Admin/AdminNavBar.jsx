@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
-import { FiPlus, FiUser, FiMail } from "react-icons/fi";
+import { FiPlus, FiUser, FiMail, FiSettings } from "react-icons/fi";
 import { MdInbox, MdWork } from "react-icons/md"; // Icons for pop-up box
 
 export default function AdminPageNavbar() {
@@ -97,7 +97,7 @@ export default function AdminPageNavbar() {
             setCreateMenuOpen(false);
           }}
         >
-          <FiMail
+          <FiSettings
             className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
             style={{ width: "2rem" }}
             title="Mail"
@@ -111,7 +111,7 @@ export default function AdminPageNavbar() {
                   className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
                   onClick={() => (window.location.href = "/admin/mail")}
                 >
-                  <MdInbox className="text-xl mr-2" /> Inbox
+                  <FiMail className="text-xl mr-2" /> Inbox
                 </li>
                 <li
                   className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
