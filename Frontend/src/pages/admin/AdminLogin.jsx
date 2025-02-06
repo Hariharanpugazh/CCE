@@ -96,6 +96,32 @@ export default function AdminLogin() {
 
             if (response.ok) {
                 toast.success(data.message);
+                // setIsForgotPassword(false);
+                // setIsResetPassword(true);
+            } else {
+                toast.error(data.error || "Something went wrong!");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            toast.error("Failed to send reset email. Please try again.");
+        }
+    };
+    const handleVerifyOtp = async (e) => {
+        e.preventDefault();
+        const email = formData.email;
+        const otp = formData.token;
+        try {
+            const response = await fetch("http://localhost:8000/api/verify-otp/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, otp }),
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success(data.message);
                 setIsForgotPassword(false);
                 setIsResetPassword(true);
             } else {
@@ -146,6 +172,8 @@ export default function AdminLogin() {
                 formData={formData}
                 formDataSetter={setFormData}
                 onSubmit={handleForgotPasswordSubmit}
+                onResendOTP={handleForgotPasswordSubmit} // Resend OTP
+                onVerifyOTP={handleVerifyOtp} //  Verify OTP and proceed to reset password
             />
         );
     }

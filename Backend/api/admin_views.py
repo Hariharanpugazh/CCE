@@ -18,6 +18,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import random
 import string
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Create your views here.
 JWT_SECRET = 'secret'
@@ -66,46 +69,92 @@ superadmin_collection = db['superadmin']
 failed_login_attempts = {}
 lockout_duration = timedelta(minutes=2)  # Time to lock out after 3 failed attempts
 
+# Function to check if the password is strong
+def is_strong_password(password):
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long."
+    if not re.search(r"[A-Z]", password):
+        return False, "Password must include at least one uppercase letter."
+    if not re.search(r"[a-z]", password):
+        return False, "Password must include at least one lowercase letter."
+    if not re.search(r"[0-9]", password):
+        return False, "Password must include at least one digit."
+    if not re.search(r"[@$!%*?&#]", password):
+        return False, "Password must include at least one special character."
+    return True, ""
+
+# Function to send confirmation email
+def send_confirmation_email(to_email, name, password):
+    subject = "Admin Account Created"
+    body = f"""
+    Your admin account has been successfully created on the CCE platform.
+    Username: {name}
+    Password: {password}
+    Please keep your credentials safe and secure.
+    """
+
+    msg = MIMEMultipart()
+    msg['From'] = settings.EMAIL_HOST_USER
+    msg['To'] = to_email
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body, 'plain'))
+
+    try:
+        # Connect to the Gmail SMTP server
+        server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+        server.starttls()  # Secure the connection
+        server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)  # Login with credentials
+        text = msg.as_string()
+        server.sendmail(settings.EMAIL_HOST_USER, to_email, text)  # Send the email
+        server.quit()  # Close the connection
+        print(f"Confirmation email sent to {to_email}")
+    except Exception as e:
+        print(f"Error sending email: {str(e)}")
+
 @csrf_exempt
 def admin_signup(request):
     if request.method == 'POST':
         try:
+            # Parse the request payload
             data = json.loads(request.body)
             name = data.get('name')
             email = data.get('email')
             password = data.get('password')
-
-            # Check if the email contains "sns"
-            if "@sns" not in email:
-                return JsonResponse({'error': 'Email must contain domain id'}, status=400)
 
             # Check if the email already exists
             if admin_collection.find_one({'email': email}):
                 return JsonResponse({'error': 'Admin user with this email already exists'}, status=400)
 
             # Check if the password is strong
-            if not re.match(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', password):
-                return JsonResponse({'error': 'Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character'}, status=400)
+            is_valid, error_message = is_strong_password(password)
+            if not is_valid:
+                return JsonResponse({'error': error_message}, status=400)
 
             # Hash the password
-            password = make_password(password)
+            hashed_password = make_password(password)
 
             # Create the admin user document
             admin_user = {
                 'name': name,
                 'email': email,
-                'password': password
+                'password': hashed_password
             }
 
             # Insert the document into the collection
             admin_collection.insert_one(admin_user)
 
-            return JsonResponse({'message': 'Admin user created successfully'}, status=200)
+            # Send confirmation email with username and password
+            send_confirmation_email(email, name, password)
+
+            return JsonResponse({'message': 'Admin user created successfully, confirmation email sent.'}, status=201)
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-
+ 
 @csrf_exempt
 def admin_login(request):
     if request.method == 'POST':
@@ -181,6 +230,27 @@ def forgot_password(request):
         )
         
         return Response({"message": "Password reset token sent to your email"}, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+    
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def verify_otp(request):
+    try:
+        email = request.data.get('email')
+        otp = request.data.get('otp')
+        
+        user = admin_collection.find_one({"email": email})
+        if not user:
+            return Response({"error": "User not found"}, status=404)
+        
+        if user.get("password_reset_token") != otp:
+            return Response({"error": "Invalid OTP"}, status=400)
+        
+        if user.get("password_reset_expires") < datetime.utcnow():
+            return Response({"error": "OTP has expired"}, status=400)
+        
+        return Response({"message": "verification successfully"}, status=200)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
     

@@ -4,7 +4,7 @@ from .admin_views import *
 
 urlpatterns = [
     #admin
-    path("signup/", admin_signup, name="admin_signup"),
+    path("admin-signup/", admin_signup, name="admin_signup"),
     path("login/", admin_login, name="admin_login"),
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
@@ -23,6 +23,7 @@ urlpatterns = [
     path("profile/<str:userId>/", get_profile, name="get_profile"),
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
+    path("verify-otp/", verify_otp, name="verify_otp"),
     
     #Jobs
     path('jobs', get_jobs, name='get_jobs'),
@@ -44,7 +45,7 @@ urlpatterns = [
     path('internship-delete/<str:internship_id>/', delete_internship, name='delete_internship'),
     
     #student
-    path("stud/signup/", student_signup, name="student_signup"),
+    path("student-signup/", student_signup, name="student_signup"),
     path("stud/login/", student_login, name="student_login"),
     path('student-forgot-password/', student_forgot_password, name='student_forgot_password'),
     path('student-reset-password/', student_reset_password, name='student_reset_password'),
