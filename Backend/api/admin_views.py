@@ -122,12 +122,12 @@ def admin_login(request):
             if email in failed_login_attempts:
                 lockout_data = failed_login_attempts[email]
                 if lockout_data['count'] >= 3 and datetime.now() < lockout_data['lockout_until']:
-                    return JsonResponse({'error': 'Too many failed attempts. Please try again after 5 minutes.'}, status=403)
+                    return JsonResponse({'error': 'Too many failed attempts. Please try again after 2 minutes.'}, status=403)
 
             # Find the admin user by email
             admin_user = admin_collection.find_one({'email': email})
             if not admin_user:
-                return JsonResponse({'error': 'Email does not exist'}, status=404)
+                return JsonResponse({'error': 'No account found with this email'}, status=404)
 
             if check_password(password, admin_user['password']):
                 # Clear failed attempts after successful login
@@ -146,7 +146,7 @@ def admin_login(request):
                     if failed_login_attempts[email]['count'] >= 3:
                         failed_login_attempts[email]['lockout_until'] = datetime.now() + lockout_duration
 
-                return JsonResponse({'error': 'Invalid password! Kindly enter the correct password!'}, status=401)
+                return JsonResponse({'error': 'Invalid email or password.'}, status=401)
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -289,12 +289,12 @@ def super_admin_login(request):
             if email in failed_login_attempts:
                 lockout_data = failed_login_attempts[email]
                 if lockout_data['count'] >= 3 and datetime.now() < lockout_data['lockout_until']:
-                    return JsonResponse({'error': 'Too many failed attempts. Please try again after 5 minutes.'}, status=403)
+                    return JsonResponse({'error': 'Too many failed attempts. Please try again after 2 minutes.'}, status=403)
 
             # Find the super admin user by email
             super_admin_user = superadmin_collection.find_one({'email': email})
             if not super_admin_user:
-                return JsonResponse({'error': 'Email does not exist'}, status=404)
+                return JsonResponse({'error': 'No account found with this email'}, status=404)
 
             if check_password(password, super_admin_user['password']):
                 # Clear failed attempts after successful login
@@ -313,7 +313,7 @@ def super_admin_login(request):
                     if failed_login_attempts[email]['count'] >= 3:
                         failed_login_attempts[email]['lockout_until'] = datetime.now() + lockout_duration
 
-                return JsonResponse({'error': 'Invalid password! Kindly enter the correct password!'}, status=401)
+                return JsonResponse({'error': 'Invalid email or password.'}, status=401)
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
@@ -734,20 +734,22 @@ def review_internship(request, internship_id):
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
-from datetime import datetime
-
 @csrf_exempt
 def get_internships(request):
     try:
         internships = internship_collection.find()
-        internship_list = [
-            {
-                **internship,
-                "_id": str(internship["_id"]),  # Convert ObjectId to string
-                "application_deadline": internship["application_deadline"].strftime("%Y-%m-%d")  # Convert to date only
-            }
-            for internship in internships
-        ]
+        internship_list = []
+        
+        for internship in internships:
+            # Convert ObjectId to string
+            internship["_id"] = str(internship["_id"])
+            
+            # Convert application_deadline to date only if it's a datetime object
+            if isinstance(internship.get("application_deadline"), datetime):
+                internship["application_deadline"] = internship["application_deadline"].strftime("%Y-%m-%d")
+            
+            internship_list.append(internship)
+
         return JsonResponse({"internships": internship_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
