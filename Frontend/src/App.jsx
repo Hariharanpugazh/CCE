@@ -36,6 +36,7 @@ import AdminSignup from "./pages/superadmin/AdminSignup";
 import StudentSignup from "./pages/superadmin/StudentSignup";
 import AdminListPage from "./pages/superadmin/AdminListPage";
 import ManagementHomePage from "./pages/superadmin/ManagementHomePage";
+import AdminDetailPage from "./pages/superadmin/AdminDetailPage";
 
 
 // Protected Route Component
@@ -108,6 +109,7 @@ function App() {
         <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
         <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
         <Route path={"/superadmin-jobpost"} element={<ProtectedRoute> <SuperadminJobPost /> </ProtectedRoute>} />
+        <Route path={"/admin-details/:id"} element={<ProtectedRoute> <AdminDetailPage /> </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -319,6 +319,33 @@ def get_admin_list(request):
         return JsonResponse({"error": str(e)}, status=500)
     
 @csrf_exempt
+def admin_details(request, id):
+    if request.method == 'GET':
+        try:
+            # Fetch admin details from MongoDB based on id
+            admin = admin_collection.find_one({'_id': ObjectId(id)})
+            if not admin:
+                return JsonResponse({'error': 'Admin not found'}, status=404)
+
+            admin['_id'] = str(admin['_id'])
+
+            # Fetch jobs from MongoDB based on admin_id at the root level
+            jobs = job_collection.find({'admin_id': str(admin['_id'])})
+            jobs_list = []
+            for job in jobs:
+                job['_id'] = str(job['_id'])
+                job_data = job.get('job_data', {})
+                job_data['_id'] = job['_id']  # Include the job ID in job_data
+                jobs_list.append(job_data)
+
+            return JsonResponse({'admin': admin, 'jobs': jobs_list}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+@csrf_exempt
 def super_admin_signup(request):
     if request.method == 'POST':
         try:
