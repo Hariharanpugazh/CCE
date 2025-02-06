@@ -37,7 +37,6 @@ const ProtectedRoute = ({ children }) => {
   if (!token) {
     return <Navigate to="/" replace />; // Redirect to login if no token
   }
-
   return children; // Render the protected page if token exists
 };
 

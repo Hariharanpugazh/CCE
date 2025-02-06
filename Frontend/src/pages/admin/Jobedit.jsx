@@ -214,7 +214,7 @@ const JobEdit = () => {
                         <input
                             type="text"
                             name="required_skills"
-                            value={editedJob.job_data.required_skills.join(', ')}
+                            value={Array.isArray(editedJob.job_data.required_skills) ? editedJob.job_data.required_skills.join(', ') : ''}
                             onChange={handleInputChange}
                             className="w-full p-2 border rounded mb-4"
                         />
@@ -231,11 +231,17 @@ const JobEdit = () => {
                         <div className="text-gray-700 mb-2">
                             <strong>Skills:</strong>
                             <div className="flex flex-wrap gap-2 mt-2">
-                                {job.job_data.required_skills.map((skill, index) => (
-                                    <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
-                                        {skill}
+                                {Array.isArray(job.job_data.required_skills) ? (
+                                    job.job_data.required_skills.map((skill, index) => (
+                                        <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+                                            {skill}
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+                                        No skills available
                                     </span>
-                                ))}
+                                )}
                             </div>
                         </div>
                         <p className="text-gray-700 mb-2"><strong>Education:</strong> {job.job_data.education_requirements}</p>
