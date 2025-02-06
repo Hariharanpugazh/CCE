@@ -111,7 +111,7 @@ const toggleAutoApproval = async () => {
           : type === "achievement"
           ? `http://localhost:8000/api/review-achievement/${id}/`
           : `http://localhost:8000/api/review-internship/${id}/`;
-
+  
       const response = await axios.post(
         endpoint,
         { action },
@@ -123,7 +123,7 @@ const toggleAutoApproval = async () => {
         }
       );
       setMessage(response.data.message);
-
+  
       if (type === "job") {
         setJobs((prev) =>
           prev.map((job) =>
@@ -142,7 +142,7 @@ const toggleAutoApproval = async () => {
         setInternships((prev) =>
           prev.map((internship) =>
             internship._id === id
-              ? { ...internship, publish: action === "approve" }
+              ? { ...internship, is_publish: action === "approve" }
               : internship
           )
         );
@@ -151,7 +151,7 @@ const toggleAutoApproval = async () => {
       console.error(`Error updating ${type}:`, err);
       setError(`Failed to update ${type} status.`);
     }
-  };
+  };  
 
   // Handle Delete action for Jobs, Achievements, and Internships
   const handleDelete = async (id, type) => {
@@ -527,64 +527,73 @@ const toggleAutoApproval = async () => {
                   <th className="border border-gray-300 px-4 py-2">Stipend</th>
                   <th className="border border-gray-300 px-4 py-2">Duration</th>
                   <th className="border border-gray-300 px-4 py-2">Deadline</th>
+                  <th className="border border-gray-300 px-4 py-2">Required Skills</th>
+                  <th className="border border-gray-300 px-4 py-2">Education</th>
+                  <th className="border border-gray-300 px-4 py-2">Type</th>
                   <th className="border border-gray-300 px-4 py-2">Status</th>
                   <th className="border border-gray-300 px-4 py-2">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {internships.map((internship) => (
-                  <tr key={internship._id}>
-                    <td className="border border-gray-300 px-4 py-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedInternships.includes(internship._id)}
-                        onChange={() =>
-                          setSelectedInternships((prev) =>
-                            prev.includes(internship._id)
-                              ? prev.filter((id) => id !== internship._id)
-                              : [...prev, internship._id]
-                          )
-                        }
-                        className="form-checkbox h-5 w-5 text-blue-600"
-                      />
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">{internship.title}</td>
-                    <td className="border border-gray-300 px-4 py-2">{internship.company_name}</td>
-                    <td className="border border-gray-300 px-4 py-2">{internship.location}</td>
-                    <td className="border border-gray-300 px-4 py-2">{internship.stipend}</td>
-                    <td className="border border-gray-300 px-4 py-2">{internship.duration}</td>
-                    <td className="border border-gray-300 px-4 py-2">{internship.application_deadline}</td>
-                    <td className="border border-gray-300 px-4 py-2">{internship.publish ? "Published" : "Pending"}</td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      <div className="flex space-x-2">
-                        {!internship.publish && (
-                          <>
-                            <IoMdCheckmark
-                              className="text-green-500 cursor-pointer"
-                              size={20}
-                              onClick={() => handleAction(internship._id, "approve", "internship")}
-                            />
-                            <FaXmark
-                              className="text-red-500 cursor-pointer"
-                              size={20}
-                              onClick={() => handleAction(internship._id, "reject", "internship")}
-                            />
-                          </>
-                        )}
-                        <FaEye
-                          className="text-blue-500 cursor-pointer"
-                          size={20}
-                          onClick={() => handleView(internship._id, "internship")}
+                {internships.map((internship) => {
+                  const data = internship.internship_data || {};
+                  return (
+                    <tr key={internship._id}>
+                      <td className="border border-gray-300 px-4 py-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedInternships.includes(internship._id)}
+                          onChange={() =>
+                            setSelectedInternships((prev) =>
+                              prev.includes(internship._id)
+                                ? prev.filter((id) => id !== internship._id)
+                                : [...prev, internship._id]
+                            )
+                          }
+                          className="form-checkbox h-5 w-5 text-blue-600"
                         />
-                        <FaTrashAlt
-                          className="text-red-500 cursor-pointer"
-                          size={20}
-                          onClick={() => handleDelete(internship._id, "internship")}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-2">{data.title || "N/A"}</td>
+                      <td className="border border-gray-300 px-4 py-2">{data.company_name || "N/A"}</td>
+                      <td className="border border-gray-300 px-4 py-2">{data.location || "N/A"}</td>
+                      <td className="border border-gray-300 px-4 py-2">{data.stipend || "N/A"}</td>
+                      <td className="border border-gray-300 px-4 py-2">{data.duration || "N/A"}</td>
+                      <td className="border border-gray-300 px-4 py-2">{data.application_deadline || "N/A"}</td>
+                      <td className="border border-gray-300 px-4 py-2">{data.required_skills ? data.required_skills.join(", ") : "N/A"}</td>
+                      <td className="border border-gray-300 px-4 py-2">{data.education_requirements || "N/A"}</td>
+                      <td className="border border-gray-300 px-4 py-2">{data.internship_type || "N/A"}</td>
+                      <td className="border border-gray-300 px-4 py-2">{internship.is_publish ? "Published" : "Pending"}</td>
+                      <td className="border border-gray-300 px-4 py-2">
+                        <div className="flex space-x-2">
+                          {!internship.is_publish && (
+                            <>
+                              <IoMdCheckmark
+                                className="text-green-500 cursor-pointer"
+                                size={20}
+                                onClick={() => handleAction(internship._id, "approve", "internship")}
+                              />
+                              <FaXmark
+                                className="text-red-500 cursor-pointer"
+                                size={20}
+                                onClick={() => handleAction(internship._id, "reject", "internship")}
+                              />
+                            </>
+                          )}
+                          <FaEye
+                            className="text-blue-500 cursor-pointer"
+                            size={20}
+                            onClick={() => handleView(internship._id, "internship")}
+                          />
+                          <FaTrashAlt
+                            className="text-red-500 cursor-pointer"
+                            size={20}
+                            onClick={() => handleDelete(internship._id, "internship")}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
