@@ -92,24 +92,30 @@ const JobEdit = () => {
             <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                     {isEditing ? (
-                        <input
-                            type="text"
-                            name="title"
-                            value={editedJob.job_data.title}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded"
-                        />
+                        <>
+                            <label className="block text-gray-700 mb-2">Job Title:</label>
+                            <input
+                                type="text"
+                                name="title"
+                                value={editedJob.job_data.title}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </>
                     ) : (
                         <h2 className="text-3xl font-bold text-gray-900">{job.job_data.title}</h2>
                     )}
                     {isEditing ? (
-                        <input
-                            type="text"
-                            name="company_name"
-                            value={editedJob.job_data.company_name}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mt-2"
-                        />
+                        <>
+                            <label className="block text-gray-700 mb-2 mt-4">Company Name:</label>
+                            <input
+                                type="text"
+                                name="company_name"
+                                value={editedJob.job_data.company_name}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded mt-2"
+                            />
+                        </>
                     ) : (
                         <p className="text-lg text-gray-700 mt-2">{job.job_data.company_name}</p>
                     )}
@@ -129,41 +135,56 @@ const JobEdit = () => {
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Overview</h3>
                 {isEditing ? (
                     <>
-                        <input
-                            type="text"
-                            name="job_location"
-                            value={editedJob.job_data.job_location}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
-                        <input
-                            type="text"
-                            name="work_type"
-                            value={editedJob.job_data.work_type}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
-                        <input
-                            type="text"
-                            name="work_schedule"
-                            value={editedJob.job_data.work_schedule}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
-                        <input
-                            type="text"
-                            name="salary_range"
-                            value={editedJob.job_data.salary_range}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
-                        <input
-                            type="text"
-                            name="experience_level"
-                            value={editedJob.job_data.experience_level}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Location:</label>
+                            <input
+                                type="text"
+                                name="job_location"
+                                value={editedJob.job_data.job_location}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Work Type:</label>
+                            <input
+                                type="text"
+                                name="work_type"
+                                value={editedJob.job_data.work_type}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Work Schedule:</label>
+                            <input
+                                type="text"
+                                name="work_schedule"
+                                value={editedJob.job_data.work_schedule}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Salary Range:</label>
+                            <input
+                                type="text"
+                                name="salary_range"
+                                value={editedJob.job_data.salary_range}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Experience Level:</label>
+                            <input
+                                type="text"
+                                name="experience_level"
+                                value={editedJob.job_data.experience_level}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
                     </>
                 ) : (
                     <>
@@ -180,12 +201,15 @@ const JobEdit = () => {
             <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Description</h3>
                 {isEditing ? (
-                    <textarea
-                        name="job_description"
-                        value={editedJob.job_data.job_description}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded"
-                    />
+                    <>
+                        <label className="block text-gray-700 mb-2">Job Description:</label>
+                        <textarea
+                            name="job_description"
+                            value={editedJob.job_data.job_description}
+                            onChange={handleInputChange}
+                            className="w-full p-2 border rounded"
+                        />
+                    </>
                 ) : (
                     <p className="text-gray-700">{job.job_data.job_description}</p>
                 )}
@@ -195,12 +219,15 @@ const JobEdit = () => {
             <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Key Responsibilities</h3>
                 {isEditing ? (
-                    <textarea
-                        name="key_responsibilities"
-                        value={editedJob.job_data.key_responsibilities}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded"
-                    />
+                    <>
+                        <label className="block text-gray-700 mb-2">Key Responsibilities:</label>
+                        <textarea
+                            name="key_responsibilities"
+                            value={editedJob.job_data.key_responsibilities}
+                            onChange={handleInputChange}
+                            className="w-full p-2 border rounded"
+                        />
+                    </>
                 ) : (
                     <p className="text-gray-700">{job.job_data.key_responsibilities}</p>
                 )}
@@ -211,20 +238,26 @@ const JobEdit = () => {
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Required Skills & Qualifications</h3>
                 {isEditing ? (
                     <>
-                        <input
-                            type="text"
-                            name="required_skills"
-                            value={Array.isArray(editedJob.job_data.required_skills) ? editedJob.job_data.required_skills.join(', ') : ''}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
-                        <input
-                            type="text"
-                            name="education_requirements"
-                            value={editedJob.job_data.education_requirements}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Required Skills:</label>
+                            <input
+                                type="text"
+                                name="required_skills"
+                                value={Array.isArray(editedJob.job_data.required_skills) ? editedJob.job_data.required_skills.join(', ') : ''}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Education Requirements:</label>
+                            <input
+                                type="text"
+                                name="education_requirements"
+                                value={editedJob.job_data.education_requirements}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
                     </>
                 ) : (
                     <>
@@ -253,12 +286,15 @@ const JobEdit = () => {
             <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Benefits</h3>
                 {isEditing ? (
-                    <textarea
-                        name="benefits"
-                        value={editedJob.job_data.benefits}
-                        onChange={handleInputChange}
-                        className="w-full p-2 border rounded"
-                    />
+                    <>
+                        <label className="block text-gray-700 mb-2">Benefits:</label>
+                        <textarea
+                            name="benefits"
+                            value={editedJob.job_data.benefits}
+                            onChange={handleInputChange}
+                            className="w-full p-2 border rounded"
+                        />
+                    </>
                 ) : (
                     <p className="text-gray-700">{job.job_data.benefits}</p>
                 )}
@@ -269,19 +305,25 @@ const JobEdit = () => {
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Application Process</h3>
                 {isEditing ? (
                     <>
-                        <input
-                            type="text"
-                            name="application_deadline"
-                            value={editedJob.job_data.application_deadline}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
-                        <textarea
-                            name="application_instructions"
-                            value={editedJob.job_data.application_instructions}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Application Deadline:</label>
+                            <input
+                                type="text"
+                                name="application_deadline"
+                                value={editedJob.job_data.application_deadline}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Application Instructions:</label>
+                            <textarea
+                                name="application_instructions"
+                                value={editedJob.job_data.application_instructions}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
                     </>
                 ) : (
                     <>
@@ -296,20 +338,26 @@ const JobEdit = () => {
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Contact Information</h3>
                 {isEditing ? (
                     <>
-                        <input
-                            type="text"
-                            name="contact_email"
-                            value={editedJob.job_data.contact_email}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
-                        <input
-                            type="text"
-                            name="contact_phone"
-                            value={editedJob.job_data.contact_phone}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mb-4"
-                        />
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Contact Email:</label>
+                            <input
+                                type="text"
+                                name="contact_email"
+                                value={editedJob.job_data.contact_email}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 mb-2">Contact Phone:</label>
+                            <input
+                                type="text"
+                                name="contact_phone"
+                                value={editedJob.job_data.contact_phone}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded"
+                            />
+                        </div>
                     </>
                 ) : (
                     <>

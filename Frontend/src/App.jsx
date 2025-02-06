@@ -28,8 +28,10 @@ import SuperInternShipDashboard from "./pages/superadmin/superInternDashboard";
 import InternshipPreview from "./pages/students/InternshipPreview";
 import AdminAchievementDashboard from "./pages/admin/adminAchievementDashboard";
 import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashboard";
+import ManageJobs from "./pages/admin/ManageJobs";
 import InboxPage from "./pages/superadmin/InboxPage";
 import AdminHome from "./pages/admin/AdminHomePage";
+
 
 
 // Protected Route Component
@@ -86,6 +88,7 @@ function App() {
         <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
         <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
         <Route path="/internship-edit/:id" element= {<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>}/>
+        <Route path="/manage-jobs" element= {<ProtectedRoute> <ManageJobs /> </ProtectedRoute>}/>
 
 
         {/* Super Admin Login */}

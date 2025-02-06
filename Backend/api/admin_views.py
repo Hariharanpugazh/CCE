@@ -486,6 +486,7 @@ def get_job_by_id(request, job_id):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
+
 @csrf_exempt
 def update_job(request, job_id):
     """
@@ -502,6 +503,9 @@ def update_job(request, job_id):
             if '_id' in data:
                 del data['_id']
 
+            # # Ensure is_publish is set to false
+            # data['is_publish'] = False
+
             job_collection.update_one({"_id": ObjectId(job_id)}, {"$set": data})
             updated_job = job_collection.find_one({"_id": ObjectId(job_id)})
             updated_job["_id"] = str(updated_job["_id"])  # Convert ObjectId to string
@@ -510,7 +514,7 @@ def update_job(request, job_id):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
-    
+
 @csrf_exempt
 def delete_job(request, job_id):
     """
@@ -827,3 +831,31 @@ def update_internship(request, internship_id):
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
 
+@csrf_exempt
+def manage_jobs(request):
+    if request.method == 'GET':
+        jwt_token = request.COOKIES.get('jwt')
+        if not jwt_token:
+            return JsonResponse({'error': 'JWT token missing'}, status=401)
+
+        try:
+            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            admin_user = decoded_token.get('admin_user')
+
+            # Fetch jobs from MongoDB based on admin_user
+            jobs = job_collection.find({'admin_id': admin_user})
+            jobs_list = []
+            for job in jobs:
+                job['_id'] = str(job['_id'])
+                jobs_list.append(job)
+
+            return JsonResponse({'jobs': jobs_list}, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'error': 'JWT token has expired'}, status=401)
+        except jwt.InvalidTokenError as e:
+            return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
