@@ -302,7 +302,22 @@ def reset_password(request):
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
 
+@csrf_exempt
+def get_admin_list(request):
+    try:
+        # Fetch all documents from the admin_collection
+        admins = admin_collection.find()
+        admin_list = []
 
+        for admin in admins:
+            admin["_id"] = str(admin["_id"])  # Convert ObjectId to string
+            admin_list.append(admin)
+
+        return JsonResponse({"admins": admin_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+    
 @csrf_exempt
 def super_admin_signup(request):
     if request.method == 'POST':
