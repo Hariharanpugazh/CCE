@@ -3,6 +3,10 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import { IoMdCheckmark } from "react-icons/io";
+import { FaXmark } from "react-icons/fa6";
+import { FaEye } from "react-icons/fa";
+import { FaTrashAlt } from "react-icons/fa";
 
 export default function MailPage() {
   const [jobs, setJobs] = useState([]);
@@ -10,6 +14,9 @@ export default function MailPage() {
   const [internships, setInternships] = useState([]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [selectedJobs, setSelectedJobs] = useState([]);
+  const [selectedAchievements, setSelectedAchievements] = useState([]);
+  const [selectedInternships, setSelectedInternships] = useState([]);
 
   const navigate = useNavigate();
   const token = Cookies.get("jwt"); // Retrieve JWT from cookies
@@ -111,6 +118,38 @@ export default function MailPage() {
     }
   };
 
+  // Handle Delete action for Jobs, Achievements, and Internships
+  const handleDelete = async (id, type) => {
+    if (window.confirm("Are you sure you want to delete this item?")) {
+      try {
+        const endpoint =
+          type === "job"
+            ? `http://localhost:8000/api/job-delete/${id}/`
+            : type === "achievement"
+            ? `http://localhost:8000/api/achievement-delete/${id}/`
+            : `http://localhost:8000/api/internship-delete/${id}/`;
+
+        const response = await axios.delete(endpoint, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setMessage(response.data.message);
+
+        if (type === "job") {
+          setJobs((prev) => prev.filter((job) => job._id !== id));
+        } else if (type === "achievement") {
+          setAchievements((prev) => prev.filter((achievement) => achievement._id !== id));
+        } else {
+          setInternships((prev) => prev.filter((internship) => internship._id !== id));
+        }
+      } catch (err) {
+        console.error(`Error deleting ${type}:`, err);
+        setError(`Failed to delete ${type}.`);
+      }
+    }
+  };
+
   // Handle View action for Jobs, Achievements, and Internships
   const handleView = (id, type) => {
     if (type === "job") {
@@ -119,6 +158,40 @@ export default function MailPage() {
       navigate(`/achievement-edit/${id}`);
     } else {
       navigate(`/internship-edit/${id}`);
+    }
+  };
+
+  // Handle Select All action
+  const handleSelectAll = (type) => {
+    if (type === "job") {
+      setSelectedJobs((prev) => (prev.length === jobs.length ? [] : jobs.map((job) => job._id)));
+    } else if (type === "achievement") {
+      setSelectedAchievements((prev) =>
+        prev.length === achievements.length ? [] : achievements.map((achievement) => achievement._id)
+      );
+    } else {
+      setSelectedInternships((prev) =>
+        prev.length === internships.length ? [] : internships.map((internship) => internship._id)
+      );
+    }
+  };
+
+  // Handle Bulk Approve action
+  const handleBulkApprove = async (type) => {
+    const ids =
+      type === "job"
+        ? selectedJobs
+        : type === "achievement"
+        ? selectedAchievements
+        : selectedInternships;
+
+    try {
+      const promises = ids.map((id) => handleAction(id, "approve", type));
+      await Promise.all(promises);
+      setMessage(`All selected ${type}s have been approved.`);
+    } catch (err) {
+      console.error(`Error bulk approving ${type}s:`, err);
+      setError(`Failed to bulk approve ${type}s.`);
     }
   };
 
@@ -141,7 +214,24 @@ export default function MailPage() {
 
       {/* Job Approvals Section */}
       <div className="mt-4">
-        <h2 className="text-xl font-bold mb-4">Job Approvals</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Job Approvals</h2>
+          <div className="flex space-x-2">
+            <button
+              className="px-3 py-1 bg-green-500 text-white rounded"
+              onClick={() => handleBulkApprove("job")}
+            >
+              Approve all
+            </button>
+            <input
+              type="checkbox"
+              checked={selectedJobs.length === jobs.length}
+              onChange={() => handleSelectAll("job")}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span className="ml-2">Select All</span>
+          </div>
+        </div>
         {jobs.length === 0 ? (
           <p className="text-gray-600">No jobs to review.</p>
         ) : (
@@ -149,6 +239,7 @@ export default function MailPage() {
             <table className="min-w-full bg-white border border-gray-300">
               <thead>
                 <tr>
+                  <th className="border border-gray-300 px-4 py-2">Select</th>
                   <th className="border border-gray-300 px-4 py-2">Title</th>
                   <th className="border border-gray-300 px-4 py-2">Company</th>
                   <th className="border border-gray-300 px-4 py-2">Description</th>
@@ -162,6 +253,20 @@ export default function MailPage() {
               <tbody>
                 {jobs.map((job) => (
                   <tr key={job._id}>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedJobs.includes(job._id)}
+                        onChange={() =>
+                          setSelectedJobs((prev) =>
+                            prev.includes(job._id)
+                              ? prev.filter((id) => id !== job._id)
+                              : [...prev, job._id]
+                          )
+                        }
+                        className="form-checkbox h-5 w-5 text-blue-600"
+                      />
+                    </td>
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.title}</td>
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.company_name}</td>
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.job_description}</td>
@@ -173,26 +278,28 @@ export default function MailPage() {
                       <div className="flex space-x-2">
                         {!job.is_publish && (
                           <>
-                            <button
-                              className="px-3 py-1 bg-green-500 text-white rounded"
+                            <IoMdCheckmark
+                              className="text-green-500 cursor-pointer"
+                              size={20}
                               onClick={() => handleAction(job._id, "approve", "job")}
-                            >
-                              Approve
-                            </button>
-                            <button
-                              className="px-3 py-1 bg-red-500 text-white rounded"
+                            />
+                            <FaXmark
+                              className="text-red-500 cursor-pointer"
+                              size={20}
                               onClick={() => handleAction(job._id, "reject", "job")}
-                            >
-                              Reject
-                            </button>
+                            />
                           </>
                         )}
-                        <button
-                          className="px-3 py-1 bg-blue-500 text-white rounded"
+                        <FaEye
+                          className="text-blue-500 cursor-pointer"
+                          size={20}
                           onClick={() => handleView(job._id, "job")}
-                        >
-                          View
-                        </button>
+                        />
+                        <FaTrashAlt
+                          className="text-red-500 cursor-pointer"
+                          size={20}
+                          onClick={() => handleDelete(job._id, "job")}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -205,7 +312,24 @@ export default function MailPage() {
 
       {/* Achievement Approvals Section */}
       <div className="mt-4">
-        <h2 className="text-xl font-bold mb-4">Achievement Approvals</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Achievement Approvals</h2>
+          <div className="flex space-x-2">
+            <button
+              className="px-3 py-1 bg-green-500 text-white rounded"
+              onClick={() => handleBulkApprove("achievement")}
+            >
+              Approve all
+            </button>
+            <input
+              type="checkbox"
+              checked={selectedAchievements.length === achievements.length}
+              onChange={() => handleSelectAll("achievement")}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span className="ml-2">Select All</span>
+          </div>
+        </div>
         {achievements.length === 0 ? (
           <p className="text-gray-600">No achievements to review.</p>
         ) : (
@@ -213,6 +337,7 @@ export default function MailPage() {
             <table className="min-w-full bg-white border border-gray-300">
               <thead>
                 <tr>
+                  <th className="border border-gray-300 px-4 py-2">Select</th>
                   <th className="border border-gray-300 px-4 py-2">Name</th>
                   <th className="border border-gray-300 px-4 py-2">Department</th>
                   <th className="border border-gray-300 px-4 py-2">Achievement</th>
@@ -224,6 +349,20 @@ export default function MailPage() {
               <tbody>
                 {achievements.map((achievement) => (
                   <tr key={achievement._id}>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedAchievements.includes(achievement._id)}
+                        onChange={() =>
+                          setSelectedAchievements((prev) =>
+                            prev.includes(achievement._id)
+                              ? prev.filter((id) => id !== achievement._id)
+                              : [...prev, achievement._id]
+                          )
+                        }
+                        className="form-checkbox h-5 w-5 text-blue-600"
+                      />
+                    </td>
                     <td className="border border-gray-300 px-4 py-2">{achievement.name}</td>
                     <td className="border border-gray-300 px-4 py-2">{achievement.department}</td>
                     <td className="border border-gray-300 px-4 py-2">{achievement.achievement}</td>
@@ -233,26 +372,28 @@ export default function MailPage() {
                       <div className="flex space-x-2">
                         {!achievement.is_publish && (
                           <>
-                            <button
-                              className="px-3 py-1 bg-green-500 text-white rounded"
+                            <IoMdCheckmark
+                              className="text-green-500 cursor-pointer"
+                              size={20}
                               onClick={() => handleAction(achievement._id, "approve", "achievement")}
-                            >
-                              Approve
-                            </button>
-                            <button
-                              className="px-3 py-1 bg-red-500 text-white rounded"
+                            />
+                            <FaXmark
+                              className="text-red-500 cursor-pointer"
+                              size={20}
                               onClick={() => handleAction(achievement._id, "reject", "achievement")}
-                            >
-                              Reject
-                            </button>
+                            />
                           </>
                         )}
-                        <button
-                          className="px-3 py-1 bg-blue-500 text-white rounded"
+                        <FaEye
+                          className="text-blue-500 cursor-pointer"
+                          size={20}
                           onClick={() => handleView(achievement._id, "achievement")}
-                        >
-                          View
-                        </button>
+                        />
+                        <FaTrashAlt
+                          className="text-red-500 cursor-pointer"
+                          size={20}
+                          onClick={() => handleDelete(achievement._id, "achievement")}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -265,7 +406,24 @@ export default function MailPage() {
 
       {/* Internship Approvals Section */}
       <div className="mt-4">
-        <h2 className="text-xl font-bold mb-4">Internship Approvals</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Internship Approvals</h2>
+          <div className="flex space-x-2">
+            <button
+              className="px-3 py-1 bg-green-500 text-white rounded"
+              onClick={() => handleBulkApprove("internship")}
+            >
+              Approve all
+            </button>
+            <input
+              type="checkbox"
+              checked={selectedInternships.length === internships.length}
+              onChange={() => handleSelectAll("internship")}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span className="ml-2">Select All</span>
+          </div>
+        </div>
         {internships.length === 0 ? (
           <p className="text-gray-600">No internships to review.</p>
         ) : (
@@ -273,6 +431,7 @@ export default function MailPage() {
             <table className="min-w-full bg-white border border-gray-300">
               <thead>
                 <tr>
+                  <th className="border border-gray-300 px-4 py-2">Select</th>
                   <th className="border border-gray-300 px-4 py-2">Title</th>
                   <th className="border border-gray-300 px-4 py-2">Company</th>
                   <th className="border border-gray-300 px-4 py-2">Location</th>
@@ -286,6 +445,20 @@ export default function MailPage() {
               <tbody>
                 {internships.map((internship) => (
                   <tr key={internship._id}>
+                    <td className="border border-gray-300 px-4 py-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedInternships.includes(internship._id)}
+                        onChange={() =>
+                          setSelectedInternships((prev) =>
+                            prev.includes(internship._id)
+                              ? prev.filter((id) => id !== internship._id)
+                              : [...prev, internship._id]
+                          )
+                        }
+                        className="form-checkbox h-5 w-5 text-blue-600"
+                      />
+                    </td>
                     <td className="border border-gray-300 px-4 py-2">{internship.title}</td>
                     <td className="border border-gray-300 px-4 py-2">{internship.company_name}</td>
                     <td className="border border-gray-300 px-4 py-2">{internship.location}</td>
@@ -297,26 +470,28 @@ export default function MailPage() {
                       <div className="flex space-x-2">
                         {!internship.publish && (
                           <>
-                            <button
-                              className="px-3 py-1 bg-green-500 text-white rounded"
+                            <IoMdCheckmark
+                              className="text-green-500 cursor-pointer"
+                              size={20}
                               onClick={() => handleAction(internship._id, "approve", "internship")}
-                            >
-                              Approve
-                            </button>
-                            <button
-                              className="px-3 py-1 bg-red-500 text-white rounded"
+                            />
+                            <FaXmark
+                              className="text-red-500 cursor-pointer"
+                              size={20}
                               onClick={() => handleAction(internship._id, "reject", "internship")}
-                            >
-                              Reject
-                            </button>
+                            />
                           </>
                         )}
-                        <button
-                          className="px-3 py-1 bg-blue-500 text-white rounded"
+                        <FaEye
+                          className="text-blue-500 cursor-pointer"
+                          size={20}
                           onClick={() => handleView(internship._id, "internship")}
-                        >
-                          View
-                        </button>
+                        />
+                        <FaTrashAlt
+                          className="text-red-500 cursor-pointer"
+                          size={20}
+                          onClick={() => handleDelete(internship._id, "internship")}
+                        />
                       </div>
                     </td>
                   </tr>
