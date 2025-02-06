@@ -364,7 +364,7 @@ def job_post(request):
                 "selectedCategory": data.get('selectedCategory'),
                 "selectedWorkType": data.get('selectedWorkType')
             },
-            "user_id": admin_id,  # Save the admin_id from the token
+            "admin_id": admin_id,  # Save the admin_id from the token
             "is_publish": False,
             "updated_at": datetime.now()
         }
