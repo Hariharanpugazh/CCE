@@ -35,6 +35,7 @@ export default function JobPostForm() {
   const [error, setError] = useState("");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isWorkTypeOpen, setIsWorkTypeOpen] = useState(false);
+  const [showWarning, setShowWarning] = useState(false); // State to show the warning popup
 
   const categories = [
     "TNPC",
@@ -104,6 +105,13 @@ export default function JobPostForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if the Job Link field is empty
+    if (!formData.job_link) {
+      setShowWarning(true); // Show warning if job link is not provided
+      return; // Stop form submission
+    }
+
     try {
       const token = Cookies.get("jwt");
       if (!token) {
@@ -123,7 +131,6 @@ export default function JobPostForm() {
       );
 
       setMessage(response.data.message);
-      window.location.href = `${window.location.origin}/jobs`; // Redirect to jobs dashboard after successful job post
       setError("");
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong");
@@ -139,6 +146,22 @@ export default function JobPostForm() {
       transition={{ duration: 0.8 }}
     >
       <h2 className="text-3xl font-bold mb-4 text-gray-800 text-center">Post a Job</h2>
+
+      {/* Display warning popup if Job Link is not filled */}
+      {showWarning && (
+        <div className="absolute top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h3 className="text-lg font-semibold text-red-600">Warning</h3>
+            <p className="text-sm text-gray-700">The Job Link field is required. Please enter a valid URL.</p>
+            <button
+              onClick={() => setShowWarning(false)}
+              className="mt-4 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Job Categories Dropdown */}
@@ -212,7 +235,6 @@ export default function JobPostForm() {
       {error && <p className="text-red-600 mb-4 text-center">{error}</p>}
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
         {/* Required Skills */}
         <div className="col-span-1">
           <label className="block text-sm font-semibold mb-2 capitalize">

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -8,25 +10,24 @@ const ContactForm = () => {
     message: "",
   });
 
-  const [status, setStatus] = useState(null);
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatus(null);
 
     try {
       const response = await axios.post("http://127.0.0.1:8000/api/contact-us/", formData, {
         headers: { "Content-Type": "application/json" },
       });
 
-      setStatus({ success: true, message: response.data.message });
+      // Show success toast message
+      toast.success(response.data.message || "Message sent successfully!");
       setFormData({ name: "", contact: "", message: "" });
     } catch (error) {
-      setStatus({ success: false, message: error.response?.data.error || "Something went wrong!" });
+      // Show error toast message
+      toast.error(error.response?.data.error || "Something went wrong!");
     }
   };
 
@@ -81,14 +82,10 @@ const ContactForm = () => {
             Send Message
           </button>
         </form>
-
-        {/* Success / Error Message */}
-        {status && (
-          <p className={`mt-4 text-center ${status.success ? "text-green-600" : "text-red-600"}`}>
-            {status.message}
-          </p>
-        )}
       </div>
+
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 };
