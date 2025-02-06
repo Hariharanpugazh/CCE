@@ -29,6 +29,9 @@ import InternshipPreview from "./pages/students/InternshipPreview";
 import AdminAchievementDashboard from "./pages/admin/adminAchievementDashboard";
 import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashboard";
 import ManageJobs from "./pages/admin/ManageJobs";
+import InboxPage from "./pages/superadmin/InboxPage";
+import AdminHome from "./pages/admin/AdminHomePage";
+
 
 
 // Protected Route Component
@@ -76,6 +79,7 @@ function App() {
         <Route path="/admin" element={<AdminLogin />} />
           
         {/* Protected Admin Routes */}
+        <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
         <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>} />
         <Route path="/admin/jobs" element={ <ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />
         <Route path="/admin/achievements" element={ <ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
@@ -94,6 +98,7 @@ function App() {
         <Route path={"/superadmin/internships"} element={<ProtectedRoute> <SuperInternShipDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
+        <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

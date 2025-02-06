@@ -249,9 +249,28 @@ def contact_us(request):
             if any(not field for field in [name, contact, message]):
                 return JsonResponse({"error": "All fields are required"}, status=400)
 
+            # Check if both name and email exist in the students collection
+            student_data = student_collection.find_one({"email": contact})
+
+            if not student_data:
+                return JsonResponse({"error": "Email do not match any student records. Use your official Email"}, status=404)
+
+            # Save contact message in the contact_us collection
+            contact_document = {
+                "name": name,
+                "contact": contact,
+                "message": message,
+                "timestamp": datetime.now(timezone.utc)
+            }
+            contactus_collection.insert_one(contact_document)
+
             # Send email notification to admin
-            subject = "New Contact Us Message"
-            email_message = f"New message from {name}\n\nContact: {contact}\n\nMessage:\n{message}"
+            subject = "Message From Student"
+            email_message = (
+                f"New message from {name}\n\n"
+                f"Contact: {contact}\n\n"
+                f"Message:\n{message}\n\n"
+            )
 
             send_mail(
                 subject,
@@ -261,7 +280,10 @@ def contact_us(request):
                 fail_silently=False,
             )
 
-            return JsonResponse({"message": "Your message has been received and sent to admin!"}, status=200)
+            return JsonResponse({
+                "message": "Your message has been received and sent to Admin!",
+                "is_student": True
+            }, status=200)
 
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON data"}, status=400)
@@ -269,8 +291,30 @@ def contact_us(request):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
-    
 
+@csrf_exempt
+def get_contact_messages(request):
+    if request.method == "GET":
+        try:
+            # Fetch all messages from the contact_us collection
+            messages = list(contactus_collection.find({}, {"_id": 0, "name": 1, "contact": 1, "message": 1, "timestamp": 1}))
+
+            # Format timestamp for easier readability
+            for message in messages:
+                if "timestamp" in message and message["timestamp"]:
+                    message["timestamp"] = message["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+                else:
+                    message["timestamp"] = "N/A"
+
+            return JsonResponse({"messages": messages}, status=200)
+
+        except Exception as e:
+            # Log the error and return a 500 response
+            print(f"Error: {e}")
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+    
 @csrf_exempt
 def get_profile(request, userId):
     if request.method == "GET":

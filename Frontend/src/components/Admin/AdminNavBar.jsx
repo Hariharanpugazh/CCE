@@ -24,7 +24,7 @@ export default function AdminPageNavbar() {
       <div className="flex flex-1 justify-evenly space-x-5 items-center text-lg">
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = "/home")}
+          onClick={() => (window.location.href = "/admin/home")}
         >
           Home
         </p>
