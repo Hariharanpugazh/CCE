@@ -876,44 +876,65 @@ def post_internship(request):
             except jwt.InvalidTokenError:
                 raise AuthenticationFailed("Invalid token. Please log in again.")
 
-            admin_id = decoded_token['admin_user']  # Extract admin_id from decoded token
-            # Parse incoming data
+            admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
+
+            # Parse incoming JSON data
             data = json.loads(request.body)
-            print("Incoming Data:", data)  # Debugging: Check the incoming data
-            # Ensure required fields are provided in the data
-            required_fields = ['title', 'company_name', 'location', 'duration', 'stipend', 'application_deadline', 'skills_required', 'job_description', 'company_website', 'internship_type']
+
+            # Fetch auto-approval setting from DB
+            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
+            # Ensure required fields are present
+            required_fields = [
+                'title', 'company_name', 'location', 'duration', 'stipend',
+                'application_deadline', 'skills_required', 'job_description',
+                'company_website', 'internship_type'
+            ]
             for field in required_fields:
                 if field not in data:
                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
-            # Convert application_deadline to datetime
+
+            # Convert application_deadline to datetime format
             try:
                 application_deadline = datetime.strptime(data['application_deadline'], "%Y-%m-%d")
             except ValueError:
                 return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
-            # Prepare internship data for storage
-            internship_data = {
-                "title": data["title"],
-                "company_name": data["company_name"],
-                "location": data["location"],
-                "duration": data["duration"],
-                "stipend": data["stipend"],
-                "application_deadline": application_deadline,
-                "skills_required": data["skills_required"],
-                "job_description": data["job_description"],
-                "company_website": data["company_website"],
-                "job_link": data.get('job_link'),
-                "admin_id": admin_id,
-                "internship_type": data["internship_type"],
-                "publish": False,  # Internship initially unpublished
+
+            # Prepare internship data for insertion
+            internship_post = {
+                "internship_data": {
+                    "title": data['title'],
+                    "company_name": data['company_name'],
+                    "location": data['location'],
+                    "duration": data['duration'],
+                    "stipend": data['stipend'],
+                    "application_deadline": data['application_deadline'],
+                    "required_skills": data['skills_required'],
+                    "education_requirements": data.get('education_requirements', ""),  # Optional field
+                    "job_description": data['job_description'],
+                    "company_website": data['company_website'],
+                    "job_link": data.get('job_link', ""),  # Optional field
+                    "internship_type": data['internship_type'],
+                },
+                "admin_id": admin_id,  # Save the admin ID from the token
+                "is_publish": False,  # Auto-approve if enabled
+                "updated_at": datetime.utcnow()
             }
+
             # Insert into MongoDB
-            internship_collection.insert_one(internship_data)
+            internship_collection.insert_one(internship_post)
+
             # Return success response
             return JsonResponse({"message": "Internship posted successfully, awaiting approval."}, status=200)
+
         except AuthenticationFailed as auth_error:
             return JsonResponse({"error": str(auth_error)}, status=401)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
 
 @csrf_exempt
@@ -944,7 +965,7 @@ def review_internship(request, internship_id):
             is_publish = True if action == "approve" else False
             internship_collection.update_one(
                 {"_id": ObjectId(internship_id)},
-                {"$set": {"publish": is_publish, "updated_at": datetime.now()}}
+                {"$set": {"is_publish": is_publish, "updated_at": datetime.now()}}
             )
 
             message = "Internship approved and published successfully" if is_publish else "Internship rejected successfully"
@@ -1077,6 +1098,35 @@ def manage_jobs(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
     
+# @csrf_exempt
+# def get_jobs(request):
+#     if request.method == 'GET':
+#         jwt_token = request.COOKIES.get('jwt')
+#         if not jwt_token:
+#             return JsonResponse({'error': 'JWT token missing'}, status=401)
+
+#         try:
+#             decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+#             admin_user = decoded_token.get('admin_user')
+
+#             # Fetch jobs from MongoDB based on admin_user
+#             jobs = job_collection.find({'admin_id': admin_user})
+#             jobs_list = []
+#             for job in jobs:
+#                 job['_id'] = str(job['_id'])
+#                 jobs_list.append(job)
+
+#             return JsonResponse({'jobs': jobs_list}, status=200)
+
+#         except jwt.ExpiredSignatureError:
+#             return JsonResponse({'error': 'JWT token has expired'}, status=401)
+#         except jwt.InvalidTokenError as e:
+#             return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
+#         except Exception as e:
+#             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+#     else:
+#         return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
 @csrf_exempt
 def get_jobs(request):
     if request.method == 'GET':
@@ -1093,7 +1143,15 @@ def get_jobs(request):
             jobs_list = []
             for job in jobs:
                 job['_id'] = str(job['_id'])
+                job['type'] = 'job'  # Add a type field to differentiate between jobs and internships
                 jobs_list.append(job)
+
+            # Fetch internships from MongoDB based on admin_user
+            internships = internship_collection.find({'admin_id': admin_user})
+            for internship in internships:
+                internship['_id'] = str(internship['_id'])
+                internship['type'] = 'internship'  # Add a type field to differentiate between jobs and internships
+                jobs_list.append(internship)
 
             return JsonResponse({'jobs': jobs_list}, status=200)
 
@@ -1105,41 +1163,3 @@ def get_jobs(request):
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
-    
-# @csrf_exempt
-# def get_jobs(request):
-#     if request.method == 'GET':
-#         jwt_token = request.COOKIES.get('jwt')
-#         print(jwt_token)
-#         if not jwt_token:
-#             return JsonResponse({'error': 'JWT token missing'}, status=401)
-
-#         try:
-#             decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-#             admin_user = decoded_token.get('admin_user')
-
-#             # Fetch jobs from MongoDB based on admin_user
-#             jobs = job_collection.find({'admin_id': admin_user})
-#             jobs_list = []
-#             for job in jobs:
-#                 job['_id'] = str(job['_id'])
-#                 job['type'] = 'job'  # Add a type field to differentiate between jobs and internships
-#                 jobs_list.append(job)
-
-#             # Fetch internships from MongoDB based on admin_user
-#             internships = internship_collection.find({'admin_id': admin_user})
-#             for internship in internships:
-#                 internship['_id'] = str(internship['_id'])
-#                 internship['type'] = 'internship'  # Add a type field to differentiate between jobs and internships
-#                 jobs_list.append(internship)
-
-#             return JsonResponse({'jobs': jobs_list}, status=200)
-
-#         except jwt.ExpiredSignatureError:
-#             return JsonResponse({'error': 'JWT token has expired'}, status=401)
-#         except jwt.InvalidTokenError as e:
-#             return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
-#         except Exception as e:
-#             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
-#     else:
-#         return JsonResponse({'error': 'Invalid request method'}, status=405)

@@ -3,10 +3,12 @@ import axios from "axios";
 import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus, FaFilter } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Cookies from 'js-cookie';
-import ApplicationCard from "../../components/Students/ApplicationCard";
+import JobCard from "../../components/Admin/JobCard";
+import InternCard from "../../components/Admin/InternCard"; // Import InternCard
 
 const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
+  const [internships, setInternships] = useState([]);
   const [filter, setFilter] = useState("All");
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
@@ -14,15 +16,15 @@ const AdminHome = () => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
 
   const cardsData = [
-    { title: "OverAll", count: 2, icon: <FaListAlt /> },
-    { title: "Total Job Listings", count: 5, icon: <FaCheck /> },
-    { title: "Approved", count: 0, icon: <FaBook /> },
+    { title: "OverAll", count: jobs.length + internships.length, icon: <FaListAlt /> },
+    { title: "Total Job Listings", count: jobs.length, icon: <FaCheck /> },
+    { title: "Total intership Listings", count: internships.length, icon: <FaBook /> },
     { title: "Rejected Jobs", count: 2, icon: <FaTrophy /> },
     { title: "Pending Approvals", count: 0, icon: <FaUserPlus /> },
   ];
 
   useEffect(() => {
-    const fetchJobs = async () => {
+    const fetchData = async () => {
       try {
         const token = Cookies.get('jwt');
         if (!token) {
@@ -36,13 +38,19 @@ const AdminHome = () => {
           },
           withCredentials: true
         });
-        setJobs(response.data.jobs);
+
+        // Separate jobs and internships based on the 'type' field
+        const jobsData = response.data.jobs.filter(item => item.type === "job");
+        const internshipsData = response.data.jobs.filter(item => item.type === "internship");
+
+        setJobs(jobsData);
+        setInternships(internshipsData);
       } catch (err) {
-        console.error("Error fetching jobs:", err);
-        setError("Failed to load jobs.");
+        console.error("Error fetching data:", err);
+        setError("Failed to load data.");
       }
     };
-    fetchJobs();
+    fetchData();
   }, []);
 
   const handleButtonClick = (status) => {
@@ -66,7 +74,7 @@ const AdminHome = () => {
                     <span className="font-normal text-sm text-[#a0aec0] font-sans">{card.title}</span>
                     <span className="font-bold text-md text-[#2d3748] font-sans leading-[20px]">{card.count}</span>
                   </div>
-                  <div className="w-[36px] h-[36px] bg-amber-400 text-lg text-white rounded-xl flex items-center justify-center shadow-[0px_3.5px_5.5px_#00000005]">
+                  <div className="w-[36px] h-[36px] bg-[#FFC800] text-lg text-white rounded-xl flex items-center justify-center shadow-[0px_3.5px_5.5px_#00000005]">
                     {card.icon}
                   </div>
                 </div>
@@ -116,7 +124,14 @@ const AdminHome = () => {
           {/* Render Job Cards */}
           <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
             {jobs.map((job) => (
-              <ApplicationCard key={job._id} application={job.job_data} />
+              <JobCard key={job._id} job={job.job_data} />
+            ))}
+          </div>
+
+          {/* Render Internship Cards */}
+          <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
+            {internships.map((internship) => (
+              <InternCard key={internship._id} internship={internship} />
             ))}
           </div>
         </div>
@@ -126,4 +141,3 @@ const AdminHome = () => {
 };
 
 export default AdminHome;
-

@@ -15,12 +15,13 @@ const InternPostForm = () => {
     location: '',
     duration: '',
     stipend: '',
-    application_deadline: '',
+    application_deadline: null,
     skills_required: [],
     job_description: '',
     company_website: '',
     internship_type: '',
-    job_link: '', // Added job link to the form data
+    job_link: '',
+    education_requirements: '' // Added optional field
   });
 
   const [message, setMessage] = useState('');
@@ -158,18 +159,18 @@ const InternPostForm = () => {
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {Object.keys(formData).map((field) => {
-          if (field !== 'application_deadline' && field !== 'skills_required' && field !== 'internship_type' && field !== 'job_link') {
+          if (field !== 'application_deadline' && field !== 'skills_required' && field !== 'internship_type') {
             return (
               <div key={field} className="col-span-1">
                 <label className="block text-sm font-semibold mb-2 capitalize">
-                  {field.replace(/_/g, ' ')} <span className="text-red-600">*</span>
+                  {field.replace(/_/g, ' ')} {field !== 'job_link' && field !== 'education_requirements' && <span className="text-red-600">*</span>}
                 </label>
                 <motion.input
                   type={field.includes('email') ? 'email' : field.includes('phone') ? 'tel' : 'text'}
                   name={field}
                   value={formData[field]}
                   onChange={handleChange}
-                  required
+                  required={field !== 'job_link' && field !== 'education_requirements'}
                   whileHover={{ backgroundColor: '#e0f2ff' }}
                   className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
                   placeholder={`Enter ${field.replace(/_/g, ' ')}`}
@@ -179,22 +180,6 @@ const InternPostForm = () => {
           }
           return null;
         })}
-
-        <div className="col-span-1">
-          <label className="block text-sm font-semibold mb-2 capitalize">
-            Job Link <span className="text-red-600">*</span>
-          </label>
-          <motion.input
-            type="url"
-            name="job_link"
-            value={formData.job_link}
-            onChange={handleChange}
-            required
-            whileHover={{ backgroundColor: '#e0f2ff' }}
-            className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-            placeholder="Enter job link"
-          />
-        </div>
 
         <div className="col-span-1">
           <label className="block text-sm font-semibold mb-2 capitalize">
