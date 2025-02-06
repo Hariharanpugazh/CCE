@@ -195,6 +195,27 @@ export default function MailPage() {
     }
   };
 
+  // Handle Bulk Delete action
+  const handleBulkDelete = async (type) => {
+    const ids =
+      type === "job"
+        ? selectedJobs
+        : type === "achievement"
+        ? selectedAchievements
+        : selectedInternships;
+
+    if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
+      try {
+        const promises = ids.map((id) => handleDelete(id, type));
+        await Promise.all(promises);
+        setMessage(`All selected ${type}s have been deleted.`);
+      } catch (err) {
+        console.error(`Error bulk deleting ${type}s:`, err);
+        setError(`Failed to bulk delete ${type}s.`);
+      }
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <SuperAdminPageNavbar />
@@ -222,6 +243,12 @@ export default function MailPage() {
               onClick={() => handleBulkApprove("job")}
             >
               Approve all
+            </button>
+            <button
+              className="px-3 py-1 bg-red-500 text-white rounded"
+              onClick={() => handleBulkDelete("job")}
+            >
+              Delete all
             </button>
             <input
               type="checkbox"
@@ -321,6 +348,12 @@ export default function MailPage() {
             >
               Approve all
             </button>
+            <button
+              className="px-3 py-1 bg-red-500 text-white rounded"
+              onClick={() => handleBulkDelete("achievement")}
+            >
+              Delete all
+            </button>
             <input
               type="checkbox"
               checked={selectedAchievements.length === achievements.length}
@@ -414,6 +447,12 @@ export default function MailPage() {
               onClick={() => handleBulkApprove("internship")}
             >
               Approve all
+            </button>
+            <button
+              className="px-3 py-1 bg-red-500 text-white rounded"
+              onClick={() => handleBulkDelete("internship")}
+            >
+              Delete all
             </button>
             <input
               type="checkbox"
