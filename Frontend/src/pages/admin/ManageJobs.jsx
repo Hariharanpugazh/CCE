@@ -14,7 +14,6 @@ const ManageJobs = () => {
       try {
         // Get JWT token from cookies
         const token = Cookies.get("jwt");
-        console.log(token);
 
         // Make request with Authorization header
         const response = await axios.get("http://localhost:8000/api/manage-jobs/", {

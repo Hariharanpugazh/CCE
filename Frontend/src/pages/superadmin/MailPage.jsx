@@ -120,33 +120,31 @@ export default function MailPage() {
 
   // Handle Delete action for Jobs, Achievements, and Internships
   const handleDelete = async (id, type) => {
-    if (window.confirm("Are you sure you want to delete this item?")) {
-      try {
-        const endpoint =
-          type === "job"
-            ? `http://localhost:8000/api/job-delete/${id}/`
-            : type === "achievement"
-            ? `http://localhost:8000/api/achievement-delete/${id}/`
-            : `http://localhost:8000/api/internship-delete/${id}/`;
+    try {
+      const endpoint =
+        type === "job"
+          ? `http://localhost:8000/api/job-delete/${id}/`
+          : type === "achievement"
+          ? `http://localhost:8000/api/achievement-delete/${id}/`
+          : `http://localhost:8000/api/internship-delete/${id}/`;
 
-        const response = await axios.delete(endpoint, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setMessage(response.data.message);
+      const response = await axios.delete(endpoint, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setMessage(response.data.message);
 
-        if (type === "job") {
-          setJobs((prev) => prev.filter((job) => job._id !== id));
-        } else if (type === "achievement") {
-          setAchievements((prev) => prev.filter((achievement) => achievement._id !== id));
-        } else {
-          setInternships((prev) => prev.filter((internship) => internship._id !== id));
-        }
-      } catch (err) {
-        console.error(`Error deleting ${type}:`, err);
-        setError(`Failed to delete ${type}.`);
+      if (type === "job") {
+        setJobs((prev) => prev.filter((job) => job._id !== id));
+      } else if (type === "achievement") {
+        setAchievements((prev) => prev.filter((achievement) => achievement._id !== id));
+      } else {
+        setInternships((prev) => prev.filter((internship) => internship._id !== id));
       }
+    } catch (err) {
+      console.error(`Error deleting ${type}:`, err);
+      setError(`Failed to delete ${type}.`);
     }
   };
 
