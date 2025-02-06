@@ -30,6 +30,8 @@ import AdminAchievementDashboard from "./pages/admin/adminAchievementDashboard";
 import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashboard";
 import InboxPage from "./pages/superadmin/InboxPage";
 import AdminHome from "./pages/admin/AdminHomePage";
+import AdminSignup from "./pages/superadmin/AdminSignup";
+import StudentSignup from "./pages/superadmin/StudentSignup";
 
 
 // Protected Route Component
@@ -90,6 +92,8 @@ function App() {
 
         {/* Super Admin Login */}
         <Route path={"/superadmin"} element={<SuperAdminLogin />} />
+        <Route path={"/admin-signup"} element={<AdminSignup />} />
+        <Route path={"/student-signup"} element={<StudentSignup />} />
         <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin/jobs"} element={<ProtectedRoute> <SuperJobsDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin/internships"} element={<ProtectedRoute> <SuperInternShipDashboard /> </ProtectedRoute>} />
