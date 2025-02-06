@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
 import { FiMail, FiPlus, FiUser } from "react-icons/fi";
+import { MdInbox, MdWork } from "react-icons/md"; // Icons for pop-up box
 
 export default function AdminPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isCreateMenuOpen, setCreateMenuOpen] = useState(false);
+  const [isMailPopupOpen, setMailPopupOpen] = useState(false);
 
   const handleLogout = () => {
     // Clear the JWT cookie
@@ -41,19 +43,29 @@ export default function AdminPageNavbar() {
         <p className="cursor-pointer hover:underline hover:text-blue-400">
           Study Material
         </p>
-        <p className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = "/admin/achievements")}>
+        <p
+          className="cursor-pointer hover:underline hover:text-blue-400"
+          onClick={() => (window.location.href = "/admin/achievements")}
+        >
           Achievements
         </p>
-        <p className="cursor-pointer hover:underline hover:text-blue-400">
-          Contact
-        </p>
+        <p className="cursor-pointer hover:underline hover:text-blue-400">Contact</p>
       </div>
 
       <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm space-x-4">
-        <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => { setProfileMenuOpen(toggle => !toggle); setCreateMenuOpen(false) }}>
+        <div
+          className="flex space-x-2 items-center cursor-pointer relative"
+          onClick={() => {
+            setProfileMenuOpen((toggle) => !toggle);
+            setCreateMenuOpen(false);
+            setMailPopupOpen(false);
+          }}
+        >
           <p>Profile</p>
-          <FiUser className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer" style={{ width: "2rem" }} />
+          <FiUser
+            className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer"
+            style={{ width: "2rem" }}
+          />
 
           {/* Profile Menu */}
           {isProfileMenuOpen && (
@@ -76,14 +88,58 @@ export default function AdminPageNavbar() {
           )}
         </div>
 
-        <div className="flex space-x-2 items-center relative cursor-pointer" onClick={() => { setCreateMenuOpen(toggle => !toggle); setProfileMenuOpen(false) }}>
+        {/* Mail Button */}
+        <div
+          className="flex space-x-2 items-center cursor-pointer relative"
+          onClick={() => {
+            setMailPopupOpen((toggle) => !toggle);
+            setProfileMenuOpen(false);
+            setCreateMenuOpen(false);
+          }}
+        >
+          <FiMail
+            className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
+            style={{ width: "2rem" }}
+            title="Mail"
+          />
+
+          {/* Mail Popup */}
+          {isMailPopupOpen && (
+            <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-60 z-50 absolute p-2">
+              <ul className="flex flex-col">
+                <li
+                  className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/admin/mail")}
+                >
+                  <MdInbox className="text-xl mr-2" /> Inbox
+                </li>
+                <li
+                  className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/manage-jobs")}
+                >
+                  <MdWork className="text-xl mr-2" /> Manage Jobs
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+
+        <div
+          className="flex space-x-2 items-center relative cursor-pointer"
+          onClick={() => {
+            setCreateMenuOpen((toggle) => !toggle);
+            setProfileMenuOpen(false);
+            setMailPopupOpen(false);
+          }}
+        >
           <p>Create New</p>
           <FiPlus
-            className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer" style={{ width: "2rem" }}
+            className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
+            style={{ width: "2rem" }}
             title="Create"
           />
 
-          {/* Profile Menu */}
+          {/* Create Menu */}
           {isCreateMenuOpen && (
             <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50 absolute p-2">
               <ul className="flex flex-col">
@@ -99,7 +155,6 @@ export default function AdminPageNavbar() {
                 >
                   Job Post
                 </li>
-
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                   onClick={() => (window.location.href = "/achievementpost")}
@@ -110,7 +165,6 @@ export default function AdminPageNavbar() {
             </div>
           )}
         </div>
-
       </div>
     </nav>
   );
