@@ -20,6 +20,8 @@ urlpatterns = [
     path("get-contact-messages/",get_contact_messages,name="get_contact_messages"),
     path("superjob_post/",super_job_post,name="super_job_post"),
     path("admins-list/", get_admin_list, name="get_admins_list"),
+    path("toggle-auto-approval/",toggle_auto_approval, name="toggle_auto_approval"),
+    path("get-auto-approval-status/",get_auto_approval_status, name="get_auto_approval_status"),
 
     #common
     path("profile/<str:userId>/", get_profile, name="get_profile"),

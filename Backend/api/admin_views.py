@@ -422,8 +422,13 @@ def job_post(request):
         admin_id = payload.get('admin_user')  # Extract admin_id from token
         if not admin_id:
             return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-        
+
         data = json.loads(request.body)
+
+        # Fetch auto-approval setting
+        auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+        is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
         # Prepare job data
         job_post = {
             "job_data": {
@@ -450,12 +455,21 @@ def job_post(request):
                 "selectedWorkType": data.get('selectedWorkType')
             },
             "admin_id": admin_id,  # Save the admin_id from the token
-            "is_publish": False,
+            "is_publish": is_auto_approval,  # Auto-approve if enabled
             "updated_at": datetime.now()
         }
+
         # Insert the job post into the database
         job_collection.insert_one(job_post)
-        return Response({"message": "Job stored successfully, waiting for approval"}, status=status.HTTP_201_CREATED)
+
+        return Response(
+            {
+                "message": "Job stored successfully",
+                "auto_approved": is_auto_approval
+            },
+            status=status.HTTP_201_CREATED
+        )
+
     except jwt.ExpiredSignatureError:
         return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
     except jwt.DecodeError:
@@ -553,9 +567,42 @@ def get_jobs(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+ 
+@csrf_exempt
+@api_view(["POST"])
+def toggle_auto_approval(request):
+    """
+    API to enable or disable auto-approval.
+    """
+    try:
+        data = json.loads(request.body)
+        is_auto_approval = data.get("is_auto_approval", False)  # Default is False
 
+        # Save or update the setting in MongoDB
+        superadmin_collection.update_one(
+            {"key": "auto_approval"},
+            {"$set": {"value": is_auto_approval}},
+            upsert=True
+        )
 
-    
+        return JsonResponse({"message": "Auto-approval setting updated successfully"}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+@api_view(["GET"])
+def get_auto_approval_status(request):
+    """
+    API to check if auto-approval is enabled.
+    """
+    try:
+        auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+        is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+        return JsonResponse({"is_auto_approval": is_auto_approval}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
 @csrf_exempt
 def review_job(request, job_id):
     if request.method == "POST":

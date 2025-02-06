@@ -17,7 +17,7 @@ export default function MailPage() {
   const [selectedJobs, setSelectedJobs] = useState([]);
   const [selectedAchievements, setSelectedAchievements] = useState([]);
   const [selectedInternships, setSelectedInternships] = useState([]);
-
+  const [autoApproval, setAutoApproval] = useState(false);
   const navigate = useNavigate();
   const token = Cookies.get("jwt"); // Retrieve JWT from cookies
 
@@ -66,6 +66,41 @@ export default function MailPage() {
 
     fetchData();
   }, [token]);
+
+  // Fetch auto-approval status
+useEffect(() => {
+  const fetchAutoApproval = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/auto-approval-status", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAutoApproval(response.data.is_auto_approval);
+    } catch (err) {
+      console.error("Error fetching auto-approval status:", err);
+    }
+  };
+  fetchAutoApproval();
+}, [token]);
+
+// Handle Auto-Approval Toggle
+const toggleAutoApproval = async () => {
+  console.log("Toggle clicked! Current state:", autoApproval); // Debugging log
+  try {
+    await axios.post(
+      "http://localhost:8000/api/toggle-auto-approval/",
+      { is_auto_approval: !autoApproval },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    setAutoApproval(!autoApproval);
+  } catch (err) {
+    console.error("Error updating auto-approval:", err);
+  }
+};
 
   // Handle Approve/Reject action for Jobs, Achievements, and Internships
   const handleAction = async (id, action, type) => {
@@ -218,6 +253,23 @@ export default function MailPage() {
     <div className="container mx-auto p-4">
       <SuperAdminPageNavbar />
       <h1 className="text-2xl font-semibold text-gray-800 mb-4">Mail Inbox</h1>
+        <div className="flex items-center space-x-4">
+          <span className="text-gray-700">Auto-Approval</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={autoApproval}
+              onChange={toggleAutoApproval}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-green-500 transition-colors"></div>
+            <span
+              className={`absolute left-1 top-1 h-4 w-4 bg-white rounded-full transition-transform ${
+                autoApproval ? "translate-x-5" : ""
+              }`}
+            ></span>
+          </label>
+        </div>
       {message && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
           <strong className="font-bold">Success!</strong>
