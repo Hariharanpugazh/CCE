@@ -30,6 +30,7 @@ import AdminAchievementDashboard from "./pages/admin/adminAchievementDashboard";
 import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashboard";
 import InboxPage from "./pages/superadmin/InboxPage";
 import AdminHome from "./pages/admin/AdminHomePage";
+import SuperadminJobPost from "./pages/superadmin/SuperadminJobPostForm";
 
 
 // Protected Route Component
@@ -96,6 +97,8 @@ function App() {
         <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
         <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
+
+        <Route path={"/superadmin-jobpost"} element={<ProtectedRoute> <SuperadminJobPost /> </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );
