@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import SignupCard from "../../components/Signup/SignupCard"; // Assuming you have a SignupCard component
+import SignupCard from "../../components/Cards/SignupCard"; // Assuming you have a SignupCard component
 
 export default function AdminSignup() {
     const [formData, setFormData] = useState({

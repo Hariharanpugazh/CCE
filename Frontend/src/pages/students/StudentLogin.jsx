@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie"; // Import js-cookie
 import { ToastContainer, toast } from "react-toastify"; // Import Toast notifications
 import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
-import LoginCard from "../../components/Login/LoginCard";
-import ForgotPasswordCard from "../../components/Login/ForgotPasswordCard";
-import ResetPasswordCard from "../../components/Login/ResetPasswordCard";
+import LoginCard from "../../components/Cards/LoginCard";
+import ForgotPasswordCard from "../../components/Cards/ForgotPasswordCard";
+import ResetPasswordCard from "../../components/Cards/ResetPasswordCard";
 import { AppPages } from "../../utils/constants";
 
 export default function StudentLogin() {
