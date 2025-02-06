@@ -22,6 +22,7 @@ urlpatterns = [
     path("profile/<str:userId>/", get_profile, name="get_profile"),
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
+    path("verify-otp/", verify_otp, name="verify_otp"),
     
     #Jobs
     path('jobs', get_jobs, name='get_jobs'),

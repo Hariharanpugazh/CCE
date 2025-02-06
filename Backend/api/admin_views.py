@@ -184,6 +184,27 @@ def forgot_password(request):
     except Exception as e:
         return Response({"error": str(e)}, status=500)
     
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def verify_otp(request):
+    try:
+        email = request.data.get('email')
+        otp = request.data.get('otp')
+        
+        user = admin_collection.find_one({"email": email})
+        if not user:
+            return Response({"error": "User not found"}, status=404)
+        
+        if user.get("password_reset_token") != otp:
+            return Response({"error": "Invalid OTP"}, status=400)
+        
+        if user.get("password_reset_expires") < datetime.utcnow():
+            return Response({"error": "OTP has expired"}, status=400)
+        
+        return Response({"message": "verification successfully"}, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+    
 from django.contrib.auth.hashers import make_password
 
 @csrf_exempt
