@@ -447,6 +447,63 @@ def job_post(request):
         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+@csrf_exempt
+@api_view(['POST'])
+def super_job_post(request):
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    token = auth_header.split(" ")[1]
+    try:
+        # Decode the JWT token
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        superadmin_id = payload.get('superadmin_user')  # Extract admin_id from token
+        if not superadmin_id:
+            return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        data = json.loads(request.body)
+        # Prepare job data
+        job_post = {
+            "job_data": {
+                "title": data.get('title'),
+                "company_name": data.get('company_name'),
+                "company_overview": data.get('company_overview'),
+                "company_website": data.get('company_website'),
+                "job_description": data.get('job_description'),
+                "key_responsibilities": data.get('key_responsibilities'),
+                "required_skills": data.get('required_skills'),
+                "education_requirements": data.get('education_requirements'),
+                "experience_level": data.get('experience_level'),
+                "salary_range": data.get('salary_range'),
+                "benefits": data.get('benefits'),
+                "job_location": data.get('job_location'),
+                "work_type": data.get('work_type'),
+                "work_schedule": data.get('work_schedule'),
+                "application_instructions": data.get('application_instructions'),
+                "application_deadline": data.get('application_deadline'),
+                "contact_email": data.get('contact_email'),
+                "contact_phone": data.get('contact_phone'),
+                "job_link": data.get('job_link'),
+                "selectedCategory": data.get('selectedCategory'),
+                "selectedWorkType": data.get('selectedWorkType')
+            },
+            "admin_id": superadmin_id,  # Save the admin_id from the token
+            "is_publish": True,
+            "updated_at": datetime.now()
+        }
+        # Insert the job post into the database
+        job_collection.insert_one(job_post)
+        return Response({"message": "Job stored successfully, waiting for approval"}, status=status.HTTP_201_CREATED)
+    except jwt.ExpiredSignatureError:
+        return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+    except jwt.DecodeError:
+        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @csrf_exempt
 def get_jobs(request):
