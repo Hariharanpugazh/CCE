@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import JobCard from "../../components/Admin/JobCard"; // Import the JobCard component
 
 export default function AdminDetailPage() {
     const { id } = useParams();
@@ -33,7 +35,7 @@ export default function AdminDetailPage() {
 
         try {
             const response = await axios.post(`http://localhost:8000/api/admin-status/${id}/`, {
-                status: newStatus
+                status: newStatus,
             });
 
             if (response.status === 200) {
@@ -57,20 +59,26 @@ export default function AdminDetailPage() {
 
     return (
         <div className="container mx-auto p-4">
+            <SuperAdminPageNavbar />
             <h2 className="text-2xl font-bold mb-4">Admin Details</h2>
             {message && <p className="text-blue-600 font-semibold">{message}</p>}
             <div className="mb-4">
-                <p><strong>Name:</strong> {admin.name || 'N/A'}</p>
-                <p><strong>Email:</strong> {admin.email || 'N/A'}</p>
-                <p><strong>Department:</strong> {admin.department || 'N/A'}</p>
-                <p><strong>College Name:</strong> {admin.college_name || 'N/A'}</p>
-                <p><strong>Account Status:</strong>
-                    <span className={`font-bold ${admin.status === 'active' ? 'text-green-600' : 'text-red-600'}`}>
+                <p><strong>Name:</strong> {admin.name || "N/A"}</p>
+                <p><strong>Email:</strong> {admin.email || "N/A"}</p>
+                <p><strong>Department:</strong> {admin.department || "N/A"}</p>
+                <p><strong>College Name:</strong> {admin.college_name || "N/A"}</p>
+                <p>
+                    <strong>Account Status:</strong>
+                    <span
+                        className={`font-bold ${
+                            admin.status === "active" ? "text-green-600" : "text-red-600"
+                        }`}
+                    >
                         {admin.status}
                     </span>
                 </p>
-                <p><strong>Last Login:</strong> {admin.last_login ? new Date(admin.last_login).toLocaleString() : 'Never'}</p>
-                <p><strong>Date Created:</strong> {admin.created_at ? new Date(admin.created_at).toLocaleDateString() : 'Unknown'}</p>
+                <p><strong>Last Login:</strong> {admin.last_login ? new Date(admin.last_login).toLocaleString() : "Never"}</p>
+                <p><strong>Date Created:</strong> {admin.created_at ? new Date(admin.created_at).toLocaleDateString() : "Unknown"}</p>
                 <div className="mt-4">
                     {admin.status === "active" ? (
                         <button
@@ -92,32 +100,14 @@ export default function AdminDetailPage() {
                 </div>
             </div>
 
-            {/* ✅ Display Job Details */}
+            {/* ✅ Display Job Details with JobCard */}
             <h3 className="text-xl font-bold mt-6 mb-2">Jobs Posted</h3>
             {jobs.length === 0 ? (
                 <p className="text-gray-600">No jobs posted by this admin.</p>
             ) : (
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {jobs.map((job) => (
-                        <div key={job._id} className="border p-4 rounded shadow">
-                            <h4 className="text-lg font-semibold mb-2">{job.title}</h4>
-                            <p><strong>Company:</strong> {job.company_name}</p>
-                            <p><strong>Location:</strong> {job.job_location}</p>
-                            <p><strong>Salary:</strong> {job.salary_range}</p>
-                            <p><strong>Experience:</strong> {job.experience_level}</p>
-                            <p><strong>Description:</strong> {job.job_description}</p>
-                            <p><strong>Responsibilities:</strong> {job.key_responsibilities}</p>
-                            <p><strong>Skills:</strong> {job.required_skills ? job.required_skills.join(', ') : 'N/A'}</p>
-                            <p><strong>Education:</strong> {job.education_requirements}</p>
-                            <p><strong>Benefits:</strong> {job.benefits}</p>
-                            <p><strong>Schedule:</strong> {job.work_schedule}</p>
-                            <p><strong>Application Deadline:</strong> {new Date(job.application_deadline).toLocaleDateString()}</p>
-                            <p><strong>Contact Email:</strong> {job.contact_email}</p>
-                            <p><strong>Contact Phone:</strong> {job.contact_phone}</p>
-                            <a href={job.job_link} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-                                Apply Here
-                            </a>
-                        </div>
+                        <JobCard key={job._id} job={job} />
                     ))}
                 </div>
             )}

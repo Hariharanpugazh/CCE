@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 export default function ManagementHomePage() {
     const navigate = useNavigate();
@@ -82,8 +83,16 @@ export default function ManagementHomePage() {
 
     return (
         <div className="container mx-auto p-4 text-center">
-            <h1 className="text-3xl font-bold mb-6">Management Home Page</h1>
-            <div className="space-x-4 mb-6">
+            <SuperAdminPageNavbar />
+            <h1 className="text-3xl pt-4 font-bold mb-6 text-center">Admin Management</h1>
+            <div className="flex justify-between items-center mb-6">
+            <input
+                    type="text"
+                    placeholder="Search admins..."
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                    className="border p-2 rounded w-1/3"
+                />
                 <button
                     onClick={handleCreateUser}
                     className="bg-blue-500 text-white px-4 py-2 rounded"
@@ -91,13 +100,6 @@ export default function ManagementHomePage() {
                     Create New Admin
                 </button>
             </div>
-            <input
-                type="text"
-                placeholder="Search admins..."
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                className="border p-2 mb-4 rounded"
-            />
             <div className="container text-center mx-auto p-4">
                 <h2 className="text-2xl font-bold mb-4">Admin List</h2>
                 {error ? (
