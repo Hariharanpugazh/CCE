@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { ToastContainer, toast } from "react-toastify"; // ✅ Toast Notifications
-import "react-toastify/dist/ReactToastify.css"; // ✅ Toastify Styles
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import LoginCard from "../../components/Cards/LoginCard";
 import ForgotPasswordCard from "../../components/Cards/ForgotPasswordCard";
 import ResetPasswordCard from "../../components/Cards/ResetPasswordCard";

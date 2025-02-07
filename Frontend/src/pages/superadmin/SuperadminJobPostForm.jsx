@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import DatePicker from "react-datepicker";
 import { motion } from "framer-motion";
 import { FaCalendarAlt } from "react-icons/fa";
+import { format } from "date-fns";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function SuperadminJobPost() {
@@ -139,6 +140,9 @@ export default function SuperadminJobPost() {
     if (url) content = <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{value}</a>;
     if (email) content = <a href={`mailto:${value}`} className="text-blue-600 hover:underline">{value}</a>;
     if (phone) content = <a href={`tel:${value}`} className="text-blue-600 hover:underline">{value}</a>;
+    if (label === "Application Deadline" && value) {
+      content = format(new Date(value), "MMMM dd, yyyy");
+    }
 
     return (
       <div>
@@ -401,7 +405,7 @@ export default function SuperadminJobPost() {
                 />
               </svg>
             </button>
-            <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">Job Preview</h2><br />
+            <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">Job Preview</h2>
             <PreviewField label="Title" value={formData.title} /><br />
             <PreviewField label="Company Name" value={formData.company_name} /><br />
             <PreviewField label="Company Overview" value={formData.company_overview} multiline /><br />
@@ -424,7 +428,6 @@ export default function SuperadminJobPost() {
             <PreviewField label="Contact Email" value={formData.contact_email} email /><br />
             <PreviewField label="Contact Phone" value={formData.contact_phone} phone /><br />
             <PreviewField label="Job Link" value={formData.job_link} url /><br />
-
           </div>
         </motion.div>
       )}

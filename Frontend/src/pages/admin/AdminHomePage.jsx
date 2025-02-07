@@ -5,6 +5,9 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Cookies from 'js-cookie';
 import JobCard from "../../components/Admin/JobCard";
 import InternCard from "../../components/Admin/InternCard"; // Import InternCard
+import PageHeader from "../../components/Common/StudentPageHeader";
+import { AppPages, Departments } from "../../utils/constants";
+import { FiSearch } from "react-icons/fi";
 
 const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
@@ -14,6 +17,7 @@ const AdminHome = () => {
   const [searchPhrase, setSearchPhrase] = useState("");
   const [activeButton, setActiveButton] = useState(null);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
+  const [filteredJobs, setFilteredJobs] = useState([])
 
   const cardsData = [
     { title: "OverAll", count: jobs.length + internships.length, icon: <FaListAlt /> },
@@ -59,81 +63,113 @@ const AdminHome = () => {
   };
 
   return (
-    <div>
-      <AdminPageNavbar />
-      <div className="w-full h-screen overflow-auto p-8 bg-gray-0">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold mb-8 text-gray-800 text-center">Admin Dashboard</h2>
+    <div className="flex flex-col w-full h-screen overflow-auto bg-gray-0">
 
-          {/* Stats Cards Section */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-            {cardsData.map((card, index) => (
-              <div key={index} className="w-60 h-23 bg-white rounded-[19px] shadow-md">
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex flex-col gap-1">
-                    <span className="font-normal text-sm text-[#a0aec0] font-sans">{card.title}</span>
-                    <span className="font-bold text-md text-[#2d3748] font-sans leading-[20px]">{card.count}</span>
-                  </div>
-                  <div className="w-[36px] h-[36px] bg-[#FFC800] text-lg text-white rounded-xl flex items-center justify-center shadow-[0px_3.5px_5.5px_#00000005]">
-                    {card.icon}
-                  </div>
+      <AdminPageNavbar />
+
+      <header className="flex flex-col items-center justify-center py-14 container self-center">
+        <p className="text-6xl tracking-[0.8px]">
+          Admin Dashboard
+        </p>
+        <p className="text-lg mt-2 text-center">
+          Explore all the{" "}
+          Postings
+          in all the existing fields <br />around the globe.
+        </p>
+
+        <div className="relative flex items-stretch w-[70%]">
+          <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value)} placeholder={`Search postings`} className="w-full text-lg my-5 p-2 px-5 rounded-full bg-gray-100 border-transparent border-2 hover:bg-white hover:border-blue-200 outline-blue-400" />
+          <div className="absolute right-2 h-full flex items-center">
+            <FiSearch class="bi bi-search bg-blue-400 rounded-full text-white" style={{ color: "white", width: "35", height: "35", padding: "8px" }} />
+          </div>
+        </div>
+
+        <div className="flex space-x-2 flex-wrap w-[50%] justify-center">
+          {["All", ...Object.values(Departments)].map((department, key) => (
+            <p
+              key={key}
+              className={`${filter === department
+                ? "bg-[#000000] text-white"
+                : ""
+                } border-gray-700 border-[1px] py-1 px-[10px] rounded-full text-xs my-1 cursor-pointer`}
+              onClick={() => setFilter(department)}
+            >
+              {department}
+            </p>
+          ))}
+        </div>
+      </header>
+
+      <div className="max-w-[80%] mx-auto">
+
+        {/* Stats Cards Section */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+          {cardsData.map((card, index) => (
+            <div key={index} className="w-60 h-23 bg-white rounded-[19px] shadow-md">
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex flex-col gap-1">
+                  <span className="font-normal text-sm text-[#a0aec0] font-sans">{card.title}</span>
+                  <span className="font-bold text-md text-[#2d3748] font-sans leading-[20px]">{card.count}</span>
+                </div>
+                <div className="w-[36px] h-[36px] bg-[#FFC800] text-lg text-white rounded-xl flex items-center justify-center shadow-[0px_3.5px_5.5px_#00000005]">
+                  {card.icon}
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Filter Section */}
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex text-sm gap-4 ml-20">
-              {['All', 'Approved', 'Rejected', 'Pending Approvals'].map((status) => (
-                <button
-                  key={status}
-                  className={`px-4 rounded-[10000px] py-1 ${filter === status ? "bg-[#000975] text-white" : "text-gray-600 hover:text-gray-900"}`}
-                  onClick={() => handleButtonClick(status)}
-                >
-                  {status}
-                </button>
-              ))}
             </div>
+          ))}
+        </div>
 
-            {/* Search and Filter Icon */}
-            <div className="flex items-center gap-4 mr-16">
-              <div className="relative">
-                <FaFilter
-                  size={24}
-                  className="cursor-pointer text-gray-600 hover:text-gray-900"
-                  onClick={() => setShowFilterOptions(!showFilterOptions)}
-                />
-                {showFilterOptions && (
-                  <div className="absolute top-8 right-0 bg-white shadow-md rounded-md w-40 p-2">
-                    {['Active Jobs', 'Expired Jobs'].map((option) => (
-                      <button
-                        key={option}
-                        className={`w-full text-left px-4 py-2 ${filter === option ? "bg-[#000975] text-white" : "text-gray-600 hover:text-gray-900"}`}
-                        onClick={() => handleButtonClick(option)}
-                      >
-                        {option}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+        {/* Filter Section */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex text-sm gap-4 ml-20">
+            {['All', 'Approved', 'Rejected', 'Pending Approvals'].map((status) => (
+              <button
+                key={status}
+                className={`px-4 rounded-[10000px] py-1 ${filter === status ? "bg-[#000975] text-white" : "text-gray-600 hover:text-gray-900"}`}
+                onClick={() => handleButtonClick(status)}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+
+          {/* Search and Filter Icon */}
+          <div className="flex items-center gap-4 mr-16">
+            <div className="relative">
+              <FaFilter
+                size={24}
+                className="cursor-pointer text-gray-600 hover:text-gray-900"
+                onClick={() => setShowFilterOptions(!showFilterOptions)}
+              />
+              {showFilterOptions && (
+                <div className="absolute top-8 right-0 bg-white shadow-md rounded-md w-40 p-2">
+                  {['Active Jobs', 'Expired Jobs'].map((option) => (
+                    <button
+                      key={option}
+                      className={`w-full text-left px-4 py-2 ${filter === option ? "bg-[#000975] text-white" : "text-gray-600 hover:text-gray-900"}`}
+                      onClick={() => handleButtonClick(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Render Job Cards */}
-          <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-            {jobs.map((job) => (
-              <JobCard key={job._id} job={job.job_data} />
-            ))}
-          </div>
+        {/* Render Job Cards */}
+        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
+          {jobs.map((job) => (
+            <JobCard key={job._id} job={job.job_data} />
+          ))}
+        </div>
 
-          {/* Render Internship Cards */}
-          <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-            {internships.map((internship) => (
-              <InternCard key={internship._id} internship={internship} />
-            ))}
-          </div>
+        {/* Render Internship Cards */}
+        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
+          {internships.map((internship) => (
+            <InternCard key={internship._id} internship={internship} />
+          ))}
         </div>
       </div>
     </div>
