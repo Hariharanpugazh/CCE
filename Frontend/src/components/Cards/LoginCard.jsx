@@ -73,9 +73,9 @@ export default function LoginCard({ page, formDataSetter, formData, onSubmit, is
                             </div>
 
                             {/* Forgot Password */}
-                            <button type="button" onClick={onForgotPassword} className="cursor-pointer text-sm">
+                            { !window.location.href.includes("superadmin") && <button type="button" onClick={onForgotPassword} className="cursor-pointer text-sm">
                               Forgot Password?
-                            </button>
+                            </button>}
                         </div>
 
                         {/* Login Button */}

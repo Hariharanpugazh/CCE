@@ -68,12 +68,12 @@ export default function AdminListPage({ filter, sortConfig, requestSort }) {
                             >
                                 Email {sortConfig.key === 'email' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                             </th>
-                            <th
+                            {/* <th
                                 className="py-2 px-4 border-b cursor-pointer"
                                 onClick={() => requestSort('role')}
                             >
                                 Role {sortConfig.key === 'role' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
-                            </th>
+                            </th> */}
                         </tr>
                     </thead>
                     <tbody>
@@ -85,7 +85,7 @@ export default function AdminListPage({ filter, sortConfig, requestSort }) {
                             >
                                 <td className="py-2 px-4 border-b">{admin.name || 'N/A'}</td>
                                 <td className="py-2 px-4 border-b">{admin.email || 'N/A'}</td>
-                                <td className="py-2 px-4 border-b">{admin.role || 'N/A'}</td>
+                                {/* <td className="py-2 px-4 border-b">{admin.role || 'N/A'}</td> */}
                             </tr>
                         ))}
                     </tbody>
