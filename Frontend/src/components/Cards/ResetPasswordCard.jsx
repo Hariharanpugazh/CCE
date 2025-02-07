@@ -53,7 +53,7 @@ export default function ResetPasswordCard({ page, formDataSetter, formData, onSu
 
           <form onSubmit={handleSubmit} className="w-3/4 flex flex-col items-center">
             <div className="space-y-2 mb-6 text-right">
-              <InputField
+              {/* <InputField
                 args={{ placeholder: "Enter your Email", required: true }}
                 value={formData.email}
                 setter={(val) => formDataSetter((prevData) => ({ ...prevData, email: val }))}
@@ -62,7 +62,7 @@ export default function ResetPasswordCard({ page, formDataSetter, formData, onSu
                 args={{ placeholder: "Enter OTP Token", required: true }}
                 value={formData.token}
                 setter={(val) => formDataSetter((prevData) => ({ ...prevData, token: val }))}
-              />
+              /> */}
               <InputField
                 args={{ placeholder: "Enter your New Password", required: true }}
                 value={formData.newPassword}

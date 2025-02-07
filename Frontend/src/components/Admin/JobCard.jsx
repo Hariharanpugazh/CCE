@@ -39,14 +39,10 @@ export default function JobCard({ job }) {
     const navigate = useNavigate();
 
     const handleCardClick = () => {
+        console.log(job)
+
         if (job._id) {
-            if (job.type === "internship") {
-                navigate(`/internship-preview/${job._id}`);
-            } else if (job.type === "job") {
-                navigate(`/job-preview/${job._id}`);
-            } else {
-                console.error("Unknown job type:", job.type);
-            }
+            navigate(`/job-preview/${job._id}`);
         } else {
             console.error("ObjectId is missing in the job:", job);
         }
@@ -59,7 +55,7 @@ export default function JobCard({ job }) {
 
     return (
         <div
-            className="flex flex-col p-3 border border-gray-200 rounded-lg justify-between cursor-pointer"
+            className="flex flex-col p-3 border border-gray-200 rounded-lg justify-between cursor-pointer bg-[#FAF9F6]"
             onClick={handleCardClick}
         >
             <div className="flex justify-between items-start">

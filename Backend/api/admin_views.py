@@ -564,8 +564,8 @@ def job_post(request):
                 "selectedCategory": data.get('selectedCategory'),
                 "selectedWorkType": data.get('selectedWorkType')
             },
-            "admin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
-            "is_publish": is_publish,  # True (Approved) / False (Rejected) / None (Pending)
+            "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
+            "is_publish": is_publish,  # Auto-approve if enabled
             "status": current_status,
             "updated_at": datetime.now()
         }
@@ -909,16 +909,36 @@ def post_internship(request):
             except jwt.ExpiredSignatureError:
                 raise AuthenticationFailed("Access token has expired. Please log in again.")
             except jwt.InvalidTokenError:
-                raise AuthenticationFailed("Invalid token. Please log in again.")
+                raise AuthenticationFailed("Invalid token. Please log in again.") 
 
-            admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
+            role = decoded_token.get('role')
+            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+            if role == 'admin':
+                admin_id = decoded_token.get('admin_user')  # Extract admin_id from token
+                if not admin_id:
+                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+                is_publish = is_auto_approval
+            
+            elif role == 'superadmin':
+                superadmin_id = decoded_token.get('superadmin_user')
+                if not superadmin_id:
+                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+                is_publish = True
+
+            # admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
 
             # Parse incoming JSON data
             data = json.loads(request.body)
+            application_deadline_str = data.get('application_deadline')
+            application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
+            now = datetime.now(timezone.utc)
+
+            current_status = "active" if application_deadline >= now else "expired"
 
             # Fetch auto-approval setting from DB
-            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+            # auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            # is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
 
             # Ensure required fields are present
             required_fields = [
@@ -952,8 +972,11 @@ def post_internship(request):
                     "job_link": data.get('job_link', ""),  # Optional field
                     "internship_type": data['internship_type'],
                 },
-                "admin_id": admin_id,  # Save the admin ID from the token
-                "is_publish": False,  # Auto-approve if enabled
+                # "admin_id": admin_id,  # Save the admin ID from the token
+                # "is_publish": False,  # Auto-approve if enabled
+                "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
+                "is_publish": is_publish,
+                "status": current_status,
                 "updated_at": datetime.utcnow()
             }
 
