@@ -39,10 +39,10 @@ export default function ForgotPasswordCard({
     }
   };
 
-  const handleResendOTP = async () => {
+  const handleResendOTP = async (e) => {
     setLoading(true);
     try {
-      await onResendOTP();
+      await onResendOTP(e);
       toast.success("OTP resent successfully! Please check your email.");
     } catch (error) {
       toast.error("Failed to resend OTP. Please try again.");
