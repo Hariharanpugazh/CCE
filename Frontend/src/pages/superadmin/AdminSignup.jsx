@@ -35,7 +35,7 @@ export default function AdminSignup() {
 
             if (response.ok) {
                 toast.success("Signup successful! Redirecting...");
-                navigate("/student/dashboard"); // Redirect to student dashboard or login page
+                navigate("/Management-home"); // Redirect to home page
             } else {
                 toast.error(data.error || "Signup failed");
             }
