@@ -39,7 +39,11 @@ export default function JobPostForm() {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isWorkTypeOpen, setIsWorkTypeOpen] = useState(false);
   const [showWarning, setShowWarning] = useState(false); // State to show the warning popup
-  const [userRole, setUserRole] = useState(null);  const [isPreview, setIsPreview] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+
+
+
 
   const categories = [
     "TNPC",
