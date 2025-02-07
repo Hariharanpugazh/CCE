@@ -56,7 +56,7 @@ const AdminHome = () => {
     };
     fetchData();
   }, []);
-
+  
   const handleButtonClick = (status) => {
     setActiveButton(status);
     setFilter(status === "All" ? "All" : status);
@@ -66,7 +66,6 @@ const AdminHome = () => {
     <div className="flex flex-col w-full h-screen overflow-auto bg-gray-0">
 
       <AdminPageNavbar />
-
       <header className="flex flex-col items-center justify-center py-14 container self-center">
         <p className="text-6xl tracking-[0.8px]">
           Admin Dashboard
@@ -81,6 +80,25 @@ const AdminHome = () => {
           <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value)} placeholder={`Search postings`} className="w-full text-lg my-5 p-2 px-5 rounded-full bg-gray-100 border-transparent border-2 hover:bg-white hover:border-blue-200 outline-blue-400" />
           <div className="absolute right-2 h-full flex items-center">
             <FiSearch class="bi bi-search bg-blue-400 rounded-full text-white" style={{ color: "white", width: "35", height: "35", padding: "8px" }} />
+      <div className="w-full h-screen overflow-auto p-8 bg-gray-0">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-7xl font-normal font-sans mb-8 text-black text-center">Admin Dashboard</h2>
+
+          {/* Stats Cards Section */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+            {cardsData.map((card, index) => (
+              <div key={index} className="w-60 h-23 bg-white rounded-[19px] shadow-md">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <span className="font-normal text-sm text-[#a0aec0] font-sans">{card.title}</span>
+                    <span className="font-bold text-md text-[#2d3748] font-sans leading-[20px]">{card.count}</span>
+                  </div>
+                  <div className="w-[36px] h-[36px] bg-[#FFC800] text-lg text-white rounded-xl flex items-center justify-center shadow-[0px_3.5px_5.5px_#00000005]">
+                    {card.icon}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
