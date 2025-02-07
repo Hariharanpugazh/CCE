@@ -19,13 +19,17 @@ const AdminHome = () => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [filteredJobs, setFilteredJobs] = useState([])
   const [filteredInterns, setFilteredInterns] = useState([])
+  const approvedCount = jobs.filter((job) => job.is_publish === true).length;
+  const rejectedCount = jobs.filter((job) => job.is_publish === false).length;
+  const pendingCount = jobs.filter((job) => job.is_publish === null).length;
+
 
   const cardsData = [
-    { title: "OverAll", count: jobs.length + internships.length, icon: <FaListAlt /> },
+    { title: "Overall", count: jobs.length + internships.length, icon: <FaListAlt /> },
     { title: "Total Job Listings", count: jobs.length, icon: <FaCheck /> },
-    { title: "Total intership Listings", count: internships.length, icon: <FaBook /> },
-    { title: "Rejected Jobs", count: 2, icon: <FaTrophy /> },
-    { title: "Pending Approvals", count: 0, icon: <FaUserPlus /> },
+    { title: "Total Internship Listings", count: internships.length, icon: <FaBook /> },
+    { title: "Rejected Jobs", count: rejectedCount, icon: <FaTrophy /> },
+    { title: "Pending Approvals", count: pendingCount, icon: <FaUserPlus /> },
   ];
 
   useEffect(() => {
@@ -60,6 +64,21 @@ const AdminHome = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    let filtered = jobs;
+  
+    if (filter === "Approved") {
+      filtered = jobs.filter((job) => job.is_publish === true);
+    } else if (filter === "Rejected") {
+      filtered = jobs.filter((job) => job.is_publish === false);
+    } else if (filter === "Pending Approvals") {
+      filtered = jobs.filter((job) => job.is_publish === null);
+    }
+  
+    setFilteredJobs(filtered);
+  }, [filter, jobs]);
+
+  
   useEffect(() => {
     if (searchPhrase === "") {
       setFilteredJobs(jobs)
@@ -184,12 +203,14 @@ const AdminHome = () => {
 
         {/* Filter Section */}
         <div className="flex justify-between items-center my-14">
-          <div className="flex text-sm gap-4">
-            {['All', 'Approved', 'Rejected', 'Pending Approvals'].map((status) => (
+        <div className="flex text-sm gap-4">
+            {["All", "Approved", "Rejected", "Pending Approvals"].map((status) => (
               <button
                 key={status}
-                className={`px-4 rounded-[10000px] py-1 ${filter === status ? "text-blue-400 underline" : "text-gray-600 hover:text-gray-900"}`}
-                onClick={() => handleButtonClick(status)}
+                className={`px-4 rounded-[10000px] py-1 ${
+                  filter === status ? "text-blue-400 underline" : "text-gray-600 hover:text-gray-900"
+                }`}
+                onClick={() => setFilter(status)}
               >
                 {status}
               </button>
