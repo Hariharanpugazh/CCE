@@ -37,6 +37,7 @@ import StudentSignup from "./pages/superadmin/StudentSignup";
 import AdminListPage from "./pages/superadmin/AdminListPage";
 import ManagementHomePage from "./pages/superadmin/ManagementHomePage";
 import AdminDetailPage from "./pages/superadmin/AdminDetailPage";
+import StudentManagement from "./pages/admin/StudentManagement";
 
 
 // Protected Route Component
@@ -94,6 +95,7 @@ function App() {
         <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
         <Route path="/internship-edit/:id" element= {<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>}/>
         <Route path="/manage-jobs" element= {<ProtectedRoute> <ManageJobs /> </ProtectedRoute>}/>
+        <Route path="/manage-student" element={<ProtectedRoute> <StudentManagement /> </ProtectedRoute>} />
       
 
         {/* Super Admin Login */}
