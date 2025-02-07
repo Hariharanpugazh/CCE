@@ -14,6 +14,15 @@ export default function JobDashboard() {
   const [searchPhrase, setSearchPhrase] = useState("")
 
   useEffect(() => {
+    console.log(filter)
+    if (filter === "All") {
+      setFilteredJobs(jobs)
+      return
+    }
+    setFilteredJobs(jobs.filter((job) => job.job_data.selectedCategory === filter))
+  }, [filter])
+
+  useEffect(() => {
     if (searchPhrase === "") {
       setFilteredJobs(jobs)
     } else {

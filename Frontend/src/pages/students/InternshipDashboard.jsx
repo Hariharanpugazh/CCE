@@ -11,7 +11,7 @@ export default function InternshipDashboard() {
   const [error, setError] = useState("");
   const [filteredInterns, setFilteredInterns] = useState([]);
   const [searchPhrase, setSearchPhrase] = useState("");
-
+  
   // Fetch published internships from the backend
   useEffect(() => {
     const fetchPublishedInternships = async () => {

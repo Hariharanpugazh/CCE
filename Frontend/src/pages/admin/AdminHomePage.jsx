@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import axios from "axios";
 import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus, FaFilter } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Cookies from 'js-cookie';
 import JobCard from "../../components/Admin/JobCard";
 import InternCard from "../../components/Admin/InternCard"; // Import InternCard
-import PageHeader from "../../components/Common/StudentPageHeader";
 import { AppPages, Departments } from "../../utils/constants";
 import { FiSearch } from "react-icons/fi";
 
@@ -51,6 +50,8 @@ const AdminHome = () => {
 
         setJobs(jobsData);
         setInternships(internshipsData);
+        setFilteredJobs(jobsData);
+        setFilteredInterns(internshipsData);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load data.");
@@ -87,9 +88,41 @@ const AdminHome = () => {
     }
   }, [searchPhrase])
 
+
+  useEffect(() => {
+    function dateDiff(deadline) {
+      const deadDate = new Date(deadline);
+      const today = Date.now();
+
+      const timeDifference = deadDate.getTime() - today;
+      console.log(Math.floor(timeDifference / (1000 * 3600 * 24)))
+      return Math.floor(timeDifference / (1000 * 3600 * 24)); // Returns whole days difference
+    }
+
+    console.log(activeButton)
+
+    if (activeButton === "Active Postings") {
+      setFilteredJobs(jobs.filter((job) => dateDiff(job.job_data.application_deadline) >= 0))
+      setFilteredInterns(internships.filter((intern) => dateDiff(intern.internship_data.application_deadline) >= 0))
+    }
+
+    if (activeButton === "Expired Postings") {
+      setFilteredJobs(jobs.filter((job) => dateDiff(job.job_data.application_deadline) < 0))
+      setFilteredInterns(internships.filter((intern) => dateDiff(intern.internship_data.application_deadline) < 0))
+    }
+  }, [activeButton])
+
+  useEffect(() => {
+    if (deptFilter === "All") {
+      setFilteredJobs(jobs)
+    }
+    setFilteredJobs(jobs.filter((job) => job.job_data.selectedCategory === deptFilter))
+  }, [deptFilter])
+
   const handleButtonClick = (status) => {
     setActiveButton(status);
     setFilter(status === "All" ? "All" : status);
+    setShowFilterOptions(false)
   };
 
   return (
@@ -130,7 +163,7 @@ const AdminHome = () => {
         </div>
       </header>
 
-      <div className="max-w-[80%] mx-auto">
+      <div className="w-[80%] mx-auto">
 
         {/* Stats Cards Section */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
@@ -150,7 +183,7 @@ const AdminHome = () => {
         </div>
 
         {/* Filter Section */}
-        <div className="flex justify-between items-center mb-14">
+        <div className="flex justify-between items-center my-14">
           <div className="flex text-sm gap-4">
             {['All', 'Approved', 'Rejected', 'Pending Approvals'].map((status) => (
               <button
@@ -173,7 +206,7 @@ const AdminHome = () => {
               />
               {showFilterOptions && (
                 <div className="absolute top-8 right-0 bg-white shadow-md rounded-md w-40 p-2 space-y-2">
-                  {['Active Jobs', 'Expired Jobs'].map((option) => (
+                  {['Active Postings', 'Expired Postings'].map((option) => (
                     <button
                       key={option}
                       className={`w-full px-4 py-2 cursor-pointer hover:bg-gray-100 ${filter === option ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
@@ -190,15 +223,15 @@ const AdminHome = () => {
 
         {/* Render Job Cards */}
         <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-          {jobs.map((job) => (
-            <JobCard key={job._id} job={job.job_data} />
+          {filteredJobs.map((job) => (
+            <JobCard key={job._id} job={{...job.job_data, _id: job._id}}  />
           ))}
         </div>
 
         {/* Render Internship Cards */}
         <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-          {internships.map((internship) => (
-            <InternCard key={internship._id} internship={internship} />
+          {filteredInterns.map((internship) => (
+            <InternCard key={internship._id} internship={{...internship, _id: internship._id}} />
           ))}
         </div>
       </div>

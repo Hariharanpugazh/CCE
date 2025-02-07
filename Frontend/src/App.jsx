@@ -30,7 +30,6 @@ import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashbo
 import ManageJobs from "./pages/admin/ManageJobs";
 import InboxPage from "./pages/superadmin/InboxPage";
 import AdminHome from "./pages/admin/AdminHomePage";
-import SuperadminJobPost from "./pages/superadmin/SuperadminJobPostForm";
 import AdminSignup from "./pages/superadmin/AdminSignup";
 import StudentSignup from "./pages/superadmin/StudentSignup";
 import AdminListPage from "./pages/superadmin/AdminListPage";
@@ -111,7 +110,6 @@ function App() {
         <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
         <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
-        <Route path={"/superadmin-jobpost"} element={<ProtectedRoute> <SuperadminJobPost /> </ProtectedRoute>} />
         <Route path={"/admin-details/:id"} element={<ProtectedRoute> <AdminDetailPage /> </ProtectedRoute>} />
       </Routes>
     </BrowserRouter>

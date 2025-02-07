@@ -13,6 +13,12 @@ export default function AdminJobsDashboard() {
     const [error, setError] = useState("");
     const [searchPhrase, setSearchPhrase] = useState("")
 
+    useEffect(() => {
+      if (filter === "All") {
+        setFilteredJobs(jobs)
+      }
+      setFilteredJobs(jobs.filter((job) => job.job_data.selectedCategory === filter))
+    }, [filter])
 
     useEffect(() => {
         if (searchPhrase === "") {
