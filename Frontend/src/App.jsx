@@ -1,7 +1,6 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import Cookies from "js-cookie"; // Import js-cookie
+import Cookies from "js-cookie";
 import "./App.css";
-import { AppPages } from "./utils/constants";
 import StudentLogin from "./pages/students/StudentLogin";
 import SuperAdminLogin from "./pages/superadmin/SuperAdminLogin";
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -37,6 +36,7 @@ import StudentSignup from "./pages/superadmin/StudentSignup";
 import AdminListPage from "./pages/superadmin/AdminListPage";
 import ManagementHomePage from "./pages/superadmin/ManagementHomePage";
 import AdminDetailPage from "./pages/superadmin/AdminDetailPage";
+import AdminMail from "./pages/admin/AdminMail";
 import StudentManagement from "./pages/admin/StudentManagement";
 
 
@@ -87,6 +87,7 @@ function App() {
         {/* Protected Admin Routes */}
         <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
         <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>} />
+        <Route path="/admin/mail" element={<ProtectedRoute> <AdminMail /> </ProtectedRoute>} />
         <Route path="/admin/jobs" element={ <ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />
         <Route path="/admin/achievements" element={ <ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
         <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
