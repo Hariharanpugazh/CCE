@@ -18,7 +18,7 @@ urlpatterns = [
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
     path("superadmin_login/",super_admin_login,name="super_admin_login"),
     path("get-contact-messages/",get_contact_messages,name="get_contact_messages"),
-    path("superjob_post/",super_job_post,name="super_job_post"),
+    # path("superjob_post/",super_job_post,name="super_job_post"),
     path("toggle-auto-approval/",toggle_auto_approval, name="toggle_auto_approval"),
     path("get-auto-approval-status/",get_auto_approval_status, name="get_auto_approval_status"),
 
