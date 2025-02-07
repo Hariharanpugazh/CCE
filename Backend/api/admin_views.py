@@ -497,82 +497,6 @@ def super_admin_login(request):
     
 # ============================================================== JOBS ======================================================================================
 
-# @csrf_exempt
-# @api_view(['POST'])
-# def job_post(request):
-#     auth_header = request.headers.get('Authorization')
-
-#     if not auth_header or not auth_header.startswith("Bearer "):
-#         return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
-
-#     token = auth_header.split(" ")[1]
-#     try:
-#         # Decode the JWT token
-#         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-#         admin_id = payload.get('admin_user')  # Extract admin_id from token
-#         if not admin_id:
-#             return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-
-#         data = json.loads(request.body)
-
-#         # Fetch auto-approval setting
-#         auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-#         is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
-#         application_deadline_str = data.get('application_deadline')
-#         application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
-#         now = datetime.now(timezone.utc)
-
-#         current_status = "active" if application_deadline >= now else "expired"
-
-#         # Prepare job data
-#         job_post = {
-#             "job_data": {
-#                 "title": data.get('title'),
-#                 "company_name": data.get('company_name'),
-#                 "company_overview": data.get('company_overview'),
-#                 "company_website": data.get('company_website'),
-#                 "job_description": data.get('job_description'),
-#                 "key_responsibilities": data.get('key_responsibilities'),
-#                 "required_skills": data.get('required_skills'),
-#                 "education_requirements": data.get('education_requirements'),
-#                 "experience_level": data.get('experience_level'),
-#                 "salary_range": data.get('salary_range'),
-#                 "benefits": data.get('benefits'),
-#                 "job_location": data.get('job_location'),
-#                 "work_type": data.get('work_type'),
-#                 "work_schedule": data.get('work_schedule'),
-#                 "application_instructions": data.get('application_instructions'),
-#                 "application_deadline": data.get('application_deadline'),
-#                 "contact_email": data.get('contact_email'),
-#                 "contact_phone": data.get('contact_phone'),
-#                 "job_link": data.get('job_link'),
-#                 "selectedCategory": data.get('selectedCategory'),
-#                 "selectedWorkType": data.get('selectedWorkType')
-#             },
-#             "admin_id": admin_id,  # Save the admin_id from the token
-#             "is_publish": is_auto_approval,  # Auto-approve if enabled
-#             "status": current_status,
-#             "updated_at": datetime.now()
-#         }
-
-#         # Insert the job post into the database
-#         job_collection.insert_one(job_post)
-
-#         return Response(
-#             {
-#                 "message": "Job stored successfully",
-#                 "auto_approved": is_auto_approval
-#             },
-#             status=status.HTTP_201_CREATED
-#         )
-
-#     except jwt.ExpiredSignatureError:
-#         return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
-#     except jwt.DecodeError:
-#         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-#     except Exception as e:
-#         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
 @csrf_exempt
 @api_view(['POST'])
 def job_post(request):
@@ -589,23 +513,25 @@ def job_post(request):
         role = payload.get('role')
         auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
         is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
+        is_publish = None  # Default: Pending (null)
+
         if role == 'admin':
             admin_id = payload.get('admin_user')  # Extract admin_id from token
             if not admin_id:
                 return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-            is_publish = is_auto_approval
             
+            if is_auto_approval:
+                is_publish = True  # Auto-approve enabled, mark as approved
+
         elif role == 'superadmin':
             superadmin_id = payload.get('superadmin_user')
             if not superadmin_id:
                 return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-            is_publish = True
+            
+            is_publish = True  # Superadmin posts are always approved
 
         data = json.loads(request.body)
-
-        # # Fetch auto-approval setting
-        # auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-        # is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
 
         application_deadline_str = data.get('application_deadline')
         application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
@@ -671,6 +597,11 @@ def get_jobs_for_mail(request):
         for job in jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
             
+            # Convert is_publish to readable status
+            approval_status = "Waiting for Approval" if job.get("is_publish") is None else (
+                "Approved" if job["is_publish"] else "Rejected"
+            )
+            
             # Ensure job_data exists and has application_deadline
             if "job_data" in job and "application_deadline" in job["job_data"]:
                 if job["job_data"]["application_deadline"]:  # Check if it's not None
@@ -689,6 +620,9 @@ def get_jobs_for_mail(request):
                     
                     job["job_data"]["application_deadline"] = formatted_deadline  # Update formatted value
             
+            # Add human-readable approval status to the response
+            job["approval_status"] = approval_status
+
             job_list.append(job)
 
         return JsonResponse({"jobs": job_list}, status=200)
@@ -776,15 +710,13 @@ def review_job(request, job_id):
 @csrf_exempt
 def get_published_jobs(request):
     """
-    Fetch all jobs with is_publish set to True.
+    Fetch all jobs with is_publish set to True (Approved).
     """
     try:
-        published_jobs = job_collection.find({"is_publish": True})
+        published_jobs = job_collection.find({"is_publish": True})  # Ensures only approved jobs are fetched
         job_list = []
         for job in published_jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
-            # deadline = job["job_data"]["application_deadline"]
-            # job["job_data"]["application_deadline"] = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
             job_list.append(job)
         return JsonResponse({"jobs": job_list}, status=200)
     except Exception as e:
