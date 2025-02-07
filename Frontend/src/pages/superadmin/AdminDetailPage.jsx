@@ -64,20 +64,21 @@ export default function AdminDetailPage() {
                 <p><strong>Email:</strong> {admin.email || 'N/A'}</p>
                 <p><strong>Department:</strong> {admin.department || 'N/A'}</p>
                 <p><strong>College Name:</strong> {admin.college_name || 'N/A'}</p>
-                <p><strong>Account Status:</strong> 
+                <p><strong>Account Status:</strong>
                     <span className={`font-bold ${admin.status === 'active' ? 'text-green-600' : 'text-red-600'}`}>
                         {admin.status}
                     </span>
                 </p>
-                <p><strong>Last Login:</strong> {admin.last_login}</p>
+                <p><strong>Last Login:</strong> {admin.last_login ? new Date(admin.last_login).toLocaleString() : 'Never'}</p>
+                <p><strong>Date Created:</strong> {admin.created_at ? new Date(admin.created_at).toLocaleDateString() : 'Unknown'}</p>
                 <div className="mt-4">
                     {admin.status === "active" ? (
                         <button
-                            onClick={() => handleStatusChange("deactivated")}
+                            onClick={() => handleStatusChange("Inactive")}
                             disabled={loading}
                             className="px-4 py-2 bg-red-500 text-white rounded"
                         >
-                            {loading ? "Processing..." : "Deactivate"}
+                            {loading ? "Processing..." : "Inactive"}
                         </button>
                     ) : (
                         <button

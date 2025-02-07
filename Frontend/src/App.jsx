@@ -34,8 +34,7 @@ import AdminHome from "./pages/admin/AdminHomePage";
 import SuperadminJobPost from "./pages/superadmin/SuperadminJobPostForm";
 import AdminSignup from "./pages/superadmin/AdminSignup";
 import StudentSignup from "./pages/superadmin/StudentSignup";
-import AdminListPage from "./pages/superadmin/AdminListPage";
-import ManagementHomePage from "./pages/superadmin/ManagementHomePage";
+import AdminManagement from "./pages/superadmin/AdminManagement";
 import AdminDetailPage from "./pages/superadmin/AdminDetailPage";
 import StudentManagement from "./pages/admin/StudentManagement";
 
@@ -103,8 +102,7 @@ function App() {
         <Route path={"/admin-signup"} element={<AdminSignup />} />
         <Route path={"/student-signup"} element={<StudentSignup />} />
         <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
-        <Route path={"/Admin-list"} element={<ProtectedRoute> <AdminListPage /> </ProtectedRoute>} />
-        <Route path={"/Management-home"} element={<ProtectedRoute> <ManagementHomePage /> </ProtectedRoute> } />
+        <Route path={"/Admin-Management"} element={<ProtectedRoute> <AdminManagement /> </ProtectedRoute> } />
         <Route path={"/superadmin/jobs"} element={<ProtectedRoute> <SuperJobsDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin/internships"} element={<ProtectedRoute> <SuperInternShipDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />

@@ -392,7 +392,7 @@ def admin_status_update(request, id):
             data = json.loads(request.body)
             new_status = data.get("status")
 
-            if new_status not in ["active", "deactivated"]:
+            if new_status not in ["active", "Inactive"]:
                 return JsonResponse({'error': 'Invalid status value'}, status=400)
 
             update_result = admin_collection.update_one({'_id': ObjectId(id)}, {'$set': {'status': new_status}})
