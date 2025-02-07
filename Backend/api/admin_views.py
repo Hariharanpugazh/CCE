@@ -612,7 +612,7 @@ def job_post(request):
                 "selectedCategory": data.get('selectedCategory'),
                 "selectedWorkType": data.get('selectedWorkType')
             },
-            "admin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
+            "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
             "is_publish": is_publish,  # Auto-approve if enabled
             "status": current_status,
             "updated_at": datetime.now()
@@ -636,63 +636,6 @@ def job_post(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-
-# @csrf_exempt
-# @api_view(['POST'])
-# def super_job_post(request):
-#     auth_header = request.headers.get('Authorization')
-
-#     if not auth_header or not auth_header.startswith("Bearer "):
-#         return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
-
-#     token = auth_header.split(" ")[1]
-#     try:
-#         # Decode the JWT token
-#         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-#         superadmin_id = payload.get('superadmin_user')  # Extract admin_id from token
-#         if not superadmin_id:
-#             return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-        
-#         data = json.loads(request.body)
-#         # Prepare job data
-#         job_post = {
-#             "job_data": {
-#                 "title": data.get('title'),
-#                 "company_name": data.get('company_name'),
-#                 "company_overview": data.get('company_overview'),
-#                 "company_website": data.get('company_website'),
-#                 "job_description": data.get('job_description'),
-#                 "key_responsibilities": data.get('key_responsibilities'),
-#                 "required_skills": data.get('required_skills'),
-#                 "education_requirements": data.get('education_requirements'),
-#                 "experience_level": data.get('experience_level'),
-#                 "salary_range": data.get('salary_range'),
-#                 "benefits": data.get('benefits'),
-#                 "job_location": data.get('job_location'),
-#                 "work_type": data.get('work_type'),
-#                 "work_schedule": data.get('work_schedule'),
-#                 "application_instructions": data.get('application_instructions'),
-#                 "application_deadline": data.get('application_deadline'),
-#                 "contact_email": data.get('contact_email'),
-#                 "contact_phone": data.get('contact_phone'),
-#                 "job_link": data.get('job_link'),
-#                 "selectedCategory": data.get('selectedCategory'),
-#                 "selectedWorkType": data.get('selectedWorkType')
-#             },
-#             "admin_id": superadmin_id,  # Save the admin_id from the token
-#             "is_publish": True,
-#             "updated_at": datetime.now()
-#         }
-#         # Insert the job post into the database
-#         job_collection.insert_one(job_post)
-#         return Response({"message": "Job stored successfully, waiting for approval"}, status=status.HTTP_201_CREATED)
-#     except jwt.ExpiredSignatureError:
-#         return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
-#     except jwt.DecodeError:
-#         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-#     except Exception as e:
-#         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 @csrf_exempt
 def get_jobs_for_mail(request):
     try:
@@ -1008,16 +951,31 @@ def post_internship(request):
             except jwt.ExpiredSignatureError:
                 raise AuthenticationFailed("Access token has expired. Please log in again.")
             except jwt.InvalidTokenError:
-                raise AuthenticationFailed("Invalid token. Please log in again.")
+                raise AuthenticationFailed("Invalid token. Please log in again.") 
 
-            admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
+            role = decoded_token.get('role')
+            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+            if role == 'admin':
+                admin_id = decoded_token.get('admin_user')  # Extract admin_id from token
+                if not admin_id:
+                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+                is_publish = is_auto_approval
+            
+            elif role == 'superadmin':
+                superadmin_id = decoded_token.get('superadmin_user')
+                if not superadmin_id:
+                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+                is_publish = True
+
+            # admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
 
             # Parse incoming JSON data
             data = json.loads(request.body)
 
             # Fetch auto-approval setting from DB
-            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+            # auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            # is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
 
             # Ensure required fields are present
             required_fields = [
@@ -1051,8 +1009,10 @@ def post_internship(request):
                     "job_link": data.get('job_link', ""),  # Optional field
                     "internship_type": data['internship_type'],
                 },
-                "admin_id": admin_id,  # Save the admin ID from the token
-                "is_publish": False,  # Auto-approve if enabled
+                # "admin_id": admin_id,  # Save the admin ID from the token
+                # "is_publish": False,  # Auto-approve if enabled
+                "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
+                "is_publish": is_publish,
                 "updated_at": datetime.utcnow()
             }
 
