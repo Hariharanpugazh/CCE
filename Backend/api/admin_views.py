@@ -943,7 +943,7 @@ def post_internship(request):
 @csrf_exempt
 def get_published_internships(request):
     try:
-        published_internships = internship_collection.find({"publish": True})
+        published_internships = internship_collection.find({"is_publish": True})
         internship_list = [
             {**internship, "_id": str(internship["_id"])}  # Convert ObjectId to string
             for internship in published_internships

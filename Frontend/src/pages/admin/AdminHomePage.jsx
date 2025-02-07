@@ -52,7 +52,7 @@ const AdminHome = () => {
     };
     fetchData();
   }, []);
-
+  
   const handleButtonClick = (status) => {
     setActiveButton(status);
     setFilter(status === "All" ? "All" : status);
@@ -63,7 +63,7 @@ const AdminHome = () => {
       <AdminPageNavbar />
       <div className="w-full h-screen overflow-auto p-8 bg-gray-0">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl font-bold mb-8 text-gray-800 text-center">Admin Dashboard</h2>
+          <h2 className="text-7xl font-normal font-sans mb-8 text-black text-center">Admin Dashboard</h2>
 
           {/* Stats Cards Section */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
