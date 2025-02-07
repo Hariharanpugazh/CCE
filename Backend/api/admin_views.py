@@ -392,7 +392,7 @@ def admin_status_update(request, id):
             data = json.loads(request.body)
             new_status = data.get("status")
 
-            if new_status not in ["active", "deactivated"]:
+            if new_status not in ["active", "Inactive"]:
                 return JsonResponse({'error': 'Invalid status value'}, status=400)
 
             update_result = admin_collection.update_one({'_id': ObjectId(id)}, {'$set': {'status': new_status}})
@@ -910,7 +910,6 @@ def post_internship(request):
                 raise AuthenticationFailed("Access token has expired. Please log in again.")
             except jwt.InvalidTokenError:
                 raise AuthenticationFailed("Invalid token. Please log in again.") 
-
             role = decoded_token.get('role')
             auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
             is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
@@ -925,7 +924,6 @@ def post_internship(request):
                 if not superadmin_id:
                     return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
                 is_publish = True
-
             # admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
 
             # Parse incoming JSON data
@@ -1155,36 +1153,7 @@ def manage_jobs(request):
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
-    
-# @csrf_exempt
-# def get_jobs(request):
-#     if request.method == 'GET':
-#         jwt_token = request.COOKIES.get('jwt')
-#         if not jwt_token:
-#             return JsonResponse({'error': 'JWT token missing'}, status=401)
-
-#         try:
-#             decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-#             admin_user = decoded_token.get('admin_user')
-
-#             # Fetch jobs from MongoDB based on admin_user
-#             jobs = job_collection.find({'admin_id': admin_user})
-#             jobs_list = []
-#             for job in jobs:
-#                 job['_id'] = str(job['_id'])
-#                 jobs_list.append(job)
-
-#             return JsonResponse({'jobs': jobs_list}, status=200)
-
-#         except jwt.ExpiredSignatureError:
-#             return JsonResponse({'error': 'JWT token has expired'}, status=401)
-#         except jwt.InvalidTokenError as e:
-#             return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
-#         except Exception as e:
-#             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
-#     else:
-#         return JsonResponse({'error': 'Invalid request method'}, status=405)
-    
+       
 @csrf_exempt
 def get_jobs(request):
     if request.method == 'GET':
