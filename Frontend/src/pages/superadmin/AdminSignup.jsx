@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import SignupCard from "../../components/Cards/SignupCard"; // Assuming you have a SignupCard component
+import SignupCard from "../../components/Cards/SignupCard"; // Using existing UI component
 
 export default function AdminSignup() {
     const [formData, setFormData] = useState({
@@ -10,12 +10,14 @@ export default function AdminSignup() {
         email: "",
         password: "",
         confirmPassword: "",
+        department: "",  // New field
+        college_name: "",  // New field
     });
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const { name, email, password, confirmPassword } = formData;
+        const { name, email, password, confirmPassword, department, college_name } = formData;
 
         if (password !== confirmPassword) {
             toast.error("Passwords do not match!");
@@ -28,7 +30,7 @@ export default function AdminSignup() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ name, email, password }),
+                body: JSON.stringify({ name, email, password, department, college_name }),
             });
 
             const data = await response.json();
@@ -47,11 +49,7 @@ export default function AdminSignup() {
 
     return (
         <>
-            <SignupCard
-                formData={formData}
-                formDataSetter={setFormData}
-                onSubmit={handleSubmit}
-            />
+            <SignupCard formData={formData} formDataSetter={setFormData} onSubmit={handleSubmit} />
             <ToastContainer position="top-right" autoClose={3000} />
         </>
     );

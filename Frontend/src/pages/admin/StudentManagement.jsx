@@ -1,0 +1,180 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import Cookies from "js-cookie";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+
+const StudentManagement = () => {
+  const [students, setStudents] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Fetch user role from JWT token in cookies
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+      console.log("Decoded JWT Payload:", payload); // Debugging line
+      setUserRole(payload.role); // Assuming the payload has a 'role' field
+    }
+  }, []);
+
+  // Fetch student list
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/students/"); // Replace with your API endpoint
+        setStudents(response.data.students);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    };
+
+    fetchStudents();
+  }, []);
+
+// Handle status toggle
+  const toggleStatus = async (student) => {
+    try {
+      setIsLoading(true);
+      const newStatus = student.status === "active" ? "inactive" : "active";
+      await axios.put(`http://localhost:8000/api/students/${student._id}/update/`, { status: newStatus });
+      setStudents((prev) =>
+        prev.map((s) =>
+          s._id === student._id ? { ...s, status: newStatus } : s
+        )
+      );
+      setTimeout(() => {
+        setIsLoading(false);
+        window.location.reload(); // Refresh the page
+      }, 1000);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      setIsLoading(false);
+    }
+  };
+
+  // Handle student deletion
+  const deleteStudent = async (studentId) => {
+    try {
+      await axios.delete(`http://localhost:8000/api/students/${studentId}/delete/`);
+      setStudents((prev) => prev.filter((s) => s._id !== studentId));
+      setSelectedStudent(null);
+    } catch (error) {
+      console.error("Error deleting student:", error);
+    }
+  };
+
+  return (
+    <div className="flex flex-col p-6 bg-gray-50 min-h-screen">
+      {/* Render appropriate navbar based on user role */}
+      {userRole === "admin" && <AdminPageNavbar />}
+      {userRole === "superadmin" && <SuperAdminPageNavbar />}
+
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">Student Management</h1>
+
+      <div className="grid grid-cols-3 gap-6">
+        {/* Student List */}
+        <div className="col-span-1 bg-white rounded-lg shadow-lg p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-700">Student List</h2>
+            <button
+              onClick={() => navigate("/student-signup")}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              Create Student +
+            </button>
+          </div>
+          <ul className="divide-y divide-gray-200">
+            {students.map((student) => (
+              <li
+                key={student._id}
+                onClick={() => setSelectedStudent(student)}
+                className={`cursor-pointer py-3 px-4 rounded-lg hover:bg-gray-100 ${
+                  selectedStudent?._id === student._id ? "bg-gray-200" : ""
+                }`}
+              >
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-gray-900">
+                    {student.name} ({student.status})
+                  </span>
+                  <span className="text-gray-500 text-sm">{student.email}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Selected Student Details */}
+        {selectedStudent && (
+          <div className="col-span-2 bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+              {selectedStudent.name}
+            </h2>
+
+            <div className="mb-4">
+              <span className="text-gray-600">Email:</span>
+              <span className="ml-2 text-gray-800">{selectedStudent.email}</span>
+            </div>
+
+            <div className="mb-4">
+              <span className="text-gray-600">Department:</span>
+              <span className="ml-2 text-gray-800">{selectedStudent.department || "N/A"}</span>
+            </div>
+
+            <div className="mb-4">
+              <span className="text-gray-600">Year:</span>
+              <span className="ml-2 text-gray-800">{selectedStudent.year || "N/A"}</span>
+            </div>
+
+            <div className="mb-4">
+              <span className="text-gray-600">Status:</span>
+              <span
+                className={`ml-2 px-2 py-1 rounded ${
+                  selectedStudent.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                }`}
+              >
+                {selectedStudent.status}
+              </span>
+            </div>
+
+            <div className="mb-4">
+              <span className="text-gray-600">Last Login:</span>
+              <span className="ml-2 text-gray-800">{selectedStudent.last_login || "Never"}</span>
+            </div>
+
+            <div className="mb-4">
+              <span className="text-gray-600">Created At:</span>
+              <span className="ml-2 text-gray-800">{selectedStudent.created_at || "Unknown"}</span>
+            </div>
+
+            <button
+              onClick={() => toggleStatus(selectedStudent)}
+              className={`w-full py-2 mb-4 text-white rounded-lg font-medium transition duration-300 ${
+                selectedStudent.status === "active" ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+              }`}
+            >
+              {isLoading
+                ? selectedStudent.status === "active"
+                  ? "Inactivating..."
+                  : "Activating..."
+                : `Set to ${selectedStudent.status === "active" ? "Inactive" : "Active"}`}
+            </button>
+
+            <button
+              onClick={() => deleteStudent(selectedStudent._id)}
+              className="w-full py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition duration-300"
+            >
+              Delete Student
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default StudentManagement;

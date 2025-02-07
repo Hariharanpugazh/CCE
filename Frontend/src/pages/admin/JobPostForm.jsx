@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import DatePicker from "react-datepicker";
 import { motion } from "framer-motion";
 import { FaCalendarAlt } from "react-icons/fa";
 import "react-datepicker/dist/react-datepicker.css";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 export default function JobPostForm() {
   const [formData, setFormData] = useState({
@@ -36,7 +38,7 @@ export default function JobPostForm() {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isWorkTypeOpen, setIsWorkTypeOpen] = useState(false);
   const [showWarning, setShowWarning] = useState(false); // State to show the warning popup
-
+  const [userRole, setUserRole] = useState(null);
   const categories = [
     "TNPC",
     "Army and Defence",
@@ -138,14 +140,27 @@ export default function JobPostForm() {
     }
   };
 
+    // Fetch user role from JWT token in cookies
+    useEffect(() => {
+      const token = Cookies.get("jwt");
+      if (token) {
+        const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+        console.log("Decoded JWT Payload:", payload); // Debugging line
+        setUserRole(payload.role); // Assuming the payload has a 'role' field
+      }
+    }, []);
+
   return (
     <motion.div
-      className="max-w-7xl mx-auto p-8 bg-white shadow-xl rounded-2xl relative"
+      className="max-w mx-auto p-8 bg-white shadow-xl rounded-2xl relative"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
-      <h2 className="text-3xl font-bold mb-4 text-gray-800 text-center">Post a Job</h2>
+    {/* Render appropriate navbar based on user role */}
+    {userRole === "admin" && <AdminPageNavbar />}
+    {userRole === "superadmin" && <SuperAdminPageNavbar />}
+      <h2 className="text-3xl pt-4 font-bold mb-4 text-gray-800 text-center">Post a Job</h2>
 
       {/* Display warning popup if Job Link is not filled */}
       {showWarning && (

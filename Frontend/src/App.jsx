@@ -9,7 +9,7 @@ import JobDashboard from "./pages/students/JobDashboard";
 import AdminInternShipDashboard from "./pages/admin/adminInternDashboard";
 import AdminJobsDashboard from "./pages/admin/adminJobsDashboard";
 import SuperadminDashboard from "./pages/superadmin/SuperadminDashboard";
-import MailPage from "./pages/superadmin/MailPage";
+import MailPage from "./pages/superadmin/Management";
 import JobPostForm from "./pages/admin/JobPostForm";
 import AchievementPostForm from "./pages/admin/AchievementPostForm";
 import InternshipForm from "./pages/admin/IntershipForm";
@@ -37,6 +37,7 @@ import AdminListPage from "./pages/superadmin/AdminListPage";
 import ManagementHomePage from "./pages/superadmin/ManagementHomePage";
 import AdminDetailPage from "./pages/superadmin/AdminDetailPage";
 import AdminMail from "./pages/admin/AdminMail";
+import StudentManagement from "./pages/admin/StudentManagement";
 
 
 // Protected Route Component
@@ -95,6 +96,7 @@ function App() {
         <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
         <Route path="/internship-edit/:id" element= {<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>}/>
         <Route path="/manage-jobs" element= {<ProtectedRoute> <ManageJobs /> </ProtectedRoute>}/>
+        <Route path="/manage-student" element={<ProtectedRoute> <StudentManagement /> </ProtectedRoute>} />
       
 
         {/* Super Admin Login */}
