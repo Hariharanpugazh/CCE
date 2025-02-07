@@ -100,7 +100,7 @@ const AdminHome = () => {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[80%] mx-auto">
 
         {/* Stats Cards Section */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
