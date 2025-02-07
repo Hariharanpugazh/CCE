@@ -64,6 +64,7 @@ internship_collection = db['internships']
 job_collection = db['jobs']
 achievement_collection = db['achievement']
 superadmin_collection = db['superadmin']
+student_collection = db['students']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -743,6 +744,8 @@ def get_published_jobs(request):
         job_list = []
         for job in published_jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
+            # deadline = job["job_data"]["application_deadline"]
+            # job["job_data"]["application_deadline"] = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
             job_list.append(job)
         return JsonResponse({"jobs": job_list}, status=200)
     except Exception as e:
@@ -1001,7 +1004,7 @@ def post_internship(request):
 @csrf_exempt
 def get_published_internships(request):
     try:
-        published_internships = internship_collection.find({"publish": True})
+        published_internships = internship_collection.find({"is_publish": True})
         internship_list = [
             {**internship, "_id": str(internship["_id"])}  # Convert ObjectId to string
             for internship in published_internships
