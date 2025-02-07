@@ -64,6 +64,7 @@ internship_collection = db['internships']
 job_collection = db['jobs']
 achievement_collection = db['achievement']
 superadmin_collection = db['superadmin']
+student_collection = db['students']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
