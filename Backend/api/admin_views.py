@@ -585,7 +585,10 @@ def job_post(request):
         return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
     except jwt.DecodeError:
         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+    except ValueError:
+        return Response({"error": "Invalid date"}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
+        print(e)
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @csrf_exempt
