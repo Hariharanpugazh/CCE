@@ -21,6 +21,7 @@ urlpatterns = [
     path("superjob_post/",super_job_post,name="super_job_post"),
     path("toggle-auto-approval/",toggle_auto_approval, name="toggle_auto_approval"),
     path("get-auto-approval-status/",get_auto_approval_status, name="get_auto_approval_status"),
+    path('admin-status/<str:id>/', admin_status_update, name='admin_status_update'),
 
     #account management 
     path('students/', get_students, name='get_students'),
@@ -28,9 +29,6 @@ urlpatterns = [
     path('students/<str:student_id>/delete/', delete_student, name='delete_student'),
     path("admins-list/", get_admin_list, name="get_admins_list"),
     path('admin-details/<str:id>/', admin_details, name='admin-details'),
-    #path('admin/<str:id>/update/', update_admin, name='update-admin'),
-
-    path('admin-status/<str:id>/', admin_status_update, name='admin_status_update'),
 
     #common
     path("profile/<str:userId>/", get_profile, name="get_profile"),

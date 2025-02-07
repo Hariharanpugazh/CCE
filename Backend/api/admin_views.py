@@ -226,7 +226,8 @@ def admin_login(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-def generate_reset_token(length=6):
+def generate_reset_token(length=4):
+    # return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
     return ''.join(random.choices(string.digits, k=length))
 
 @api_view(["POST"])
