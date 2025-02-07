@@ -19,16 +19,22 @@ urlpatterns = [
     path("superadmin_login/",super_admin_login,name="super_admin_login"),
     path("get-contact-messages/",get_contact_messages,name="get_contact_messages"),
     path("superjob_post/",super_job_post,name="super_job_post"),
-    path("admins-list/", get_admin_list, name="get_admins_list"),
-    path('admin-details/<str:id>/', admin_details, name='admin-details'),
     path("toggle-auto-approval/",toggle_auto_approval, name="toggle_auto_approval"),
     path("get-auto-approval-status/",get_auto_approval_status, name="get_auto_approval_status"),
+
+    #account management 
+    path('students/', get_students, name='get_students'),
+    path('students/<str:student_id>/update/', update_student, name='update_student'),
+    path('students/<str:student_id>/delete/', delete_student, name='delete_student'),
+    path("admins-list/", get_admin_list, name="get_admins_list"),
+    path('admin-details/<str:id>/', admin_details, name='admin-details'),
 
     #common
     path("profile/<str:userId>/", get_profile, name="get_profile"),
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
     path("verify-otp/", verify_otp, name="verify_otp"),
+
     
     #Jobs
     path('jobs', get_jobs_for_mail, name='get_jobs'),

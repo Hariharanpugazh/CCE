@@ -233,6 +233,75 @@ def student_reset_password(request):
 
     return JsonResponse({"error": "Invalid request method. Use POST."}, status=405)
     
+@csrf_exempt
+def get_students(request):
+    """
+    API to retrieve all students.
+    """
+    if request.method == 'GET':
+        try:
+            students = student_collection.find()
+            student_list = []
+            for student in students:
+                student['_id'] = str(student['_id'])  # Convert ObjectId to string
+                del student['password']  # Don't expose passwords
+                student_list.append(student)
+
+            return JsonResponse({'students': student_list}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def update_student(request, student_id):
+    """
+    API to update a student's profile.
+    """
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            student = student_collection.find_one({'_id': ObjectId(student_id)})
+            if not student:
+                return JsonResponse({'error': 'Student not found'}, status=404)
+
+            # Exclude sensitive fields like email and password from being updated
+            if 'email' in data:
+                del data['email']
+            if 'password' in data:
+                del data['password']
+
+            # Update student in MongoDB
+            student_collection.update_one({'_id': ObjectId(student_id)}, {'$set': data})
+
+            return JsonResponse({'message': 'Student updated successfully'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def delete_student(request, student_id):
+    """
+    API to delete a student.
+    """
+    if request.method == 'DELETE':
+        try:
+            student = student_collection.find_one({'_id': ObjectId(student_id)})
+            if not student:
+                return JsonResponse({'error': 'Student not found'}, status=404)
+
+            # Delete student from MongoDB
+            student_collection.delete_one({'_id': ObjectId(student_id)})
+
+            return JsonResponse({'message': 'Student deleted successfully'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 # ===================== CONTACT US =====================
 
 @csrf_exempt
