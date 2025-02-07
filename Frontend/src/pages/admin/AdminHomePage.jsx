@@ -13,11 +13,13 @@ const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
   const [internships, setInternships] = useState([]);
   const [filter, setFilter] = useState("All");
+  const [deptFilter, setdeptFilter] = useState("All");
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   const [activeButton, setActiveButton] = useState(null);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [filteredJobs, setFilteredJobs] = useState([])
+  const [filteredInterns, setFilteredInterns] = useState([])
 
   const cardsData = [
     { title: "OverAll", count: jobs.length + internships.length, icon: <FaListAlt /> },
@@ -47,6 +49,11 @@ const AdminHome = () => {
         const jobsData = response.data.jobs.filter(item => item.type === "job");
         const internshipsData = response.data.jobs.filter(item => item.type === "internship");
 
+        console.log({
+          jobsData,
+          internshipsData
+        })
+
         setJobs(jobsData);
         setInternships(internshipsData);
       } catch (err) {
@@ -56,6 +63,34 @@ const AdminHome = () => {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (searchPhrase === "") {
+      setFilteredJobs(jobs)
+    } else {
+      setFilteredJobs(jobs.filter((job) => job.job_data.title.includes(searchPhrase)
+        ||
+        job.job_data.company_name.includes(searchPhrase)
+        ||
+        job.job_data.job_description.includes(searchPhrase)
+        ||
+        job.job_data.required_skills.includes(searchPhrase)
+        ||
+        job.job_data.work_type.includes(searchPhrase)
+      ))
+
+      setFilteredInterns(jobs.filter((interns) => interns.job_data.title.includes(searchPhrase)
+        ||
+        interns.job_data.company_name.includes(searchPhrase)
+        ||
+        interns.job_data.job_description.includes(searchPhrase)
+        ||
+        interns.job_data.required_skills.includes(searchPhrase)
+        ||
+        interns.job_data.work_type.includes(searchPhrase)
+      ))
+    }
+  }, [searchPhrase])
 
   const handleButtonClick = (status) => {
     setActiveButton(status);
@@ -88,11 +123,11 @@ const AdminHome = () => {
           {["All", ...Object.values(Departments)].map((department, key) => (
             <p
               key={key}
-              className={`${filter === department
+              className={`${deptFilter === department
                 ? "bg-[#000000] text-white"
                 : ""
                 } border-gray-700 border-[1px] py-1 px-[10px] rounded-full text-xs my-1 cursor-pointer`}
-              onClick={() => setFilter(department)}
+              onClick={() => setdeptFilter(department)}
             >
               {department}
             </p>
@@ -103,15 +138,15 @@ const AdminHome = () => {
       <div className="max-w-7xl mx-auto">
 
         {/* Stats Cards Section */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           {cardsData.map((card, index) => (
-            <div key={index} className="w-60 h-23 bg-white rounded-[19px] shadow-md">
-              <div className="p-4 flex items-center justify-between">
+            <div key={index} className=" bg-white rounded-lg shadow-sm">
+              <div className="p-4 flex items-start justify-between">
                 <div className="flex flex-col gap-1">
                   <span className="font-normal text-sm text-[#a0aec0] font-sans">{card.title}</span>
-                  <span className="font-bold text-md text-[#2d3748] font-sans leading-[20px]">{card.count}</span>
+                  <span className="text-md text-[#2d3748] font-sans text-4xl">{card.count}</span>
                 </div>
-                <div className="w-[36px] h-[36px] bg-[#FFC800] text-lg text-white rounded-xl flex items-center justify-center shadow-[0px_3.5px_5.5px_#00000005]">
+                <div className="p-2 bg-[#FFC800] text-sm text-white rounded flex items-center justify-center shadow-sm">
                   {card.icon}
                 </div>
               </div>
@@ -120,12 +155,12 @@ const AdminHome = () => {
         </div>
 
         {/* Filter Section */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex text-sm gap-4 ml-20">
+        <div className="flex justify-between items-center mb-14">
+          <div className="flex text-sm gap-4">
             {['All', 'Approved', 'Rejected', 'Pending Approvals'].map((status) => (
               <button
                 key={status}
-                className={`px-4 rounded-[10000px] py-1 ${filter === status ? "bg-[#000975] text-white" : "text-gray-600 hover:text-gray-900"}`}
+                className={`px-4 rounded-[10000px] py-1 ${filter === status ? "text-blue-400 underline" : "text-gray-600 hover:text-gray-900"}`}
                 onClick={() => handleButtonClick(status)}
               >
                 {status}
@@ -134,7 +169,7 @@ const AdminHome = () => {
           </div>
 
           {/* Search and Filter Icon */}
-          <div className="flex items-center gap-4 mr-16">
+          <div className="flex items-center gap-4">
             <div className="relative">
               <FaFilter
                 size={24}
@@ -142,11 +177,11 @@ const AdminHome = () => {
                 onClick={() => setShowFilterOptions(!showFilterOptions)}
               />
               {showFilterOptions && (
-                <div className="absolute top-8 right-0 bg-white shadow-md rounded-md w-40 p-2">
+                <div className="absolute top-8 right-0 bg-white shadow-md rounded-md w-40 p-2 space-y-2">
                   {['Active Jobs', 'Expired Jobs'].map((option) => (
                     <button
                       key={option}
-                      className={`w-full text-left px-4 py-2 ${filter === option ? "bg-[#000975] text-white" : "text-gray-600 hover:text-gray-900"}`}
+                      className={`w-full px-4 py-2 cursor-pointer hover:bg-gray-100 ${filter === option ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
                       onClick={() => handleButtonClick(option)}
                     >
                       {option}
