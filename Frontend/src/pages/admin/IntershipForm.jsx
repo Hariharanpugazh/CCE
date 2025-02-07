@@ -136,7 +136,7 @@ const InternPostForm = () => {
       );
       setMessage(response.data.message);
       setError('');
-      window.location.href = `${window.location.origin}/internships`;
+      window.location.href = `${window.location.origin}/superadmin/internships`;
     } catch (error) {
       setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
       setMessage('');
@@ -154,7 +154,6 @@ const InternPostForm = () => {
       const token = Cookies.get("jwt");
       if (token) {
         const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-        console.log("Decoded JWT Payload:", payload); // Debugging line
         setUserRole(payload.role); // Assuming the payload has a 'role' field
       }
     }, []);

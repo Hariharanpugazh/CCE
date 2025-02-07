@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
+// import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+// import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 const InternshipEdit = () => {
     const { id } = useParams();
@@ -8,16 +11,25 @@ const InternshipEdit = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedInternship, setEditedInternship] = useState(null);
     const [userRole, setUserRole] = useState(null);
-    
+
     useEffect(() => {
         fetch(`http://127.0.0.1:8000/api/internship/${id}/`)
             .then(response => response.json())
             .then(data => {
-                setInternship(data.internship);
-                setEditedInternship(data.internship);
+                setInternship(data.internship.internship_data);
+                setEditedInternship(data.internship.internship_data);
             })
             .catch(error => console.error("Error fetching internship:", error));
     }, [id]);
+
+    useEffect(() => {
+        const token = Cookies.get("jwt");
+        if (token) {
+            const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+            console.log("Decoded JWT Payload:", payload); // Debugging line
+            setUserRole(payload.role); // Assuming the payload has a 'role' field
+        }
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -37,7 +49,7 @@ const InternshipEdit = () => {
         })
         .then(response => response.json())
         .then(data => {
-            setInternship(data.internship);
+            setInternship(data.internship.internship_data);
             setIsEditing(false);
         })
         .catch(error => console.error("Error saving internship:", error));
@@ -61,21 +73,11 @@ const InternshipEdit = () => {
 
     if (!internship) return <p className="text-center text-lg font-semibold">Loading...</p>;
 
-    // Fetch user role from JWT token in cookies
-    useEffect(() => {
-        const token = Cookies.get("jwt");
-        if (token) {
-        const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-        console.log("Decoded JWT Payload:", payload); // Debugging line
-        setUserRole(payload.role); // Assuming the payload has a 'role' field
-        }
-    }, []);
-    
     return (
         <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8 my-10 border border-gray-200">
-            {/* Render appropriate navbar based on user role */}
+            {/* Render appropriate navbar based on user role
             {userRole === "admin" && <AdminPageNavbar />}
-            {userRole === "superadmin" && <SuperAdminPageNavbar />}
+            {userRole === "superadmin" && <SuperAdminPageNavbar />} */}
             <div className="flex justify-between items-center mb-8">
                 <button
                     onClick={() => setIsEditing(!isEditing)}
@@ -103,24 +105,30 @@ const InternshipEdit = () => {
             <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                     {isEditing ? (
-                        <input
-                            type="text"
-                            name="title"
-                            value={editedInternship.title}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded"
-                        />
+                        <>
+                            <label className="block mb-2 text-gray-700">Title</label>
+                            <input
+                                type="text"
+                                name="title"
+                                value={editedInternship.title}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded mb-4"
+                            />
+                        </>
                     ) : (
                         <h2 className="text-3xl font-bold text-gray-900">{internship.title}</h2>
                     )}
                     {isEditing ? (
-                        <input
-                            type="text"
-                            name="company_name"
-                            value={editedInternship.company_name}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded mt-2"
-                        />
+                        <>
+                            <label className="block mb-2 text-gray-700">Company Name</label>
+                            <input
+                                type="text"
+                                name="company_name"
+                                value={editedInternship.company_name}
+                                onChange={handleInputChange}
+                                className="w-full p-2 border rounded mt-2"
+                            />
+                        </>
                     ) : (
                         <p className="text-lg text-gray-700 mt-2">{internship.company_name}</p>
                     )}
@@ -140,6 +148,7 @@ const InternshipEdit = () => {
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Internship Overview</h3>
                 {isEditing ? (
                     <>
+                        <label className="block mb-2 text-gray-700">Location</label>
                         <input
                             type="text"
                             name="location"
@@ -147,6 +156,7 @@ const InternshipEdit = () => {
                             onChange={handleInputChange}
                             className="w-full p-2 border rounded mb-4"
                         />
+                        <label className="block mb-2 text-gray-700">Duration</label>
                         <input
                             type="text"
                             name="duration"
@@ -154,6 +164,7 @@ const InternshipEdit = () => {
                             onChange={handleInputChange}
                             className="w-full p-2 border rounded mb-4"
                         />
+                        <label className="block mb-2 text-gray-700">Stipend</label>
                         <input
                             type="text"
                             name="stipend"
@@ -161,6 +172,7 @@ const InternshipEdit = () => {
                             onChange={handleInputChange}
                             className="w-full p-2 border rounded mb-4"
                         />
+                        <label className="block mb-2 text-gray-700">Application Deadline</label>
                         <input
                             type="text"
                             name="application_deadline"
@@ -168,6 +180,7 @@ const InternshipEdit = () => {
                             onChange={handleInputChange}
                             className="w-full p-2 border rounded mb-4"
                         />
+                        <label className="block mb-2 text-gray-700">Internship Type</label>
                         <input
                             type="text"
                             name="internship_type"
@@ -208,14 +221,14 @@ const InternshipEdit = () => {
                 {isEditing ? (
                     <textarea
                         name="skills_required"
-                        value={editedInternship.skills_required.join(', ')}
+                        value={editedInternship.skills_required ? editedInternship.skills_required.join(', ') : ''}
                         onChange={handleInputChange}
                         className="w-full p-2 border rounded mb-4"
                     />
                 ) : (
                     <div className="text-gray-700 mb-2">
                         <div className="flex flex-wrap gap-2 mt-2">
-                            {internship.skills_required.map((skill, index) => (
+                            {internship.skills_required && internship.skills_required.map((skill, index) => (
                                 <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
                                     {skill}
                                 </span>
@@ -228,7 +241,7 @@ const InternshipEdit = () => {
             {/* Apply Button */}
             <div className="text-center mt-8">
                 <a
-                    href={internship.company_website}
+                    href={internship.job_link}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md"

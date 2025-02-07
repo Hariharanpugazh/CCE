@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
@@ -12,6 +13,12 @@ const JobEdit = () => {
     const [userRole, setUserRole] = useState(null);
 
     useEffect(() => {
+        const token = Cookies.get("jwt");
+        if (token) {
+            const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+            setUserRole(payload.role); // Assuming the payload has a 'role' field
+        }
+        
         fetch(`http://127.0.0.1:8000/api/job/${id}/`)
             .then(response => response.json())
             .then(data => {
@@ -20,7 +27,7 @@ const JobEdit = () => {
             })
             .catch(error => console.error("Error fetching job:", error));
     }, [id]);
-
+    
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setEditedJob(prevJob => ({
@@ -31,6 +38,7 @@ const JobEdit = () => {
             }
         }));
     };
+    
 
     const handleSave = () => {
         fetch(`http://127.0.0.1:8000/api/job-edit/${id}/`, {
@@ -55,7 +63,7 @@ const JobEdit = () => {
             })
             .then(response => {
                 if (response.ok) {
-                    navigate('/mail'); // Redirect to the jobs list page after deletion
+                    navigate('/jobs'); // Redirect to the jobs list page after deletion
                 } else {
                     console.error("Error deleting job:", response.statusText);
                 }
@@ -65,22 +73,14 @@ const JobEdit = () => {
     };
 
     if (!job) return <p className="text-center text-lg font-semibold">Loading...</p>;
-
-    // Fetch user role from JWT token in cookies
-    useEffect(() => {
-      const token = Cookies.get("jwt");
-      if (token) {
-        const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-        console.log("Decoded JWT Payload:", payload); // Debugging line
-        setUserRole(payload.role); // Assuming the payload has a 'role' field
-      }
-    }, []);
+ 
 
     return (
-        <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8 my-10 border border-gray-200">
-            {/* Render appropriate navbar based on user role */}
+        <div className="max-w mx-auto p-4 sm:p-6 lg " >
+                        {/* Render appropriate navbar based on user role */}
             {userRole === "admin" && <AdminPageNavbar />}
             {userRole === "superadmin" && <SuperAdminPageNavbar />}
+        <div className="max-w mx-auto bg-white shadow-lg rounded-lg p-8 my-10 border border-gray-200">
             <div className="flex justify-between items-center mb-8">
                 <button
                     onClick={() => setIsEditing(!isEditing)}
@@ -109,13 +109,13 @@ const JobEdit = () => {
                 <div className="flex justify-between items-center mb-4">
                     {isEditing ? (
                         <>
-                            <label className="block text-gray-700 mb-2">Job Title:</label>
+                            <label className="block mb-2 text-gray-700">Job Title:</label>
                             <input
                                 type="text"
                                 name="title"
                                 value={editedJob.job_data.title}
                                 onChange={handleInputChange}
-                                className="w-full p-2 border rounded"
+                                className="w-full p-2 border rounded mb-4"
                             />
                         </>
                     ) : (
@@ -123,7 +123,7 @@ const JobEdit = () => {
                     )}
                     {isEditing ? (
                         <>
-                            <label className="block text-gray-700 mb-2 mt-4">Company Name:</label>
+                            <label className="block mb-2 text-gray-700">Company Name:</label>
                             <input
                                 type="text"
                                 name="company_name"
@@ -152,7 +152,7 @@ const JobEdit = () => {
                 {isEditing ? (
                     <>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Location:</label>
+                            <label className="block mb-2 text-gray-700">Location:</label>
                             <input
                                 type="text"
                                 name="job_location"
@@ -162,7 +162,7 @@ const JobEdit = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Work Type:</label>
+                            <label className="block mb-2 text-gray-700">Work Type:</label>
                             <input
                                 type="text"
                                 name="work_type"
@@ -172,7 +172,7 @@ const JobEdit = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Work Schedule:</label>
+                            <label className="block mb-2 text-gray-700">Work Schedule:</label>
                             <input
                                 type="text"
                                 name="work_schedule"
@@ -182,7 +182,7 @@ const JobEdit = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Salary Range:</label>
+                            <label className="block mb-2 text-gray-700">Salary Range:</label>
                             <input
                                 type="text"
                                 name="salary_range"
@@ -192,7 +192,7 @@ const JobEdit = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Experience Level:</label>
+                            <label className="block mb-2 text-gray-700">Experience Level:</label>
                             <input
                                 type="text"
                                 name="experience_level"
@@ -206,8 +206,8 @@ const JobEdit = () => {
                     <>
                         <p className="text-gray-700 mb-2"><strong>Location:</strong> {job.job_data.job_location}</p>
                         <p className="text-gray-700 mb-2"><strong>Work Type:</strong> {job.job_data.work_type}</p>
-                        <p className="text-gray-700 mb-2"><strong>Schedule:</strong> {job.job_data.work_schedule}</p>
-                        <p className="text-gray-700 mb-2"><strong>Salary:</strong> {job.job_data.salary_range}</p>
+                        <p className="text-gray-700 mb-2"><strong>Work Schedule:</strong> {job.job_data.work_schedule}</p>
+                        <p className="text-gray-700 mb-2"><strong>Salary Range:</strong> {job.job_data.salary_range}</p>
                         <p className="text-gray-700 mb-2"><strong>Experience Level:</strong> {job.job_data.experience_level}</p>
                     </>
                 )}
@@ -217,15 +217,12 @@ const JobEdit = () => {
             <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Description</h3>
                 {isEditing ? (
-                    <>
-                        <label className="block text-gray-700 mb-2">Job Description:</label>
-                        <textarea
-                            name="job_description"
-                            value={editedJob.job_data.job_description}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded"
-                        />
-                    </>
+                    <textarea
+                        name="job_description"
+                        value={editedJob.job_data.job_description}
+                        onChange={handleInputChange}
+                        className="w-full p-2 border rounded"
+                    />
                 ) : (
                     <p className="text-gray-700">{job.job_data.job_description}</p>
                 )}
@@ -235,15 +232,12 @@ const JobEdit = () => {
             <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Key Responsibilities</h3>
                 {isEditing ? (
-                    <>
-                        <label className="block text-gray-700 mb-2">Key Responsibilities:</label>
-                        <textarea
-                            name="key_responsibilities"
-                            value={editedJob.job_data.key_responsibilities}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded"
-                        />
-                    </>
+                    <textarea
+                        name="key_responsibilities"
+                        value={editedJob.job_data.key_responsibilities}
+                        onChange={handleInputChange}
+                        className="w-full p-2 border rounded"
+                    />
                 ) : (
                     <p className="text-gray-700">{job.job_data.key_responsibilities}</p>
                 )}
@@ -255,7 +249,7 @@ const JobEdit = () => {
                 {isEditing ? (
                     <>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Required Skills:</label>
+                            <label className="block mb-2 text-gray-700">Required Skills:</label>
                             <input
                                 type="text"
                                 name="required_skills"
@@ -265,7 +259,7 @@ const JobEdit = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Education Requirements:</label>
+                            <label className="block mb-2 text-gray-700">Education Requirements:</label>
                             <input
                                 type="text"
                                 name="education_requirements"
@@ -302,15 +296,12 @@ const JobEdit = () => {
             <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Benefits</h3>
                 {isEditing ? (
-                    <>
-                        <label className="block text-gray-700 mb-2">Benefits:</label>
-                        <textarea
-                            name="benefits"
-                            value={editedJob.job_data.benefits}
-                            onChange={handleInputChange}
-                            className="w-full p-2 border rounded"
-                        />
-                    </>
+                    <textarea
+                        name="benefits"
+                        value={editedJob.job_data.benefits}
+                        onChange={handleInputChange}
+                        className="w-full p-2 border rounded"
+                    />
                 ) : (
                     <p className="text-gray-700">{job.job_data.benefits}</p>
                 )}
@@ -322,7 +313,7 @@ const JobEdit = () => {
                 {isEditing ? (
                     <>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Application Deadline:</label>
+                            <label className="block mb-2 text-gray-700">Application Deadline:</label>
                             <input
                                 type="text"
                                 name="application_deadline"
@@ -332,7 +323,7 @@ const JobEdit = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Application Instructions:</label>
+                            <label className="block mb-2 text-gray-700">Application Instructions:</label>
                             <textarea
                                 name="application_instructions"
                                 value={editedJob.job_data.application_instructions}
@@ -349,13 +340,13 @@ const JobEdit = () => {
                 )}
             </div>
 
-            {/* Contact Info */}
+            {/* Contact Information */}
             <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Contact Information</h3>
                 {isEditing ? (
                     <>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Contact Email:</label>
+                            <label className="block mb-2 text-gray-700">Contact Email:</label>
                             <input
                                 type="text"
                                 name="contact_email"
@@ -365,7 +356,7 @@ const JobEdit = () => {
                             />
                         </div>
                         <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Contact Phone:</label>
+                            <label className="block mb-2 text-gray-700">Contact Phone:</label>
                             <input
                                 type="text"
                                 name="contact_phone"
@@ -394,6 +385,7 @@ const JobEdit = () => {
                     Apply Now
                 </a>
             </div>
+        </div>
         </div>
     );
 };
