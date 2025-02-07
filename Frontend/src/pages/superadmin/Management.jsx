@@ -350,10 +350,18 @@ const toggleAutoApproval = async () => {
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.job_location}</td>
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.salary_range}</td>
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.application_deadline}</td>
-                    <td className="border border-gray-300 px-4 py-2">{job.is_publish ? "Published" : "Pending"}</td>
+                    <td className="border border-gray-300 px-4 py-2 font-semibold">
+                      {job.is_publish === true ? (
+                        <span className="text-green-600">✔ Approved</span>
+                      ) : job.is_publish === false ? (
+                        <span className="text-red-600">✖ Rejected</span>
+                      ) : (
+                        <span className="text-yellow-600">⏳ Waiting for Approval</span>
+                      )}
+                    </td>
                     <td className="border border-gray-300 px-4 py-2">
                       <div className="flex space-x-2">
-                        {!job.is_publish && (
+                        {job.is_publish === null && ( // Show buttons only for pending jobs
                           <>
                             <IoMdCheckmark
                               className="text-green-500 cursor-pointer"
@@ -510,7 +518,7 @@ const toggleAutoApproval = async () => {
               onChange={() => handleSelectAll("internship")}
               className="form-checkbox h-5 w-5 text-blue-600"
             />
-            <span className="ml-2">Select All</span>
+            <span className="ml-2">Select All </span>
           </div>
         </div>
         {internships.length === 0 ? (

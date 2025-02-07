@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -10,6 +10,8 @@ const StudentManagement = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [filter, setFilter] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const navigate = useNavigate();
 
   // Fetch user role from JWT token in cookies
@@ -17,7 +19,6 @@ const StudentManagement = () => {
     const token = Cookies.get("jwt");
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-      console.log("Decoded JWT Payload:", payload); // Debugging line
       setUserRole(payload.role); // Assuming the payload has a 'role' field
     }
   }, []);
@@ -36,7 +37,24 @@ const StudentManagement = () => {
     fetchStudents();
   }, []);
 
-// Handle status toggle
+  // Filter and sort students
+  const filteredStudents = students
+    .filter((student) =>
+      (student.name && student.name.toLowerCase().includes(filter.toLowerCase())) ||
+      (student.email && student.email.toLowerCase().includes(filter.toLowerCase()))
+    )
+    .sort((a, b) => {
+      if (!sortConfig.key) return 0;
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+
+  // Handle status toggle
   const toggleStatus = async (student) => {
     try {
       setIsLoading(true);
@@ -68,6 +86,14 @@ const StudentManagement = () => {
     }
   };
 
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
   return (
     <div className="flex flex-col p-6 bg-gray-50 min-h-screen">
       {/* Render appropriate navbar based on user role */}
@@ -75,6 +101,16 @@ const StudentManagement = () => {
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Student Management</h1>
+
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search students..."
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="border p-2 rounded w-full"
+        />
+      </div>
 
       <div className="grid grid-cols-3 gap-6">
         {/* Student List */}
@@ -89,7 +125,7 @@ const StudentManagement = () => {
             </button>
           </div>
           <ul className="divide-y divide-gray-200">
-            {students.map((student) => (
+            {filteredStudents.map((student) => (
               <li
                 key={student._id}
                 onClick={() => setSelectedStudent(student)}
