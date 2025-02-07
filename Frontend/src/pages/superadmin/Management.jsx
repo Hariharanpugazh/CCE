@@ -71,7 +71,7 @@ export default function MailPage() {
 useEffect(() => {
   const fetchAutoApproval = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/auto-approval-status", {
+      const response = await axios.get("http://localhost:8000/api/get-auto-approval-status/", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAutoApproval(response.data.is_auto_approval);
