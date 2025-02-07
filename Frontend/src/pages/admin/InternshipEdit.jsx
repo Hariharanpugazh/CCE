@@ -7,7 +7,8 @@ const InternshipEdit = () => {
     const [internship, setInternship] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedInternship, setEditedInternship] = useState(null);
-
+    const [userRole, setUserRole] = useState(null);
+    
     useEffect(() => {
         fetch(`http://127.0.0.1:8000/api/internship/${id}/`)
             .then(response => response.json())
@@ -60,8 +61,21 @@ const InternshipEdit = () => {
 
     if (!internship) return <p className="text-center text-lg font-semibold">Loading...</p>;
 
+    // Fetch user role from JWT token in cookies
+    useEffect(() => {
+        const token = Cookies.get("jwt");
+        if (token) {
+        const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+        console.log("Decoded JWT Payload:", payload); // Debugging line
+        setUserRole(payload.role); // Assuming the payload has a 'role' field
+        }
+    }, []);
+    
     return (
         <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8 my-10 border border-gray-200">
+            {/* Render appropriate navbar based on user role */}
+            {userRole === "admin" && <AdminPageNavbar />}
+            {userRole === "superadmin" && <SuperAdminPageNavbar />}
             <div className="flex justify-between items-center mb-8">
                 <button
                     onClick={() => setIsEditing(!isEditing)}

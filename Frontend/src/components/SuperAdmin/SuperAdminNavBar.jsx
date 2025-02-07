@@ -57,7 +57,7 @@ export default function SuperAdminPageNavbar() {
           className="flex space-x-2 items-center cursor-pointer relative"
           onClick={() => setProfileMenuOpen((toggle) => !toggle)}
         >
-          <p>Profile</p>
+          <p>SuperAdmin</p>
           <FiUser
             className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer"
             style={{ width: "2rem" }}
@@ -147,7 +147,7 @@ export default function SuperAdminPageNavbar() {
                 </li>
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                  onClick={() => (window.location.href = "/superadmin-jobpost")}
+                  onClick={() => (window.location.href = "/jobpost")}
                 >
                   Job Post
                 </li>

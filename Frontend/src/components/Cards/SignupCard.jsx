@@ -19,20 +19,20 @@ const SignupCard = ({ formData, formDataSetter, onSubmit }) => {
 
     return (
         <div className="w-screen h-screen flex items-center justify-center relative overflow-hidden">
-            {/* bg image */}
+            {/* Background Image */}
             <div className="h-full w-full absolute z-[-1] flex items-center top-[10%]">
-                <img src={wavyPattern} alt="" className="" />
+                <img src={wavyPattern} alt="Background Pattern" />
             </div>
 
-            {/* card */}
+            {/* Card Container */}
             <div className="w-3/4 min-h-3/4 max-h-[85%] bg-white shadow-lg rounded-lg flex items-stretch p-2">
-                {/* illustration */}
+                {/* Illustration Section */}
                 <div className="flex-1 bg-yellow-100 rounded-lg"></div>
 
-                {/* form */}
+                {/* Form Section */}
                 <div className="flex-1 p-6 flex flex-col items-center justify-evenly">
+                    <p className="text-3xl"> Admin signup</p>
                     <div className="flex flex-col space-y-2 items-center">
-                        {/* <p className="text-4xl font-medium">Student Signup</p> */}
                         <p className="text-[#838383] text-sm w-3/4 text-center">
                             Create a new account by filling out the details below.
                         </p>
@@ -66,6 +66,31 @@ const SignupCard = ({ formData, formDataSetter, onSubmit }) => {
                                 />
                             </div>
 
+                            {/* Department Field */}
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Enter your Department"
+                                    name="department"
+                                    value={formData.department}
+                                    onChange={handleChange}
+                                    className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                    required
+                                />
+                            </div>
+
+                            {/* College Name Field */}
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Enter your College Name"
+                                    name="college_name"
+                                    value={formData.college_name}
+                                    onChange={handleChange}
+                                    className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                                    required
+                                />
+                            </div>
 
                             {/* Password Field with Eye Icon */}
                             <div className="relative">

@@ -48,11 +48,6 @@ const AdminHome = () => {
         const jobsData = response.data.jobs.filter(item => item.type === "job");
         const internshipsData = response.data.jobs.filter(item => item.type === "internship");
 
-        console.log({
-          jobsData,
-          internshipsData
-        })
-
         setJobs(jobsData);
         setInternships(internshipsData);
         setFilteredJobs(jobsData);
