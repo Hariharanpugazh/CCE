@@ -32,17 +32,27 @@ export default function ManagementHomePage() {
             (admin.name && admin.name.toLowerCase().includes(filter.toLowerCase())) ||
             (admin.email && admin.email.toLowerCase().includes(filter.toLowerCase())) ||
             (admin.status && admin.status.toLowerCase().includes(filter.toLowerCase())) ||
-            (admin.created_at && admin.created_at.toLowerCase().includes(filter.toLowerCase())) ||
-            (admin.last_login && admin.last_login.toLowerCase().includes(filter.toLowerCase()))
+            (admin.created_at && new Date(admin.created_at).toLocaleString().includes(filter)) ||
+            (admin.last_login && new Date(admin.last_login).toLocaleString().includes(filter))
         )
         .filter((admin) => !statusFilter || admin.status === statusFilter)
         .sort((a, b) => {
             if (!sortConfig.key) return 0;
-            if (a[sortConfig.key] < b[sortConfig.key]) {
-                return sortConfig.direction === 'ascending' ? -1 : 1;
+        
+            let aValue = a[sortConfig.key];
+            let bValue = b[sortConfig.key];
+        
+            // Convert last_login and created_at to timestamps for proper sorting
+            if (sortConfig.key === "last_login" || sortConfig.key === "created_at") {
+                aValue = aValue ? new Date(aValue).getTime() : 0;
+                bValue = bValue ? new Date(bValue).getTime() : 0;
             }
-            if (a[sortConfig.key] > b[sortConfig.key]) {
-                return sortConfig.direction === 'ascending' ? 1 : -1;
+        
+            if (aValue < bValue) {
+                return sortConfig.direction === "ascending" ? -1 : 1;
+            }
+            if (aValue > bValue) {
+                return sortConfig.direction === "ascending" ? 1 : -1;
             }
             return 0;
         });
@@ -145,8 +155,8 @@ export default function ManagementHomePage() {
                                 >
                                     <td className="py-2 px-4 border-b">{admin.name || 'N/A'}</td>
                                     <td className="py-2 px-4 border-b">{admin.email || 'N/A'}</td>
-                                    <td className="py-2 px-4 border-b">{admin.created_at ? new Date(admin.created_at).toLocaleString() : 'N/A'}</td>
-                                    <td className="py-2 px-4 border-b">{admin.last_login ? new Date(admin.last_login).toLocaleString() : 'N/A'}</td>
+                                    <td className="py-2 px-4 border-b">{admin.created_at ? new Date(admin.created_at).toLocaleString() : "N/A"}</td>
+                                    <td className="py-2 px-4 border-b">{admin.last_login ? new Date(admin.last_login).toLocaleString() : "N/A"}</td>
                                     <td className="py-2 px-4 border-b">{admin.status || 'N/A'}</td>
                                 </tr>
                             ))}
