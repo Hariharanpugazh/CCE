@@ -7,6 +7,8 @@ import { motion } from 'framer-motion';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendarAlt } from 'react-icons/fa';
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 const InternPostForm = () => {
   const [formData, setFormData] = useState({
@@ -29,6 +31,7 @@ const InternPostForm = () => {
   const [error, setError] = useState('');
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const navigate = useNavigate();
+  const [userRole, setUserRole] = useState(null);
 
   const internshipTypes = [
     'Full-time',
@@ -146,18 +149,31 @@ const InternPostForm = () => {
     return <div className="text-red-600">{error}</div>;
   }
 
+    // Fetch user role from JWT token in cookies
+    useEffect(() => {
+      const token = Cookies.get("jwt");
+      if (token) {
+        const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+        console.log("Decoded JWT Payload:", payload); // Debugging line
+        setUserRole(payload.role); // Assuming the payload has a 'role' field
+      }
+    }, []);
+
   return (
     <motion.div
-      className="max-w-7xl mx-auto p-8 bg-white shadow-xl rounded-2xl relative"
+      className="max-w mx-auto p-8 bg-white shadow-xl rounded-2xl relative"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
-      <h2 className="text-3xl font-bold mb-4 text-gray-800 text-center">Post an Internship</h2>
+      {/* Render appropriate navbar based on user role */}
+      {userRole === "admin" && <AdminPageNavbar />}
+      {userRole === "superadmin" && <SuperAdminPageNavbar />}
+      <h2 className="text-3xl pt-4 font-bold mb-4 text-gray-800 text-center">Post an Internship</h2>
 
       {message && <p className="text-green-600 mb-4 text-center">{message}</p>}
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 pr-4 pl-4 gap-6">
         {Object.keys(formData).map((field) => {
           if (field !== 'application_deadline' && field !== 'skills_required' && field !== 'internship_type') {
             return (
