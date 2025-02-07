@@ -10,7 +10,7 @@ import JobDashboard from "./pages/students/JobDashboard";
 import AdminInternShipDashboard from "./pages/admin/adminInternDashboard";
 import AdminJobsDashboard from "./pages/admin/adminJobsDashboard";
 import SuperadminDashboard from "./pages/superadmin/SuperadminDashboard";
-import MailPage from "./pages/superadmin/MailPage";
+import MailPage from "./pages/superadmin/Management";
 import JobPostForm from "./pages/admin/JobPostForm";
 import AchievementPostForm from "./pages/admin/AchievementPostForm";
 import InternshipForm from "./pages/admin/IntershipForm";
