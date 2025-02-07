@@ -518,7 +518,7 @@ const toggleAutoApproval = async () => {
               onChange={() => handleSelectAll("internship")}
               className="form-checkbox h-5 w-5 text-blue-600"
             />
-            <span className="ml-2">Select All</span>
+            <span className="ml-2">Select All </span>
           </div>
         </div>
         {internships.length === 0 ? (
