@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
@@ -8,6 +9,8 @@ const StudentManagement = () => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Fetch user role from JWT token in cookies
   useEffect(() => {
@@ -33,9 +36,10 @@ const StudentManagement = () => {
     fetchStudents();
   }, []);
 
-  // Handle status toggle
+// Handle status toggle
   const toggleStatus = async (student) => {
     try {
+      setIsLoading(true);
       const newStatus = student.status === "active" ? "inactive" : "active";
       await axios.put(`http://localhost:8000/api/students/${student._id}/update/`, { status: newStatus });
       setStudents((prev) =>
@@ -43,8 +47,13 @@ const StudentManagement = () => {
           s._id === student._id ? { ...s, status: newStatus } : s
         )
       );
+      setTimeout(() => {
+        setIsLoading(false);
+        window.location.reload(); // Refresh the page
+      }, 1000);
     } catch (error) {
       console.error("Error updating status:", error);
+      setIsLoading(false);
     }
   };
 
@@ -70,7 +79,15 @@ const StudentManagement = () => {
       <div className="grid grid-cols-3 gap-6">
         {/* Student List */}
         <div className="col-span-1 bg-white rounded-lg shadow-lg p-4">
-          <h2 className="text-xl font-semibold text-gray-700 mb-4">Student List</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-700">Student List</h2>
+            <button
+              onClick={() => navigate("/student-signup")}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+            >
+              Create Student +
+            </button>
+          </div>
           <ul className="divide-y divide-gray-200">
             {students.map((student) => (
               <li
@@ -140,7 +157,11 @@ const StudentManagement = () => {
                 selectedStudent.status === "active" ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
               }`}
             >
-              Set to {selectedStudent.status === "active" ? "Inactive" : "Active"}
+              {isLoading
+                ? selectedStudent.status === "active"
+                  ? "Inactivating..."
+                  : "Activating..."
+                : `Set to ${selectedStudent.status === "active" ? "Inactive" : "Active"}`}
             </button>
 
             <button

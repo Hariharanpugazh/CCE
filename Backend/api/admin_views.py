@@ -122,6 +122,12 @@ def admin_signup(request):
             name = data.get('name')
             email = data.get('email')
             password = data.get('password')
+            department = data.get('department')  # New field
+            college_name = data.get('college_name')  # New field
+
+            # Validate required fields
+            if not all([name, email, password, department, college_name]):
+                return JsonResponse({'error': 'All fields are required'}, status=400)
 
             # Check if the email already exists
             if admin_collection.find_one({'email': email}):
@@ -140,6 +146,8 @@ def admin_signup(request):
                 'name': name,
                 'email': email,
                 'password': hashed_password,
+                'department': department,  # Store department
+                'college_name': college_name,  # Store college name
                 'status': 'active',  # Default status is active
                 'created_at': datetime.now(),  # Store account creation date
                 'last_login': None  # Initially, no last login
@@ -158,6 +166,7 @@ def admin_signup(request):
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 def generate_reset_token(length=6):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
@@ -333,28 +342,20 @@ def get_admin_list(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-    
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from bson.objectid import ObjectId
-import json
-
 
 @csrf_exempt
 def admin_details(request, id):
     if request.method == 'GET':
         try:
-            # Fetch admin details from MongoDB based on id
             admin = admin_collection.find_one({'_id': ObjectId(id)})
             if not admin:
                 return JsonResponse({'error': 'Admin not found'}, status=404)
 
             admin['_id'] = str(admin['_id'])
 
-            # Convert last login to readable format
             last_login = admin.get('last_login')
             if last_login:
-                last_login = last_login.strftime('%Y-%m-%d %H:%M:%S')  # Format: YYYY-MM-DD HH:MM:SS
+                last_login = last_login.strftime('%Y-%m-%d %H:%M:%S')
             else:
                 last_login = "Never logged in"
 
@@ -362,17 +363,19 @@ def admin_details(request, id):
                 '_id': admin['_id'],
                 'name': admin.get('name', 'N/A'),
                 'email': admin.get('email', 'N/A'),
-                'status': admin.get('status', 'Unknown'),
+                'status': admin.get('status', 'active'),  # Fetch the status from the database
+                'department': admin.get('department', 'N/A'),  # Store department
+                'college_name': admin.get('college_name', 'N/A'),  # Store college name
+                'created_at': datetime.now(),  # Store account creation date
                 'last_login': last_login
             }
 
-            # Fetch jobs from MongoDB based on admin_id
             jobs = job_collection.find({'admin_id': str(admin['_id'])})
             jobs_list = []
             for job in jobs:
                 job['_id'] = str(job['_id'])
                 job_data = job.get('job_data', {})
-                job_data['_id'] = job['_id']  # Include the job ID in job_data
+                job_data['_id'] = job['_id']
                 jobs_list.append(job_data)
 
             return JsonResponse({'admin': admin_data, 'jobs': jobs_list}, status=200)
@@ -381,6 +384,29 @@ def admin_details(request, id):
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def admin_status_update(request, id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_status = data.get("status")
+
+            if new_status not in ["active", "deactivated"]:
+                return JsonResponse({'error': 'Invalid status value'}, status=400)
+
+            update_result = admin_collection.update_one({'_id': ObjectId(id)}, {'$set': {'status': new_status}})
+
+            if update_result.matched_count == 0:
+                return JsonResponse({'error': 'Admin not found'}, status=404)
+
+            return JsonResponse({'message': f'Admin status updated to {new_status}'}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
     
 @csrf_exempt
 def super_admin_signup(request):
@@ -972,6 +998,11 @@ def post_internship(request):
 
             # Parse incoming JSON data
             data = json.loads(request.body)
+            application_deadline_str = data.get('application_deadline')
+            application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
+            now = datetime.now(timezone.utc)
+
+            current_status = "active" if application_deadline >= now else "expired"
 
             # Fetch auto-approval setting from DB
             # auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
@@ -1013,6 +1044,7 @@ def post_internship(request):
                 # "is_publish": False,  # Auto-approve if enabled
                 "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
                 "is_publish": is_publish,
+                "status": current_status,
                 "updated_at": datetime.utcnow()
             }
 
