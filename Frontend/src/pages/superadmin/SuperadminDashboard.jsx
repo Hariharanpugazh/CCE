@@ -98,7 +98,7 @@ const SuperAdminHome = () => {
   };
 
   return (
-    <div className="flex flex-col w-full h-screen overflow-auto bg-[#F8F8FF]">
+    <div className="flex flex-col w-full h-screen overflow-auto bg-[#FFFAFA]">
       <SuperAdminPageNavbar />
 
       <header className="flex flex-col items-center justify-center py-14 container self-center">
@@ -143,7 +143,7 @@ const SuperAdminHome = () => {
                   <span className="font-normal text-sm text-[#a0aec0] font-sans">{card.title}</span>
                   <span className="text-md text-[#2d3748] font-sans text-4xl">{card.count}</span>
                 </div>
-                <div className="p-2 bg-[#FFC800] text-sm text-white rounded flex items-center justify-center shadow-sm">
+                <div className="p-2 bg-gray-800 text-sm text-white rounded flex items-center justify-center shadow-sm">
                   {card.icon}
                 </div>
               </div>
@@ -191,7 +191,7 @@ const SuperAdminHome = () => {
         </div>
 
         {/* Render Job Cards */}
-        <div className="w-full self-center bg-[#FFFAFA] mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
+        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
           {error ? (
             <p className="text-red-600">{error}</p>
           ) : jobs.length === 0 ? (
@@ -206,7 +206,7 @@ const SuperAdminHome = () => {
         </div>
 
         {/* Render Internship Cards */}
-        <div className="w-full self-center bg-[#FFFAFA] mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
+        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
           {error ? (
             <p className="text-red-600">{error}</p>
           ) : internships.length === 0 ? (
