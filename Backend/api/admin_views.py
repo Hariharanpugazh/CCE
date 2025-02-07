@@ -202,8 +202,9 @@ def admin_login(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-def generate_reset_token(length=6):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+def generate_reset_token(length=4):
+    # return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    return ''.join(random.choices(string.digits, k=length))
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -593,6 +594,8 @@ def get_published_jobs(request):
         job_list = []
         for job in published_jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
+            # deadline = job["job_data"]["application_deadline"]
+            # job["job_data"]["application_deadline"] = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
             job_list.append(job)
         return JsonResponse({"jobs": job_list}, status=200)
     except Exception as e:
