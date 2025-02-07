@@ -17,6 +17,9 @@ from rest_framework.response import Response
 import random
 import string
 import traceback
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -62,6 +65,35 @@ def is_strong_password(password):
     if not re.search(r"[@$!%*?&#]", password):
         return False, "Password must include at least one special character."
     return True, ""
+# Function to send confirmation email
+def send_confirmation_email(to_email, name, password):
+    subject = "Student Account Created"
+    body = f"""
+    Your Student account has been successfully created on the CCE platform.
+    Username: {name}
+    Password: {password}
+    Please keep your credentials safe and secure.
+    """
+
+    msg = MIMEMultipart()
+    msg['From'] = settings.EMAIL_HOST_USER
+    msg['To'] = to_email
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(body, 'plain'))
+
+    try:
+        # Connect to the Gmail SMTP server
+        server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
+        server.starttls()  # Secure the connection
+        server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)  # Login with credentials
+        text = msg.as_string()
+        server.sendmail(settings.EMAIL_HOST_USER, to_email, text)  # Send the email
+        server.quit()  # Close the connection
+        print(f"Confirmation email sent to {to_email}")
+    except Exception as e:
+        print(f"Error sending email: {str(e)}")
+
 @csrf_exempt
 def student_signup(request):
     if request.method == "POST":
@@ -71,6 +103,7 @@ def student_signup(request):
             email = data.get("email")
             department = data.get("department")
             year = data.get("year")
+            college_name = data.get("college_name")
             password = data.get("password")
 
             # Check if the email already exists
@@ -98,6 +131,7 @@ def student_signup(request):
                 "name": name,
                 "department": department,
                 "year": year,
+                "college_name": college_name,
                 "email": email,
                 "password": hashed_password,
                 "status": "active",  # Default status
@@ -108,8 +142,11 @@ def student_signup(request):
             # Insert the document into the collection
             student_collection.insert_one(student_user)
 
+            # Send confirmation email with username and password
+            send_confirmation_email(email, name, password)
+
             return JsonResponse(
-                {"message": "Student user created successfully"}, status=201
+                {"message": "Student user created successfully, confirmation email sent."}, status=201
             )
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
