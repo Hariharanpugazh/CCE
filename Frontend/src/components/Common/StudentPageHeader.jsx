@@ -20,7 +20,7 @@ export default function PageHeader({ page, filter, setFilter, searchPhrase, setS
       <div className="relative flex items-stretch w-[70%]">
         <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value)} placeholder={`Search ${page.displayName}`} className="w-full text-lg my-5 p-2 px-5 rounded-full bg-gray-100 border-transparent border-2 hover:bg-white hover:border-blue-200 outline-blue-400" />
         <div className="absolute right-2 h-full flex items-center">
-          <FiSearch class="bi bi-search bg-blue-400 rounded-full text-white" style={{color: "white", width: "35", height: "35", padding: "8px"}}/> 
+          <FiSearch className="bi bi-search bg-blue-400 rounded-full text-white" style={{color: "white", width: "35", height: "35", padding: "8px"}}/> 
         </div>
       </div>
 

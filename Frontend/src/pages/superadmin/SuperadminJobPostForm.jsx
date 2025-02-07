@@ -170,12 +170,12 @@ export default function SuperadminJobPost() {
             className="cursor-pointer w-full border border-gray-300 p-2.5 rounded-lg flex justify-between items-center transition-all duration-300"
             onClick={() => setIsCategoryOpen(!isCategoryOpen)}
             whileHover={{
-              backgroundColor: "#D1E7FF",
+              backgroundColor: "#e0f2ff", // Use hex value
               borderColor: "#3B82F6",
             }}
             style={{
               borderColor: isCategoryOpen ? "#3B82F6" : "#D1D5DB",
-              backgroundColor: isCategoryOpen ? "#D1E7FF" : "white",
+              backgroundColor: isCategoryOpen ? "#e0f2ff" : "white", // Use hex value
             }}
           >
             <span className="text-sm text-gray-700">
@@ -220,7 +220,7 @@ export default function SuperadminJobPost() {
             value={formData.job_link}
             onChange={handleChange}
             required
-            whileHover={{ backgroundColor: "#e0f2ff" }}
+            whileHover={{ backgroundColor: "#e0f2ff" }} // Use hex value
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
             placeholder="Enter job link"
           />
@@ -239,7 +239,7 @@ export default function SuperadminJobPost() {
             type="text"
             name="required_skills"
             onKeyDown={handleRequiredSkillsChange}
-            whileHover={{ backgroundColor: "#e0f2ff" }}
+            whileHover={{ backgroundColor: "#e0f2ff" }} // Use hex value
             className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
             placeholder="Enter required skills and press Enter"
           />
@@ -267,12 +267,12 @@ export default function SuperadminJobPost() {
             className="cursor-pointer w-full border border-gray-300 p-2.5 rounded-lg flex justify-between items-center transition-all duration-300"
             onClick={() => setIsWorkTypeOpen(!isWorkTypeOpen)}
             whileHover={{
-              backgroundColor: "#D1E7FF",
+              backgroundColor: "#e0f2ff", // Use hex value
               borderColor: "#3B82F6",
             }}
             style={{
               borderColor: isWorkTypeOpen ? "#3B82F6" : "#D1D5DB",
-              backgroundColor: isWorkTypeOpen ? "#D1E7FF" : "white",
+              backgroundColor: isWorkTypeOpen ? "#e0f2ff" : "white", // Use hex value
             }}
           >
             <span className="text-sm text-gray-700">
@@ -324,7 +324,7 @@ export default function SuperadminJobPost() {
                   value={formData[field]}
                   onChange={handleChange}
                   required
-                  whileHover={{ backgroundColor: "#e0f2ff" }}
+                  whileHover={{ backgroundColor: "#e0f2ff" }} // Use hex value
                   className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
                   placeholder={`Enter ${field.replace(/_/g, " ")}`}
                 />
