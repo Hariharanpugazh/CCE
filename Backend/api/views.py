@@ -62,8 +62,6 @@ def is_strong_password(password):
     if not re.search(r"[@$!%*?&#]", password):
         return False, "Password must include at least one special character."
     return True, ""
-
-
 @csrf_exempt
 def student_signup(request):
     if request.method == "POST":
@@ -73,20 +71,20 @@ def student_signup(request):
             email = data.get("email")
             department = data.get("department")
             year = data.get("year")
-            password =data.get("password")
+            password = data.get("password")
 
             # Check if the email already exists
             if student_collection.find_one({"email": email}):
                 return JsonResponse(
                     {"error": "Student user with this email already exists"}, status=400
                 )
-                
-            #check email is college email id
-            if "@sns" not in  email:
+
+            # Check if email is a valid college email ID
+            if "@sns" not in email:
                 return JsonResponse(
-                    {"error": "Please enter a valid college email id"}, status=400 
+                    {"error": "Please enter a valid college email ID"}, status=400
                 )
-            
+
             # Check if the password is strong
             is_valid, error_message = is_strong_password(password)
             if not is_valid:
@@ -96,7 +94,16 @@ def student_signup(request):
             hashed_password = make_password(password)
 
             # Create the student user document
-            student_user = {"name": name,"department": department, "year": year, "email": email, "password": hashed_password}
+            student_user = {
+                "name": name,
+                "department": department,
+                "year": year,
+                "email": email,
+                "password": hashed_password,
+                "status": "active",  # Default status
+                "last_login": None,  # No login yet
+                "created_at": datetime.utcnow(),  # Account creation timestamp
+            }
 
             # Insert the document into the collection
             student_collection.insert_one(student_user)
@@ -109,6 +116,7 @@ def student_signup(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
+
 @csrf_exempt
 def student_login(request):
     if request.method == "POST":
@@ -120,17 +128,34 @@ def student_login(request):
             # Check lockout status
             if email in failed_login_attempts:
                 lockout_data = failed_login_attempts[email]
-                if lockout_data['count'] >= 3 and datetime.now() < lockout_data['lockout_until']:
-                    return JsonResponse({'error': 'Too many failed attempts. Please try again after 2 minutes.'}, status=403)
+                if lockout_data["count"] >= 3 and datetime.now() < lockout_data["lockout_until"]:
+                    return JsonResponse(
+                        {"error": "Too many failed attempts. Please try again after 2 minutes."},
+                        status=403,
+                    )
 
             # Find the student user by email
             student_user = student_collection.find_one({"email": email})
             if not student_user:
-                return JsonResponse({"error": "Student user with this No account found with this email"}, status=404)
+                return JsonResponse(
+                    {"error": "No account found with this email"}, status=404
+                )
 
+            # Check if the account is active
+            if student_user.get("status") != "active":
+                return JsonResponse(
+                    {"error": "This account is inactive. Please contact the admin."}, status=403
+                )
+
+            # Check the password
             if check_password(password, student_user["password"]):
                 # Clear failed attempts after successful login
                 failed_login_attempts.pop(email, None)
+
+                # Update last login timestamp
+                student_collection.update_one(
+                    {"email": email}, {"$set": {"last_login": datetime.utcnow()}}
+                )
 
                 # Generate JWT token
                 student_id = student_user.get("_id")
@@ -139,11 +164,11 @@ def student_login(request):
             else:
                 # Track failed attempts
                 if email not in failed_login_attempts:
-                    failed_login_attempts[email] = {'count': 1, 'lockout_until': None}
+                    failed_login_attempts[email] = {"count": 1, "lockout_until": None}
                 else:
-                    failed_login_attempts[email]['count'] += 1
-                    if failed_login_attempts[email]['count'] >= 3:
-                        failed_login_attempts[email]['lockout_until'] = datetime.now() + lockout_duration
+                    failed_login_attempts[email]["count"] += 1
+                    if failed_login_attempts[email]["count"] >= 3:
+                        failed_login_attempts[email]["lockout_until"] = datetime.now() + lockout_duration
 
                 return JsonResponse({"error": "Invalid email or password."}, status=401)
 
@@ -151,7 +176,7 @@ def student_login(request):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-    
+
 def generate_reset_token(length=6):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
 
