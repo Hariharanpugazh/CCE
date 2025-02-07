@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin-details/<str:id>/', admin_details, name='admin-details'),
     path("toggle-auto-approval/",toggle_auto_approval, name="toggle_auto_approval"),
     path("get-auto-approval-status/",get_auto_approval_status, name="get_auto_approval_status"),
-
+    # path('admin/<str:id>/update/', update_admin, name='update-admin'),
     #common
     path("profile/<str:userId>/", get_profile, name="get_profile"),
     path("forgot-password/", forgot_password, name="forgot_password"),

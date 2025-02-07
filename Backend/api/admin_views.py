@@ -124,7 +124,7 @@ def admin_signup(request):
 
             # Check if the email already exists
             if admin_collection.find_one({'email': email}):
-                return JsonResponse({'error': 'Admin user with this email already exists'}, status=400)
+                return JsonResponse({'error': 'This email is already assigned to an admin'}, status=400)
 
             # Check if the password is strong
             is_valid, error_message = is_strong_password(password)
@@ -138,7 +138,10 @@ def admin_signup(request):
             admin_user = {
                 'name': name,
                 'email': email,
-                'password': hashed_password
+                'password': hashed_password,
+                'status': 'active',  # Default status is active
+                'created_at': datetime.now(),  # Store account creation date
+                'last_login': None  # Initially, no last login
             }
 
             # Insert the document into the collection
@@ -154,6 +157,9 @@ def admin_signup(request):
 
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+def generate_reset_token(length=6):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
  
 @csrf_exempt
 def admin_login(request):
@@ -178,6 +184,10 @@ def admin_login(request):
             if not admin_user:
                 return JsonResponse({'error': 'No account found with this email'}, status=404)
 
+            # Check if the account is active
+            if not admin_user.get('status', 'active') == 'active':
+                return JsonResponse({'error': 'Admin account is deactivated. Please contact support.'}, status=403)
+
             if check_password(password, admin_user['password']):
                 # Clear failed attempts after successful login
                 failed_login_attempts.pop(email, None)
@@ -185,7 +195,11 @@ def admin_login(request):
                 # Generate JWT token
                 admin_id = admin_user.get('_id')
                 tokens = generate_tokens(admin_id)
-                return JsonResponse({'message': 'Login successful', 'tokens': tokens}, status=200)
+
+                # Update last login timestamp
+                admin_collection.update_one({'email': email}, {'$set': {'last_login': datetime.now()}})
+
+                return JsonResponse({'message': 'Login successful', 'tokens': tokens, 'last_login': datetime.now()}, status=200)
             else:
                 # Track failed attempts
                 if email not in failed_login_attempts:
@@ -319,6 +333,12 @@ def get_admin_list(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
     
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from bson.objectid import ObjectId
+import json
+
+
 @csrf_exempt
 def admin_details(request, id):
     if request.method == 'GET':
@@ -330,7 +350,22 @@ def admin_details(request, id):
 
             admin['_id'] = str(admin['_id'])
 
-            # Fetch jobs from MongoDB based on admin_id at the root level
+            # Convert last login to readable format
+            last_login = admin.get('last_login')
+            if last_login:
+                last_login = last_login.strftime('%Y-%m-%d %H:%M:%S')  # Format: YYYY-MM-DD HH:MM:SS
+            else:
+                last_login = "Never logged in"
+
+            admin_data = {
+                '_id': admin['_id'],
+                'name': admin.get('name', 'N/A'),
+                'email': admin.get('email', 'N/A'),
+                'status': admin.get('status', 'Unknown'),
+                'last_login': last_login
+            }
+
+            # Fetch jobs from MongoDB based on admin_id
             jobs = job_collection.find({'admin_id': str(admin['_id'])})
             jobs_list = []
             for job in jobs:
@@ -339,7 +374,7 @@ def admin_details(request, id):
                 job_data['_id'] = job['_id']  # Include the job ID in job_data
                 jobs_list.append(job_data)
 
-            return JsonResponse({'admin': admin, 'jobs': jobs_list}, status=200)
+            return JsonResponse({'admin': admin_data, 'jobs': jobs_list}, status=200)
 
         except Exception as e:
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
