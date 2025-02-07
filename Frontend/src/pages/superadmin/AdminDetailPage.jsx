@@ -38,8 +38,14 @@ export default function AdminDetailPage() {
             <div className="mb-4">
                 <p><strong>Name:</strong> {admin.name || 'N/A'}</p>
                 <p><strong>Email:</strong> {admin.email || 'N/A'}</p>
-                <p><strong>Role:</strong> {admin.role || 'N/A'}</p>
+                <p><strong>Account Status:</strong> 
+                    <span className={`font-bold ${admin.status === 'active' ? 'text-green-600' : 'text-red-600'}`}>
+                        {admin.status}
+                    </span>
+                </p>
+                <p><strong>Last Login:</strong> {admin.last_login}</p>
             </div>
+            
             <h3 className="text-xl font-bold mb-2">Jobs Posted</h3>
             {jobs.length === 0 ? (
                 <p className="text-gray-600">No jobs posted by this admin.</p>

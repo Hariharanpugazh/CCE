@@ -71,15 +71,15 @@ export default function ForgotPasswordCard({
               {otpSent ? "Enter the OTP sent to your email" : "Enter your email to receive a password reset OTP"}
             </p>
           </div>
-
           <form onSubmit={handleSubmit} className="w-3/4 flex flex-col items-center">
             <div className="space-y-2 mb-6 w-full">
+              {/* Email input field */}
               <InputField
-                args={{ 
-                  placeholder: "Enter your Email", 
+                args={{
+                  placeholder: "Enter your Email",
                   required: true,
                   type: "email",
-                  disabled: otpSent // Disable email after OTP is sent
+                  disabled: otpSent, // Freeze email after OTP is sent
                 }}
                 value={formData.email}
                 setter={(val) => formDataSetter((prev) => ({ ...prev, email: val }))}
