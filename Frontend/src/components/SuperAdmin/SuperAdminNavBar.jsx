@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
 import { FiMail, FiPlus, FiUser, FiSettings } from "react-icons/fi";
@@ -8,6 +8,15 @@ export default function SuperAdminPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isCreateMenuOpen, setCreateMenuOpen] = useState(false);
   const [isMailPopupOpen, setMailPopupOpen] = useState(false);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+      // Retrieve the username from cookies when the component mounts
+      const user = Cookies.get("username");
+      if (user) {
+        setUsername(user);
+      }
+    }, []);
 
   const handleLogout = () => {
     // Clear the JWT cookie
@@ -57,7 +66,7 @@ export default function SuperAdminPageNavbar() {
           className="flex space-x-2 items-center cursor-pointer relative"
           onClick={() => setProfileMenuOpen((toggle) => !toggle)}
         >
-          <p>SuperAdmin</p>
+          <p>{username || "SuperAdmin"}</p>
           <FiUser
             className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer"
             style={{ width: "2rem" }}

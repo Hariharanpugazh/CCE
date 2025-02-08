@@ -191,6 +191,7 @@ def admin_login(request):
 
             # Find the admin user by email
             admin_user = admin_collection.find_one({'email': email})
+            username = (admin_user['name'])
             if not admin_user:
                 return JsonResponse({'error': 'No account found with this email'}, status=404)
 
@@ -209,7 +210,10 @@ def admin_login(request):
                 # Update last login timestamp
                 admin_collection.update_one({'email': email}, {'$set': {'last_login': datetime.now()}})
 
-                return JsonResponse({'message': 'Login successful', 'tokens': tokens, 'last_login': datetime.now()}, status=200)
+                # Set the username in cookies
+                response = JsonResponse({'username':username, 'tokens': tokens, 'last_login': datetime.now()}, status=200)
+
+                return response
             else:
                 # Track failed attempts
                 if email not in failed_login_attempts:
@@ -468,6 +472,7 @@ def super_admin_login(request):
 
             # Find the super admin user by email
             super_admin_user = superadmin_collection.find_one({'email': email})
+            username = (super_admin_user['name'])
             if not super_admin_user:
                 return JsonResponse({'error': 'No account found with this email'}, status=404)
 
@@ -478,7 +483,7 @@ def super_admin_login(request):
                 # Generate JWT token
                 super_admin_id = super_admin_user.get('_id')
                 tokens = generate_tokens_superadmin(super_admin_id)
-                return JsonResponse({'message': 'Login successful', 'tokens': tokens}, status=200)
+                return JsonResponse({'username':username, 'tokens': tokens}, status=200)
             else:
                 # Track failed attempts
                 if email not in failed_login_attempts:

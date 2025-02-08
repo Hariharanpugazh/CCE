@@ -25,6 +25,7 @@ export default function AdminLogin() {
     // Clear cookies when entering the login page
     useEffect(() => {
         Cookies.remove("jwt");
+        Cookies.remove("username");
     }, []);
 
     // ⏳ Timer for lockout countdown
@@ -42,7 +43,7 @@ export default function AdminLogin() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isLocked) return;
-
+    
         try {
             const response = await fetch("http://localhost:8000/api/login/", {
                 method: "POST",
@@ -51,11 +52,16 @@ export default function AdminLogin() {
                 },
                 body: JSON.stringify(formData),
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
+                // Set JWT token in cookies
                 Cookies.set("jwt", data.tokens.jwt, { expires: 1, path: "/" });
+    
+                // Set username in cookies
+                Cookies.set("username", data.username, { expires: 1, path: "/" });
+    
                 toast.success("Login successful! Redirecting...");
                 navigate("/admin/home");
             } else {
@@ -70,6 +76,7 @@ export default function AdminLogin() {
             toast.error("Something went wrong. Please try again.");
         }
     };
+    
 
     const handleForgotPassword = () => {
         setIsForgotPassword(true);
