@@ -191,9 +191,9 @@ def admin_login(request):
 
             # Find the admin user by email
             admin_user = admin_collection.find_one({'email': email})
-            username = (admin_user['name'])
-            if not admin_user:
-                return JsonResponse({'error': 'No account found with this email'}, status=404)
+
+            if admin_user is None:
+                return JsonResponse({'error': 'Account not found with this email id'}, status=404)
 
             # Check if the account is active
             if not admin_user.get('status', 'active') == 'active':
@@ -211,7 +211,7 @@ def admin_login(request):
                 admin_collection.update_one({'email': email}, {'$set': {'last_login': datetime.now()}})
 
                 # Set the username in cookies
-                response = JsonResponse({'username':username, 'tokens': tokens, 'last_login': datetime.now()}, status=200)
+                response = JsonResponse({'username': admin_user['name'], 'tokens': tokens, 'last_login': datetime.now()}, status=200)
 
                 return response
             else:
@@ -483,7 +483,6 @@ def super_admin_signup(request):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-
 @csrf_exempt
 def super_admin_login(request):
     if request.method == 'POST':
@@ -504,9 +503,9 @@ def super_admin_login(request):
 
             # Find the super admin user by email
             super_admin_user = superadmin_collection.find_one({'email': email})
-            username = (super_admin_user['name'])
-            if not super_admin_user:
-                return JsonResponse({'error': 'No account found with this email'}, status=404)
+
+            if super_admin_user is None:
+                return JsonResponse({'error': 'Account not found with this email id'}, status=404)
 
             if check_password(password, super_admin_user['password']):
                 # Clear failed attempts after successful login
@@ -515,7 +514,7 @@ def super_admin_login(request):
                 # Generate JWT token
                 super_admin_id = super_admin_user.get('_id')
                 tokens = generate_tokens_superadmin(super_admin_id)
-                return JsonResponse({'username':username, 'tokens': tokens}, status=200)
+                return JsonResponse({'username': super_admin_user['name'], 'tokens': tokens}, status=200)
             else:
                 # Track failed attempts
                 if email not in failed_login_attempts:
@@ -531,6 +530,7 @@ def super_admin_login(request):
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
     
 # ============================================================== JOBS ======================================================================================
 
