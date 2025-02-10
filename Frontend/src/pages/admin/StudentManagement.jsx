@@ -14,6 +14,7 @@ const StudentManagement = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     department: "",
     year: "",
@@ -71,10 +72,7 @@ const StudentManagement = () => {
           s._id === student._id ? { ...s, status: newStatus } : s
         )
       );
-      setTimeout(() => {
-        setIsLoading(false);
-        window.location.reload(); // Refresh the page
-      }, 1000);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error updating status:", error);
       setIsLoading(false);
@@ -103,6 +101,7 @@ const StudentManagement = () => {
   const handleEdit = () => {
     setEditMode(true);
     setFormData({
+      name: selectedStudent.name,
       email: selectedStudent.email,
       department: selectedStudent.department || "",
       year: selectedStudent.year || "",
@@ -120,7 +119,6 @@ const StudentManagement = () => {
           )
         );
         setEditMode(false);
-        window.location.reload(); // Refresh the page
       }
     } catch (error) {
       console.error("Error updating student:", error);
@@ -196,6 +194,16 @@ const StudentManagement = () => {
             {editMode ? (
               <div>
                 <label className="block mb-2">
+                  Name:
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                  />
+                </label>
+                <label className="block mb-2">
                   Email:
                   <input
                     type="email"
@@ -236,20 +244,21 @@ const StudentManagement = () => {
             ) : (
               <div>
                 <div className="mb-4">
+                  <span className="text-gray-600">Name:</span>
+                  <span className="ml-2 text-gray-800">{selectedStudent.name}</span>
+                </div>
+                <div className="mb-4">
                   <span className="text-gray-600">Email:</span>
                   <span className="ml-2 text-gray-800">{selectedStudent.email}</span>
                 </div>
-
                 <div className="mb-4">
                   <span className="text-gray-600">Department:</span>
                   <span className="ml-2 text-gray-800">{selectedStudent.department || "N/A"}</span>
                 </div>
-
                 <div className="mb-4">
                   <span className="text-gray-600">Year:</span>
                   <span className="ml-2 text-gray-800">{selectedStudent.year || "N/A"}</span>
                 </div>
-
                 <div className="mb-4">
                   <span className="text-gray-600">Status:</span>
                   <span
@@ -260,17 +269,14 @@ const StudentManagement = () => {
                     {selectedStudent.status}
                   </span>
                 </div>
-
                 <div className="mb-4">
                   <span className="text-gray-600">Last Login:</span>
                   <span className="ml-2 text-gray-800">{selectedStudent.last_login || "Never"}</span>
                 </div>
-
                 <div className="mb-4">
                   <span className="text-gray-600">Created At:</span>
                   <span className="ml-2 text-gray-800">{selectedStudent.created_at || "Unknown"}</span>
                 </div>
-
                 <button
                   onClick={() => toggleStatus(selectedStudent)}
                   className={`w-full py-2 mb-4 text-white rounded-lg font-medium transition duration-300 ${
@@ -283,14 +289,12 @@ const StudentManagement = () => {
                       : "Activating..."
                     : `Set to ${selectedStudent.status === "active" ? "Inactive" : "Active"}`}
                 </button>
-
                 <button
                   onClick={handleEdit}
                   className="w-full py-2 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition mb-4"
                 >
                   Edit Profile
                 </button>
-
                 <button
                   onClick={() => deleteStudent(selectedStudent._id)}
                   className="w-full py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition duration-300"
