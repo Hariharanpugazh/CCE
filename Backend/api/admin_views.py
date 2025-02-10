@@ -869,8 +869,10 @@ def post_achievement(request):
 
         # Get text data from request
         name = request.POST.get("name")
-        department = request.POST.get("department")
-        achievement = request.POST.get("achievement")
+        achievement_description = request.POST.get("achievement_description")  # Corrected field name
+        achievement_type = request.POST.get("achievement_type")
+        company_name = request.POST.get("company_name")
+        date_of_achievement = request.POST.get("date_of_achievement")
         batch = request.POST.get("batch")
 
         # Check if an image was uploaded
@@ -879,24 +881,26 @@ def post_achievement(request):
             # Convert the image to base64
             image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
         else:
-            return Response({"error": "No image file provided."}, status=status.HTTP_400_BAD_REQUEST)
+            image_base64 = None  # Photo is optional
 
         # Prepare the document to insert
         achievement_data = {
             "name": name,
-            "department": department,
-            "achievement": achievement,
+            "achievement_description": achievement_description,  # Corrected field name
+            "achievement_type": achievement_type,
+            "company_name": company_name,
+            "date_of_achievement": date_of_achievement,
             "batch": batch,
             "photo": image_base64,  # Store as base64
             "user_id": admin_id,  # Save the admin_id from the token
-            "is_publish": False,  # Initially false, waiting for approval
+            "is_publish": True,  # Directly publish as no approval needed
             "updated_at": datetime.now()
         }
 
         # Insert into MongoDB
         achievement_collection.insert_one(achievement_data)
 
-        return Response({"message": "Achievement stored successfully, waiting for approval"}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Achievement stored successfully"}, status=status.HTTP_201_CREATED)
 
     except jwt.ExpiredSignatureError:
         return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -917,31 +921,31 @@ def get_achievements(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-@csrf_exempt
-def review_achievement(request, achievement_id):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            action = data.get("action")
-            if action not in ["approve", "reject"]:
-                return JsonResponse({"error": "Invalid action"}, status=400)
+# @csrf_exempt
+# def review_achievement(request, achievement_id):
+#     if request.method == "POST":
+#         try:
+#             data = json.loads(request.body)
+#             action = data.get("action")
+#             if action not in ["approve", "reject"]:
+#                 return JsonResponse({"error": "Invalid action"}, status=400)
 
-            achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
-            if not achievement:
-                return JsonResponse({"error": "Achievement not found"}, status=404)
+#             achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
+#             if not achievement:
+#                 return JsonResponse({"error": "Achievement not found"}, status=404)
 
-            is_publish = True if action == "approve" else False
-            achievement_collection.update_one(
-                {"_id": ObjectId(achievement_id)},
-                {"$set": {"is_publish": is_publish, "updated_at": datetime.now()}}
-            )
+#             is_publish = True if action == "approve" else False
+#             achievement_collection.update_one(
+#                 {"_id": ObjectId(achievement_id)},
+#                 {"$set": {"is_publish": is_publish, "updated_at": datetime.now()}}
+#             )
 
-            message = "Achievement approved and published successfully" if is_publish else "Achievement rejected successfully"
-            return JsonResponse({"message": message}, status=200)
+#             message = "Achievement approved and published successfully" if is_publish else "Achievement rejected successfully"
+#             return JsonResponse({"message": message}, status=200)
 
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-    return JsonResponse({"error": "Invalid request method"}, status=400)
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=400)
+#     return JsonResponse({"error": "Invalid request method"}, status=400)
 
 @csrf_exempt
 def get_published_achievements(request):

@@ -12,7 +12,6 @@ urlpatterns = [
     path('post-internship/', post_internship, name='post_internship'),
     path('internship/', get_internships, name='get_internships'),
     path("job_post/", job_post, name="job_post"),
-    path("upload_achievement/",post_achievement,name="upload_acheivement"),
     path('manage-jobs/', manage_jobs, name='manage_jobs'),
     path('mailjobs/', get_admin_jobs, name='get_admin_jobs'),
     path('post-study-material/',post_study_material, name="post_study_material"),
@@ -53,8 +52,11 @@ urlpatterns = [
     
 
     #Achievements
+    path("upload_achievement/",post_achievement,name="upload_achievement"),
     path('achievements', get_achievements, name='get_achievements'),
-    path('review-achievement/<str:achievement_id>/', review_achievement, name='review_achievement'),
+    # path('review-achievement/<str:achievement_id>/', review_achievement, name='review_achievement'),
+    path('published-achievement/', get_published_achievements, name='get_published_achievements'),
+    path("studentachievement/", post_student_achievement, name="get_student_achievements"),
     
     #Internships
     path('internship/', get_internships, name='get_internship'),
@@ -69,7 +71,6 @@ urlpatterns = [
     path('student-forgot-password/', student_forgot_password, name='student_forgot_password'),
     path('student-reset-password/', student_reset_password, name='student_reset_password'),
     path('published-jobs/', get_published_jobs, name='get_published_jobs'),
-    path('published-achievement/', get_published_achievements, name='get_published_achievements'),
     path('published-internship/', get_published_internships, name='get_published_internships'),
     path("contact-us/",contact_us,name="contact-us"),
 
