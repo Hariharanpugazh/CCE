@@ -13,6 +13,7 @@ urlpatterns = [
     path("job_post/", job_post, name="job_post"),
     path("upload_achievement/",post_achievement,name="upload_acheivement"),
     path('manage-jobs/', manage_jobs, name='manage_jobs'),
+    path('mailjobs/', get_admin_jobs, name='get_admin_jobs'),
 
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
@@ -43,6 +44,7 @@ urlpatterns = [
     path('job-edit/<str:job_id>/', update_job, name='update_job'),
     path('job-delete/<str:job_id>/', delete_job, name='delete_job'),
     path('get-jobs/', get_jobs, name='get_jobs'),
+    path('submit-feedback/', submit_feedback, name='submit_feedback'),
     
 
     #Achievements

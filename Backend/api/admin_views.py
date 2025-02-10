@@ -18,6 +18,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import random
 import string
+import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -65,6 +66,7 @@ job_collection = db['jobs']
 achievement_collection = db['achievement']
 superadmin_collection = db['superadmin']
 student_collection = db['students']
+reviews_collection = db['reviews']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -604,32 +606,42 @@ def get_jobs_for_mail(request):
 
         for job in jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
-            
+
             # Convert is_publish to readable status
             approval_status = "Waiting for Approval" if job.get("is_publish") is None else (
                 "Approved" if job["is_publish"] else "Rejected"
             )
-            
+
+            # Fetch admin details using admin_id
+            admin_id = job.get("admin_id")
+            admin_name = "Unknown Admin"
+
+            if admin_id:
+                admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
+                if admin:
+                    admin_name = admin.get("name", "Unknown Admin")
+
             # Ensure job_data exists and has application_deadline
             if "job_data" in job and "application_deadline" in job["job_data"]:
                 if job["job_data"]["application_deadline"]:  # Check if it's not None
                     deadline = job["job_data"]["application_deadline"]
-                    
+
                     try:
                         # Try parsing full datetime format
-                        formatted_deadline = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
+                        formatted_deadline = datetime.datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
                     except ValueError:
                         try:
                             # If the first format fails, try the plain date format
-                            formatted_deadline = datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
+                            formatted_deadline = datetime.datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
                         except ValueError:
                             # If neither format works, keep it as is (to avoid crashes)
                             formatted_deadline = deadline
-                    
+
                     job["job_data"]["application_deadline"] = formatted_deadline  # Update formatted value
-            
-            # Add human-readable approval status to the response
+
+            # Add human-readable approval status and admin name
             job["approval_status"] = approval_status
+            job["admin_name"] = admin_name  # Attach admin name
 
             job_list.append(job)
 
@@ -1044,14 +1056,44 @@ def get_internships(request):
         for internship in internships:
             # Convert ObjectId to string
             internship["_id"] = str(internship["_id"])
-            
-            # Convert application_deadline to date only if it's a datetime object
-            if isinstance(internship.get("application_deadline"), datetime):
-                internship["application_deadline"] = internship["application_deadline"].strftime("%Y-%m-%d")
-            
+
+            # Convert application_deadline to date format if it's a string
+            if "application_deadline" in internship and internship["application_deadline"]:
+                deadline = internship["application_deadline"]
+                
+                try:
+                    # Try parsing as full datetime format
+                    formatted_deadline = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
+                except ValueError:
+                    try:
+                        # Try parsing as plain date format
+                        formatted_deadline = datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
+                    except ValueError:
+                        # If parsing fails, keep original value
+                        formatted_deadline = deadline
+                
+                internship["application_deadline"] = formatted_deadline  # Update with formatted date
+
+            # Fetch admin details using admin_id
+            admin_id = internship.get("admin_id")
+            admin_name = "Unknown Admin"
+
+
+            if admin_id:
+                try:
+                    admin = admin_collection.find_one({"_id": ObjectId(admin_id)})  # Convert to ObjectId
+                    if admin:
+                        admin_name = admin.get("name", "Unknown Admin")
+                except Exception as e:
+                    print("Error fetching admin:", e)
+
+            # Add admin name to the response
+            internship["admin_name"] = admin_name
+
             internship_list.append(internship)
 
         return JsonResponse({"internships": internship_list}, status=200)
+
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 
@@ -1194,3 +1236,83 @@ def get_jobs(request):
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def get_admin_jobs(request):
+    if request.method == "GET":
+        # Retrieve JWT token from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return JsonResponse({'error': 'JWT token missing'}, status=401)
+
+        jwt_token = auth_header.split(' ')[1]
+
+        try:
+            # Decode the JWT token
+            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            admin_id = decoded_token.get('admin_user')
+
+            # Check if admin_id is present in the token
+            if not admin_id:
+                return JsonResponse({"error": "Invalid token: No admin_id"}, status=401)
+
+            # Fetch jobs from MongoDB where admin_id matches
+            jobs = list(job_collection.find({"admin_id": admin_id}))
+
+            # Convert MongoDB ObjectId to string for JSON serialization
+            for job in jobs:
+                job["_id"] = str(job["_id"])
+
+            return JsonResponse(jobs, safe=False, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({"error": "Token has expired"}, status=401)
+        except jwt.InvalidTokenError:
+            return JsonResponse({"error": "Invalid token"}, status=401)
+        except Exception as e:
+            return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@csrf_exempt
+def submit_feedback(request):
+    if request.method == "POST":
+        try:
+            # Decode the JWT token
+            auth_header = request.headers.get('Authorization')
+            if not auth_header or not auth_header.startswith('Bearer '):
+                return JsonResponse({'error': 'Invalid token'}, status=401)
+
+            token = auth_header.split(' ')[1]
+            decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            print(decoded_token)
+
+            # Parse the request body
+            data = json.loads(request.body)
+            item_id = data.get('item_id')
+            item_type = data.get('item_type')
+            feedback = data.get('feedback')
+
+            if not item_id or not item_type or not feedback:
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+            # Store the feedback in the Reviews collection
+            review_document = {
+                'admin_id': decoded_token.get('admin_user'),
+                'item_id': item_id,
+                'item_type': item_type,
+                'feedback': feedback,
+                'timestamp': datetime.datetime.now().isoformat()
+            }
+            reviews_collection.insert_one(review_document)
+
+            return JsonResponse({'message': 'Feedback submitted successfully'}, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({"error": "Token has expired"}, status=401)
+        except jwt.InvalidTokenError:
+            return JsonResponse({"error": "Invalid token"}, status=401)
+        except Exception as e:
+            return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
