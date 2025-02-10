@@ -913,38 +913,42 @@ def post_internship(request):
             # Decode JWT token
             try:
                 decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
-                print("Decoded Token:", decoded_token)  # Debugging: Check the decoded token
             except jwt.ExpiredSignatureError:
                 raise AuthenticationFailed("Access token has expired. Please log in again.")
             except jwt.InvalidTokenError:
-                raise AuthenticationFailed("Invalid token. Please log in again.") 
+                raise AuthenticationFailed("Invalid token. Please log in again.")
+
             role = decoded_token.get('role')
             auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
             is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
+            is_publish = None
+
             if role == 'admin':
-                admin_id = decoded_token.get('admin_user')  # Extract admin_id from token
+                admin_id = decoded_token.get('admin_user')
                 if not admin_id:
-                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-                is_publish = is_auto_approval
-            
+                    return JsonResponse({"error": "Invalid token"}, status=401)
+                if is_auto_approval:
+                    is_publish = True
+
             elif role == 'superadmin':
                 superadmin_id = decoded_token.get('superadmin_user')
                 if not superadmin_id:
-                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+                    return JsonResponse({"error": "Invalid token"}, status=401)
                 is_publish = True
-            # admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
 
             # Parse incoming JSON data
             data = json.loads(request.body)
             application_deadline_str = data.get('application_deadline')
-            application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
+
+            # Convert application_deadline to a timezone-aware datetime
+            try:
+                application_deadline = datetime.strptime(application_deadline_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            except ValueError:
+                return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
+
             now = datetime.now(timezone.utc)
-
             current_status = "active" if application_deadline >= now else "expired"
-
-            # Fetch auto-approval setting from DB
-            # auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-            # is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
 
             # Ensure required fields are present
             required_fields = [
@@ -956,12 +960,6 @@ def post_internship(request):
                 if field not in data:
                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
 
-            # Convert application_deadline to datetime format
-            try:
-                application_deadline = datetime.strptime(data['application_deadline'], "%Y-%m-%d")
-            except ValueError:
-                return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
-
             # Prepare internship data for insertion
             internship_post = {
                 "internship_data": {
@@ -970,17 +968,15 @@ def post_internship(request):
                     "location": data['location'],
                     "duration": data['duration'],
                     "stipend": data['stipend'],
-                    "application_deadline": data['application_deadline'],
+                    "application_deadline": application_deadline,
                     "required_skills": data['skills_required'],
-                    "education_requirements": data.get('education_requirements', ""),  # Optional field
+                    "education_requirements": data.get('education_requirements', ""),
                     "job_description": data['job_description'],
                     "company_website": data['company_website'],
-                    "job_link": data.get('job_link', ""),  # Optional field
+                    "job_link": data.get('job_link', ""),
                     "internship_type": data['internship_type'],
                 },
-                # "admin_id": admin_id,  # Save the admin ID from the token
-                # "is_publish": False,  # Auto-approve if enabled
-                "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
+                "admin_id" if role == "admin" else "superadmin_id": admin_id if role == "admin" else superadmin_id,
                 "is_publish": is_publish,
                 "status": current_status,
                 "updated_at": datetime.utcnow()

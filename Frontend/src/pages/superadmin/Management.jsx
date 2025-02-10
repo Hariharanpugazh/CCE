@@ -570,10 +570,18 @@ const toggleAutoApproval = async () => {
                       <td className="border border-gray-300 px-4 py-2">{data.required_skills ? data.required_skills.join(", ") : "N/A"}</td>
                       <td className="border border-gray-300 px-4 py-2">{data.education_requirements || "N/A"}</td>
                       <td className="border border-gray-300 px-4 py-2">{data.internship_type || "N/A"}</td>
-                      <td className="border border-gray-300 px-4 py-2">{internship.is_publish ? "Published" : "Pending"}</td>
+                      <td className="border border-gray-300 px-4 py-2 font-semibold">
+                        {internship.is_publish === true ? (
+                          <span className="text-green-600">✔ Approved</span>
+                        ) : internship.is_publish === false ? (
+                          <span className="text-red-600">✖ Rejected</span>
+                        ) : (
+                          <span className="text-yellow-600">⏳ Waiting for Approval</span>
+                        )}
+                      </td>
                       <td className="border border-gray-300 px-4 py-2">
                         <div className="flex space-x-2">
-                          {!internship.is_publish && (
+                          {internship.is_publish === null && (
                             <>
                               <IoMdCheckmark
                                 className="text-green-500 cursor-pointer"
