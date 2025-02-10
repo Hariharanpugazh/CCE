@@ -157,6 +157,12 @@ export default function AdminPageNavbar() {
                 </li>
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/studymaterial-post")}
+                >
+                  Study Material Post
+                </li>
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                   onClick={() => (window.location.href = "/achievementpost")}
                 >
                   Achievement Post

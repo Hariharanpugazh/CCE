@@ -69,5 +69,8 @@ urlpatterns = [
 
     #study_material
     path('published-study-materials/', get_published_study_material, name="get_published_study_material"),
+    path('study-materials/', get_study_material, name="get_study_material"),
+    path('delete-study-material/<str:study_material_id>/', delete_study_material, name='delete_study_material'),
+    path('study-material-edit/<str:study_material_id>/', update_study_material, name='update_study_material'),
 
 ]

@@ -1207,6 +1207,7 @@ def get_jobs(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+
 # ============================================================== STUDY MATERIALS ======================================================================================
 
 
@@ -1245,6 +1246,7 @@ def post_study_material(request):
 
             # Parse incoming JSON data
             data = json.loads(request.body)
+
             # application_deadline_str = data.get('application_deadline')
             # application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
             # now = datetime.now(timezone.utc)
@@ -1314,3 +1316,63 @@ def get_published_study_material(request):
         return JsonResponse({"study_material": study_material_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def get_study_material(request):
+    try:
+        study_material = study_material_collection.find()
+        study_material_list = []
+        
+        for study_material in study_material:
+            # Convert ObjectId to string
+            study_material["_id"] = str(study_material["_id"])
+            
+            study_material_list.append(study_material)
+
+        return JsonResponse({"study_materials": study_material_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+    
+    
+@csrf_exempt
+def delete_study_material(request, study_material_id):
+    """
+    Delete an study_material by its ID.
+    """
+    if request.method == 'DELETE':
+        try:
+            study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+            if not study_material:
+                return JsonResponse({"error": "study_material not found"}, status=404)
+
+            study_material_collection.delete_one({"_id": ObjectId(study_material_id)})
+            return JsonResponse({"message": "study_material deleted successfully"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+@csrf_exempt
+def update_study_material(request, study_material_id):
+    """
+    Update an study_material by its ID.
+    """
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+            if not study_material:
+                return JsonResponse({"error": "study_material not found"}, status=404)
+
+            # Exclude the _id field from the update
+            if '_id' in data:
+                del data['_id']
+
+            study_material_collection.update_one({"_id": ObjectId(study_material_id)}, {"$set": data})
+            updated_study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+            updated_study_material["_id"] = str(updated_study_material["_id"])  # Convert ObjectId to string
+            return JsonResponse({"study_material": updated_study_material}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
