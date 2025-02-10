@@ -670,14 +670,13 @@ def get_jobs_for_mail(request):
             if "job_data" in job and "application_deadline" in job["job_data"]:
                 if job["job_data"]["application_deadline"]:  # Check if it's not None
                     deadline = job["job_data"]["application_deadline"]
-
                     try:
                         # Try parsing full datetime format
-                        formatted_deadline = datetime.datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
+                        formatted_deadline = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
                     except ValueError:
                         try:
                             # If the first format fails, try the plain date format
-                            formatted_deadline = datetime.datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
+                            formatted_deadline = datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
                         except ValueError:
                             # If neither format works, keep it as is (to avoid crashes)
                             formatted_deadline = deadline
