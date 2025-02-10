@@ -33,6 +33,9 @@ import AdminDetailPage from "./pages/superadmin/AdminDetailPage";
 import AdminMail from "./pages/admin/AdminMail";
 import StudentManagement from "./pages/admin/StudentManagement";
 import StudentAchievementPostForm from "./pages/students/PostAchievement";
+import StudyMaterialForm from "./components/Common/StudyMaterialForm"
+import StudyEdit from "./pages/admin/StudyEdit";
+
 
 
 // Protected Route Component
@@ -89,8 +92,10 @@ function App() {
         <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
         <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
         <Route path="/internship-edit/:id" element= {<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>}/>
+        <Route path="//study-edit/:id" element= {<ProtectedRoute> <StudyEdit /> </ProtectedRoute>} />
         <Route path="/manage-jobs" element= {<ProtectedRoute> <ManageJobs /> </ProtectedRoute>}/>
         <Route path="/manage-student" element={<ProtectedRoute> <StudentManagement /> </ProtectedRoute>} />
+        <Route path="/studymaterial-post" element={<ProtectedRoute> <StudyMaterialForm /> </ProtectedRoute>} />
       
 
         {/* Super Admin Login */}
