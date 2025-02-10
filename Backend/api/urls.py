@@ -14,7 +14,9 @@ urlpatterns = [
     path("upload_achievement/",post_achievement,name="upload_acheivement"),
     path('manage-jobs/', manage_jobs, name='manage_jobs'),
     path('post-study-material/',post_study_material, name="post_study_material"),
-
+    path("manage-internships/", manage_internships, name="manage_internships"),
+    path('manage-study-materials/',manage_study_materials, name="manage_study_materials" ),
+    
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
     path("superadmin_login/",super_admin_login,name="super_admin_login"),
@@ -69,9 +71,7 @@ urlpatterns = [
     path("contact-us/",contact_us,name="contact-us"),
 
     #study_material
-    path('published-study-materials/', get_published_study_material, name="get_published_study_material"),
-    path('study-materials/', get_study_material, name="get_study_material"),
-    path('delete-study-material/<str:study_material_id>/', delete_study_material, name='delete_study_material'),
-    path('study-material-edit/<str:study_material_id>/', update_study_material, name='update_study_material'),
-
+    path("study-material/<str:study_material_id>/", get_study_material_by_id, name="get_study_material_by_id"),
+    path("study-material-edit/<str:study_material_id>/", update_study_material, name="update_study_material"),
+    path("study-material-delete/<str:study_material_id>/", delete_study_material, name="delete_study_material"),
 ]
