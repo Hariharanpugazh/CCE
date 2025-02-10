@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import StudentPageSearchBar from "../../components/Students/StudentPageSearchBar";
 import PageHeader from "../../components/Common/StudentPageHeader";
-import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 
 export default function AchievementDashboard() {
   const [achievements, setAchievements] = useState([]);
@@ -47,14 +46,18 @@ export default function AchievementDashboard() {
               key={achievement._id}
               className="p-4 border rounded-lg shadow-md bg-white flex flex-col justify-between items-center"
             >
-              <img
-                src={`data:image/jpeg;base64,${achievement.photo}`}
-                alt="Achievement"
-                className="w-full h-48 object-cover rounded-md"
-              />
+              {achievement.photo && (
+                <img
+                  src={`data:image/jpeg;base64,${achievement.photo}`}
+                  alt="Achievement"
+                  className="w-full h-48 object-cover rounded-md"
+                />
+              )}
               <h2 className="text-xl font-bold text-gray-800 mt-2">{achievement.name}</h2>
-              <p className="text-gray-600 mt-2">{achievement.department}</p>
-              <p className="text-gray-500 mt-2">{achievement.achievement}</p>
+              <p className="text-gray-600 mt-2">{achievement.achievement_description}</p>
+              <p className="text-gray-500 mt-2">Type: {achievement.achievement_type}</p>
+              <p className="text-gray-500 mt-2">Company: {achievement.company_name}</p>
+              <p className="text-gray-500 mt-2">Date: {new Date(achievement.date_of_achievement).toLocaleDateString()}</p>
               <p className="text-gray-500 mt-2">Batch: {achievement.batch}</p>
             </div>
           ))

@@ -20,6 +20,8 @@ import traceback
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import base64
+from rest_framework import status
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -47,6 +49,7 @@ db = client["CCE"]
 student_collection = db["students"]
 admin_collection = db["admin"]
 contactus_collection = db["contact_us"]
+achievement_collection = db['student_achievement']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -499,4 +502,71 @@ def get_profile(request, userId):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+# ===================== ACHIEVEMENTS =====================
 
+
+@csrf_exempt
+@api_view(['POST'])
+def post_student_achievement(request):
+    auth_header = request.headers.get('Authorization')
+
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    token = auth_header.split(" ")[1]
+    try:
+        # Adjust the leeway for time difference (e.g., 60 seconds)
+        leeway = datetime.timedelta(seconds=60)
+        
+        # Decode the JWT token using the specified secret and algorithm
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM], leeway=leeway)
+        student_id = payload.get('student_user')  # Extract student_id from token
+        if not student_id:
+            return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Get text data from request
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        phone_number = request.POST.get("phone_number")
+        achievement_type = request.POST.get("achievement_type")
+        company_name = request.POST.get("company_name")
+        achievement_description = request.POST.get("achievement_description")
+        date_of_achievement = request.POST.get("date_of_achievement")
+
+        # Check if a certificate/file was uploaded
+        if "file" in request.FILES:
+            file = request.FILES["file"]
+            # Convert the file to base64
+            file_base64 = base64.b64encode(file.read()).decode('utf-8')
+        else:
+            file_base64 = None  # File is optional
+
+        # Prepare the document to insert
+        achievement_data = {
+            "name": name,
+            "email": email,
+            "phone_number": phone_number,
+            "achievement_type": achievement_type,
+            "company_name": company_name,
+            "achievement_description": achievement_description,
+            "date_of_achievement": date_of_achievement,
+            "file": file_base64,  # Store as base64
+            "student_id": student_id,  # Save the student_id from the token
+            "is_approved": False,  # Requires approval
+            "submitted_at": timezone.now()
+        }
+
+        # Insert into MongoDB
+        achievement_collection.insert_one(achievement_data)
+
+        return Response({"message": "Achievement submitted successfully. Please wait for approval."}, status=status.HTTP_201_CREATED)
+
+    except jwt.ExpiredSignatureError:
+        return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+    except jwt.DecodeError:
+        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+    except jwt.InvalidTokenError as e:
+        return Response({"error": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

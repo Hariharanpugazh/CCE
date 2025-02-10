@@ -4,18 +4,19 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
-export default function AchievementPostForm() {
+export default function StudentAchievementPostForm() {
   const [formData, setFormData] = useState({
     name: "",
-    achievement_description: "",
+    email: "",
+    phone_number: "",
     achievement_type: "",
     company_name: "",
+    achievement_description: "",
     date_of_achievement: "",
-    batch: "", // Added batch field
-    photo: null, // Image file
+    file: null, // Certificate/file
   });
 
-  const [imagePreview, setImagePreview] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,11 +29,22 @@ export default function AchievementPostForm() {
       return;
     }
 
-    const decodedToken = jwtDecode(token);
-    if (decodedToken.role !== "superadmin" && decodedToken.role !== "admin") {
-      setError("You do not have permission to access this page.");
-      // Optionally, you can redirect the user to a different page
-      // navigate("/unauthorized");
+    try {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken.student_user) {
+        // Auto-fill name and email if available in the token
+        setFormData((prevData) => ({
+          ...prevData,
+          name: decodedToken.name || "",
+          email: decodedToken.email || "",
+        }));
+      } else {
+        setError("You do not have permission to access this page.");
+        // Optionally, you can redirect the user to a different page
+        // navigate("/unauthorized");
+      }
+    } catch (err) {
+      setError("Invalid token.");
     }
   }, [navigate]);
 
@@ -43,11 +55,11 @@ export default function AchievementPostForm() {
     });
   };
 
-  const handleImageChange = (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({ ...formData, photo: file });
-      setImagePreview(URL.createObjectURL(file));
+      setFormData({ ...formData, file: file });
+      setFilePreview(URL.createObjectURL(file));
     }
   };
 
@@ -66,17 +78,18 @@ export default function AchievementPostForm() {
 
       const formDataObj = new FormData();
       formDataObj.append("name", formData.name);
-      formDataObj.append("achievement_description", formData.achievement_description);
+      formDataObj.append("email", formData.email);
+      formDataObj.append("phone_number", formData.phone_number);
       formDataObj.append("achievement_type", formData.achievement_type);
       formDataObj.append("company_name", formData.company_name);
+      formDataObj.append("achievement_description", formData.achievement_description);
       formDataObj.append("date_of_achievement", formData.date_of_achievement);
-      formDataObj.append("batch", formData.batch); // Added batch field
-      if (formData.photo) {
-        formDataObj.append("photo", formData.photo);
+      if (formData.file) {
+        formDataObj.append("file", formData.file);
       }
 
       const response = await axios.post(
-        "http://localhost:8000/api/upload_achievement/",
+        "http://localhost:8000/api/studentachievement/",
         formDataObj,
         {
           headers: {
@@ -102,7 +115,7 @@ export default function AchievementPostForm() {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-3xl font-bold mb-6 text-center">Post an Achievement</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center">Submit Your Achievement</h2>
 
       {message && <p className="text-green-600 mb-4">{message}</p>}
 
@@ -120,16 +133,30 @@ export default function AchievementPostForm() {
           />
         </div>
 
-        {/* Achievement Description */}
+        {/* Email */}
         <div>
-          <label className="block font-medium">Achievement Description</label>
-          <textarea
-            name="achievement_description"
-            value={formData.achievement_description}
+          <label className="block font-medium">Email</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded"
             required
-          ></textarea>
+          />
+        </div>
+
+        {/* Phone Number */}
+        <div>
+          <label className="block font-medium">Phone Number</label>
+          <input
+            type="tel"
+            name="phone_number"
+            value={formData.phone_number}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+            required
+          />
         </div>
 
         {/* Achievement Type */}
@@ -159,8 +186,19 @@ export default function AchievementPostForm() {
             value={formData.company_name}
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded"
-            required
           />
+        </div>
+
+        {/* Achievement Description */}
+        <div>
+          <label className="block font-medium">Achievement Description</label>
+          <textarea
+            name="achievement_description"
+            value={formData.achievement_description}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+            required
+          ></textarea>
         </div>
 
         {/* Date of Achievement */}
@@ -176,39 +214,26 @@ export default function AchievementPostForm() {
           />
         </div>
 
-        {/* Batch */}
-        <div>
-          <label className="block font-medium">Batch</label>
-          <input
-            type="text"
-            name="batch"
-            value={formData.batch}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-        </div>
-
-        {/* Drag & Drop Image Upload */}
+        {/* File Upload */}
         <div className="border-dashed border-2 border-gray-400 rounded-lg p-6 text-center">
           <label
-            htmlFor="photo"
+            htmlFor="file"
             className="cursor-pointer text-blue-600 font-semibold hover:underline"
           >
-            {imagePreview ? "Change Image" : "Upload an Achievement Photo"}
+            {filePreview ? "Change File" : "Upload Certificate/File"}
           </label>
           <input
             type="file"
-            id="photo"
-            name="photo"
-            accept="image/*"
-            onChange={handleImageChange}
+            id="file"
+            name="file"
+            accept=".pdf,image/*"
+            onChange={handleFileChange}
             className="hidden"
           />
-          {imagePreview && (
+          {filePreview && (
             <div className="mt-4">
               <img
-                src={imagePreview}
+                src={filePreview}
                 alt="Uploaded"
                 className="max-h-40 mx-auto rounded-md shadow-lg"
               />
