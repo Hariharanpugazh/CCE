@@ -93,6 +93,54 @@ export default function AdminDetailPage() {
         }));
     };
 
+const generateCSV = () => {
+    const csvRows = [];
+
+    // Add admin details
+    const adminHeaders = ["Name", "Email", "Department", "College Name", "Status", "Last Login", "Date Created"];
+    const adminValues = [
+        admin.name,
+        admin.email,
+        admin.department,
+        admin.college_name,
+        admin.status,
+        admin.last_login ? new Date(admin.last_login).toLocaleString() : "Never",
+        admin.created_at ? new Date(admin.created_at).toLocaleDateString() : "Unknown"
+    ];
+    csvRows.push(adminHeaders.join(","));
+    csvRows.push(adminValues.join(","));
+
+    // Add job details
+    if (jobs.length > 0) {
+        const jobHeaders = ["Job Title", "Company", "Location", "Published Date"];
+        csvRows.push("\n" + jobHeaders.join(","));
+        jobs.forEach(job => {
+            const jobValues = [
+                job.job_data.title,
+                job.job_data.company_name,
+                job.job_data.job_location,
+                job.updated_at ? new Date(job.updated_at).toLocaleDateString() : "Unknown" // Use updated_at as published_at
+            ];
+            csvRows.push(jobValues.join(","));
+        });
+    }
+
+    return csvRows.join("\n");
+};
+    
+
+    const downloadCSV = () => {
+        const csvData = generateCSV();
+        const blob = new Blob([csvData], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "admin_details.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+
     if (error) {
         return <p className="text-red-600">{error}</p>;
     }
@@ -198,6 +246,12 @@ export default function AdminDetailPage() {
                                 className="px-4 py-2 bg-yellow-500 text-white rounded ml-2"
                             >
                                 Edit
+                            </button>
+                            <button
+                                onClick={downloadCSV}
+                                className="px-4 py-2 bg-blue-500 text-white rounded ml-2"
+                            >
+                                Download CSV
                             </button>
                         </div>
                     </div>

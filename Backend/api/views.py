@@ -346,7 +346,6 @@ def update_student(request, student_id):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-
 @csrf_exempt
 def delete_student(request, student_id):
     """
