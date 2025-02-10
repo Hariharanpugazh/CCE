@@ -334,10 +334,20 @@ def update_student(request, student_id):
             if 'password' in data:
                 del data['password']
 
-            # Update student in MongoDB
-            student_collection.update_one({'_id': ObjectId(student_id)}, {'$set': data})
+            # Check if the update is for profile-specific fields
+            profile_fields = ['name', 'phone', 'address', 'bio']  # Add other profile fields as needed
+            profile_update = any(field in data for field in profile_fields)
 
-            return JsonResponse({'message': 'Student updated successfully'}, status=200)
+            if profile_update:
+                # Handle profile-specific updates
+                profile_data = {field: data[field] for field in profile_fields if field in data}
+                student_collection.update_one({'_id': ObjectId(student_id)}, {'$set': profile_data})
+                return JsonResponse({'message': 'Student profile updated successfully'}, status=200)
+            else:
+                # Handle general updates
+                student_collection.update_one({'_id': ObjectId(student_id)}, {'$set': data})
+                return JsonResponse({'message': 'Student updated successfully'}, status=200)
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     else:
