@@ -28,6 +28,7 @@ urlpatterns = [
     path('students/<str:student_id>/delete/', delete_student, name='delete_student'),
     path("admins-list/", get_admin_list, name="get_admins_list"),
     path('admin-details/<str:id>/', admin_details, name='admin-details'),
+    path('admin/<str:id>/edit/', edit_admin_details, name='edit_admin_details'),
 
     #common
     path("profile/<str:userId>/", get_profile, name="get_profile"),

@@ -384,6 +384,37 @@ def admin_details(request, id):
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+@csrf_exempt
+def edit_admin_details(request, id):
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            admin = admin_collection.find_one({'_id': ObjectId(id)})
+            if not admin:
+                return JsonResponse({'error': 'Admin not found'}, status=404)
+
+            # Update fields if provided in the request
+            if 'name' in data:
+                admin['name'] = data['name']
+            if 'email' in data:
+                admin['email'] = data['email']
+            if 'status' in data:
+                admin['status'] = data['status']
+            if 'department' in data:
+                admin['department'] = data['department']
+            if 'college_name' in data:
+                admin['college_name'] = data['college_name']
+
+            # Save the updated admin details back to the database
+            admin_collection.update_one({'_id': ObjectId(id)}, {'$set': admin})
+
+            return JsonResponse({'success': 'Admin details updated successfully'}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def admin_status_update(request, id):

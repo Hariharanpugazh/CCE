@@ -11,6 +11,13 @@ export default function AdminDetailPage() {
     const [error, setError] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const [editMode, setEditMode] = useState(false);
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        department: "",
+        college_name: "",
+    });
 
     useEffect(() => {
         const fetchAdminDetails = async () => {
@@ -18,6 +25,12 @@ export default function AdminDetailPage() {
                 const response = await axios.get(`http://localhost:8000/api/admin-details/${id}/`);
                 setAdmin(response.data.admin);
                 setJobs(response.data.jobs);
+                setFormData({
+                    name: response.data.admin.name,
+                    email: response.data.admin.email,
+                    department: response.data.admin.department,
+                    college_name: response.data.admin.college_name,
+                });
             } catch (err) {
                 console.error("Error fetching admin details:", err);
                 setError("Failed to load admin details.");
@@ -49,6 +62,37 @@ export default function AdminDetailPage() {
         setLoading(false);
     };
 
+    const handleEdit = () => {
+        setEditMode(true);
+    };
+
+    const handleSave = async () => {
+        setLoading(true);
+        setMessage("");
+
+        try {
+            const response = await axios.put(`http://localhost:8000/api/admin/${id}/edit/`, formData);
+
+            if (response.status === 200) {
+                setAdmin((prevAdmin) => ({ ...prevAdmin, ...formData }));
+                setMessage("Admin details updated successfully.");
+                setEditMode(false);
+            }
+        } catch (error) {
+            console.error("Error updating admin details:", error);
+            setError("Failed to update admin details.");
+        }
+        setLoading(false);
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
     if (error) {
         return <p className="text-red-600">{error}</p>;
     }
@@ -63,41 +107,101 @@ export default function AdminDetailPage() {
             <h2 className="text-2xl font-bold mb-4">Admin Details</h2>
             {message && <p className="text-blue-600 font-semibold">{message}</p>}
             <div className="mb-4">
-                <p><strong>Name:</strong> {admin.name || "N/A"}</p>
-                <p><strong>Email:</strong> {admin.email || "N/A"}</p>
-                <p><strong>Department:</strong> {admin.department || "N/A"}</p>
-                <p><strong>College Name:</strong> {admin.college_name || "N/A"}</p>
-                <p>
-                    <strong>Account Status:</strong>
-                    <span
-                        className={`font-bold ${
-                            admin.status === "active" ? "text-green-600" : "text-red-600"
-                        }`}
-                    >
-                        {admin.status}
-                    </span>
-                </p>
-                <p><strong>Last Login:</strong> {admin.last_login ? new Date(admin.last_login).toLocaleString() : "Never"}</p>
-                <p><strong>Date Created:</strong> {admin.created_at ? new Date(admin.created_at).toLocaleDateString() : "Unknown"}</p>
-                <div className="mt-4">
-                    {admin.status === "active" ? (
+                {editMode ? (
+                    <div>
+                        <label className="block mb-2">
+                            Name:
+                            <input
+                                type="text"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                className="border p-2 w-full"
+                            />
+                        </label>
+                        <label className="block mb-2">
+                            Email:
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className="border p-2 w-full"
+                            />
+                        </label>
+                        <label className="block mb-2">
+                            Department:
+                            <input
+                                type="text"
+                                name="department"
+                                value={formData.department}
+                                onChange={handleChange}
+                                className="border p-2 w-full"
+                            />
+                        </label>
+                        <label className="block mb-2">
+                            College Name:
+                            <input
+                                type="text"
+                                name="college_name"
+                                value={formData.college_name}
+                                onChange={handleChange}
+                                className="border p-2 w-full"
+                            />
+                        </label>
                         <button
-                            onClick={() => handleStatusChange("Inactive")}
+                            onClick={handleSave}
                             disabled={loading}
-                            className="px-4 py-2 bg-red-500 text-white rounded"
+                            className="px-4 py-2 bg-blue-500 text-white rounded"
                         >
-                            {loading ? "Processing..." : "Inactive"}
+                            {loading ? "Saving..." : "Save"}
                         </button>
-                    ) : (
-                        <button
-                            onClick={() => handleStatusChange("active")}
-                            disabled={loading}
-                            className="px-4 py-2 bg-green-500 text-white rounded"
-                        >
-                            {loading ? "Processing..." : "Activate"}
-                        </button>
-                    )}
-                </div>
+                    </div>
+                ) : (
+                    <div>
+                        <p><strong>Name:</strong> {admin.name || "N/A"}</p>
+                        <p><strong>Email:</strong> {admin.email || "N/A"}</p>
+                        <p><strong>Department:</strong> {admin.department || "N/A"}</p>
+                        <p><strong>College Name:</strong> {admin.college_name || "N/A"}</p>
+                        <p>
+                            <strong>Account Status:</strong>
+                            <span
+                                className={`font-bold ${
+                                    admin.status === "active" ? "text-green-600" : "text-red-600"
+                                }`}
+                            >
+                                {admin.status}
+                            </span>
+                        </p>
+                        <p><strong>Last Login:</strong> {admin.last_login ? new Date(admin.last_login).toLocaleString() : "Never"}</p>
+                        <p><strong>Date Created:</strong> {admin.created_at ? new Date(admin.created_at).toLocaleDateString() : "Unknown"}</p>
+                        <div className="mt-4">
+                            {admin.status === "active" ? (
+                                <button
+                                    onClick={() => handleStatusChange("Inactive")}
+                                    disabled={loading}
+                                    className="px-4 py-2 bg-red-500 text-white rounded"
+                                >
+                                    {loading ? "Processing..." : "Inactive"}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => handleStatusChange("active")}
+                                    disabled={loading}
+                                    className="px-4 py-2 bg-green-500 text-white rounded"
+                                >
+                                    {loading ? "Processing..." : "Activate"}
+                                </button>
+                            )}
+                            <button
+                                onClick={handleEdit}
+                                className="px-4 py-2 bg-yellow-500 text-white rounded ml-2"
+                            >
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* ✅ Display Job Details with JobCard */}
