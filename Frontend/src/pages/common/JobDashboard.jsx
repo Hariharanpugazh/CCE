@@ -15,6 +15,7 @@ export default function JobDashboard() {
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("")
   const [userRole, setUserRole] = useState(null);
+  const [activeButton, setActiveButton] = useState(null);
 
   useEffect(() => {
     console.log(filter)
@@ -71,6 +72,30 @@ export default function JobDashboard() {
     }
   }, []);
 
+  useEffect(() => {
+    function dateDiff(deadline) {
+      const deadDate = new Date(deadline);
+      const today = Date.now();
+
+      const timeDifference = deadDate.getTime() - today;
+      console.log(Math.floor(timeDifference / (1000 * 3600 * 24)))
+      return Math.floor(timeDifference / (1000 * 3600 * 24));
+    }
+
+    if (activeButton === "Active") {
+      setFilteredJobs(jobs.filter((job) => dateDiff(job.job_data.application_deadline) >= 0))
+    }
+
+    if (activeButton === "Expired") {
+      setFilteredJobs(jobs.filter((job) => dateDiff(job.job_data.application_deadline) < 0))
+    }
+  }, [activeButton])
+
+  const handleStatusFilterChange = (status) => {
+    setActiveButton(status);
+    setFilter(status === "All" ? "All" : status);
+  };
+
   return (
     <div className="flex flex-col">
       {userRole === "admin" && <AdminPageNavbar />}
@@ -78,9 +103,17 @@ export default function JobDashboard() {
       {userRole === "student" && <StudentPageNavbar />}
       <PageHeader page={AppPages.jobDashboard} filter={filter} setFilter={setFilter} searchPhrase={searchPhrase} setSearchPhrase={setSearchPhrase} />
 
-      {/* Search bar */}
-      <div className="w-[80%] self-center">
-        {/* <StudentPageSearchBar /> */}
+      {/* status based filters */}
+      <div className="flex text-sm gap-4 w-[80%] self-center mb-2 px-1">
+        {['All', 'Active', 'Expired',].map((status) => (
+          <button
+            key={status}
+            className={` rounded-[10000px] p-1 ${filter === status ? "text-blue-400 underline" : "text-gray-600 hover:text-gray-900"}`}
+            onClick={() => handleStatusFilterChange(status)}
+          >
+            {status}
+          </button>
+        ))}
       </div>
 
       {/* Job cards */}
