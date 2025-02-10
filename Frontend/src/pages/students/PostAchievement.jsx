@@ -12,6 +12,7 @@ export default function StudentAchievementPostForm() {
     achievement_type: "",
     company_name: "",
     achievement_description: "",
+    batch:"",
     date_of_achievement: "",
     file: null, // Certificate/file
   });
@@ -84,8 +85,9 @@ export default function StudentAchievementPostForm() {
       formDataObj.append("company_name", formData.company_name);
       formDataObj.append("achievement_description", formData.achievement_description);
       formDataObj.append("date_of_achievement", formData.date_of_achievement);
+      formDataObj.append("batch", formData.batch);
       if (formData.file) {
-        formDataObj.append("file", formData.file);
+        formDataObj.append("photo", formData.file);
       }
 
       const response = await axios.post(
@@ -212,6 +214,17 @@ export default function StudentAchievementPostForm() {
             className="w-full border px-3 py-2 rounded"
             required
           />
+        </div>
+
+        <div>
+          <label className="block font-medium">Batch</label>
+          <textarea
+            name="batch"
+            value={formData.batch}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded"
+            required
+          ></textarea>
         </div>
 
         {/* File Upload */}
