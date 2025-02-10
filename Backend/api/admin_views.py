@@ -18,7 +18,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import random
 import string
-import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
