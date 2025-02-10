@@ -4,6 +4,9 @@ import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import PageHeader from "../../components/Common/StudentPageHeader";
 import { AppPages } from "../../utils/constants";
 import ApplicationCard from "../../components/Students/ApplicationCard";
+import Cookies from "js-cookie";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 export default function InternshipDashboard() {
   const [internships, setInternships] = useState([]);
@@ -11,7 +14,8 @@ export default function InternshipDashboard() {
   const [error, setError] = useState("");
   const [filteredInterns, setFilteredInterns] = useState([]);
   const [searchPhrase, setSearchPhrase] = useState("");
-  
+  const [userRole, setUserRole] = useState(null);
+
   // Fetch published internships from the backend
   useEffect(() => {
     const fetchPublishedInternships = async () => {
@@ -50,9 +54,21 @@ export default function InternshipDashboard() {
     }
   }, [searchPhrase, internships]);
 
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+      console.log("Decoded JWT Payload:", payload); // Debugging line
+      setUserRole(!payload.student_user ? payload.role : "student"); // Assuming the payload has a 'role' field
+    }
+  }, []);
+
   return (
     <div className="flex flex-col">
-      <StudentPageNavbar />
+
+      {userRole === "admin" && <AdminPageNavbar />}
+      {userRole === "superadmin" && <SuperAdminPageNavbar />}
+      {userRole === "student" && <StudentPageNavbar />}
       <PageHeader
         page={AppPages.internShipDashboard}
         filter={filter}

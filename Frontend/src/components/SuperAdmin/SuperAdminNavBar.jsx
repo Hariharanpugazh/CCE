@@ -30,13 +30,13 @@ export default function SuperAdminPageNavbar() {
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = "/superadmin/jobs")}
+          onClick={() => (window.location.href = "/jobs")}
         >
           Jobs
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = "/superadmin/internships")}
+          onClick={() => (window.location.href = "/internships")}
         >
           Internships
         </p>
