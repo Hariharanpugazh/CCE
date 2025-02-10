@@ -93,42 +93,42 @@ export default function AdminDetailPage() {
         }));
     };
 
-const generateCSV = () => {
-    const csvRows = [];
-
-    // Add admin details
-    const adminHeaders = ["Name", "Email", "Department", "College Name", "Status", "Last Login", "Date Created"];
-    const adminValues = [
-        admin.name,
-        admin.email,
-        admin.department,
-        admin.college_name,
-        admin.status,
-        admin.last_login ? new Date(admin.last_login).toLocaleString() : "Never",
-        admin.created_at ? new Date(admin.created_at).toLocaleDateString() : "Unknown"
-    ];
-    csvRows.push(adminHeaders.join(","));
-    csvRows.push(adminValues.join(","));
-
-    // Add job details
-    if (jobs.length > 0) {
-        const jobHeaders = ["Job Title", "Company", "Location", "Published Date"];
-        csvRows.push("\n" + jobHeaders.join(","));
-        jobs.forEach(job => {
-            const jobValues = [
-                job.job_data.title,
-                job.job_data.company_name,
-                job.job_data.job_location,
-                job.updated_at ? new Date(job.updated_at).toLocaleDateString() : "Unknown" // Use updated_at as published_at
-            ];
-            csvRows.push(jobValues.join(","));
-        });
-    }
-
-    return csvRows.join("\n");
-};
+    const generateCSV = () => {
+        const csvRows = [];
     
-
+        // Add admin details
+        const adminHeaders = ["Name", "Email", "Department", "College Name", "Status", "Last Login", "Date Created"];
+        const adminValues = [
+            admin.name,
+            admin.email,
+            admin.department,
+            admin.college_name,
+            admin.status,
+            admin.last_login ? new Date(admin.last_login).toLocaleString() : "Never",
+            admin.created_at ? new Date(admin.created_at).toLocaleDateString() : "Unknown"
+        ];
+        csvRows.push(adminHeaders.join(","));
+        csvRows.push(adminValues.join(","));
+    
+        // Add job details
+        if (jobs.length > 0) {
+            const jobHeaders = ["Job Title", "Company", "Location", "Published Date"];
+            csvRows.push("\n" + jobHeaders.join(","));
+            jobs.forEach(job => {
+                const jobValues = [
+                    job.title,
+                    job.company_name,
+                    job.job_location,
+                    job.updated_at ? new Date(job.updated_at).toLocaleDateString() : "Unknown" // Use updated_at as published_at
+                ];
+                csvRows.push(jobValues.join(","));
+            });
+        }
+    
+        // Ensure no trailing comma or newline at the end
+        return csvRows.join("\n").trim();
+    };
+    
     const downloadCSV = () => {
         const csvData = generateCSV();
         const blob = new Blob([csvData], { type: "text/csv" });
@@ -258,7 +258,7 @@ const generateCSV = () => {
                 )}
             </div>
 
-            {/* ✅ Display Job Details with JobCard */}
+            {/* Display Job Details with JobCard */}
             <h3 className="text-xl font-bold mt-6 mb-2">Jobs Posted</h3>
             {jobs.length === 0 ? (
                 <p className="text-gray-600">No jobs posted by this admin.</p>

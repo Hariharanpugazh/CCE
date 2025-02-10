@@ -367,10 +367,10 @@ def admin_details(request, id):
                 '_id': admin['_id'],
                 'name': admin.get('name', 'N/A'),
                 'email': admin.get('email', 'N/A'),
-                'status': admin.get('status', 'active'),  # Fetch the status from the database
-                'department': admin.get('department', 'N/A'),  # Store department
-                'college_name': admin.get('college_name', 'N/A'),  # Store college name
-                'created_at': datetime.now(),  # Store account creation date
+                'status': admin.get('status', 'active'),
+                'department': admin.get('department', 'N/A'),
+                'college_name': admin.get('college_name', 'N/A'),
+                'created_at': datetime.now(),
                 'last_login': last_login
             }
 
@@ -380,6 +380,7 @@ def admin_details(request, id):
                 job['_id'] = str(job['_id'])
                 job_data = job.get('job_data', {})
                 job_data['_id'] = job['_id']
+                job_data['updated_at'] = job.get('updated_at')  # Include updated_at field
                 jobs_list.append(job_data)
 
             return JsonResponse({'admin': admin_data, 'jobs': jobs_list}, status=200)
