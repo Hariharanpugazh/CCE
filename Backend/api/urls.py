@@ -13,6 +13,7 @@ urlpatterns = [
     path("job_post/", job_post, name="job_post"),
     path("upload_achievement/",post_achievement,name="upload_acheivement"),
     path('manage-jobs/', manage_jobs, name='manage_jobs'),
+    path('post-study-material/',post_study_material, name="post_study_material"),
 
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
@@ -66,5 +67,11 @@ urlpatterns = [
     path('published-achievement/', get_published_achievements, name='get_published_achievements'),
     path('published-internship/', get_published_internships, name='get_published_internships'),
     path("contact-us/",contact_us,name="contact-us"),
+
+    #study_material
+    path('published-study-materials/', get_published_study_material, name="get_published_study_material"),
+    path('study-materials/', get_study_material, name="get_study_material"),
+    path('delete-study-material/<str:study_material_id>/', delete_study_material, name='delete_study_material'),
+    path('study-material-edit/<str:study_material_id>/', update_study_material, name='update_study_material'),
 
 ]
