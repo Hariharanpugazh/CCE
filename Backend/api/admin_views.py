@@ -1043,6 +1043,43 @@ def post_internship(request):
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
 
 @csrf_exempt
+def manage_internships(request):
+    if request.method == 'GET':
+        # Retrieve JWT token from Authorization Header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse({'error': 'No token provided'}, status=401)
+
+        jwt_token = auth_header.split(" ")[1]
+
+        try:
+            # Decode JWT token
+            decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
+            role = decoded_token.get('role')
+            admin_user = decoded_token.get('admin_user') if role == "admin" else decoded_token.get('superadmin_user')
+
+            if not admin_user:
+                return JsonResponse({"error": "Invalid token"}, status=401)
+
+            # Fetch internships from MongoDB based on admin_user
+            internships = internship_collection.find({"admin_id": admin_user} if role == "admin" else {})
+            internship_list = []
+            for internship in internships:
+                internship["_id"] = str(internship["_id"])  # Convert ObjectId to string
+                internship_list.append(internship)
+
+            return JsonResponse({"internships": internship_list}, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'error': 'JWT token has expired'}, status=401)
+        except jwt.InvalidTokenError as e:
+            return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
 def get_published_internships(request):
     try:
         published_internships = internship_collection.find({"is_publish": True})
@@ -1243,93 +1280,69 @@ def get_jobs(request):
 
 # ============================================================== STUDY MATERIALS ======================================================================================
 
-
 @csrf_exempt
 def post_study_material(request):
     if request.method == 'POST':
         try:
-            # Get JWT token from cookies
-            jwt_token = request.COOKIES.get("jwt")
-            if not jwt_token:
-                raise AuthenticationFailed("Authentication credentials were not provided.")
+            # Get JWT token from Authorization Header
+            auth_header = request.headers.get('Authorization')
+            if not auth_header or not auth_header.startswith("Bearer "):
+                return JsonResponse({"error": "No token provided"}, status=401)
+
+            jwt_token = auth_header.split(" ")[1]
 
             # Decode JWT token
             try:
                 decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
                 print("Decoded Token:", decoded_token)  # Debugging: Check the decoded token
             except jwt.ExpiredSignatureError:
-                raise AuthenticationFailed("Access token has expired. Please log in again.")
+                return JsonResponse({"error": "Token expired"}, status=401)
             except jwt.InvalidTokenError:
-                raise AuthenticationFailed("Invalid token. Please log in again.") 
+                return JsonResponse({"error": "Invalid token"}, status=401)
+
             role = decoded_token.get('role')
             auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
             is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
             if role == 'admin':
-                admin_id = decoded_token.get('admin_user')  # Extract admin_id from token
+                admin_id = decoded_token.get('admin_user')  
                 if not admin_id:
-                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-                is_publish = is_auto_approval
+                    return JsonResponse({"error": "Invalid token"}, status=401)
+                is_publish = True
             
             elif role == 'superadmin':
                 superadmin_id = decoded_token.get('superadmin_user')
                 if not superadmin_id:
-                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+                    return JsonResponse({"error": "Invalid token"}, status=401)
                 is_publish = True
-            # admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
 
             # Parse incoming JSON data
             data = json.loads(request.body)
 
-            # application_deadline_str = data.get('application_deadline')
-            # application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
-            # now = datetime.now(timezone.utc)
-
-            # current_status = "active" if application_deadline >= now else "expired"
-
-            # Fetch auto-approval setting from DB
-            # auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-            # is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
-
             # Ensure required fields are present
-            required_fields = [
-                'title', 'description', 'category','text_content',
-                
-            ]
+            required_fields = ['title', 'description', 'category', 'text_content']
             for field in required_fields:
                 if field not in data:
                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
 
-            # Convert application_deadline to datetime format
-            # try:
-            #     application_deadline = datetime.strptime(data['application_deadline'], "%Y-%m-%d")
-            # except ValueError:
-            #     return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
-
-            # Prepare internship data for insertion
             study_material_post = {
                 "study_material_data": {
-                    "title": data['title'],   
+                    "title": data['title'],
                     "description": data['description'],
-                    "category":data['category'],
-                    "text_content":data['text_content']
-                   
+                    "category": data['category'],
+                    "text_content": data['text_content'],
+                    "link":data['link']
                 },
-                # "admin_id": admin_id,  # Save the admin ID from the token
-                # "is_publish": False,  # Auto-approve if enabled
-                "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
-                "is_publish": True,
-                # "status": current_status,
+                "admin_id" if role == "admin" else "superadmin_id": admin_id if role == "admin" else superadmin_id,
+                "is_publish": is_publish,
                 "updated_at": datetime.utcnow()
             }
 
             # Insert into MongoDB
             study_material_collection.insert_one(study_material_post)
 
-            # Return success response
             return JsonResponse({"message": "Study Material posted successfully"}, status=200)
 
-        except AuthenticationFailed as auth_error:
-            return JsonResponse({"error": str(auth_error)}, status=401)
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON format."}, status=400)
         except Exception as e:
@@ -1337,65 +1350,69 @@ def post_study_material(request):
 
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
 
+@csrf_exempt
+def manage_study_materials(request):
+    if request.method == 'GET':
+        # Retrieve JWT token from Authorization Header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse({'error': 'No token provided'}, status=401)
+
+        jwt_token = auth_header.split(" ")[1]
+
+        try:
+            # Decode JWT token
+            decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
+            role = decoded_token.get('role')
+            admin_user = decoded_token.get('admin_user') if role == "admin" else decoded_token.get('superadmin_user')
+
+            if not admin_user:
+                return JsonResponse({"error": "Invalid token"}, status=401)
+
+            # Fetch study materials from MongoDB based on admin_user
+            study_materials = study_material_collection.find({"admin_id": admin_user} if role == "admin" else {})
+            study_material_list = []
+            for study in study_materials:
+                study["_id"] = str(study["_id"])  # Convert ObjectId to string
+                study_material_list.append(study)
+
+            return JsonResponse({"study_materials": study_material_list}, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'error': 'JWT token has expired'}, status=401)
+        except jwt.InvalidTokenError as e:
+            return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
-def get_published_study_material(request):
+def get_study_material_by_id(request, study_material_id):
+    """
+    Fetch a single study material by its ID.
+    """
     try:
-        published_study_material = study_material_collection.find({"is_publish": True})
-        study_material_list = [
-            {**study_material, "_id": str(study_material["_id"])}  # Convert ObjectId to string
-            for study_material in published_study_material
-        ]
-        return JsonResponse({"study_material": study_material_list}, status=200)
+        study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+        if not study_material:
+            return JsonResponse({"error": "Study material not found"}, status=404)
+
+        study_material["_id"] = str(study_material["_id"])  # Convert ObjectId to string
+        return JsonResponse({"study_material": study_material}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
 @csrf_exempt
-def get_study_material(request):
-    try:
-        study_material = study_material_collection.find()
-        study_material_list = []
-        
-        for study_material in study_material:
-            # Convert ObjectId to string
-            study_material["_id"] = str(study_material["_id"])
-            
-            study_material_list.append(study_material)
-
-        return JsonResponse({"study_materials": study_material_list}, status=200)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
-    
-    
-@csrf_exempt
-def delete_study_material(request, study_material_id):
-    """
-    Delete an study_material by its ID.
-    """
-    if request.method == 'DELETE':
-        try:
-            study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
-            if not study_material:
-                return JsonResponse({"error": "study_material not found"}, status=404)
-
-            study_material_collection.delete_one({"_id": ObjectId(study_material_id)})
-            return JsonResponse({"message": "study_material deleted successfully"}, status=200)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid method"}, status=405)
-
-@csrf_exempt
 def update_study_material(request, study_material_id):
     """
-    Update an study_material by its ID.
+    Update a study material by its ID.
     """
     if request.method == 'PUT':
         try:
             data = json.loads(request.body)
             study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
             if not study_material:
-                return JsonResponse({"error": "study_material not found"}, status=404)
+                return JsonResponse({"error": "Study material not found"}, status=404)
 
             # Exclude the _id field from the update
             if '_id' in data:
@@ -1409,3 +1426,93 @@ def update_study_material(request, study_material_id):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
+
+@csrf_exempt
+def delete_study_material(request, study_material_id):
+    """
+    Delete a study material by its ID.
+    """
+    if request.method == 'DELETE':
+        try:
+            study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+            if not study_material:
+                return JsonResponse({"error": "Study material not found"}, status=404)
+
+            study_material_collection.delete_one({"_id": ObjectId(study_material_id)})
+            return JsonResponse({"message": "Study material deleted successfully"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+# @csrf_exempt
+# def get_published_study_material(request):
+#     try:
+#         published_study_material = study_material_collection.find({"is_publish": True})
+#         study_material_list = [
+#             {**study_material, "_id": str(study_material["_id"])}  # Convert ObjectId to string
+#             for study_material in published_study_material
+#         ]
+#         return JsonResponse({"study_material": study_material_list}, status=200)
+#     except Exception as e:
+#         return JsonResponse({"error": str(e)}, status=500)
+
+# @csrf_exempt
+# def get_study_material(request):
+#     try:
+#         study_material = study_material_collection.find()
+#         study_material_list = []
+        
+#         for study_material in study_material:
+#             # Convert ObjectId to string
+#             study_material["_id"] = str(study_material["_id"])
+            
+#             study_material_list.append(study_material)
+
+#         return JsonResponse({"study_materials": study_material_list}, status=200)
+#     except Exception as e:
+#         return JsonResponse({"error": str(e)}, status=400)
+    
+    
+# @csrf_exempt
+# def delete_study_material(request, study_material_id):
+#     """
+#     Delete an study_material by its ID.
+#     """
+#     if request.method == 'DELETE':
+#         try:
+#             study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+#             if not study_material:
+#                 return JsonResponse({"error": "study_material not found"}, status=404)
+
+#             study_material_collection.delete_one({"_id": ObjectId(study_material_id)})
+#             return JsonResponse({"message": "study_material deleted successfully"}, status=200)
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+#     else:
+#         return JsonResponse({"error": "Invalid method"}, status=405)
+
+# @csrf_exempt
+# def update_study_material(request, study_material_id):
+#     """
+#     Update an study_material by its ID.
+#     """
+#     if request.method == 'PUT':
+#         try:
+#             data = json.loads(request.body)
+#             study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+#             if not study_material:
+#                 return JsonResponse({"error": "study_material not found"}, status=404)
+
+#             # Exclude the _id field from the update
+#             if '_id' in data:
+#                 del data['_id']
+
+#             study_material_collection.update_one({"_id": ObjectId(study_material_id)}, {"$set": data})
+#             updated_study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+#             updated_study_material["_id"] = str(updated_study_material["_id"])  # Convert ObjectId to string
+#             return JsonResponse({"study_material": updated_study_material}, status=200)
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+#     else:
+#         return JsonResponse({"error": "Invalid method"}, status=405)
