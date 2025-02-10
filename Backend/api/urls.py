@@ -3,6 +3,7 @@ from .views import *
 from .admin_views import *
 
 urlpatterns = [
+  
     #admin
     path("admin-signup/", admin_signup, name="admin_signup"),
     path("login/", admin_login, name="admin_login"),
@@ -14,7 +15,10 @@ urlpatterns = [
     path("upload_achievement/",post_achievement,name="upload_acheivement"),
     path('manage-jobs/', manage_jobs, name='manage_jobs'),
     path('mailjobs/', get_admin_jobs, name='get_admin_jobs'),
-
+    path('post-study-material/',post_study_material, name="post_study_material"),
+    path("manage-internships/", manage_internships, name="manage_internships"),
+    path('manage-study-materials/',manage_study_materials, name="manage_study_materials" ),
+    
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
     path("superadmin_login/",super_admin_login,name="super_admin_login"),
@@ -29,6 +33,7 @@ urlpatterns = [
     path('students/<str:student_id>/delete/', delete_student, name='delete_student'),
     path("admins-list/", get_admin_list, name="get_admins_list"),
     path('admin-details/<str:id>/', admin_details, name='admin-details'),
+    path('admin/<str:id>/edit/', edit_admin_details, name='edit_admin_details'),
 
     #common
     path("profile/<str:userId>/", get_profile, name="get_profile"),
@@ -68,4 +73,8 @@ urlpatterns = [
     path('published-internship/', get_published_internships, name='get_published_internships'),
     path("contact-us/",contact_us,name="contact-us"),
 
+    #study_material
+    path("study-material/<str:study_material_id>/", get_study_material_by_id, name="get_study_material_by_id"),
+    path("study-material-edit/<str:study_material_id>/", update_study_material, name="update_study_material"),
+    path("study-material-delete/<str:study_material_id>/", delete_study_material, name="delete_study_material"),
 ]

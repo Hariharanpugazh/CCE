@@ -39,13 +39,13 @@ export default function SuperAdminPageNavbar() {
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = "/superadmin/jobs")}
+          onClick={() => (window.location.href = "/jobs")}
         >
           Jobs
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = "/superadmin/internships")}
+          onClick={() => (window.location.href = "/internships")}
         >
           Internships
         </p>
@@ -159,6 +159,12 @@ export default function SuperAdminPageNavbar() {
                   onClick={() => (window.location.href = "/jobpost")}
                 >
                   Job Post
+                </li>
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/studymaterial-post")}
+                >
+                  Study Material Post
                 </li>
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"

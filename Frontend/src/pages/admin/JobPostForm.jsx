@@ -43,9 +43,6 @@ export default function JobPostForm() {
   const [userRole, setUserRole] = useState(null);
   const [disableSubmit, setDisableSubmit] = useState(false)
 
-
-
-
   const categories = [
     "TNPC",
     "Army and Defence",

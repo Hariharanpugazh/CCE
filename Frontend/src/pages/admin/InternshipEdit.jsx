@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
-// import AdminPageNavbar from "../../components/Admin/AdminNavBar";
-// import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 const InternshipEdit = () => {
     const { id } = useParams();
@@ -74,10 +74,11 @@ const InternshipEdit = () => {
     if (!internship) return <p className="text-center text-lg font-semibold">Loading...</p>;
 
     return (
+    <div>
+    {/* Render appropriate navbar based on user role */}
+    {userRole === "admin" && <AdminPageNavbar />}
+    {userRole === "superadmin" && <SuperAdminPageNavbar />}
         <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8 my-10 border border-gray-200">
-            {/* Render appropriate navbar based on user role
-            {userRole === "admin" && <AdminPageNavbar />}
-            {userRole === "superadmin" && <SuperAdminPageNavbar />} */}
             <div className="flex justify-between items-center mb-8">
                 <button
                     onClick={() => setIsEditing(!isEditing)}
@@ -250,6 +251,7 @@ const InternshipEdit = () => {
                 </a>
             </div>
         </div>
+    </div>
     );
 };
 

@@ -32,7 +32,7 @@ const AppPages = {
   },
 
   adminHome: {
-    route: "/admin/internships",
+    route: "/internships",
     name: "internDashboard",
     displayName: "Admin Dashboard",
   },
@@ -44,7 +44,7 @@ const AppPages = {
   },
 
   adminJobDashboard: {
-    route: "/admin/jobs",
+    route: "/jobs",
     name: "jobDashboard",
     displayName: "Jobs",
   },

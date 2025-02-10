@@ -328,21 +328,23 @@ def update_student(request, student_id):
             if not student:
                 return JsonResponse({'error': 'Student not found'}, status=404)
 
-            # Exclude sensitive fields like email and password from being updated
-            if 'email' in data:
-                del data['email']
-            if 'password' in data:
-                del data['password']
+            # Define allowed fields for updating
+            allowed_fields = ['name', 'department', 'year', 'email']
 
-            # Update student in MongoDB
-            student_collection.update_one({'_id': ObjectId(student_id)}, {'$set': data})
+            # Filter data to include only allowed fields
+            update_data = {field: data[field] for field in allowed_fields if field in data}
 
-            return JsonResponse({'message': 'Student updated successfully'}, status=200)
+            if update_data:
+                # Update student in MongoDB
+                student_collection.update_one({'_id': ObjectId(student_id)}, {'$set': update_data})
+                return JsonResponse({'message': 'Student details updated successfully'}, status=200)
+            else:
+                return JsonResponse({'error': 'No valid fields provided for update'}, status=400)
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-
 
 @csrf_exempt
 def delete_student(request, student_id):

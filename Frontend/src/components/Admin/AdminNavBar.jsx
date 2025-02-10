@@ -39,13 +39,13 @@ export default function AdminPageNavbar() {
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = AppPages.adminJobDashboard.route)}
+          onClick={() => (window.location.href = AppPages.jobDashboard.route)}
         >
           Jobs
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = AppPages.adminInternShipDashboard.route)}
+          onClick={() => (window.location.href = AppPages.internShipDashboard.route)}
         >
           Internships
         </p>
@@ -163,6 +163,12 @@ export default function AdminPageNavbar() {
                   onClick={() => (window.location.href = "/jobpost")}
                 >
                   Job Post
+                </li>
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/studymaterial-post")}
+                >
+                  Study Material Post
                 </li>
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
