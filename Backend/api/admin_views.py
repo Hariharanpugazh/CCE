@@ -194,8 +194,9 @@ def admin_login(request):
 
             # Find the admin user by email
             admin_user = admin_collection.find_one({'email': email})
-            if not admin_user:
-                return JsonResponse({'error': 'No account found with this email'}, status=404)
+
+            if admin_user is None:
+                return JsonResponse({'error': 'Account not found with this email id'}, status=404)
 
             # Check if the account is active
             if not admin_user.get('status', 'active') == 'active':
@@ -212,7 +213,10 @@ def admin_login(request):
                 # Update last login timestamp
                 admin_collection.update_one({'email': email}, {'$set': {'last_login': datetime.now()}})
 
-                return JsonResponse({'message': 'Login successful', 'tokens': tokens, 'last_login': datetime.now()}, status=200)
+                # Set the username in cookies
+                response = JsonResponse({'username': admin_user['name'], 'tokens': tokens, 'last_login': datetime.now()}, status=200)
+
+                return response
             else:
                 # Track failed attempts
                 if email not in failed_login_attempts:
@@ -366,10 +370,10 @@ def admin_details(request, id):
                 '_id': admin['_id'],
                 'name': admin.get('name', 'N/A'),
                 'email': admin.get('email', 'N/A'),
-                'status': admin.get('status', 'active'),  # Fetch the status from the database
-                'department': admin.get('department', 'N/A'),  # Store department
-                'college_name': admin.get('college_name', 'N/A'),  # Store college name
-                'created_at': datetime.now(),  # Store account creation date
+                'status': admin.get('status', 'active'),
+                'department': admin.get('department', 'N/A'),
+                'college_name': admin.get('college_name', 'N/A'),
+                'created_at': datetime.now(),
                 'last_login': last_login
             }
 
@@ -379,9 +383,41 @@ def admin_details(request, id):
                 job['_id'] = str(job['_id'])
                 job_data = job.get('job_data', {})
                 job_data['_id'] = job['_id']
+                job_data['updated_at'] = job.get('updated_at')  # Include updated_at field
                 jobs_list.append(job_data)
 
             return JsonResponse({'admin': admin_data, 'jobs': jobs_list}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+@csrf_exempt
+def edit_admin_details(request, id):
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            admin = admin_collection.find_one({'_id': ObjectId(id)})
+            if not admin:
+                return JsonResponse({'error': 'Admin not found'}, status=404)
+
+            # Update fields if provided in the request
+            if 'name' in data:
+                admin['name'] = data['name']
+            if 'email' in data:
+                admin['email'] = data['email']
+            if 'status' in data:
+                admin['status'] = data['status']
+            if 'department' in data:
+                admin['department'] = data['department']
+            if 'college_name' in data:
+                admin['college_name'] = data['college_name']
+
+            # Save the updated admin details back to the database
+            admin_collection.update_one({'_id': ObjectId(id)}, {'$set': admin})
+
+            return JsonResponse({'success': 'Admin details updated successfully'}, status=200)
 
         except Exception as e:
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
@@ -460,7 +496,6 @@ def super_admin_signup(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
-
 @csrf_exempt
 def super_admin_login(request):
     if request.method == "POST":
@@ -481,8 +516,9 @@ def super_admin_login(request):
 
             # Find the super admin user by email
             super_admin_user = superadmin_collection.find_one({'email': email})
-            if not super_admin_user:
-                return JsonResponse({'error': 'No account found with this email'}, status=404)
+
+            if super_admin_user is None:
+                return JsonResponse({'error': 'Account not found with this email id'}, status=404)
 
             if check_password(password, super_admin_user['password']):
                 # Clear failed attempts after successful login
@@ -491,7 +527,7 @@ def super_admin_login(request):
                 # Generate JWT token
                 super_admin_id = super_admin_user.get('_id')
                 tokens = generate_tokens_superadmin(super_admin_id)
-                return JsonResponse({'message': 'Login successful', 'tokens': tokens}, status=200)
+                return JsonResponse({'username': super_admin_user['name'], 'tokens': tokens}, status=200)
             else:
                 # Track failed attempts
                 if email not in failed_login_attempts:
@@ -507,6 +543,7 @@ def super_admin_login(request):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
     
 # ============================================================== JOBS ======================================================================================
 
@@ -921,38 +958,42 @@ def post_internship(request):
             # Decode JWT token
             try:
                 decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
-                print("Decoded Token:", decoded_token)  # Debugging: Check the decoded token
             except jwt.ExpiredSignatureError:
                 raise AuthenticationFailed("Access token has expired. Please log in again.")
             except jwt.InvalidTokenError:
-                raise AuthenticationFailed("Invalid token. Please log in again.") 
+                raise AuthenticationFailed("Invalid token. Please log in again.")
+
             role = decoded_token.get('role')
             auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
             is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
+            is_publish = None
+
             if role == 'admin':
-                admin_id = decoded_token.get('admin_user')  # Extract admin_id from token
+                admin_id = decoded_token.get('admin_user')
                 if not admin_id:
-                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-                is_publish = is_auto_approval
-            
+                    return JsonResponse({"error": "Invalid token"}, status=401)
+                if is_auto_approval:
+                    is_publish = True
+
             elif role == 'superadmin':
                 superadmin_id = decoded_token.get('superadmin_user')
                 if not superadmin_id:
-                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+                    return JsonResponse({"error": "Invalid token"}, status=401)
                 is_publish = True
-            # admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
 
             # Parse incoming JSON data
             data = json.loads(request.body)
             application_deadline_str = data.get('application_deadline')
-            application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
+
+            # Convert application_deadline to a timezone-aware datetime
+            try:
+                application_deadline = datetime.strptime(application_deadline_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            except ValueError:
+                return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
+
             now = datetime.now(timezone.utc)
-
             current_status = "active" if application_deadline >= now else "expired"
-
-            # Fetch auto-approval setting from DB
-            # auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-            # is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
 
             # Ensure required fields are present
             required_fields = [
@@ -964,12 +1005,6 @@ def post_internship(request):
                 if field not in data:
                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
 
-            # Convert application_deadline to datetime format
-            try:
-                application_deadline = datetime.strptime(data['application_deadline'], "%Y-%m-%d")
-            except ValueError:
-                return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
-
             # Prepare internship data for insertion
             internship_post = {
                 "internship_data": {
@@ -978,17 +1013,15 @@ def post_internship(request):
                     "location": data['location'],
                     "duration": data['duration'],
                     "stipend": data['stipend'],
-                    "application_deadline": data['application_deadline'],
+                    "application_deadline": application_deadline,
                     "required_skills": data['skills_required'],
-                    "education_requirements": data.get('education_requirements', ""),  # Optional field
+                    "education_requirements": data.get('education_requirements', ""),
                     "job_description": data['job_description'],
                     "company_website": data['company_website'],
-                    "job_link": data.get('job_link', ""),  # Optional field
+                    "job_link": data.get('job_link', ""),
                     "internship_type": data['internship_type'],
                 },
-                # "admin_id": admin_id,  # Save the admin ID from the token
-                # "is_publish": False,  # Auto-approve if enabled
-                "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
+                "admin_id" if role == "admin" else "superadmin_id": admin_id if role == "admin" else superadmin_id,
                 "is_publish": is_publish,
                 "status": current_status,
                 "updated_at": datetime.utcnow()

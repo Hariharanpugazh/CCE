@@ -4,10 +4,8 @@ import "./App.css";
 import StudentLogin from "./pages/students/StudentLogin";
 import SuperAdminLogin from "./pages/superadmin/SuperAdminLogin";
 import AdminLogin from "./pages/admin/AdminLogin";
-import InternShipDashboard from "./pages/students/InternshipDashboard";
-import JobDashboard from "./pages/students/JobDashboard";
-import AdminInternShipDashboard from "./pages/admin/adminInternDashboard";
-import AdminJobsDashboard from "./pages/admin/adminJobsDashboard";
+import InternShipDashboard from "./pages/common/InternshipDashboard";
+import JobDashboard from "./pages/common/JobDashboard";
 import SuperadminDashboard from "./pages/superadmin/SuperadminDashboard";
 import MailPage from "./pages/superadmin/Management";
 import JobPostForm from "./pages/admin/JobPostForm";
@@ -22,8 +20,6 @@ import JobEdit from "./pages/admin/Jobedit";
 import InternshipEdit from "./pages/admin/InternshipEdit";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import SuperJobsDashboard from "./pages/superadmin/superJobsDashboard";
-import SuperInternShipDashboard from "./pages/superadmin/superInternDashboard";
 import InternshipPreview from "./pages/students/InternshipPreview";
 import AdminAchievementDashboard from "./pages/admin/adminAchievementDashboard";
 import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashboard";
@@ -85,9 +81,7 @@ function App() {
           
         {/* Protected Admin Routes */}
         <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
-        <Route path="/admin/internships" element={ <ProtectedRoute> <AdminInternShipDashboard /> </ProtectedRoute>} />
         <Route path="/admin/mail" element={<ProtectedRoute> <AdminMail /> </ProtectedRoute>} />
-        <Route path="/admin/jobs" element={ <ProtectedRoute> <AdminJobsDashboard /> </ProtectedRoute>} />
         <Route path="/admin/achievements" element={ <ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
         <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
         <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
@@ -105,8 +99,6 @@ function App() {
         <Route path={"/student-signup"} element={<StudentSignup />} />
         <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
         <Route path={"/Admin-Management"} element={<ProtectedRoute> <AdminManagement /> </ProtectedRoute> } />
-        <Route path={"/superadmin/jobs"} element={<ProtectedRoute> <SuperJobsDashboard /> </ProtectedRoute>} />
-        <Route path={"/superadmin/internships"} element={<ProtectedRoute> <SuperInternShipDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
         <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />

@@ -13,7 +13,6 @@ const SuperAdminHome = () => {
   const [deptFilter, setDeptFilter] = useState("All");
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
-  const [activeButton, setActiveButton] = useState(null);
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filteredInterns, setFilteredInterns] = useState([]);
@@ -93,7 +92,6 @@ const SuperAdminHome = () => {
   }, [searchPhrase, jobs, internships]);
 
   const handleButtonClick = (status) => {
-    setActiveButton(status);
     setFilter(status === "All" ? "All" : status);
   };
 

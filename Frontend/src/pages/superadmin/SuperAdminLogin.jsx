@@ -18,6 +18,7 @@ export default function SuperAdminLogin() {
     // Clear cookies when entering the login page
     useEffect(() => {
         Cookies.remove("jwt");
+        Cookies.remove("username");
     }, []);
 
     // Timer for lockout
@@ -50,6 +51,7 @@ export default function SuperAdminLogin() {
 
             if (response.ok) {
                 Cookies.set("jwt", data.tokens.jwt, { expires: 1, path: "/" });
+                Cookies.set("username", data.username, { expires: 1, path: "/" });
                 toast.success("Login successful! Redirecting...");
                 navigate("/superadmin-dashboard");
             } else {

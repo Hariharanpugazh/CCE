@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
 import { FiPlus, FiUser, FiMail, FiSettings } from "react-icons/fi";
@@ -8,6 +8,15 @@ export default function AdminPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isCreateMenuOpen, setCreateMenuOpen] = useState(false);
   const [isMailPopupOpen, setMailPopupOpen] = useState(false);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    // Retrieve the username from cookies when the component mounts
+    const user = Cookies.get("username");
+    if (user) {
+      setUsername(user);
+    }
+  }, []);
 
   const handleLogout = () => {
     // Clear the JWT cookie
@@ -30,13 +39,13 @@ export default function AdminPageNavbar() {
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = AppPages.adminJobDashboard.route)}
+          onClick={() => (window.location.href = AppPages.jobDashboard.route)}
         >
           Jobs
         </p>
         <p
           className="cursor-pointer hover:underline hover:text-blue-400"
-          onClick={() => (window.location.href = AppPages.adminInternShipDashboard.route)}
+          onClick={() => (window.location.href = AppPages.internShipDashboard.route)}
         >
           Internships
         </p>
@@ -61,7 +70,7 @@ export default function AdminPageNavbar() {
             setMailPopupOpen(false);
           }}
         >
-          <p>Profile</p>
+          <p>{username || "Admin"}</p>
           <FiUser
             className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer"
             style={{ width: "2rem" }}
@@ -75,7 +84,7 @@ export default function AdminPageNavbar() {
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                   onClick={() => (window.location.href = "/profile")}
                 >
-                  Admin
+                  Profile
                 </li>
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
