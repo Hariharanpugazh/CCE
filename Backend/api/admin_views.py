@@ -67,6 +67,7 @@ job_collection = db['jobs']
 achievement_collection = db['achievement']
 superadmin_collection = db['superadmin']
 student_collection = db['students']
+study_material_collection = db['studyMaterial']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -1205,3 +1206,111 @@ def get_jobs(request):
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+# ============================================================== STUDY MATERIALS ======================================================================================
+
+
+@csrf_exempt
+def post_study_material(request):
+    if request.method == 'POST':
+        try:
+            # Get JWT token from cookies
+            jwt_token = request.COOKIES.get("jwt")
+            if not jwt_token:
+                raise AuthenticationFailed("Authentication credentials were not provided.")
+
+            # Decode JWT token
+            try:
+                decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
+                print("Decoded Token:", decoded_token)  # Debugging: Check the decoded token
+            except jwt.ExpiredSignatureError:
+                raise AuthenticationFailed("Access token has expired. Please log in again.")
+            except jwt.InvalidTokenError:
+                raise AuthenticationFailed("Invalid token. Please log in again.") 
+            role = decoded_token.get('role')
+            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+            if role == 'admin':
+                admin_id = decoded_token.get('admin_user')  # Extract admin_id from token
+                if not admin_id:
+                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+                is_publish = is_auto_approval
+            
+            elif role == 'superadmin':
+                superadmin_id = decoded_token.get('superadmin_user')
+                if not superadmin_id:
+                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+                is_publish = True
+            # admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
+
+            # Parse incoming JSON data
+            data = json.loads(request.body)
+            # application_deadline_str = data.get('application_deadline')
+            # application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
+            # now = datetime.now(timezone.utc)
+
+            # current_status = "active" if application_deadline >= now else "expired"
+
+            # Fetch auto-approval setting from DB
+            # auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            # is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
+            # Ensure required fields are present
+            required_fields = [
+                'title', 'description', 'category','text_content',
+                
+            ]
+            for field in required_fields:
+                if field not in data:
+                    return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
+
+            # Convert application_deadline to datetime format
+            # try:
+            #     application_deadline = datetime.strptime(data['application_deadline'], "%Y-%m-%d")
+            # except ValueError:
+            #     return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
+
+            # Prepare internship data for insertion
+            study_material_post = {
+                "study_material_data": {
+                    "title": data['title'],   
+                    "description": data['description'],
+                    "category":data['category'],
+                    "text_content":data['text_content']
+                   
+                },
+                # "admin_id": admin_id,  # Save the admin ID from the token
+                # "is_publish": False,  # Auto-approve if enabled
+                "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
+                "is_publish": True,
+                # "status": current_status,
+                "updated_at": datetime.utcnow()
+            }
+
+            # Insert into MongoDB
+            study_material_collection.insert_one(study_material_post)
+
+            # Return success response
+            return JsonResponse({"message": "Study Material posted successfully"}, status=200)
+
+        except AuthenticationFailed as auth_error:
+            return JsonResponse({"error": str(auth_error)}, status=401)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+
+@csrf_exempt
+def get_published_study_material(request):
+    try:
+        published_study_material = study_material_collection.find({"is_publish": True})
+        study_material_list = [
+            {**study_material, "_id": str(study_material["_id"])}  # Convert ObjectId to string
+            for study_material in published_study_material
+        ]
+        return JsonResponse({"study_material": study_material_list}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
