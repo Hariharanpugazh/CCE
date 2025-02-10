@@ -73,6 +73,9 @@ urlpatterns = [
     path('published-jobs/', get_published_jobs, name='get_published_jobs'),
     path('published-internship/', get_published_internships, name='get_published_internships'),
     path("contact-us/",contact_us,name="contact-us"),
+    path("save-job/<str:pk>/", save_job, name="save-job"),
+    path("unsave-job/<str:pk>/", unsave_job, name="unsave-job"),
+    path("saved-jobs/<str:user_id>/", get_saved_jobs, name="get-saved-jobs"),
 
     #study_material
     path("study-material/<str:study_material_id>/", get_study_material_by_id, name="get_study_material_by_id"),

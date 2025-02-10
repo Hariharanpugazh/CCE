@@ -14,6 +14,7 @@ from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework import status
 import random
 import string
 import traceback
@@ -31,8 +32,8 @@ JWT_ALGORITHM = "HS256"
 def generate_tokens(student_user):
     access_payload = {
         "student_user": str(student_user),
-        "exp": (datetime.utcnow() + timedelta(minutes=600)).timestamp(),  # Expiration in 600 minutes
-        "iat": datetime.utcnow().timestamp(),  # Issued at current time
+        "exp": datetime.utcnow() + timedelta(minutes=600),  # Access token expiration
+        "iat": datetime.utcnow(),
     }
     token = jwt.encode(access_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return {"jwt": token}
@@ -43,6 +44,7 @@ client = MongoClient("mongodb+srv://ihub:ihub@cce.ksniz.mongodb.net/")
 db = client["CCE"]
 student_collection = db["students"]
 admin_collection = db["admin"]
+job_collection = db["jobs"]
 contactus_collection = db["contact_us"]
 achievement_collection = db['student_achievement']
 
@@ -497,87 +499,66 @@ def get_profile(request, userId):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-    
-# ===================== ACHIEVEMENTS =====================
 
+
+#================================================================Jobs================================================================================================
 @csrf_exempt
-@api_view(['POST'])
-def post_student_achievement(request):
-    """
-    Handles submission of student achievements with file uploads.
-    """
-    # Extract and validate the Authorization header
-    auth_header = request.headers.get('Authorization')
-    if not auth_header or not auth_header.startswith("Bearer "):
-        return JsonResponse({"error": "No token provided"}, status=401)
-
-    token = auth_header.split(" ")[1]
-
-    try:
-        # Decode the JWT token
-        payload = jwt.decode(
-            token,
-            JWT_SECRET,
-            algorithms=[JWT_ALGORITHM],
-            leeway=timedelta(seconds=300)  # Allow 5 minutes of clock skew
-        )
-        student_id = payload.get('student_user')
-        if not student_id:
-            return JsonResponse({"error": "Invalid token"}, status=401)
-
-        # Handle form data (multipart/form-data)
-        name = request.POST.get("name")
-        achievement_description = request.POST.get("achievement_description")
-        achievement_type = request.POST.get("achievement_type")
-        company_name = request.POST.get("company_name")
-        date_of_achievement = request.POST.get("date_of_achievement")
-        batch = request.POST.get("batch")
-
-        # Validate required fields
-        required_fields = [
-            "name", "achievement_description", "achievement_type",
-            "company_name", "date_of_achievement", "batch"
-        ]
-        for field in required_fields:
-            if not locals().get(field):
+def save_job(request, pk):
+    if request.method == "POST":
+        try:
+            user_id = "67a05ea42707509d6d292eb1"
+            if not user_id:
                 return JsonResponse(
-                    {"error": f"{field.replace('_', ' ').capitalize()} is required."},
-                    status=400
+                    {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
-        # Handle file upload
-        file_base64 = None
-        if "photo" in request.FILES:
-            photo = request.FILES["photo"]
-            file_base64 = base64.b64encode(photo.read()).decode("utf-8")
+            student_collection.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$addToSet": {"saved_jobs": pk}},
+            )
 
-        # Prepare the document for MongoDB
-        achievement_data = {
-            "student_id": student_id,
-            "name": name,
-            "achievement_description": achievement_description,
-            "achievement_type": achievement_type,
-            "company_name": company_name,
-            "date_of_achievement": date_of_achievement,
-            "batch": batch,
-            "photo": file_base64,  # Base64-encoded file (optional)
-            "is_approved": False,  # Pending approval by default
-            "submitted_at": datetime.utcnow(),
-        }
+            return JsonResponse({"message": "Job saved successfully"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Insert the document into MongoDB
-        achievement_collection.insert_one(achievement_data)
 
-        return JsonResponse(
-            {"message": "Achievement submitted successfully. Please wait for approval."},
-            status=201
-        )
+@csrf_exempt
+def unsave_job(request, pk):
+    if request.method == "POST":
+        try:
+            user_id = "67a05ea42707509d6d292eb1"
+            if not user_id:
+                return JsonResponse(
+                    {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
+                )
 
-    except jwt.ExpiredSignatureError:
-        return JsonResponse({"error": "Token expired"}, status=401)
-    except jwt.DecodeError:
-        return JsonResponse({"error": "Invalid token"}, status=401)
+            student_collection.update_one(
+                {"_id": ObjectId(user_id)}, {"$pull": {"saved_jobs": pk}}
+            )
+
+            return JsonResponse({"message": "Job removed from saved"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+@csrf_exempt
+def get_saved_jobs(request, user_id):
+    try:
+        user = student_collection.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return JsonResponse(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        saved_jobs = user.get("saved_jobs", [])
+        jobs = []
+
+        for job_id in saved_jobs:
+            job = job_collection.find_one({"_id": ObjectId(job_id)})
+            if job:
+                job["_id"] = str(job["_id"])
+                jobs.append(job)
+        
+        return JsonResponse({"message": "Saved jobs retrieved successfully", "jobs": jobs})
+        
     except Exception as e:
-        # Log unexpected errors for debugging
-        traceback.print_exc()
-        return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
