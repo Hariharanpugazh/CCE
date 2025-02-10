@@ -1366,7 +1366,6 @@ def submit_feedback(request):
 
             token = auth_header.split(' ')[1]
             decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-            print(decoded_token)
 
             # Parse the request body
             data = json.loads(request.body)
@@ -1377,13 +1376,22 @@ def submit_feedback(request):
             if not item_id or not item_type or not feedback:
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
+            # Fetch the admin_id from the jobs collection
+            job_data = job_collection.find_one({'_id': ObjectId(item_id)})
+            if not job_data:
+                return JsonResponse({'error': 'Invalid item_id: Job not found'}, status=404)
+
+            admin_id = job_data.get('admin_id')  # Map the admin_id from the job data
+            if not admin_id:
+                return JsonResponse({'error': 'admin_id not found for the provided job'}, status=404)
+
             # Store the feedback in the Reviews collection
             review_document = {
-                'admin_id': decoded_token.get('admin_user'),
+                'admin_id': admin_id,  # Map the admin_id from job data
                 'item_id': item_id,
                 'item_type': item_type,
                 'feedback': feedback,
-                'timestamp': datetime.datetime.now().isoformat()
+                'timestamp': datetime.now().isoformat()
             }
             reviews_collection.insert_one(review_document)
 
@@ -1397,6 +1405,7 @@ def submit_feedback(request):
             return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 
 # ============================================================== STUDY MATERIALS ======================================================================================
