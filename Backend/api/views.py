@@ -47,6 +47,7 @@ admin_collection = db["admin"]
 job_collection = db["jobs"]
 contactus_collection = db["contact_us"]
 achievement_collection = db['student_achievement']
+study_material_collection = db['studyMaterial']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -655,3 +656,51 @@ def post_student_achievement(request):
         # Log unexpected errors for debugging
         traceback.print_exc()
         return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+    
+@csrf_exempt
+def review_achievement(request, achievement_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            action = data.get("action")
+            if action not in ["approve", "reject"]:
+                return JsonResponse({"error": "Invalid action"}, status=400)
+
+            achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
+            if not achievement:
+                return JsonResponse({"error": "Achievement not found"}, status=404)
+
+            is_publish = True if action == "approve" else False
+            achievement_collection.update_one(
+                {"_id": ObjectId(achievement_id)},
+                {"$set": {"is_publish": is_publish, "updated_at": datetime.now()}}
+            )
+
+            message = "Achievement approved and published successfully" if is_publish else "Achievement rejected successfully"
+            return JsonResponse({"message": message}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+
+@csrf_exempt
+def get_all_study_material(request):
+    """
+    Fetch a single study material by its ID.
+    """
+    try:
+        study_materials = study_material_collection.find({})
+        study_material_list = []
+        for material in study_materials:
+            material["_id"] = str(material["_id"])  # Convert ObjectId to string
+            study_material_list.append(material)
+
+        if not study_material_list:
+            return JsonResponse({"error": "Study materials not found"}, status=404)
+
+        return JsonResponse({"study_materials": study_material_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

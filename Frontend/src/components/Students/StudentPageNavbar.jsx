@@ -37,7 +37,8 @@ export default function StudentPageNavbar() {
         >
           Internships
         </p>
-        <p className="cursor-pointer hover:underline hover:text-blue-400">
+        <p className="cursor-pointer hover:underline hover:text-blue-400"
+          onClick={() => (window.location.href = "/study-material")}>
           Study Material
         </p>
         <p className="cursor-pointer hover:underline hover:text-blue-400"
@@ -53,7 +54,10 @@ export default function StudentPageNavbar() {
       <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative">
         <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => setProfileMenuOpen(toggle => !toggle)}>
           <p>Profile</p>
-          <FiUser className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer" style={{ width: "2rem" }} />
+          <FiUser
+            className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
+            style={{ width: "2rem" }}
+          />
 
           {/* Profile Menu */}
           {isProfileMenuOpen && (

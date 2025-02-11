@@ -55,7 +55,7 @@ export default function MailPage() {
 
         const [jobsRes, achievementsRes, internshipsRes] = await Promise.all([
           axios.get("http://localhost:8000/api/jobs", config),
-          axios.get("http://localhost:8000/api/achievements", config),
+          axios.get("http://localhost:8000/api/achievements/", config),
           axios.get("http://localhost:8000/api/internship/", config),
         ]);
 
@@ -127,6 +127,7 @@ export default function MailPage() {
         endpoint,
         { action },
         {
+          
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
