@@ -19,7 +19,7 @@ urlpatterns = [
     path('manage-study-materials/',manage_study_materials, name="manage_study_materials" ),
     path('fetch-review/', fetch_review, name='fetch_review'),
     path('get-admin/<str:userId>/', get_admin_details, name='get_admin_details'),
-     path('get-superadmin/<str:userId>/', get_superadmin_details, name='get_superadmin_details'),
+    path('get-superadmin/<str:userId>/', get_superadmin_details, name='get_superadmin_details'),
     
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
@@ -64,6 +64,7 @@ urlpatterns = [
     path('achievements/', get_achievements, name='get_achievements'),
     # path('review-achievement/<str:achievement_id>/', review_achievement, name='review_achievement'),
     path('published-achievement/', get_published_achievements, name='get_published_achievements'),
+    path('get-achievement/<str:achievement_id>/', achievement_detail, name='achievement_detail'),
     path("studentachievement/", post_student_achievement, name="get_student_achievements"),
     
     #Internships
