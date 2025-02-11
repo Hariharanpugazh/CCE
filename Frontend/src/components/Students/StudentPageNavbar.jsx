@@ -1,10 +1,19 @@
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
 import { FiUser } from "react-icons/fi";
 
 export default function StudentPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    // Retrieve the username from cookies when the component mounts
+    const user = Cookies.get("username");
+    if (user) {
+      setUsername(user);
+    }
+  }, []);
 
   const handleLogout = () => {
     // Clear the JWT cookie
@@ -54,7 +63,7 @@ export default function StudentPageNavbar() {
 
       <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative">
         <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => setProfileMenuOpen(toggle => !toggle)}>
-          <p>Profile</p>
+          <p> {username || "Profile"}</p>
           <FiUser
             className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
             style={{ width: "2rem" }}
