@@ -35,8 +35,10 @@ import StudentManagement from "./pages/admin/StudentManagement";
 import StudentAchievementPostForm from "./pages/students/PostAchievement";
 import StudyMaterialForm from "./components/Common/StudyMaterialForm"
 import StudyEdit from "./pages/admin/StudyEdit";
+import StudentProfile from "./pages/common/StudentProfile";
 import SavedJobs from './pages/students/SavedJobs';
 import StudentStudyMaterial from "./pages/students/StudentStudyMaterial";
+
 
 
 
@@ -74,6 +76,7 @@ function App() {
 
         {/* Protected Student Routes */}
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute> <StudentProfile /> </ProtectedRoute>} />
         <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
         <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
