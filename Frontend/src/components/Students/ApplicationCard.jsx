@@ -47,9 +47,6 @@ export default function ApplicationCard({ application, handleCardClick }) {
         window.open(application.job_link, "_blank", "noopener noreferrer");
     };
 
-    // Determine if salary is available for the job
-    const salary = application.salary_range || application.stipend || "Not Provided";
-
     return (
         <div
             className="flex flex-col p-3 border border-gray-200 rounded-lg justify-between cursor-pointer hover:scale-[1.03]"
@@ -59,13 +56,13 @@ export default function ApplicationCard({ application, handleCardClick }) {
             <div className="flex justify-between items-start">
                 <div className="flex flex-col">
                     <p className="text-2xl">{application.title}</p>
-                    <div className="flex items-center space-x-3 text-sm flex-wrap">
+                    <div className="flex items-center space-x-3 text-sm">
                         <p className="text-[#8C8C8C] flex items-center">
                             <i className="bi bi-building w-[15px] mr-[5px]"></i> {application.company_name}
                         </p>
                         <FiCircle style={{ width: "4px", height: "4px", backgroundColor: "#8C8C8C", borderRadius: "50%" }} />
                         <p className="text-[#8C8C8C] flex items-center">
-                            <FiMapPin style={{ width: "15px", marginRight: "5px" }} /> {application.job_location || application.location}
+                            <FiMapPin style={{ width: "15px", marginRight: "5px" }} /> {application.job_location}
                         </p>
                     </div>
                 </div>
@@ -105,7 +102,7 @@ export default function ApplicationCard({ application, handleCardClick }) {
 
             {/* Apply Now Section */}
             <div className="flex justify-between items-center mt-5">
-                <p className="text-[#FFC800] text-xl">{salary}</p>
+                <p className="text-[#FFC800] text-xl">{application.salary_range}/-</p>
                 <button
                     className="bg-[#FFC800] p-2 rounded text-xs cursor-pointer"
                     onClick={handleApplyClick}
@@ -116,4 +113,3 @@ export default function ApplicationCard({ application, handleCardClick }) {
         </div>
     );
 }
-

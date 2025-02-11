@@ -32,6 +32,14 @@ import AdminManagement from "./pages/superadmin/AdminManagement";
 import AdminDetailPage from "./pages/superadmin/AdminDetailPage";
 import AdminMail from "./pages/admin/AdminMail";
 import StudentManagement from "./pages/admin/StudentManagement";
+import StudentAchievementPostForm from "./pages/students/PostAchievement";
+import StudyMaterialForm from "./components/Common/StudyMaterialForm"
+import StudyEdit from "./pages/admin/StudyEdit";
+import Profile from "./pages/common/profile";
+import SavedJobs from './pages/students/SavedJobs';
+import StudentStudyMaterial from "./pages/students/StudentStudyMaterial";
+
+
 
 
 // Protected Route Component
@@ -68,12 +76,15 @@ function App() {
 
         {/* Protected Student Routes */}
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
         <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
         <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
         <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
         <Route path="/internship-preview/:id" element={<InternshipPreview />} />
+        <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
+        <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />        <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
@@ -87,8 +98,10 @@ function App() {
         <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
         <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
         <Route path="/internship-edit/:id" element= {<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>}/>
+        <Route path="//study-edit/:id" element= {<ProtectedRoute> <StudyEdit /> </ProtectedRoute>} />
         <Route path="/manage-jobs" element= {<ProtectedRoute> <ManageJobs /> </ProtectedRoute>}/>
         <Route path="/manage-student" element={<ProtectedRoute> <StudentManagement /> </ProtectedRoute>} />
+        <Route path="/studymaterial-post" element={<ProtectedRoute> <StudyMaterialForm /> </ProtectedRoute>} />
       
 
         {/* Super Admin Login */}

@@ -19,7 +19,7 @@ export default function JobDashboard() {
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([])
   const [error, setError] = useState("");
-  const [searchPhrase, setSearchPhrase] = useState("")
+  const [searchPhrase, setSearchPhrase] = useState("");
   const [userRole, setUserRole] = useState(null);
 
   const [selectedJob, setSelectedJob] = useState()
@@ -122,7 +122,7 @@ export default function JobDashboard() {
         job.job_data.work_type.toLowerCase().includes(searchPhrase)
       ))
     }
-  }, [searchPhrase])
+  }, [searchPhrase, jobs]);
 
   const navigate = useNavigate(); // Initialize useNavigate for navigation
 

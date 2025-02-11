@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,6 +9,22 @@ const ContactForm = () => {
     contact: "",
     message: "",
   });
+
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/user-email/", {
+          headers: { "Content-Type": "application/json" },
+        });
+        const loggedInUserEmail = response.data.email;
+        setFormData((prevData) => ({ ...prevData, contact: loggedInUserEmail }));
+      } catch (error) {
+        toast.error("Failed to fetch user email.");
+      }
+    };
+
+    fetchUserEmail();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -54,21 +70,12 @@ const ContactForm = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Your Name"
-            className="w-full p-3 border rounded-lg bg-yellow-100"
-            required
-          />
-          <input
-            type="text"
             name="contact"
             value={formData.contact}
             onChange={handleChange}
-            placeholder="Your Contact"
+            placeholder="E-mail Id"
             className="w-full p-3 border rounded-lg bg-yellow-100"
-            required
+            readOnly
           />
           <textarea
             name="message"

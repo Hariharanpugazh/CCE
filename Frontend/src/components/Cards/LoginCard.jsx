@@ -4,9 +4,28 @@ import wavyPattern from "../../assets/images/wavy-circles.png";
 
 export default function LoginCard({ page, formDataSetter, formData, onSubmit, isLocked, lockoutTime, onForgotPassword, onResetPassword }) {
     const [passwordVisible, setPasswordVisible] = useState(false);
+    const [emailError, setEmailError] = useState("");
 
     const togglePasswordVisibility = () => {
         setPasswordVisible(!passwordVisible);
+    };
+
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const handleEmailChange = (e) => {
+        const email = e.target.value;
+        formDataSetter((prevData) => ({
+            ...prevData,
+            email: email,
+        }));
+        if (!validateEmail(email)) {
+            setEmailError("Enter a valid email.");
+        } else {
+            setEmailError("");
+        }
     };
 
     return (
@@ -39,14 +58,10 @@ export default function LoginCard({ page, formDataSetter, formData, onSubmit, is
                                     placeholder="Enter your Email"
                                     required
                                     value={formData.email}
-                                    onChange={(e) =>
-                                        formDataSetter((prevData) => ({
-                                            ...prevData,
-                                            email: e.target.value,
-                                        }))
-                                    }
+                                    onChange={handleEmailChange}
                                     className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
                                 />
+                                {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
                             </div>
 
                             {/* Password Field with Eye Icon */}

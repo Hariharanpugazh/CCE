@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
 import { FiPlus, FiUser, FiMail, FiSettings } from "react-icons/fi";
+import { SlOptions } from "react-icons/sl";
 import { MdInbox, MdWork } from "react-icons/md"; // Icons for pop-up box
 
 export default function AdminPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isCreateMenuOpen, setCreateMenuOpen] = useState(false);
   const [isMailPopupOpen, setMailPopupOpen] = useState(false);
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    // Retrieve the username from cookies when the component mounts
+    const user = Cookies.get("username");
+    if (user) {
+      setUsername(user);
+    }
+  }, []);
 
   const handleLogout = () => {
     // Clear the JWT cookie
@@ -18,6 +28,7 @@ export default function AdminPageNavbar() {
   };
 
   return (
+    <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg mx-3">
     <nav className="flex justify-between p-4 items-stretch pt-8 relative">
       <span className="flex-1 max-w-[25%]"></span>
 
@@ -61,9 +72,9 @@ export default function AdminPageNavbar() {
             setMailPopupOpen(false);
           }}
         >
-          <p>Profile</p>
+          <p>{username || "Admin"}</p>
           <FiUser
-            className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer"
+            className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
             style={{ width: "2rem" }}
           />
 
@@ -75,7 +86,7 @@ export default function AdminPageNavbar() {
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                   onClick={() => (window.location.href = "/profile")}
                 >
-                  Admin
+                  Profile
                 </li>
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
@@ -97,10 +108,10 @@ export default function AdminPageNavbar() {
             setCreateMenuOpen(false);
           }}
         >
-          <FiSettings
+          <SlOptions 
             className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
             style={{ width: "2rem" }}
-            title="Mail"
+            title="Options"
           />
 
           {/* Mail Popup */}
@@ -157,6 +168,12 @@ export default function AdminPageNavbar() {
                 </li>
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/studymaterial-post")}
+                >
+                  Study Material Post
+                </li>
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                   onClick={() => (window.location.href = "/achievementpost")}
                 >
                   Achievement Post
@@ -173,5 +190,6 @@ export default function AdminPageNavbar() {
         </div>
       </div>
     </nav>
+    </div>
   );
 }

@@ -23,8 +23,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # Create your views here.
-JWT_SECRET = 'secret'
-JWT_ALGORITHM = 'HS256'
+JWT_SECRET = "secret"
+JWT_ALGORITHM = "HS256"
+
 
 def generate_tokens(admin_user):
     """
@@ -54,7 +55,8 @@ def generate_tokens_superadmin(superadmin_user):
 
     # Encode the token
     token = jwt.encode(access_payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-    return {'jwt': token}
+    return {"jwt": token}
+
 
 # MongoDB connection
 client = MongoClient('mongodb+srv://ihub:ihub@cce.ksniz.mongodb.net/')
@@ -65,6 +67,9 @@ job_collection = db['jobs']
 achievement_collection = db['achievement']
 superadmin_collection = db['superadmin']
 student_collection = db['students']
+reviews_collection = db['reviews']
+study_material_collection = db['studyMaterial']
+
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -115,7 +120,7 @@ def send_confirmation_email(to_email, name, password):
 
 @csrf_exempt
 def admin_signup(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             # Parse the request payload
             data = json.loads(request.body)
@@ -173,11 +178,11 @@ def generate_reset_token(length=6):
  
 @csrf_exempt
 def admin_login(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             data = json.loads(request.body)
-            email = data.get('email')
-            password = data.get('password')
+            email = data.get("email")
+            password = data.get("password")
 
             # Check if the email contains "sns"
             if "@sns" not in email:
@@ -191,8 +196,9 @@ def admin_login(request):
 
             # Find the admin user by email
             admin_user = admin_collection.find_one({'email': email})
-            if not admin_user:
-                return JsonResponse({'error': 'No account found with this email'}, status=404)
+
+            if admin_user is None:
+                return JsonResponse({'error': 'Account not found with this email id'}, status=404)
 
             # Check if the account is active
             if not admin_user.get('status', 'active') == 'active':
@@ -209,7 +215,10 @@ def admin_login(request):
                 # Update last login timestamp
                 admin_collection.update_one({'email': email}, {'$set': {'last_login': datetime.now()}})
 
-                return JsonResponse({'message': 'Login successful', 'tokens': tokens, 'last_login': datetime.now()}, status=200)
+                # Set the username in cookies
+                response = JsonResponse({'username': admin_user['name'], 'tokens': tokens, 'last_login': datetime.now()}, status=200)
+
+                return response
             else:
                 # Track failed attempts
                 if email not in failed_login_attempts:
@@ -222,7 +231,7 @@ def admin_login(request):
                 return JsonResponse({'error': 'Invalid email or password.'}, status=401)
 
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
@@ -363,10 +372,10 @@ def admin_details(request, id):
                 '_id': admin['_id'],
                 'name': admin.get('name', 'N/A'),
                 'email': admin.get('email', 'N/A'),
-                'status': admin.get('status', 'active'),  # Fetch the status from the database
-                'department': admin.get('department', 'N/A'),  # Store department
-                'college_name': admin.get('college_name', 'N/A'),  # Store college name
-                'created_at': datetime.now(),  # Store account creation date
+                'status': admin.get('status', 'active'),
+                'department': admin.get('department', 'N/A'),
+                'college_name': admin.get('college_name', 'N/A'),
+                'created_at': datetime.now(),
                 'last_login': last_login
             }
 
@@ -376,9 +385,41 @@ def admin_details(request, id):
                 job['_id'] = str(job['_id'])
                 job_data = job.get('job_data', {})
                 job_data['_id'] = job['_id']
+                job_data['updated_at'] = job.get('updated_at')  # Include updated_at field
                 jobs_list.append(job_data)
 
             return JsonResponse({'admin': admin_data, 'jobs': jobs_list}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+@csrf_exempt
+def edit_admin_details(request, id):
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            admin = admin_collection.find_one({'_id': ObjectId(id)})
+            if not admin:
+                return JsonResponse({'error': 'Admin not found'}, status=404)
+
+            # Update fields if provided in the request
+            if 'name' in data:
+                admin['name'] = data['name']
+            if 'email' in data:
+                admin['email'] = data['email']
+            if 'status' in data:
+                admin['status'] = data['status']
+            if 'department' in data:
+                admin['department'] = data['department']
+            if 'college_name' in data:
+                admin['college_name'] = data['college_name']
+
+            # Save the updated admin details back to the database
+            admin_collection.update_one({'_id': ObjectId(id)}, {'$set': admin})
+
+            return JsonResponse({'success': 'Admin details updated successfully'}, status=200)
 
         except Exception as e:
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
@@ -410,24 +451,33 @@ def admin_status_update(request, id):
     
 @csrf_exempt
 def super_admin_signup(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             data = json.loads(request.body)
-            name = data.get('name')
-            email = data.get('email')
-            password = data.get('password')
+            name = data.get("name")
+            email = data.get("email")
+            password = data.get("password")
 
             # Check if the email contains "sns"
             if "@sns" not in email:
-                return JsonResponse({'error': 'Email must contain domain id'}, status=400)
+                return JsonResponse(
+                    {"error": "Email must contain domain id"}, status=400
+                )
 
             # Check if the email already exists
             if superadmin_collection.find_one({'email': email}):
                 return JsonResponse({'error': 'Super admin user with this email already exists'}, status=400)
 
             # Check if the password is strong
-            if not re.match(r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$', password):
-                return JsonResponse({'error': 'Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character'}, status=400)
+            if not re.match(
+                r"^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", password
+            ):
+                return JsonResponse(
+                    {
+                        "error": "Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character"
+                    },
+                    status=400,
+                )
 
             # Hash the password
             password = make_password(password)
@@ -444,17 +494,17 @@ def super_admin_signup(request):
 
             return JsonResponse({'message': 'Super admin user created successfully'}, status=200)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({"error": str(e)}, status=400)
     else:
-        return JsonResponse({'error': 'Invalid request method'}, status=400)
+        return JsonResponse({"error": "Invalid request method"}, status=400)
 
 @csrf_exempt
 def super_admin_login(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             data = json.loads(request.body)
-            email = data.get('email')
-            password = data.get('password')
+            email = data.get("email")
+            password = data.get("password")
 
             # Check if the email contains "sns"
             if "@sns" not in email:
@@ -468,8 +518,9 @@ def super_admin_login(request):
 
             # Find the super admin user by email
             super_admin_user = superadmin_collection.find_one({'email': email})
-            if not super_admin_user:
-                return JsonResponse({'error': 'No account found with this email'}, status=404)
+
+            if super_admin_user is None:
+                return JsonResponse({'error': 'Account not found with this email id'}, status=404)
 
             if check_password(password, super_admin_user['password']):
                 # Clear failed attempts after successful login
@@ -478,7 +529,7 @@ def super_admin_login(request):
                 # Generate JWT token
                 super_admin_id = super_admin_user.get('_id')
                 tokens = generate_tokens_superadmin(super_admin_id)
-                return JsonResponse({'message': 'Login successful', 'tokens': tokens}, status=200)
+                return JsonResponse({'username': super_admin_user['name'], 'tokens': tokens}, status=200)
             else:
                 # Track failed attempts
                 if email not in failed_login_attempts:
@@ -491,14 +542,15 @@ def super_admin_login(request):
                 return JsonResponse({'error': 'Invalid email or password.'}, status=401)
 
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
     
 # ============================================================== JOBS ======================================================================================
 
 @csrf_exempt
-@api_view(['POST'])
+@api_view(["POST"])
 def job_post(request):
     auth_header = request.headers.get('Authorization')
 
@@ -599,17 +651,25 @@ def get_jobs_for_mail(request):
 
         for job in jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
-            
+
             # Convert is_publish to readable status
             approval_status = "Waiting for Approval" if job.get("is_publish") is None else (
                 "Approved" if job["is_publish"] else "Rejected"
             )
-            
+
+            # Fetch admin details using admin_id
+            admin_id = job.get("admin_id")
+            admin_name = "Unknown Admin"
+
+            if admin_id:
+                admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
+                if admin:
+                    admin_name = admin.get("name", "Unknown Admin")
+
             # Ensure job_data exists and has application_deadline
             if "job_data" in job and "application_deadline" in job["job_data"]:
                 if job["job_data"]["application_deadline"]:  # Check if it's not None
                     deadline = job["job_data"]["application_deadline"]
-                    
                     try:
                         # Try parsing full datetime format
                         formatted_deadline = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
@@ -620,11 +680,12 @@ def get_jobs_for_mail(request):
                         except ValueError:
                             # If neither format works, keep it as is (to avoid crashes)
                             formatted_deadline = deadline
-                    
+
                     job["job_data"]["application_deadline"] = formatted_deadline  # Update formatted value
-            
-            # Add human-readable approval status to the response
+
+            # Add human-readable approval status and admin name
             job["approval_status"] = approval_status
+            job["admin_name"] = admin_name  # Attach admin name
 
             job_list.append(job)
 
@@ -808,8 +869,10 @@ def post_achievement(request):
 
         # Get text data from request
         name = request.POST.get("name")
-        department = request.POST.get("department")
-        achievement = request.POST.get("achievement")
+        achievement_description = request.POST.get("achievement_description")  # Corrected field name
+        achievement_type = request.POST.get("achievement_type")
+        company_name = request.POST.get("company_name")
+        date_of_achievement = request.POST.get("date_of_achievement")
         batch = request.POST.get("batch")
 
         # Check if an image was uploaded
@@ -818,24 +881,26 @@ def post_achievement(request):
             # Convert the image to base64
             image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
         else:
-            return Response({"error": "No image file provided."}, status=status.HTTP_400_BAD_REQUEST)
+            image_base64 = None  # Photo is optional
 
         # Prepare the document to insert
         achievement_data = {
             "name": name,
-            "department": department,
-            "achievement": achievement,
+            "achievement_description": achievement_description,  # Corrected field name
+            "achievement_type": achievement_type,
+            "company_name": company_name,
+            "date_of_achievement": date_of_achievement,
             "batch": batch,
             "photo": image_base64,  # Store as base64
             "user_id": admin_id,  # Save the admin_id from the token
-            "is_publish": False,  # Initially false, waiting for approval
+            "is_publish": True,  # Directly publish as no approval needed
             "updated_at": datetime.now()
         }
 
         # Insert into MongoDB
         achievement_collection.insert_one(achievement_data)
 
-        return Response({"message": "Achievement stored successfully, waiting for approval"}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Achievement stored successfully"}, status=status.HTTP_201_CREATED)
 
     except jwt.ExpiredSignatureError:
         return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -856,31 +921,7 @@ def get_achievements(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-@csrf_exempt
-def review_achievement(request, achievement_id):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            action = data.get("action")
-            if action not in ["approve", "reject"]:
-                return JsonResponse({"error": "Invalid action"}, status=400)
 
-            achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
-            if not achievement:
-                return JsonResponse({"error": "Achievement not found"}, status=404)
-
-            is_publish = True if action == "approve" else False
-            achievement_collection.update_one(
-                {"_id": ObjectId(achievement_id)},
-                {"$set": {"is_publish": is_publish, "updated_at": datetime.now()}}
-            )
-
-            message = "Achievement approved and published successfully" if is_publish else "Achievement rejected successfully"
-            return JsonResponse({"message": message}, status=200)
-
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-    return JsonResponse({"error": "Invalid request method"}, status=400)
 
 @csrf_exempt
 def get_published_achievements(request):
@@ -908,38 +949,42 @@ def post_internship(request):
             # Decode JWT token
             try:
                 decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
-                print("Decoded Token:", decoded_token)  # Debugging: Check the decoded token
             except jwt.ExpiredSignatureError:
                 raise AuthenticationFailed("Access token has expired. Please log in again.")
             except jwt.InvalidTokenError:
-                raise AuthenticationFailed("Invalid token. Please log in again.") 
+                raise AuthenticationFailed("Invalid token. Please log in again.")
+
             role = decoded_token.get('role')
             auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
             is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
+            is_publish = None
+
             if role == 'admin':
-                admin_id = decoded_token.get('admin_user')  # Extract admin_id from token
+                admin_id = decoded_token.get('admin_user')
                 if not admin_id:
-                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-                is_publish = is_auto_approval
-            
+                    return JsonResponse({"error": "Invalid token"}, status=401)
+                if is_auto_approval:
+                    is_publish = True
+
             elif role == 'superadmin':
                 superadmin_id = decoded_token.get('superadmin_user')
                 if not superadmin_id:
-                    return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+                    return JsonResponse({"error": "Invalid token"}, status=401)
                 is_publish = True
-            # admin_id = decoded_token.get('admin_user')  # Extract admin_id from decoded token
 
             # Parse incoming JSON data
             data = json.loads(request.body)
             application_deadline_str = data.get('application_deadline')
-            application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
+
+            # Convert application_deadline to a timezone-aware datetime
+            try:
+                application_deadline = datetime.strptime(application_deadline_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            except ValueError:
+                return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
+
             now = datetime.now(timezone.utc)
-
             current_status = "active" if application_deadline >= now else "expired"
-
-            # Fetch auto-approval setting from DB
-            # auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-            # is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
 
             # Ensure required fields are present
             required_fields = [
@@ -951,12 +996,6 @@ def post_internship(request):
                 if field not in data:
                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
 
-            # Convert application_deadline to datetime format
-            try:
-                application_deadline = datetime.strptime(data['application_deadline'], "%Y-%m-%d")
-            except ValueError:
-                return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
-
             # Prepare internship data for insertion
             internship_post = {
                 "internship_data": {
@@ -965,17 +1004,15 @@ def post_internship(request):
                     "location": data['location'],
                     "duration": data['duration'],
                     "stipend": data['stipend'],
-                    "application_deadline": data['application_deadline'],
+                    "application_deadline": application_deadline,
                     "required_skills": data['skills_required'],
-                    "education_requirements": data.get('education_requirements', ""),  # Optional field
+                    "education_requirements": data.get('education_requirements', ""),
                     "job_description": data['job_description'],
                     "company_website": data['company_website'],
-                    "job_link": data.get('job_link', ""),  # Optional field
+                    "job_link": data.get('job_link', ""),
                     "internship_type": data['internship_type'],
                 },
-                # "admin_id": admin_id,  # Save the admin ID from the token
-                # "is_publish": False,  # Auto-approve if enabled
-                "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
+                "admin_id" if role == "admin" else "superadmin_id": admin_id if role == "admin" else superadmin_id,
                 "is_publish": is_publish,
                 "status": current_status,
                 "updated_at": datetime.utcnow()
@@ -995,6 +1032,43 @@ def post_internship(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+@csrf_exempt
+def manage_internships(request):
+    if request.method == 'GET':
+        # Retrieve JWT token from Authorization Header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse({'error': 'No token provided'}, status=401)
+
+        jwt_token = auth_header.split(" ")[1]
+
+        try:
+            # Decode JWT token
+            decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
+            role = decoded_token.get('role')
+            admin_user = decoded_token.get('admin_user') if role == "admin" else decoded_token.get('superadmin_user')
+
+            if not admin_user:
+                return JsonResponse({"error": "Invalid token"}, status=401)
+
+            # Fetch internships from MongoDB based on admin_user
+            internships = internship_collection.find({"admin_id": admin_user} if role == "admin" else {})
+            internship_list = []
+            for internship in internships:
+                internship["_id"] = str(internship["_id"])  # Convert ObjectId to string
+                internship_list.append(internship)
+
+            return JsonResponse({"internships": internship_list}, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'error': 'JWT token has expired'}, status=401)
+        except jwt.InvalidTokenError as e:
+            return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def get_published_internships(request):
@@ -1043,14 +1117,44 @@ def get_internships(request):
         for internship in internships:
             # Convert ObjectId to string
             internship["_id"] = str(internship["_id"])
-            
-            # Convert application_deadline to date only if it's a datetime object
-            if isinstance(internship.get("application_deadline"), datetime):
-                internship["application_deadline"] = internship["application_deadline"].strftime("%Y-%m-%d")
-            
+
+            # Convert application_deadline to date format if it's a string
+            if "application_deadline" in internship and internship["application_deadline"]:
+                deadline = internship["application_deadline"]
+                
+                try:
+                    # Try parsing as full datetime format
+                    formatted_deadline = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
+                except ValueError:
+                    try:
+                        # Try parsing as plain date format
+                        formatted_deadline = datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
+                    except ValueError:
+                        # If parsing fails, keep original value
+                        formatted_deadline = deadline
+                
+                internship["application_deadline"] = formatted_deadline  # Update with formatted date
+
+            # Fetch admin details using admin_id
+            admin_id = internship.get("admin_id")
+            admin_name = "Unknown Admin"
+
+
+            if admin_id:
+                try:
+                    admin = admin_collection.find_one({"_id": ObjectId(admin_id)})  # Convert to ObjectId
+                    if admin:
+                        admin_name = admin.get("name", "Unknown Admin")
+                except Exception as e:
+                    print("Error fetching admin:", e)
+
+            # Add admin name to the response
+            internship["admin_name"] = admin_name
+
             internship_list.append(internship)
 
         return JsonResponse({"internships": internship_list}, status=200)
+
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 
@@ -1160,27 +1264,28 @@ def manage_jobs(request):
 @csrf_exempt
 def get_jobs(request):
     if request.method == 'GET':
-        jwt_token = request.COOKIES.get('jwt')
-        if not jwt_token:
-            return JsonResponse({'error': 'JWT token missing'}, status=401)
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse({'error': 'JWT token missing or invalid'}, status=401)
+
+        jwt_token = auth_header.split(" ")[1]
 
         try:
-            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])  
             admin_user = decoded_token.get('admin_user')
 
-            # Fetch jobs from MongoDB based on admin_user
             jobs = job_collection.find({'admin_id': admin_user})
             jobs_list = []
+
             for job in jobs:
                 job['_id'] = str(job['_id'])
-                job['type'] = 'job'  # Add a type field to differentiate between jobs and internships
+                job['type'] = 'job' 
                 jobs_list.append(job)
 
-            # Fetch internships from MongoDB based on admin_user
             internships = internship_collection.find({'admin_id': admin_user})
             for internship in internships:
                 internship['_id'] = str(internship['_id'])
-                internship['type'] = 'internship'  # Add a type field to differentiate between jobs and internships
+                internship['type'] = 'internship'
                 jobs_list.append(internship)
 
             return JsonResponse({'jobs': jobs_list}, status=200)
@@ -1191,5 +1296,305 @@ def get_jobs(request):
             return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
         except Exception as e:
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def get_admin_jobs(request):
+    if request.method == "GET":
+        # Retrieve JWT token from Authorization header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return JsonResponse({'error': 'JWT token missing'}, status=401)
+
+        jwt_token = auth_header.split(' ')[1]
+
+        try:
+            # Decode the JWT token
+            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            admin_id = decoded_token.get('admin_user')
+
+            # Check if admin_id is present in the token
+            if not admin_id:
+                return JsonResponse({"error": "Invalid token: No admin_id"}, status=401)
+
+            # Fetch jobs from MongoDB where admin_id matches
+            jobs = list(job_collection.find({"admin_id": admin_id}))
+
+            # Convert MongoDB ObjectId to string for JSON serialization
+            for job in jobs:
+                job["_id"] = str(job["_id"])
+
+            return JsonResponse(jobs, safe=False, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({"error": "Token has expired"}, status=401)
+        except jwt.InvalidTokenError:
+            return JsonResponse({"error": "Invalid token"}, status=401)
+        except Exception as e:
+            return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@csrf_exempt
+def submit_feedback(request):
+    if request.method == "POST":
+        try:
+            # Decode the JWT token
+            auth_header = request.headers.get('Authorization')
+            if not auth_header or not auth_header.startswith('Bearer '):
+                return JsonResponse({'error': 'Invalid token'}, status=401)
+
+            token = auth_header.split(' ')[1]
+            decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+
+            # Parse the request body
+            data = json.loads(request.body)
+            item_id = data.get('item_id')
+            item_type = data.get('item_type')
+            feedback = data.get('feedback')
+
+            if not item_id or not item_type or not feedback:
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+            # Fetch the admin_id from the jobs collection
+            job_data = job_collection.find_one({'_id': ObjectId(item_id)})
+            if not job_data:
+                return JsonResponse({'error': 'Invalid item_id: Job not found'}, status=404)
+
+            admin_id = job_data.get('admin_id')  # Map the admin_id from the job data
+            item_name = job_data['job_data'].get('title')
+
+            if not admin_id:
+                return JsonResponse({'error': 'admin_id not found for the provided job'}, status=404)
+
+            # Store the feedback in the Reviews collection
+            review_document = {
+                'admin_id': admin_id,  # Map the admin_id from job data
+                'item_id': item_id,
+                'item_name': item_name,
+                'item_type': item_type,
+                'feedback': feedback,
+                'timestamp': datetime.now().isoformat()
+            }
+            reviews_collection.insert_one(review_document)
+
+            return JsonResponse({'message': 'Feedback submitted successfully'}, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({"error": "Token has expired"}, status=401)
+        except jwt.InvalidTokenError:
+            return JsonResponse({"error": "Invalid token"}, status=401)
+        except Exception as e:
+            return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+
+# ============================================================== STUDY MATERIALS ======================================================================================
+
+@csrf_exempt
+def post_study_material(request):
+    if request.method == 'POST':
+        try:
+            # Get JWT token from Authorization Header
+            auth_header = request.headers.get('Authorization')
+            if not auth_header or not auth_header.startswith("Bearer "):
+                return JsonResponse({"error": "No token provided"}, status=401)
+
+            jwt_token = auth_header.split(" ")[1]
+
+            # Decode JWT token
+            try:
+                decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
+                print("Decoded Token:", decoded_token)  # Debugging: Check the decoded token
+            except jwt.ExpiredSignatureError:
+                return JsonResponse({"error": "Token expired"}, status=401)
+            except jwt.InvalidTokenError:
+                return JsonResponse({"error": "Invalid token"}, status=401)
+
+            role = decoded_token.get('role')
+            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
+            if role == 'admin':
+                admin_id = decoded_token.get('admin_user')  
+                if not admin_id:
+                    return JsonResponse({"error": "Invalid token"}, status=401)
+                is_publish = True
+            
+            elif role == 'superadmin':
+                superadmin_id = decoded_token.get('superadmin_user')
+                if not superadmin_id:
+                    return JsonResponse({"error": "Invalid token"}, status=401)
+                is_publish = True
+
+            # Parse incoming JSON data
+            data = json.loads(request.body)
+
+            # Ensure required fields are present
+            required_fields = ['title', 'description', 'category', 'text_content']
+            for field in required_fields:
+                if field not in data:
+                    return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
+
+            study_material_post = {
+                "study_material_data": {
+                    "title": data['title'],
+                    "description": data['description'],
+                    "category": data['category'],
+                    "text_content": data['text_content'],
+                    "link":data['link']
+                },
+                "admin_id" if role == "admin" else "superadmin_id": admin_id if role == "admin" else superadmin_id,
+                "is_publish": is_publish,
+                "updated_at": datetime.utcnow()
+            }
+
+            # Insert into MongoDB
+            study_material_collection.insert_one(study_material_post)
+
+            return JsonResponse({"message": "Study Material posted successfully"}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+@csrf_exempt
+def manage_study_materials(request):
+    if request.method == 'GET':
+        # Retrieve JWT token from Authorization Header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse({'error': 'No token provided'}, status=401)
+
+        jwt_token = auth_header.split(" ")[1]
+
+        try:
+            # Decode JWT token
+            decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
+            role = decoded_token.get('role')
+            admin_user = decoded_token.get('admin_user') if role == "admin" else decoded_token.get('superadmin_user')
+
+            if not admin_user:
+                return JsonResponse({"error": "Invalid token"}, status=401)
+
+            # Fetch study materials from MongoDB based on admin_user
+            study_materials = study_material_collection.find({"admin_id": admin_user} if role == "admin" else {})
+            study_material_list = []
+            for study in study_materials:
+                study["_id"] = str(study["_id"])  # Convert ObjectId to string
+                study_material_list.append(study)
+
+            return JsonResponse({"study_materials": study_material_list}, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'error': 'JWT token has expired'}, status=401)
+        except jwt.InvalidTokenError as e:
+            return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+def get_study_material_by_id(request, study_material_id):
+    """
+    Fetch a single study material by its ID.
+    """
+    try:
+        study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+        if not study_material:
+            return JsonResponse({"error": "Study material not found"}, status=404)
+
+        study_material["_id"] = str(study_material["_id"])  # Convert ObjectId to string
+        return JsonResponse({"study_material": study_material}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def update_study_material(request, study_material_id):
+    """
+    Update a study material by its ID.
+    """
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+            if not study_material:
+                return JsonResponse({"error": "Study material not found"}, status=404)
+
+            # Exclude the _id field from the update
+            if '_id' in data:
+                del data['_id']
+
+            study_material_collection.update_one({"_id": ObjectId(study_material_id)}, {"$set": data})
+            updated_study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+            updated_study_material["_id"] = str(updated_study_material["_id"])  # Convert ObjectId to string
+            return JsonResponse({"study_material": updated_study_material}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+@csrf_exempt
+def delete_study_material(request, study_material_id):
+    """
+    Delete a study material by its ID.
+    """
+    if request.method == 'DELETE':
+        try:
+            study_material = study_material_collection.find_one({"_id": ObjectId(study_material_id)})
+            if not study_material:
+                return JsonResponse({"error": "Study material not found"}, status=404)
+
+            study_material_collection.delete_one({"_id": ObjectId(study_material_id)})
+            return JsonResponse({"message": "Study material deleted successfully"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
+
+@csrf_exempt
+def fetch_review(request):
+    """Extracts JWT, validates it, and fetches all review documents for the admin ID."""
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return JsonResponse({"error": "Unauthorized access"}, status=401)
+
+    token = auth_header.split(" ")[1]
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({"error": "Token has expired"}, status=401)
+    except jwt.InvalidTokenError:
+        return JsonResponse({"error": "Invalid token"}, status=401)
+
+    admin_id = payload.get("admin_user")
+    if not admin_id:
+        return JsonResponse({"error": "Invalid token payload"}, status=401)
+
+    print(f"Querying for admin_id: {admin_id}")  # Log the query
+    reviews_cursor = reviews_collection.find({"admin_id": admin_id})  # Fetch all matching documents
+
+    reviews_list = []
+    for review in reviews_cursor:
+        formatted_review = {
+            "review_id": str(review["_id"]),  # Convert ObjectId to string
+            "admin_id": review["admin_id"],
+            "item_id": review["item_id"],
+            "item_name": review.get("item_name", ""),  # Use `.get()` to avoid KeyError
+            "item_type": review["item_type"],
+            "feedback": review["feedback"],
+            "timestamp": review["timestamp"],
+        }
+        reviews_list.append(formatted_review)
+
+    if not reviews_list:
+        return JsonResponse({"error": "Reviews not found"}, status=404)
+
+    return JsonResponse({"reviews": reviews_list}, status=200, safe=False)  # Return as a list

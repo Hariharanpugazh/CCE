@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -12,6 +12,13 @@ const StudentManagement = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [filter, setFilter] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    department: "",
+    year: "",
+  });
   const navigate = useNavigate();
 
   // Fetch user role from JWT token in cookies
@@ -65,10 +72,7 @@ const StudentManagement = () => {
           s._id === student._id ? { ...s, status: newStatus } : s
         )
       );
-      setTimeout(() => {
-        setIsLoading(false);
-        window.location.reload(); // Refresh the page
-      }, 1000);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error updating status:", error);
       setIsLoading(false);
@@ -92,6 +96,49 @@ const StudentManagement = () => {
       direction = 'descending';
     }
     setSortConfig({ key, direction });
+  };
+
+  const handleEdit = () => {
+    setEditMode(true);
+    setFormData({
+      name: selectedStudent.name,
+      email: selectedStudent.email,
+      department: selectedStudent.department || "",
+      year: selectedStudent.year || "",
+    });
+  };
+
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      const validData = {
+        name: formData.name || selectedStudent.name,
+        email: formData.email || selectedStudent.email,
+        department: formData.department || selectedStudent.department,
+        year: formData.year || selectedStudent.year
+      };
+  
+      const response = await axios.put(`http://localhost:8000/api/students/${selectedStudent._id}/update/`, validData);
+      if (response.status === 200) {
+        setStudents((prev) =>
+          prev.map((s) =>
+            s._id === selectedStudent._id ? { ...s, ...validData } : s
+          )
+        );
+        setEditMode(false);
+      }
+    } catch (error) {
+      console.error("Error updating student:", error);
+    }
+    setIsLoading(false);
+  };
+  
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   return (
@@ -151,61 +198,118 @@ const StudentManagement = () => {
               {selectedStudent.name}
             </h2>
 
-            <div className="mb-4">
-              <span className="text-gray-600">Email:</span>
-              <span className="ml-2 text-gray-800">{selectedStudent.email}</span>
-            </div>
-
-            <div className="mb-4">
-              <span className="text-gray-600">Department:</span>
-              <span className="ml-2 text-gray-800">{selectedStudent.department || "N/A"}</span>
-            </div>
-
-            <div className="mb-4">
-              <span className="text-gray-600">Year:</span>
-              <span className="ml-2 text-gray-800">{selectedStudent.year || "N/A"}</span>
-            </div>
-
-            <div className="mb-4">
-              <span className="text-gray-600">Status:</span>
-              <span
-                className={`ml-2 px-2 py-1 rounded ${
-                  selectedStudent.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                }`}
-              >
-                {selectedStudent.status}
-              </span>
-            </div>
-
-            <div className="mb-4">
-              <span className="text-gray-600">Last Login:</span>
-              <span className="ml-2 text-gray-800">{selectedStudent.last_login || "Never"}</span>
-            </div>
-
-            <div className="mb-4">
-              <span className="text-gray-600">Created At:</span>
-              <span className="ml-2 text-gray-800">{selectedStudent.created_at || "Unknown"}</span>
-            </div>
-
-            <button
-              onClick={() => toggleStatus(selectedStudent)}
-              className={`w-full py-2 mb-4 text-white rounded-lg font-medium transition duration-300 ${
-                selectedStudent.status === "active" ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
-              }`}
-            >
-              {isLoading
-                ? selectedStudent.status === "active"
-                  ? "Inactivating..."
-                  : "Activating..."
-                : `Set to ${selectedStudent.status === "active" ? "Inactive" : "Active"}`}
-            </button>
-
-            <button
-              onClick={() => deleteStudent(selectedStudent._id)}
-              className="w-full py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition duration-300"
-            >
-              Delete Student
-            </button>
+            {editMode ? (
+              <div>
+                <label className="block mb-2">
+                  Name:
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                  />
+                </label>
+                <label className="block mb-2">
+                  Email:
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                  />
+                </label>
+                <label className="block mb-2">
+                  Department:
+                  <input
+                    type="text"
+                    name="department"
+                    value={formData.department}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                  />
+                </label>
+                <label className="block mb-2">
+                  Year:
+                  <input
+                    type="text"
+                    name="year"
+                    value={formData.year}
+                    onChange={handleChange}
+                    className="border p-2 w-full"
+                  />
+                </label>
+                <button
+                  onClick={handleSave}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                >
+                  {isLoading ? "Saving..." : "Save"}
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div className="mb-4">
+                  <span className="text-gray-600">Name:</span>
+                  <span className="ml-2 text-gray-800">{selectedStudent.name}</span>
+                </div>
+                <div className="mb-4">
+                  <span className="text-gray-600">Email:</span>
+                  <span className="ml-2 text-gray-800">{selectedStudent.email}</span>
+                </div>
+                <div className="mb-4">
+                  <span className="text-gray-600">Department:</span>
+                  <span className="ml-2 text-gray-800">{selectedStudent.department || "N/A"}</span>
+                </div>
+                <div className="mb-4">
+                  <span className="text-gray-600">Year:</span>
+                  <span className="ml-2 text-gray-800">{selectedStudent.year || "N/A"}</span>
+                </div>
+                <div className="mb-4">
+                  <span className="text-gray-600">Status:</span>
+                  <span
+                    className={`ml-2 px-2 py-1 rounded ${
+                      selectedStudent.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {selectedStudent.status}
+                  </span>
+                </div>
+                <div className="mb-4">
+                  <span className="text-gray-600">Last Login:</span>
+                  <span className="ml-2 text-gray-800">{selectedStudent.last_login || "Never"}</span>
+                </div>
+                <div className="mb-4">
+                  <span className="text-gray-600">Created At:</span>
+                  <span className="ml-2 text-gray-800">{selectedStudent.created_at || "Unknown"}</span>
+                </div>
+                <button
+                  onClick={() => toggleStatus(selectedStudent)}
+                  className={`w-full py-2 mb-4 text-white rounded-lg font-medium transition duration-300 ${
+                    selectedStudent.status === "active" ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+                  }`}
+                >
+                  {isLoading
+                    ? selectedStudent.status === "active"
+                      ? "Inactivating..."
+                      : "Activating..."
+                    : `Set to ${selectedStudent.status === "active" ? "Inactive" : "Active"}`}
+                </button>
+                <button
+                  onClick={handleEdit}
+                  className="w-full py-2 bg-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-600 transition mb-4"
+                >
+                  Edit Profile
+                </button>
+                <button
+                  onClick={() => deleteStudent(selectedStudent._id)}
+                  className="w-full py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition duration-300"
+                >
+                  Delete Student
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
