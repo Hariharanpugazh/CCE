@@ -35,6 +35,7 @@ import StudentManagement from "./pages/admin/StudentManagement";
 import StudentAchievementPostForm from "./pages/students/PostAchievement";
 import StudyMaterialForm from "./components/Common/StudyMaterialForm"
 import StudyEdit from "./pages/admin/StudyEdit";
+import StudentStudyMaterial from "./pages/students/StudentStudyMaterial";
 
 
 
@@ -79,6 +80,7 @@ function App() {
         <Route path="/job-preview/:id" element={<JobPreview />} />
         <Route path="/internship-preview/:id" element={<InternshipPreview />} />
         <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
+        <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
