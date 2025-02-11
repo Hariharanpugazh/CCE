@@ -28,6 +28,9 @@ urlpatterns = [
     path('admin-status/<str:id>/', admin_status_update, name='admin_status_update'),
     path('get_jobs_with_admin/',get_jobs_with_admin, name="get_jobs_with_admin"),
     path("get_achievements_with_admin/", get_achievements_with_admin, name="get_achievements_with_admin"),
+    path("get_internships_with_admin/", get_internships_with_admin, name="get_internships_with_admin"),
+    path("get_study_materials_with_admin/", get_study_materials_with_admin, name="get_study_materials_with_admin"),
+    path("get_student_achievements_with_students/", get_student_achievements, name="get_student_achievements_with_students"),
 
     #account management 
     path('students/', get_students, name='get_students'),

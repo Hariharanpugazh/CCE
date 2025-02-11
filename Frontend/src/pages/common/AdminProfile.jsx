@@ -5,8 +5,6 @@ import { motion } from 'framer-motion';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 
-
-
 const AdminProfile = () => {
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
@@ -78,7 +76,7 @@ const AdminProfile = () => {
           <CardContent className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-1 text-center gap-6">
               <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="font-semibold text-xl mb-4">Admin Information</h2>
+                <h2 className="font-semibold text-xl mb-4">Admins Information</h2>
                 <ul className="space-y-2 text-gray-800">
                   <li><strong className="font-medium">Department:</strong> {student.department}</li>
                   <li><strong className="font-medium">College Name:</strong> {student.college_name}</li>
@@ -90,17 +88,6 @@ const AdminProfile = () => {
                   </li>
                 </ul>
               </div>
-              {/* <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="font-semibold text-xl mb-4">Saved Jobs</h2>
-                <ul className="space-y-3">
-                  {student.saved_jobs.map((job) => (
-                    <li key={job.id} className="flex items-center space-x-3">
-                      <Badge className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full">Job</Badge>
-                      <span className="text-gray-800 font-medium">{job.title}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div> */}
             </div>
           </CardContent>
 

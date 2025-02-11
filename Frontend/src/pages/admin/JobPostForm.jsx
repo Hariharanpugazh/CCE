@@ -128,18 +128,6 @@ export default function JobPostForm() {
         setDisableSubmit(false)
         return;
       }
-
-      // const response = await axios.post(
-      //   "http://localhost:8000/api/job_post/",
-      //   { ...formData, selectedCategory, selectedWorkType },
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //       "Content-Type": "application/json",
-      //     },
-      //   }
-      // );
-      
       const response = await axios.post(
         "http://localhost:8000/api/job_post/",
         { ...formData, selectedCategory, selectedWorkType, userId , role : userRole },
