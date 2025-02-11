@@ -146,7 +146,7 @@ export default function JobPostForm() {
       );
 
       setInterval(() => {
-        window.location.href = userRole === "admin" ? "/admin/jobs" : "/superadmin/jobs"
+        window.location.href = `${window.location.origin}/jobs`;
       }, 2000);
       window.location.href = "#"
       setMessage(response.data.message);
