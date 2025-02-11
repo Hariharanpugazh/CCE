@@ -76,11 +76,12 @@ export default function SavedJobs() {
       );
     }
   }, [filter, savedJobs]);
-
+  
   const handleStatusFilterChange = (status) => {
     setFilter(status);
   };
-
+  console.log("Saved Jobs ID:", savedJobs.map(j => j._id));
+  
   return (
     <div className="flex flex-col">
       {userRole === "student" && <StudentPageNavbar />}
@@ -122,6 +123,8 @@ export default function SavedJobs() {
             <ApplicationCard
               application={{ ...job, ...job.job_data }}
               key={job._id}
+              savedJobs={savedJobs.map(j => j._id)} // Pass saved job IDs as a prop
+              
             />
           ))
         )}

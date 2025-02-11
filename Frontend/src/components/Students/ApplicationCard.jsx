@@ -27,25 +27,18 @@ function timeAgo(dateString) {
   return "Just now";
 }
 
-export default function ApplicationCard({ application }) {
+export default function ApplicationCard({ application, savedJobs=[] }) {
   const navigate = useNavigate();
   const [isBookmarked, setIsBookmarked] = useState(false);
+  
 
   useEffect(() => {
-    const fetchSavedJobs = async () => {
-      try {
-        const token = Cookies.get("jwt");
-        const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-        const response = await axios.get(`http://localhost:8000/api/saved-jobs/${userId}/`);
-        const savedJobs = response.data;
-        setIsBookmarked(savedJobs.includes(application._id));
-      } catch (error) {
-        console.error("Error fetching saved jobs:", error);
-      }
-    };
-
-    fetchSavedJobs();
-  }, [application._id]);
+    if (Array.isArray(savedJobs)) {
+      setIsBookmarked(savedJobs.includes(application._id));
+    }
+    console.log("Saved Jobs:", savedJobs);
+  }, [savedJobs, application._id]);
+  
 
   const handleBookmark = async (event) => {
     event.stopPropagation();
