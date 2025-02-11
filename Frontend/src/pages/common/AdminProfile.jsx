@@ -88,7 +88,7 @@ const AdminProfile = () => {
           <CardContent className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-1 text-center gap-6">
               <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="font-semibold text-xl mb-4">Admin Information</h2>
+                <h2 className="font-semibold text-xl mb-4">Admins Information</h2>
                 <ul className="space-y-2 text-gray-800">
                   <li><strong className="font-medium">Department:</strong> {admin.department || 'N/A'}</li>
                   <li><strong className="font-medium">College Name:</strong> {admin.college_name || 'N/A'}</li>
