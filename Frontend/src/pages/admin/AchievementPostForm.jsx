@@ -90,6 +90,10 @@ export default function AchievementPostForm() {
       if (formData.photo) {
         formDataObj.append("photo", formData.photo);
       }
+      formDataObj.append("userId",userId);
+      formDataObj.append("role",userRole);
+
+      
 
       // const response = await axios.post(
       //   "http://localhost:8000/api/upload_achievement/",
@@ -105,7 +109,7 @@ export default function AchievementPostForm() {
 
         const response = await axios.post(
         "http://localhost:8000/api/upload_achievement/",
-        {...formDataObj, userId , role : userRole },
+        formDataObj,
         {
           headers: {
             // Authorization: `Bearer ${token}`,
