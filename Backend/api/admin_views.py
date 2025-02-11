@@ -1363,6 +1363,8 @@ def submit_feedback(request):
                 return JsonResponse({'error': 'Invalid item_id: Job not found'}, status=404)
 
             admin_id = job_data.get('admin_id')  # Map the admin_id from the job data
+            item_name = job_data['job_data'].get('title')
+
             if not admin_id:
                 return JsonResponse({'error': 'admin_id not found for the provided job'}, status=404)
 
@@ -1370,6 +1372,7 @@ def submit_feedback(request):
             review_document = {
                 'admin_id': admin_id,  # Map the admin_id from job data
                 'item_id': item_id,
+                'item_name': item_name,
                 'item_type': item_type,
                 'feedback': feedback,
                 'timestamp': datetime.now().isoformat()
@@ -1555,3 +1558,43 @@ def delete_study_material(request, study_material_id):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
+
+@csrf_exempt
+def fetch_review(request):
+    """Extracts JWT, validates it, and fetches all review documents for the admin ID."""
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return JsonResponse({"error": "Unauthorized access"}, status=401)
+
+    token = auth_header.split(" ")[1]
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({"error": "Token has expired"}, status=401)
+    except jwt.InvalidTokenError:
+        return JsonResponse({"error": "Invalid token"}, status=401)
+
+    admin_id = payload.get("admin_user")
+    if not admin_id:
+        return JsonResponse({"error": "Invalid token payload"}, status=401)
+
+    print(f"Querying for admin_id: {admin_id}")  # Log the query
+    reviews_cursor = reviews_collection.find({"admin_id": admin_id})  # Fetch all matching documents
+
+    reviews_list = []
+    for review in reviews_cursor:
+        formatted_review = {
+            "review_id": str(review["_id"]),  # Convert ObjectId to string
+            "admin_id": review["admin_id"],
+            "item_id": review["item_id"],
+            "item_name": review.get("item_name", ""),  # Use `.get()` to avoid KeyError
+            "item_type": review["item_type"],
+            "feedback": review["feedback"],
+            "timestamp": review["timestamp"],
+        }
+        reviews_list.append(formatted_review)
+
+    if not reviews_list:
+        return JsonResponse({"error": "Reviews not found"}, status=404)
+
+    return JsonResponse({"reviews": reviews_list}, status=200, safe=False)  # Return as a list

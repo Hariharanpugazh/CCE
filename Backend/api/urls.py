@@ -17,6 +17,7 @@ urlpatterns = [
     path('post-study-material/',post_study_material, name="post_study_material"),
     path("manage-internships/", manage_internships, name="manage_internships"),
     path('manage-study-materials/',manage_study_materials, name="manage_study_materials" ),
+    path('fetch-review/', fetch_review, name='fetch_review'),
     
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
