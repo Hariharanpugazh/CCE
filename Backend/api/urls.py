@@ -13,11 +13,13 @@ urlpatterns = [
     path('internship/', get_internships, name='get_internships'),
     path("job_post/", job_post, name="job_post"),
     path('manage-jobs/', manage_jobs, name='manage_jobs'),
-    path('mailjobs/', get_admin_jobs, name='get_admin_jobs'),
+    path('mailjobs/', get_admin_inbox, name='get_admin_inbox'),
     path('post-study-material/',post_study_material, name="post_study_material"),
     path("manage-internships/", manage_internships, name="manage_internships"),
     path('manage-study-materials/',manage_study_materials, name="manage_study_materials" ),
     path('fetch-review/', fetch_review, name='fetch_review'),
+    path('get-admin/<str:userId>/', get_admin_details, name='get_admin_details'),
+     path('get-superadmin/<str:userId>/', get_superadmin_details, name='get_superadmin_details'),
     
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),

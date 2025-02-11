@@ -874,7 +874,7 @@ def post_achievement(request):
             "date_of_achievement": date_of_achievement,
             "batch": batch,
             "photo": image_base64,  # Store as base64
-            "user_id": userid,  # Save the admin_id from the token
+            "admin_id": userid,  # Save the admin_id from the token
             "created_by": role,
             "is_publish": True,  # Directly publish as no approval needed
             "updated_at": datetime.now()
@@ -1254,8 +1254,10 @@ def get_jobs(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+#===================================================================Admin-Mails====================================================================== 
+
 @csrf_exempt
-def get_admin_jobs(request):
+def get_admin_inbox(request):
     if request.method == "GET":
         # Retrieve JWT token from Authorization header
         auth_header = request.headers.get('Authorization')
@@ -1273,14 +1275,24 @@ def get_admin_jobs(request):
             if not admin_id:
                 return JsonResponse({"error": "Invalid token: No admin_id"}, status=401)
 
-            # Fetch jobs from MongoDB where admin_id matches
+            # Fetch jobs, internships, achievements, and study materials from MongoDB where admin_id matches
             jobs = list(job_collection.find({"admin_id": admin_id}))
+            internships = list(internship_collection.find({"admin_id": admin_id}))
+            achievements = list(achievement_collection.find({"admin_id": admin_id}))
+            study_materials = list(study_material_collection.find({"admin_id": admin_id}))
 
             # Convert MongoDB ObjectId to string for JSON serialization
-            for job in jobs:
-                job["_id"] = str(job["_id"])
+            def convert_objectid_to_str(items):
+                for item in items:
+                    item["_id"] = str(item["_id"])  # Convert ObjectId to string
+                return items
 
-            return JsonResponse(jobs, safe=False, status=200)
+            return JsonResponse({
+                "jobs": convert_objectid_to_str(jobs),
+                "internships": convert_objectid_to_str(internships),
+                "achievements": convert_objectid_to_str(achievements),
+                "study_materials": convert_objectid_to_str(study_materials),
+            }, safe=False, status=200)
 
         except jwt.ExpiredSignatureError:
             return JsonResponse({"error": "Token has expired"}, status=401)
@@ -1290,6 +1302,7 @@ def get_admin_jobs(request):
             return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 @csrf_exempt
 def submit_feedback(request):
@@ -1803,3 +1816,72 @@ def get_student_achievements(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+      
+#================================================================Profile=======================================================================================
+
+@csrf_exempt
+def get_admin_details(request, userId):
+    if request.method == "GET":
+        try:
+            # Find the admin user by ID
+            admin = admin_collection.find_one({"_id": ObjectId(userId)})
+
+            if not admin:
+                return JsonResponse(
+                    {"error": "Admin with this ID does not exist"}, status=400
+                )
+
+            # Prepare response data
+            data = {
+                "name": admin.get("name"),
+                "email": admin.get("email"),
+                "status": admin.get("status"),
+                "created_at": admin.get("created_at"),
+                "last_login": admin.get("last_login"),
+                "college_name": admin.get("college_name", "N/A"),
+                "department": admin.get("department", "N/A"),
+                "role": "admin",
+            }
+
+            return JsonResponse(
+                {"message": "Admin details found", "data": data}, status=200
+            )
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def get_superadmin_details(request, userId):
+    if request.method == "GET":
+        try:
+            # Find the super admin user by ID
+            superadmin = superadmin_collection.find_one({"_id": ObjectId(userId)})
+
+            if not superadmin:
+                return JsonResponse(
+                    {"error": "Super Admin with this ID does not exist"}, status=400
+                )
+
+            # Prepare response data
+            data = {
+                "name": superadmin.get("name"),
+                "email": superadmin.get("email"),
+                "status": superadmin.get("status"),
+                "created_at": superadmin.get("created_at"),
+                "last_login": superadmin.get("last_login"),
+                "college_name": superadmin.get("college_name", "N/A"),
+                "department": superadmin.get("department", "N/A"),
+                "role": "superadmin",
+            }
+
+            return JsonResponse(
+                {"message": "Super Admin details found", "data": data}, status=200
+            )
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
