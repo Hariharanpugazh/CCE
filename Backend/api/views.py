@@ -316,11 +316,10 @@ def get_students(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-
 @csrf_exempt
 def update_student(request, student_id):
     """
-    API to update a student's profile.
+    API to update a student's profile, including status updates.
     """
     if request.method == 'PUT':
         try:
@@ -329,8 +328,8 @@ def update_student(request, student_id):
             if not student:
                 return JsonResponse({'error': 'Student not found'}, status=404)
 
-            # Define allowed fields for updating
-            allowed_fields = ['name', 'department', 'year', 'email']
+            # ✅ Add "status" to allowed fields
+            allowed_fields = ['name', 'department', 'year', 'email', 'status']
 
             # Filter data to include only allowed fields
             update_data = {field: data[field] for field in allowed_fields if field in data}
@@ -346,6 +345,7 @@ def update_student(request, student_id):
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 @csrf_exempt
 def delete_student(request, student_id):
@@ -644,7 +644,7 @@ def post_student_achievement(request):
         achievement_collection.insert_one(achievement_data)
 
         return JsonResponse(
-            {"message": "Achievement submitted successfully. Please wait for approval."},
+            {"message": "Achievement submitted successfully. Admin will contact you soon"},
             status=201
         )
 
