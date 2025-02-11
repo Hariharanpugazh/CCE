@@ -341,7 +341,8 @@ export default function AdminMail() {
                       <span className="font-semibold text-lg">{review.item_name || 'Notification'}</span>
                       <span className="text-sm text-gray-500">{new Date(review.timestamp).toLocaleString()}</span>
                     </div>
-                    <p className="text-gray-700">{review.feedback}</p>
+                    <p className="text-gray-700">Type: {review.item_type}</p>
+                    <p className="text-gray-700">Feedback: {review.feedback}</p>
                   </Link>
                 ))}
               </div>

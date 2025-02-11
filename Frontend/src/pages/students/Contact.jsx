@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,22 +11,18 @@ const ContactForm = () => {
     contact: "",
     message: "",
   });
+  const [isSending, setIsSending] = useState(false); // Track sending state
 
-  // useEffect(() => {
-  //   const fetchUserEmail = async () => {
-  //     try {
-  //       const response = await axios.get("http://127.0.0.1:8000/api/user-email/", {
-  //         headers: { "Content-Type": "application/json" },
-  //       });
-  //       const loggedInUserEmail = response.data.email;
-  //       setFormData((prevData) => ({ ...prevData, contact: loggedInUserEmail }));
-  //     } catch (error) {
-  //       toast.error("Failed to fetch user email.");
-  //     }
-  //   };
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("student.email");
+    const storedName = Cookies.get("username");
 
-  //   fetchUserEmail();
-  // }, []);
+    setFormData((prevData) => ({
+      ...prevData,
+      name: storedName || "",
+      contact: storedEmail || "",
+    }));
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,26 +30,29 @@ const ContactForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSending(true); // Set button to "Sending..."
 
     try {
       const response = await axios.post("http://127.0.0.1:8000/api/contact-us/", formData, {
         headers: { "Content-Type": "application/json" },
       });
 
-      // Show success toast message
       toast.success(response.data.message || "Message sent successfully!");
-      setFormData({ name: "", contact: "", message: "" });
+
+      setTimeout(() => {
+        window.location.reload(); // Refresh page after success
+      }, 1500); // Wait 1.5 seconds before refreshing
     } catch (error) {
-      // Show error toast message
       toast.error(error.response?.data.error || "Something went wrong!");
+    } finally {
+      setIsSending(false); // Reset button text
     }
   };
 
   return (
-  <div>
-    <StudentPageNavbar />
+    <div>
+      <StudentPageNavbar />
       <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-white p-6">
-        {/* Left Section */}
         <div className="md:w-1/2 text-left p-6">
           <h2 className="text-3xl font-bold mb-4">Get in touch with us today!</h2>
           <p className="text-gray-600 mb-6">
@@ -73,6 +73,15 @@ const ContactForm = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Name"
+              className="w-full p-3 border rounded-lg bg-yellow-100"
+              readOnly
+            />
+            <input
+              type="text"
               name="contact"
               value={formData.contact}
               onChange={handleChange}
@@ -88,8 +97,13 @@ const ContactForm = () => {
               className="w-full p-3 border rounded-lg bg-yellow-100 h-32"
               required
             ></textarea>
-            <button type="submit" className="w-full bg-yellow-400 text-black font-bold p-3 rounded-lg">
-              Send Message
+            {/* Updated Button */}
+            <button 
+              type="submit" 
+              className="w-full bg-yellow-400 text-black font-bold p-3 rounded-lg"
+              disabled={isSending} // Disable button while sending
+            >
+              {isSending ? "Sending..." : "Send Message"}
             </button>
           </form>
         </div>

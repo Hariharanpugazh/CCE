@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework import status
 import base64
+from bson.errors import InvalidId
 import re  # Add this import for regex
 from django.core.mail import send_mail
 from django.conf import settings
@@ -787,7 +788,6 @@ def get_job_by_id(request, job_id):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-
 @csrf_exempt
 def update_job(request, job_id):
     """
@@ -803,6 +803,9 @@ def update_job(request, job_id):
             # Exclude the _id field from the update
             if '_id' in data:
                 del data['_id']
+
+            # Add or update the 'edited' field
+            data['edited'] = "yes"
 
             # # Ensure is_publish is set to false
             # data['is_publish'] = False
@@ -888,6 +891,44 @@ def post_achievement(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @csrf_exempt
+def update_achievement(request, achievement_id):
+    """
+    Update an achievement by its ID, including image updates.
+    """
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
+
+            if not achievement:
+                return JsonResponse({"error": "Achievement not found"}, status=404)
+
+            # Remove _id if present in the update data
+            if '_id' in data:
+                del data['_id']
+
+            # Check if an image was uploaded (optional)
+            if "photo" in request.FILES:
+                image_file = request.FILES["photo"]
+                image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+                data["photo"] = image_base64  # Store the updated image as base64
+
+            # Update the achievement in MongoDB
+            data["updated_at"] = datetime.now()  # Update timestamp
+            achievement_collection.update_one({"_id": ObjectId(achievement_id)}, {"$set": data})
+
+            # Fetch updated achievement
+            updated_achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
+            updated_achievement["_id"] = str(updated_achievement["_id"])  # Convert ObjectId to string
+
+            return JsonResponse({"achievement": updated_achievement}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
+    
+@csrf_exempt
 def get_achievements(request):
     try:
         achievements = achievement_collection.find()
@@ -899,7 +940,23 @@ def get_achievements(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
+@csrf_exempt
+def delete_achievement(request, achievement_id):
+    """
+    Delete an achievement by its ID.
+    """
+    if request.method == 'DELETE':
+        try:
+            result = achievement_collection.delete_one({"_id": ObjectId(achievement_id)})
 
+            if result.deleted_count == 0:
+                return JsonResponse({"error": "Achievement not found"}, status=404)
+
+            return JsonResponse({"message": "Achievement deleted successfully"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
 
 @csrf_exempt
 def get_published_achievements(request):
@@ -1583,10 +1640,11 @@ def get_contact_messages(request):
     if request.method == "GET":
         try:
             # Fetch all messages from the contact_us collection
-            messages = list(contactus_collection.find({}, {"_id": 0, "name": 1, "contact": 1, "message": 1, "timestamp": 1}))
+            messages = list(contactus_collection.find({}, {"_id": 1, "name": 1, "contact": 1, "message": 1, "timestamp": 1}))
 
-            # Format timestamp for easier readability
+            # Format timestamp and convert `_id` to string
             for message in messages:
+                message["_id"] = str(message["_id"])  # Convert ObjectId to string
                 if "timestamp" in message and message["timestamp"]:
                     message["timestamp"] = message["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
                 else:
@@ -1600,6 +1658,36 @@ def get_contact_messages(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@csrf_exempt
+def reply_to_message(request):
+    """
+    API to reply to a contact message.
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            message_id = data.get("message_id")  # Message document _id
+            reply_message = data.get("reply_message")  # Admin's reply text
+
+            if not message_id or not reply_message:
+                return JsonResponse({"error": "Message ID and reply message are required."}, status=400)
+
+            # Update the existing message with the reply
+            result = contactus_collection.update_one(
+                {"_id": ObjectId(message_id)},
+                {"$set": {"reply_message": reply_message}}
+            )
+
+            if result.modified_count == 0:
+                return JsonResponse({"error": "Message not found or already updated."}, status=404)
+
+            return JsonResponse({"success": "Reply sent successfully!"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method."}, status=405)
 
 @csrf_exempt
 def get_jobs_with_admin(request):
@@ -1678,10 +1766,6 @@ def get_achievements_with_admin(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-    
-from bson import ObjectId
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def get_internships_with_admin(request):
@@ -1884,4 +1968,33 @@ def get_superadmin_details(request, userId):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@api_view(['GET', 'PUT'])
+def achievement_detail(request, achievement_id):
+    try:
+        # Convert ID to ObjectId
+        object_id = ObjectId(achievement_id)
+    except:
+        return Response({"error": "Invalid Achievement ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Fetch achievement from MongoDB
+    achievement = achievement_collection.find_one({"_id": object_id})
+    if not achievement:
+        return Response({"error": "Achievement not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        # Convert MongoDB document to JSON response
+        achievement["_id"] = str(achievement["_id"])  # Convert ObjectId to string
+        return Response(achievement, status=status.HTTP_200_OK)
+
+    elif request.method == 'PUT':
+        # Update the achievement
+        updated_data = request.data
+        achievement_collection.update_one(
+            {"_id": object_id},
+            {"$set": updated_data}
+        )
+        return Response({"message": "Achievement updated successfully"}, status=status.HTTP_200_OK)
+
 
