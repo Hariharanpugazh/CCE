@@ -28,6 +28,7 @@ export default function AdminPageNavbar() {
   };
 
   return (
+    <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg mx-3">
     <nav className="flex justify-between p-4 items-stretch pt-8 relative">
       <span className="flex-1 max-w-[25%]"></span>
 
@@ -189,5 +190,6 @@ export default function AdminPageNavbar() {
         </div>
       </div>
     </nav>
+    </div>
   );
 }
