@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Cookies from "js-cookie";  // Import Cookies
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,21 +12,16 @@ const ContactForm = () => {
     message: "",
   });
 
-  // useEffect(() => {
-  //   const fetchUserEmail = async () => {
-  //     try {
-  //       const response = await axios.get("http://127.0.0.1:8000/api/user-email/", {
-  //         headers: { "Content-Type": "application/json" },
-  //       });
-  //       const loggedInUserEmail = response.data.email;
-  //       setFormData((prevData) => ({ ...prevData, contact: loggedInUserEmail }));
-  //     } catch (error) {
-  //       toast.error("Failed to fetch user email.");
-  //     }
-  //   };
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("student.email"); // Fetch email from localStorage
+    const storedName = Cookies.get("username"); // Fetch name from cookies
 
-  //   fetchUserEmail();
-  // }, []);
+    setFormData((prevData) => ({
+      ...prevData,
+      name: storedName || "", // Default to empty if not found
+      contact: storedEmail || "", // Default to empty if not found
+    }));
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -71,6 +67,17 @@ const ContactForm = () => {
         {/* Right Section - Contact Form */}
         <div className="md:w-1/2 bg-white shadow-lg rounded-lg p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Read-Only Name Field */}
+            <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Name"
+                className="w-full p-3 border rounded-lg bg-yellow-100"
+                readOnly
+            />
+            {/* Read-Only Email Field */}
             <input
               type="text"
               name="contact"
@@ -79,7 +86,7 @@ const ContactForm = () => {
               placeholder="E-mail Id"
               className="w-full p-3 border rounded-lg bg-yellow-100"
               readOnly
-            />
+          />
             <textarea
               name="message"
               value={formData.message}

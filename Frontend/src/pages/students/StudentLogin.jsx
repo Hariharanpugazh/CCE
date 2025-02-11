@@ -40,7 +40,7 @@ export default function StudentLogin() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isLocked) return;
-
+    
         try {
             const response = await fetch("http://localhost:8000/api/stud/login/", {
                 method: "POST",
@@ -49,11 +49,17 @@ export default function StudentLogin() {
                 },
                 body: JSON.stringify({ email: formData.email, password: formData.password }),
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
-                Cookies.set("jwt", data.token.jwt, { expires: 1 }); // Expires in 1 day
+                // Store JWT token and username in cookies
+                Cookies.set("jwt", data.token.jwt, { expires: 1, path: "/" }); // Store JWT
+                Cookies.set("username", data.username, { expires: 1, path: "/" }); // Store username
+                
+                // Store email in localStorage
+                localStorage.setItem("student.email", formData.email);
+    
                 toast.success("Login successful! Redirecting...");
                 navigate("/home"); // Redirect to student dashboard
             } else {
@@ -67,7 +73,7 @@ export default function StudentLogin() {
             console.error("Error during login:", error);
             toast.error("Something went wrong. Please try again.");
         }
-    };
+    };        
 
     /** Handle Forgot Password */
     const handleForgotPassword = () => {

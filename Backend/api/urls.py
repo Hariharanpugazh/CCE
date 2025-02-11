@@ -25,6 +25,7 @@ urlpatterns = [
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
     path("superadmin_login/",super_admin_login,name="super_admin_login"),
     path("get-contact-messages/",get_contact_messages,name="get_contact_messages"),
+    path('reply_to_message/',reply_to_message,name="reply_to_message"),
     path("toggle-auto-approval/",toggle_auto_approval, name="toggle_auto_approval"),
     path("get-auto-approval-status/",get_auto_approval_status, name="get_auto_approval_status"),
     path('admin-status/<str:id>/', admin_status_update, name='admin_status_update'),
@@ -84,6 +85,8 @@ urlpatterns = [
     path("save-job/<str:pk>/", save_job, name="save-job"),
     path("unsave-job/<str:pk>/", unsave_job, name="unsave-job"),
     path("saved-jobs/<str:user_id>/", get_saved_jobs, name="get-saved-jobs"),
+    path("get_student_messages/", get_student_messages, name="get_student_messages"),
+
 
     #study_material
     path("study-material/<str:study_material_id>/", get_study_material_by_id, name="get_study_material_by_id"),

@@ -38,9 +38,7 @@ import StudyEdit from "./pages/admin/StudyEdit";
 import Profile from "./pages/common/profile";
 import SavedJobs from './pages/students/SavedJobs';
 import StudentStudyMaterial from "./pages/students/StudentStudyMaterial";
-
-
-
+import StudentMail from "./pages/students/StudentMail";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -81,6 +79,7 @@ function App() {
         <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
         <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
+        <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
         <Route path="/internship-preview/:id" element={<InternshipPreview />} />
         <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
