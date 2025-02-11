@@ -1288,27 +1288,28 @@ def manage_jobs(request):
 @csrf_exempt
 def get_jobs(request):
     if request.method == 'GET':
-        jwt_token = request.COOKIES.get('jwt')
-        if not jwt_token:
-            return JsonResponse({'error': 'JWT token missing'}, status=401)
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse({'error': 'JWT token missing or invalid'}, status=401)
+
+        jwt_token = auth_header.split(" ")[1]
 
         try:
-            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])  
             admin_user = decoded_token.get('admin_user')
 
-            # Fetch jobs from MongoDB based on admin_user
             jobs = job_collection.find({'admin_id': admin_user})
             jobs_list = []
+
             for job in jobs:
                 job['_id'] = str(job['_id'])
-                job['type'] = 'job'  # Add a type field to differentiate between jobs and internships
+                job['type'] = 'job' 
                 jobs_list.append(job)
 
-            # Fetch internships from MongoDB based on admin_user
             internships = internship_collection.find({'admin_id': admin_user})
             for internship in internships:
                 internship['_id'] = str(internship['_id'])
-                internship['type'] = 'internship'  # Add a type field to differentiate between jobs and internships
+                internship['type'] = 'internship'
                 jobs_list.append(internship)
 
             return JsonResponse({'jobs': jobs_list}, status=200)
@@ -1319,8 +1320,8 @@ def get_jobs(request):
             return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
         except Exception as e:
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def get_admin_jobs(request):
