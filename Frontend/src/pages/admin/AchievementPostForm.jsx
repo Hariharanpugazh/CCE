@@ -19,6 +19,8 @@ export default function AchievementPostForm() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,6 +35,20 @@ export default function AchievementPostForm() {
       setError("You do not have permission to access this page.");
       // Optionally, you can redirect the user to a different page
       // navigate("/unauthorized");
+    }
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+      console.log("Decoded JWT Payload:", payload); // Debugging line
+      setUserRole(payload.role); // Assuming the payload has a 'role' field
+      if (payload.role === "admin") 
+        {
+          setUserId(payload.admin_user); // Assuming the payload has an 'id' field
+        }
+      else if (payload.role === "superadmin")
+        {
+          setUserId(payload.superadmin_user); // Assuming the payload has an 'id' field
+        }
+
     }
   }, [navigate]);
 
@@ -75,16 +91,30 @@ export default function AchievementPostForm() {
         formDataObj.append("photo", formData.photo);
       }
 
-      const response = await axios.post(
+      // const response = await axios.post(
+      //   "http://localhost:8000/api/upload_achievement/",
+      //   formDataObj,
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //       "Content-Type": "multipart/form-data",
+      //     },
+      //   }
+      // );
+
+
+        const response = await axios.post(
         "http://localhost:8000/api/upload_achievement/",
-        formDataObj,
+        {...formDataObj, userId , role : userRole },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            // Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
       );
+
+    
 
       setMessage(response.data.message);
       setError("");

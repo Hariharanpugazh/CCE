@@ -836,21 +836,76 @@ def delete_job(request, job_id):
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 
+# @csrf_exempt
+# @api_view(['POST'])
+# def post_achievement(request):
+#     auth_header = request.headers.get('Authorization')
+
+#     if not auth_header or not auth_header.startswith("Bearer "):
+#         return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
+
+#     token = auth_header.split(" ")[1]
+#     try:
+#         # Decode the JWT token
+#         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+#         admin_id = payload.get('admin_user')  # Extract admin_id from token
+#         if not admin_id:
+#             return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+
+#         # Get text data from request
+#         name = request.POST.get("name")
+#         achievement_description = request.POST.get("achievement_description")  # Corrected field name
+#         achievement_type = request.POST.get("achievement_type")
+#         company_name = request.POST.get("company_name")
+#         date_of_achievement = request.POST.get("date_of_achievement")
+#         batch = request.POST.get("batch")
+
+#         # Check if an image was uploaded
+#         if "photo" in request.FILES:
+#             image_file = request.FILES["photo"]
+#             # Convert the image to base64
+#             image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+#         else:
+#             image_base64 = None  # Photo is optional
+
+#         # Prepare the document to insert
+#         achievement_data = {
+#             "name": name,
+#             "achievement_description": achievement_description,  # Corrected field name
+#             "achievement_type": achievement_type,
+#             "company_name": company_name,
+#             "date_of_achievement": date_of_achievement,
+#             "batch": batch,
+#             "photo": image_base64,  # Store as base64
+#             "user_id": admin_id,  # Save the admin_id from the token
+#             "is_publish": True,  # Directly publish as no approval needed
+#             "updated_at": datetime.now()
+#         }
+
+#         # Insert into MongoDB
+#         achievement_collection.insert_one(achievement_data)
+
+#         return Response({"message": "Achievement stored successfully"}, status=status.HTTP_201_CREATED)
+
+#     except jwt.ExpiredSignatureError:
+#         return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+#     except jwt.DecodeError:
+#         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+#     except Exception as e:
+#         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @csrf_exempt
 @api_view(['POST'])
 def post_achievement(request):
-    auth_header = request.headers.get('Authorization')
-
-    if not auth_header or not auth_header.startswith("Bearer "):
-        return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
-
-    token = auth_header.split(" ")[1]
     try:
         # Decode the JWT token
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        admin_id = payload.get('admin_user')  # Extract admin_id from token
-        if not admin_id:
-            return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+        role = request.POST.get("role")
+        print(role)
+        userid = request.POST.get("userId")
+          # Extract admin_id from token
+        if not userid:
+            return Response({"error": "user_id not found"}, status=status.HTTP_401_UNAUTHORIZED)
 
         # Get text data from request
         name = request.POST.get("name")
@@ -877,7 +932,8 @@ def post_achievement(request):
             "date_of_achievement": date_of_achievement,
             "batch": batch,
             "photo": image_base64,  # Store as base64
-            "user_id": admin_id,  # Save the admin_id from the token
+            "user_id": userid,  # Save the admin_id from the token
+            "created_by": role,
             "is_publish": True,  # Directly publish as no approval needed
             "updated_at": datetime.now()
         }
@@ -886,11 +942,6 @@ def post_achievement(request):
         achievement_collection.insert_one(achievement_data)
 
         return Response({"message": "Achievement stored successfully"}, status=status.HTTP_201_CREATED)
-
-    except jwt.ExpiredSignatureError:
-        return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
-    except jwt.DecodeError:
-        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
