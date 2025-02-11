@@ -61,7 +61,6 @@ export default function AdminMail() {
         }
 
         const data = await response.json();
-        console.log("Fetched reviews:", data); // Log the fetched reviews
         setReviews(data.reviews); // Assuming the response is an object with a 'reviews' array
       } catch (error) {
         setError(error.message);
