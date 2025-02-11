@@ -18,6 +18,10 @@ export default function MailPage() {
   const [selectedAchievements, setSelectedAchievements] = useState([]);
   const [selectedInternships, setSelectedInternships] = useState([]);
   const [autoApproval, setAutoApproval] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [rejectedItemId, setRejectedItemId] = useState(null);
+  const [rejectedItemType, setRejectedItemType] = useState(null);
   const navigate = useNavigate();
   const token = Cookies.get("jwt"); // Retrieve JWT from cookies
 
@@ -68,42 +72,49 @@ export default function MailPage() {
   }, [token]);
 
   // Fetch auto-approval status
-useEffect(() => {
-  const fetchAutoApproval = async () => {
+  useEffect(() => {
+    const fetchAutoApproval = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/get-auto-approval-status/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAutoApproval(response.data.is_auto_approval);
+      } catch (err) {
+        console.error("Error fetching auto-approval status:", err);
+      }
+    };
+    fetchAutoApproval();
+  }, [token]);
+
+  // Handle Auto-Approval Toggle
+  const toggleAutoApproval = async () => {
+    console.log("Toggle clicked! Current state:", autoApproval); // Debugging log
     try {
-      const response = await axios.get("http://localhost:8000/api/get-auto-approval-status/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setAutoApproval(response.data.is_auto_approval);
+      await axios.post(
+        "http://localhost:8000/api/toggle-auto-approval/",
+        { is_auto_approval: !autoApproval },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setAutoApproval(!autoApproval);
     } catch (err) {
-      console.error("Error fetching auto-approval status:", err);
+      console.error("Error updating auto-approval:", err);
     }
   };
-  fetchAutoApproval();
-}, [token]);
-
-// Handle Auto-Approval Toggle
-const toggleAutoApproval = async () => {
-  console.log("Toggle clicked! Current state:", autoApproval); // Debugging log
-  try {
-    await axios.post(
-      "http://localhost:8000/api/toggle-auto-approval/",
-      { is_auto_approval: !autoApproval },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    setAutoApproval(!autoApproval);
-  } catch (err) {
-    console.error("Error updating auto-approval:", err);
-  }
-};
 
   // Handle Approve/Reject action for Jobs, Achievements, and Internships
   const handleAction = async (id, action, type) => {
+    if (action === "reject") {
+      setRejectedItemId(id);
+      setRejectedItemType(type);
+      setShowModal(true);
+      return;
+    }
+
     try {
       const endpoint =
         type === "job"
@@ -111,7 +122,7 @@ const toggleAutoApproval = async () => {
           : type === "achievement"
           ? `http://localhost:8000/api/review-achievement/${id}/`
           : `http://localhost:8000/api/review-internship/${id}/`;
-  
+
       const response = await axios.post(
         endpoint,
         { action },
@@ -123,7 +134,7 @@ const toggleAutoApproval = async () => {
         }
       );
       setMessage(response.data.message);
-  
+
       if (type === "job") {
         setJobs((prev) =>
           prev.map((job) =>
@@ -151,7 +162,7 @@ const toggleAutoApproval = async () => {
       console.error(`Error updating ${type}:`, err);
       setError(`Failed to update ${type} status.`);
     }
-  };  
+  };
 
   // Handle Delete action for Jobs, Achievements, and Internships
   const handleDelete = async (id, type) => {
@@ -249,27 +260,80 @@ const toggleAutoApproval = async () => {
     }
   };
 
+  // Handle Feedback Submission
+  const handleFeedbackSubmit = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/submit-feedback/",
+        {
+          item_id: rejectedItemId,
+          item_type: rejectedItemType,
+          feedback: feedback,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setMessage(response.data.message);
+      setShowModal(false);
+      setFeedback("");
+      setRejectedItemId(null);
+      setRejectedItemType(null);
+
+      // Update the state to reflect the rejection
+      if (rejectedItemType === "job") {
+        setJobs((prev) =>
+          prev.map((job) =>
+            job._id === rejectedItemId ? { ...job, is_publish: false } : job
+          )
+        );
+      } else if (rejectedItemType === "achievement") {
+        setAchievements((prev) =>
+          prev.map((achievement) =>
+            achievement._id === rejectedItemId
+              ? { ...achievement, is_publish: false }
+              : achievement
+          )
+        );
+      } else {
+        setInternships((prev) =>
+          prev.map((internship) =>
+            internship._id === rejectedItemId
+              ? { ...internship, is_publish: false }
+              : internship
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Error submitting feedback:", err);
+      setError("Failed to submit feedback.");
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <SuperAdminPageNavbar />
       <h1 className="text-2xl font-semibold text-gray-800 mb-4">Mail Inbox</h1>
-        <div className="flex items-center space-x-4">
-          <span className="text-gray-700">Auto-Approval</span>
-          <label className="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={autoApproval}
-              onChange={toggleAutoApproval}
-              className="sr-only peer"
-            />
-            <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-green-500 transition-colors"></div>
-            <span
-              className={`absolute left-1 top-1 h-4 w-4 bg-white rounded-full transition-transform ${
-                autoApproval ? "translate-x-5" : ""
-              }`}
-            ></span>
-          </label>
-        </div>
+      <div className="flex items-center space-x-4">
+        <span className="text-gray-700">Auto-Approval</span>
+        <label className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            checked={autoApproval}
+            onChange={toggleAutoApproval}
+            className="sr-only peer"
+          />
+          <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-green-500 transition-colors"></div>
+          <span
+            className={`absolute left-1 top-1 h-4 w-4 bg-white rounded-full transition-transform ${
+              autoApproval ? "translate-x-5" : ""
+            }`}
+          ></span>
+        </label>
+      </div>
       {message && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
           <strong className="font-bold">Success!</strong>
@@ -319,7 +383,7 @@ const toggleAutoApproval = async () => {
                   <th className="border border-gray-300 px-4 py-2">Select</th>
                   <th className="border border-gray-300 px-4 py-2">Title</th>
                   <th className="border border-gray-300 px-4 py-2">Company</th>
-                  <th className="border border-gray-300 px-4 py-2">Description</th>
+                  <th className="border border-gray-300 px-4 py-2">Staff Name</th>
                   <th className="border border-gray-300 px-4 py-2">Location</th>
                   <th className="border border-gray-300 px-4 py-2">Salary</th>
                   <th className="border border-gray-300 px-4 py-2">Deadline</th>
@@ -346,7 +410,7 @@ const toggleAutoApproval = async () => {
                     </td>
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.title}</td>
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.company_name}</td>
-                    <td className="border border-gray-300 px-4 py-2">{job.job_data.job_description}</td>
+                    <td className="border border-gray-300 px-4 py-2">{job.admin_name}</td>
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.job_location}</td>
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.salary_range}</td>
                     <td className="border border-gray-300 px-4 py-2">{job.job_data.application_deadline}</td>
@@ -531,12 +595,12 @@ const toggleAutoApproval = async () => {
                   <th className="border border-gray-300 px-4 py-2">Select</th>
                   <th className="border border-gray-300 px-4 py-2">Title</th>
                   <th className="border border-gray-300 px-4 py-2">Company</th>
+                  <th className="border border-gray-300 px-4 py-2">Staff Name</th>
                   <th className="border border-gray-300 px-4 py-2">Location</th>
                   <th className="border border-gray-300 px-4 py-2">Stipend</th>
                   <th className="border border-gray-300 px-4 py-2">Duration</th>
                   <th className="border border-gray-300 px-4 py-2">Deadline</th>
                   <th className="border border-gray-300 px-4 py-2">Required Skills</th>
-                  <th className="border border-gray-300 px-4 py-2">Education</th>
                   <th className="border border-gray-300 px-4 py-2">Type</th>
                   <th className="border border-gray-300 px-4 py-2">Status</th>
                   <th className="border border-gray-300 px-4 py-2">Actions</th>
@@ -563,12 +627,12 @@ const toggleAutoApproval = async () => {
                       </td>
                       <td className="border border-gray-300 px-4 py-2">{data.title || "N/A"}</td>
                       <td className="border border-gray-300 px-4 py-2">{data.company_name || "N/A"}</td>
+                      <td className="border border-gray-300 px-4 py-2">{internship.admin_name || "N/A"}</td>
                       <td className="border border-gray-300 px-4 py-2">{data.location || "N/A"}</td>
                       <td className="border border-gray-300 px-4 py-2">{data.stipend || "N/A"}</td>
                       <td className="border border-gray-300 px-4 py-2">{data.duration || "N/A"}</td>
                       <td className="border border-gray-300 px-4 py-2">{data.application_deadline || "N/A"}</td>
                       <td className="border border-gray-300 px-4 py-2">{data.required_skills ? data.required_skills.join(", ") : "N/A"}</td>
-                      <td className="border border-gray-300 px-4 py-2">{data.education_requirements || "N/A"}</td>
                       <td className="border border-gray-300 px-4 py-2">{data.internship_type || "N/A"}</td>
                       <td className="border border-gray-300 px-4 py-2 font-semibold">
                         {internship.is_publish === true ? (
@@ -615,6 +679,35 @@ const toggleAutoApproval = async () => {
           </div>
         )}
       </div>
+
+      {/* Feedback Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4">Provide Feedback</h2>
+            <textarea
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              placeholder="Enter your feedback..."
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+            ></textarea>
+            <div className="flex justify-end">
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded mr-2"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded"
+                onClick={handleFeedbackSubmit}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
