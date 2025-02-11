@@ -15,6 +15,7 @@ export default function StudentPageNavbar() {
   };
 
   return (
+  <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg mx-3">
     <nav className="flex justify-between p-4 items-stretch pt-8 relative">
       <span className="flex-1 max-w-[25%]"></span>
 
@@ -54,7 +55,10 @@ export default function StudentPageNavbar() {
       <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative">
         <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => setProfileMenuOpen(toggle => !toggle)}>
           <p>Profile</p>
-          <FiUser className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer" style={{ width: "2rem" }} />
+          <FiUser
+            className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
+            style={{ width: "2rem" }}
+          />
 
           {/* Profile Menu */}
           {isProfileMenuOpen && (
@@ -80,6 +84,12 @@ export default function StudentPageNavbar() {
                 </li>
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/applied-jobs")}
+                >
+                  Applied Jobs
+                </li>
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
                   onClick={handleLogout}
                 >
                   Logout
@@ -90,5 +100,6 @@ export default function StudentPageNavbar() {
         </div>
       </div>
     </nav>
+    </div>
   );
 }

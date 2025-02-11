@@ -316,11 +316,10 @@ def get_students(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-
 @csrf_exempt
 def update_student(request, student_id):
     """
-    API to update a student's profile.
+    API to update a student's profile, including status updates.
     """
     if request.method == 'PUT':
         try:
@@ -329,8 +328,8 @@ def update_student(request, student_id):
             if not student:
                 return JsonResponse({'error': 'Student not found'}, status=404)
 
-            # Define allowed fields for updating
-            allowed_fields = ['name', 'department', 'year', 'email']
+            # ✅ Add "status" to allowed fields
+            allowed_fields = ['name', 'department', 'year', 'email', 'status']
 
             # Filter data to include only allowed fields
             update_data = {field: data[field] for field in allowed_fields if field in data}
@@ -346,6 +345,7 @@ def update_student(request, student_id):
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 @csrf_exempt
 def delete_student(request, student_id):
@@ -474,6 +474,11 @@ def get_profile(request, userId):
                     "email": user.get("email"),
                     "department": user.get("department"),
                     "year": user.get("year"),
+                    "college_name": user.get("college_name"),
+                    "status": user.get("status"),
+                    "last_login": user.get("last_login"),
+                    "created_at": user.get("created_at"),
+                    "saved_jobs": user.get("saved_jobs", []),
                     "role": "student",
                 }
                 return JsonResponse(
@@ -485,6 +490,8 @@ def get_profile(request, userId):
                     "name": user.get("name"),
                     "email": user.get("email"),
                     "department": user.get("department"),
+                    "college_name": user.get("college_name"),
+                    "status": user.get("status"),
                     "role": "admin",
                 }
                 return JsonResponse(
@@ -507,7 +514,8 @@ def get_profile(request, userId):
 def save_job(request, pk):
     if request.method == "POST":
         try:
-            user_id = "67a05ea42707509d6d292eb1"
+            data = json.loads(request.body)
+            user_id = data.get("userId")
             if not user_id:
                 return JsonResponse(
                     {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
@@ -527,7 +535,9 @@ def save_job(request, pk):
 def unsave_job(request, pk):
     if request.method == "POST":
         try:
-            user_id = "67a05ea42707509d6d292eb1"
+            data = json.loads(request.body)
+            user_id = data.get("userId")
+
             if not user_id:
                 return JsonResponse(
                     {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
@@ -634,7 +644,7 @@ def post_student_achievement(request):
         achievement_collection.insert_one(achievement_data)
 
         return JsonResponse(
-            {"message": "Achievement submitted successfully. Please wait for approval."},
+            {"message": "Achievement submitted successfully. Admin will contact you soon"},
             status=201
         )
 

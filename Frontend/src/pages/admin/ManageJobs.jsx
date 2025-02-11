@@ -66,8 +66,12 @@ const ManageJobs = () => {
           <h2 className="text-xl font-semibold">
             {type === "job" ? item.job_data.title : type === "study" ? item.study_material_data.title : item.internship_data.title}
           </h2>
-          <span className={`px-2 py-1 text-sm font-semibold rounded ${item.is_publish ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-            {item.is_publish ? "Published" : "Pending"}
+          {/* Update the status label based on is_publish */}
+          <span className={`px-2 py-1 text-sm font-semibold rounded 
+            ${item.is_publish === true ? 'bg-green-100 text-green-800' : 
+              item.is_publish === false ? 'bg-red-100 text-red-800' : 
+              'bg-yellow-100 text-yellow-800'}`}>
+            {item.is_publish === true ? "Published" : item.is_publish === false ? "Rejected" : "Pending"}
           </span>
         </div>
         <p className="text-gray-600">
@@ -81,7 +85,7 @@ const ManageJobs = () => {
         Edit
       </button>
     </div>
-  );
+  );  
 
   return (
     <div className="container mx-auto p-4">
