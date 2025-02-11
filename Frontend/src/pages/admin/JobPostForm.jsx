@@ -41,6 +41,7 @@ export default function JobPostForm() {
   const [showWarning, setShowWarning] = useState(false); // State to show the warning popup
   const [isPreview, setIsPreview] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [disableSubmit, setDisableSubmit] = useState(false)
 
   const categories = [
@@ -128,19 +129,24 @@ export default function JobPostForm() {
         return;
       }
 
+      // const response = await axios.post(
+      //   "http://localhost:8000/api/job_post/",
+      //   { ...formData, selectedCategory, selectedWorkType },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //       "Content-Type": "application/json",
+      //     },
+      //   }
+      // );
+      
       const response = await axios.post(
         "http://localhost:8000/api/job_post/",
-        { ...formData, selectedCategory, selectedWorkType },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+        { ...formData, selectedCategory, selectedWorkType, userId , role : userRole },
       );
 
       setInterval(() => {
-        window.location.href = userRole === "admin" ? "/admin/jobs" : "/superadmin/jobs"
+        window.location.href = `${window.location.origin}/jobs`;
       }, 2000);
       window.location.href = "#"
       setMessage(response.data.message);
@@ -161,6 +167,15 @@ export default function JobPostForm() {
       const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
       console.log("Decoded JWT Payload:", payload); // Debugging line
       setUserRole(payload.role); // Assuming the payload has a 'role' field
+      if (payload.role === "admin") 
+        {
+          setUserId(payload.admin_user); // Assuming the payload has an 'id' field
+        }
+      else if (payload.role === "superadmin")
+        {
+          setUserId(payload.superadmin_user); // Assuming the payload has an 'id' field
+        }
+
     }
   }, []);
 
