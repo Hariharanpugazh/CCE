@@ -366,89 +366,9 @@ def delete_student(request, student_id):
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-
-# ===================== CONTACT US =====================
-
-@csrf_exempt
-def contact_us(request):
-    if request.method == "POST":
-        try:
-            # Parse JSON request body
-            data = json.loads(request.body)
-            name = data.get("name")
-            contact = data.get("contact")
-            message = data.get("message")
-
-            # Validate input fields
-            if any(not field for field in [name, contact, message]):
-                return JsonResponse({"error": "All fields are required"}, status=400)
-
-            # Check if both name and email exist in the students collection
-            student_data = student_collection.find_one({"email": contact})
-
-            if not student_data:
-                return JsonResponse({"error": "Email do not match any student records. Use your official Email"}, status=404)
-
-            # Save contact message in the contact_us collection
-            contact_document = {
-                "name": name,
-                "contact": contact,
-                "message": message,
-                "timestamp": datetime.now(timezone.utc)
-            }
-            contactus_collection.insert_one(contact_document)
-
-            # Send email notification to admin
-            subject = "Message From Student"
-            email_message = (
-                f"New message from {name}\n\n"
-                f"Contact: {contact}\n\n"
-                f"Message:\n{message}\n\n"
-            )
-
-            send_mail(
-                subject,
-                email_message,
-                settings.EMAIL_HOST_USER,  # Sender email
-                [settings.ADMIN_EMAIL],  # Admin email recipient
-                fail_silently=False,
-            )
-
-            return JsonResponse({
-                "message": "Your message has been received and sent to Admin!",
-                "is_student": True
-            }, status=200)
-
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON data"}, status=400)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=405)
-
-@csrf_exempt
-def get_contact_messages(request):
-    if request.method == "GET":
-        try:
-            # Fetch all messages from the contact_us collection
-            messages = list(contactus_collection.find({}, {"_id": 0, "name": 1, "contact": 1, "message": 1, "timestamp": 1}))
-
-            # Format timestamp for easier readability
-            for message in messages:
-                if "timestamp" in message and message["timestamp"]:
-                    message["timestamp"] = message["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
-                else:
-                    message["timestamp"] = "N/A"
-
-            return JsonResponse({"messages": messages}, status=200)
-
-        except Exception as e:
-            # Log the error and return a 500 response
-            print(f"Error: {e}")
-            return JsonResponse({"error": str(e)}, status=500)
-
-    return JsonResponse({"error": "Invalid request method"}, status=405)
     
+#===============================================================Profile=======================================================================
+
 @csrf_exempt
 def get_profile(request, userId):
     if request.method == "GET":
@@ -507,6 +427,66 @@ def get_profile(request, userId):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+
+# ================================================================ CONTACT US ================================================================
+
+@csrf_exempt
+def contact_us(request):
+    if request.method == "POST":
+        try:
+            # Parse JSON request body
+            data = json.loads(request.body)
+            name = data.get("name")
+            contact = data.get("contact")
+            message = data.get("message")
+
+            # Validate input fields
+            if any(not field for field in [name, contact, message]):
+                return JsonResponse({"error": "All fields are required"}, status=400)
+
+            # Check if both name and email exist in the students collection
+            student_data = student_collection.find_one({"email": contact})
+
+            if not student_data:
+                return JsonResponse({"error": "Email do not match any student records. Use your official Email"}, status=404)
+
+            # Save contact message in the contact_us collection
+            contact_document = {
+                "name": name,
+                "contact": contact,
+                "message": message,
+                "timestamp": datetime.now(timezone.utc)
+            }
+            contactus_collection.insert_one(contact_document)
+
+            # Send email notification to admin
+            subject = "Message From Student"
+            email_message = (
+                f"New message from {name}\n\n"
+                f"Contact: {contact}\n\n"
+                f"Message:\n{message}\n\n"
+            )
+
+            send_mail(
+                subject,
+                email_message,
+                settings.EMAIL_HOST_USER,  # Sender email
+                [settings.ADMIN_EMAIL],  # Admin email recipient
+                fail_silently=False,
+            )
+
+            return JsonResponse({
+                "message": "Your message has been received and sent to Admin!",
+                "is_student": True
+            }, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON data"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
     
 
 #================================================================Jobs================================================================================================
@@ -682,8 +662,6 @@ def review_achievement(request, achievement_id):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Invalid request method"}, status=400)
-
-
 
 @csrf_exempt
 def get_all_study_material(request):

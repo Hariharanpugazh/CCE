@@ -26,6 +26,8 @@ urlpatterns = [
     path("toggle-auto-approval/",toggle_auto_approval, name="toggle_auto_approval"),
     path("get-auto-approval-status/",get_auto_approval_status, name="get_auto_approval_status"),
     path('admin-status/<str:id>/', admin_status_update, name='admin_status_update'),
+    path('get_jobs_with_admin/',get_jobs_with_admin, name="get_jobs_with_admin"),
+    path("get_achievements_with_admin/", get_achievements_with_admin, name="get_achievements_with_admin"),
 
     #account management 
     path('students/', get_students, name='get_students'),

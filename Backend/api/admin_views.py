@@ -69,6 +69,7 @@ superadmin_collection = db['superadmin']
 student_collection = db['students']
 reviews_collection = db['reviews']
 study_material_collection = db['studyMaterial']
+contactus_collection = db["contact_us"]
 
 
 # Dictionary to track failed login attempts
@@ -1598,3 +1599,106 @@ def fetch_review(request):
         return JsonResponse({"error": "Reviews not found"}, status=404)
 
     return JsonResponse({"reviews": reviews_list}, status=200, safe=False)  # Return as a list
+
+#===================================================================Mails====================================================================== 
+
+@csrf_exempt
+def get_contact_messages(request):
+    if request.method == "GET":
+        try:
+            # Fetch all messages from the contact_us collection
+            messages = list(contactus_collection.find({}, {"_id": 0, "name": 1, "contact": 1, "message": 1, "timestamp": 1}))
+
+            # Format timestamp for easier readability
+            for message in messages:
+                if "timestamp" in message and message["timestamp"]:
+                    message["timestamp"] = message["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+                else:
+                    message["timestamp"] = "N/A"
+
+            return JsonResponse({"messages": messages}, status=200)
+
+        except Exception as e:
+            # Log the error and return a 500 response
+            print(f"Error: {e}")
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@csrf_exempt
+def get_jobs_with_admin(request):
+    """
+    Fetch all jobs and map them with admin names.
+    """
+    try:
+        # Fetch all jobs from the jobs collection
+        jobs = job_collection.find({}, {"_id": 1, "admin_id": 1, "job_data": 1, "updated_at": 1})
+
+        job_list = []
+
+        for job in jobs:
+            job["_id"] = str(job["_id"])  # Convert ObjectId to string
+            job["updated_at"] = job.get("updated_at", "N/A")
+
+            # Fetch admin details using admin_id
+            admin_id = job.get("admin_id")
+            admin_name = "Unknown Admin"
+
+            if admin_id:
+                admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
+                if admin:
+                    admin_name = admin.get("name", "Unknown Admin")
+
+            # Append job details with mapped admin name
+            job_list.append({
+                "admin_name": admin_name,
+                "message": f"{admin_name} posted a job",
+                "job_data": job.get("job_data", {}),
+                "timestamp": job["updated_at"]
+            })
+
+        return JsonResponse({"jobs": job_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+    
+@csrf_exempt
+def get_achievements_with_admin(request):
+    """
+    Fetch all achievements and correctly map them with admin names.
+    """
+    try:
+        achievements = achievement_collection.find({}, {"_id": 1, "user_id": 1, "achievement_description": 1, "achievement_type": 1, "company_name": 1, "date_of_achievement": 1, "updated_at": 1})
+
+        achievement_list = []
+
+        for achievement in achievements:
+            achievement["_id"] = str(achievement["_id"])  # Convert ObjectId to string
+            achievement["updated_at"] = achievement.get("updated_at", "N/A")
+
+            # Fetch admin details using user_id
+            admin_id = achievement.get("user_id")
+            admin_name = "Unknown Admin"
+
+            if admin_id:
+                admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
+                if admin:
+                    admin_name = admin.get("name", "Unknown Admin")
+
+            # Append achievement details with mapped admin name
+            achievement_list.append({
+                "admin_name": admin_name,
+                "message": f"{admin_name} shared an achievement",
+                "achievement_data": {
+                    "description": achievement.get("achievement_description", "No description"),
+                    "type": achievement.get("achievement_type", "Unknown"),
+                    "company": achievement.get("company_name", "Not specified"),
+                    "date": achievement.get("date_of_achievement", "Unknown"),
+                },
+                "timestamp": achievement["updated_at"]
+            })
+
+        return JsonResponse({"achievements": achievement_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
