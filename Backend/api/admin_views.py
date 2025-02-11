@@ -1584,10 +1584,11 @@ def get_contact_messages(request):
     if request.method == "GET":
         try:
             # Fetch all messages from the contact_us collection
-            messages = list(contactus_collection.find({}, {"_id": 0, "name": 1, "contact": 1, "message": 1, "timestamp": 1}))
+            messages = list(contactus_collection.find({}, {"_id": 1, "name": 1, "contact": 1, "message": 1, "timestamp": 1}))
 
-            # Format timestamp for easier readability
+            # Format timestamp and convert `_id` to string
             for message in messages:
+                message["_id"] = str(message["_id"])  # Convert ObjectId to string
                 if "timestamp" in message and message["timestamp"]:
                     message["timestamp"] = message["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
                 else:
@@ -1601,6 +1602,36 @@ def get_contact_messages(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@csrf_exempt
+def reply_to_message(request):
+    """
+    API to reply to a contact message.
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            message_id = data.get("message_id")  # Message document _id
+            reply_message = data.get("reply_message")  # Admin's reply text
+
+            if not message_id or not reply_message:
+                return JsonResponse({"error": "Message ID and reply message are required."}, status=400)
+
+            # Update the existing message with the reply
+            result = contactus_collection.update_one(
+                {"_id": ObjectId(message_id)},
+                {"$set": {"reply_message": reply_message}}
+            )
+
+            if result.modified_count == 0:
+                return JsonResponse({"error": "Message not found or already updated."}, status=404)
+
+            return JsonResponse({"success": "Reply sent successfully!"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method."}, status=405)
 
 @csrf_exempt
 def get_jobs_with_admin(request):
@@ -1679,10 +1710,6 @@ def get_achievements_with_admin(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-    
-from bson import ObjectId
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def get_internships_with_admin(request):

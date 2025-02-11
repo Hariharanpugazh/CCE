@@ -13,6 +13,8 @@ const InboxPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("contactMessages");
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [replyText, setReplyText] = useState({});
+  const [loading, setLoading] = useState(false);
   const itemsPerPage = 5; // Change this as needed
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -23,6 +25,7 @@ const InboxPage = () => {
   const currentStudentAchievements = studentAchievements.slice(indexOfFirstItem, indexOfLastItem);
   const currentMessages = messages.slice(indexOfFirstItem, indexOfLastItem);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
 
   useEffect(() => {
     fetchMessages();
@@ -88,6 +91,33 @@ const InboxPage = () => {
     }
   };  
   
+  const sendReply = async (messageId) => {
+    setLoading(true);
+    try {
+      const response = await fetch("http://localhost:8000/api/reply_to_message/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message_id: messageId, reply_message: replyText[messageId] }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        fetchMessages(); // Refresh messages after sending reply
+      }
+    } catch (error) {
+      console.error("Error sending reply:", error);
+    }
+    setLoading(false);
+  };
+
+  const handleReplyChange = (messageId, value) => {
+    setReplyText((prev) => ({
+      ...prev,
+      [messageId]: value,
+    }));
+  };
   
   const toggleExpand = (index) => {
     setExpandedIndex(prevIndex => prevIndex === index ? null : index);
@@ -122,87 +152,101 @@ const InboxPage = () => {
       case "contactMessages":
         return (
           <section>
-            <h2 className="text-2xl font-semibold mb-6 text-gray-700 flex items-center">
-              📩 Contact Messages
-            </h2>
-            {messages.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {currentMessages.map((message, index) => (
-                    <motion.div
-                      key={index}
-                      className="bg-white shadow-md rounded-lg p-5 border border-gray-200 hover:shadow-lg transition-all duration-300"
-                    >
-                      {/* Header Section */}
-                      <div className="flex justify-between items-center mb-2">
-                        <h2 className="text-lg font-bold text-gray-800">{message.name}</h2>
-                        <p className="text-xs font-semibold bg-gray-100 text-gray-600 px-3 py-1 rounded-lg">
-                          {message.timestamp !== "Invalid Date"
-                            ? new Date(message.timestamp).toLocaleString()
-                            : "Invalid Date"}
-                        </p>
-                      </div>
-      
-                      {/* Contact Info */}
-                      <p className="text-sm text-gray-600 font-medium flex items-center">
-                        📞 {message.contact || "No contact available"}
+          <h2 className="text-2xl font-semibold mb-6 text-gray-700 flex items-center">
+            📩 Contact Messages
+          </h2>
+          {messages.length > 0 ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {currentMessages.map((message, index) => (
+                  <motion.div
+                    key={index}
+                    className="bg-white shadow-md rounded-lg p-5 border border-gray-200 hover:shadow-lg transition-all duration-300"
+                  >
+                    {/* Header Section */}
+                    <div className="flex justify-between items-center mb-2">
+                      <h2 className="text-lg font-bold text-gray-800">{message.name}</h2>
+                      <p className="text-xs font-semibold bg-gray-100 text-gray-600 px-3 py-1 rounded-lg">
+                        {message.timestamp !== "Invalid Date"
+                          ? new Date(message.timestamp).toLocaleString()
+                          : "Invalid Date"}
                       </p>
-      
-                      {/* Expand Message Section */}
-                      <button
-                        className="mt-3 text-blue-600 font-medium hover:underline focus:outline-none"
-                        onClick={() => toggleExpand(index)}
-                      >
-                        {expandedIndex === index ? "Hide Message" : "View Message"}
-                      </button>
-      
-                      <AnimatePresence>
-                        {expandedIndex === index && (
-                          <motion.div
-                            className="mt-4 bg-gray-50 rounded-lg shadow-inner p-4 border border-gray-300"
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <h3 className="text-lg font-semibold text-gray-800 mb-2">💬 Message:</h3>
-                            <p className="text-sm text-gray-700">{message.message}</p>
-      
-                            {/* Reply Button */}
-                            <button
-                              className="mt-3 w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition duration-300"
-                              onClick={() => handleReply(message)}
-                            >
-                              ✉️ Reply
-                            </button>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
+                    </div>
+    
+                    {/* Contact Info */}
+                    <p className="text-sm text-gray-600 font-medium flex items-center">
+                      📞 {message.contact || "No contact available"}
+                    </p>
+    
+                    {/* Expand Message Section */}
+                    <button
+                      className="mt-3 text-blue-600 font-medium hover:underline focus:outline-none"
+                      onClick={() => toggleExpand(index)}
+                    >
+                      {expandedIndex === index ? "Hide Message" : "View Message"}
+                    </button>
+    
+                    <AnimatePresence>
+                      {expandedIndex === index && (
+                        <motion.div
+                          className="mt-4 bg-gray-50 rounded-lg shadow-inner p-4 border border-gray-300"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <h3 className="text-lg font-semibold text-gray-800 mb-2">💬 Message:</h3>
+                          <p className="text-sm text-gray-700">{message.message}</p>
+    
+                          {/* Display Reply if Available */}
+                          {message.reply_message ? (
+                            <p className="mt-3 text-green-600 font-medium">✅ {message.reply_message}</p>
+                          ) : (
+                            <>
+                              {/* Reply Input */}
+                              <textarea
+                                className="w-full mt-3 p-2 border rounded-lg"
+                                placeholder="Type your reply..."
+                                value={replyText[message._id] || ""}
+                                onChange={(e) => handleReplyChange(message._id, e.target.value)}
+                              />
+                              <button
+                                className="mt-3 w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition duration-300"
+                                onClick={() => sendReply(message._id)}
+                                disabled={loading}
+                              >
+                                {loading ? "Sending..." : "✉️ Send Reply"}
+                              </button>
+                            </>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                ))}
+              </div>
+    
+              {/* Pagination Controls */}
+              {messages.length > itemsPerPage && (
+                <div className="flex justify-center mt-4">
+                  {[...Array(Math.ceil(messages.length / itemsPerPage)).keys()].map((number) => (
+                    <button
+                      key={number + 1}
+                      onClick={() => paginate(number + 1)}
+                      className={`px-3 py-1 mx-1 border rounded ${
+                        currentPage === number + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
+                      }`}
+                    >
+                      {number + 1}
+                    </button>
                   ))}
                 </div>
-      
-                {/* Pagination Controls */}
-                {messages.length > itemsPerPage && (
-                  <div className="flex justify-center mt-4">
-                    {[...Array(Math.ceil(messages.length / itemsPerPage)).keys()].map((number) => (
-                      <button
-                        key={number + 1}
-                        onClick={() => paginate(number + 1)}
-                        className={`px-3 py-1 mx-1 border rounded ${
-                          currentPage === number + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
-                        }`}
-                      >
-                        {number + 1}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-center text-gray-500 italic">No contact messages found.</p>
-            )}
-          </section>
+              )}
+            </>
+          ) : (
+            <p className="text-center text-gray-500 italic">No contact messages found.</p>
+          )}
+        </section>
         );               
         case "achievements":
           return (
