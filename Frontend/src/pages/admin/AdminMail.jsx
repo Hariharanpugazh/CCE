@@ -332,31 +332,17 @@ export default function AdminMail() {
             {reviews.length > 0 ? (
               <div className="bg-white shadow-md rounded-md">
                 {reviews.map((review, index) => (
-                  <motion.div
+                  <Link
+                    to={review.item_type === 'internship' ? `/internship-edit/${review.item_id}` : `/job-edit/${review.item_id}`}
                     key={review.review_id}
-                    className="border-b p-4 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => toggleExpand(index)}
+                    className="block border-b p-4 hover:bg-gray-100"
                   >
                     <div className="flex justify-between items-center">
                       <span className="font-semibold text-lg">{review.item_name || 'Notification'}</span>
                       <span className="text-sm text-gray-500">{new Date(review.timestamp).toLocaleString()}</span>
                     </div>
                     <p className="text-gray-700">{review.feedback}</p>
-                    <AnimatePresence>
-                      {expandedIndex === index && (
-                        <motion.div
-                          className="mt-4 text-gray-700 bg-gray-50 rounded-lg shadow-inner p-4 border border-gray-300"
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <p className="text-sm text-gray-600">Item ID: {review.item_id}</p>
-                          <p className="text-sm text-gray-600">Item Type: {review.item_type}</p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
+                  </Link>
                 ))}
               </div>
             ) : (
