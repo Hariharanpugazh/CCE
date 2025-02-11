@@ -704,3 +704,48 @@ def get_all_study_material(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+    
+
+
+@csrf_exempt
+def apply_job(request):
+    try:
+        data = json.loads(request.body)
+        student_id = data.get("studentId")
+        job_id = data.get("jobId")
+
+        if not student_id or not job_id:
+            return JsonResponse({"error": "Student ID and Job ID are required"}, status=400)
+
+        # Update the student's applied jobs in the database
+        result = student_collection.update_one(
+            {"_id": ObjectId(student_id)},
+            {"$addToSet": {"applied_jobs": job_id}}
+        )
+
+        if result.modified_count == 0:
+            return JsonResponse({"error": "Failed to update applied jobs"}, status=400)
+
+        # Notify Super Admin
+        # notify_super_admin(student_id, job_id)
+
+        return JsonResponse({"message": "Job application confirmed successfully"})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+    
+@csrf_exempt
+def get_applied_jobs(request, userId):
+    try:
+        # Find the student by ID
+        student = student_collection.find_one({"_id": ObjectId(userId)})
+
+        if not student:
+            return JsonResponse({"error": "Student not found"}, status=404)
+
+        # Get the list of applied job IDs
+        applied_jobs = student.get("applied_jobs", [])
+
+        return JsonResponse({"jobs": applied_jobs})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)

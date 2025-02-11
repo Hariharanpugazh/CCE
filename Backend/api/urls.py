@@ -50,6 +50,8 @@ urlpatterns = [
     path('job-delete/<str:job_id>/', delete_job, name='delete_job'),
     path('get-jobs/', get_jobs, name='get_jobs'),
     path('submit-feedback/', submit_feedback, name='submit_feedback'),
+    path('apply-job/', apply_job, name='apply_job'),
+    path('applied-jobs/<str:userId>/', get_applied_jobs, name='get_applied_jobs'),
     
 
     #Achievements

@@ -27,18 +27,15 @@ function timeAgo(dateString) {
   return "Just now";
 }
 
-export default function ApplicationCard({ application, savedJobs=[] }) {
+export default function ApplicationCard({ application, savedJobs = [] }) {
   const navigate = useNavigate();
   const [isBookmarked, setIsBookmarked] = useState(false);
-  
 
   useEffect(() => {
     if (Array.isArray(savedJobs)) {
       setIsBookmarked(savedJobs.includes(application._id));
     }
-    console.log("Saved Jobs:", savedJobs);
   }, [savedJobs, application._id]);
-  
 
   const handleBookmark = async (event) => {
     event.stopPropagation();
@@ -88,11 +85,6 @@ export default function ApplicationCard({ application, savedJobs=[] }) {
     }
   };
 
-  const handleApplyClick = (event) => {
-    event.stopPropagation();
-    window.open(application.job_link, "_blank", "noopener noreferrer");
-  };
-
   return (
     <div
       className="flex flex-col p-3 border border-gray-200 rounded-lg justify-between cursor-pointer"
@@ -131,19 +123,18 @@ export default function ApplicationCard({ application, savedJobs=[] }) {
       </div>
       <p className="w-[95%] text-xs my-4">{application.job_description}</p>
       <div className="w-[85%] flex flex-wrap space-x-3">
-        {typeof (application.skills_required ?? application.required_skills) ===
-        "string" ? (
-          <p className="p-1 bg-gray-100 text-xs rounded px-2">
-            {application.skills_required ?? application.required_skills}
-          </p>
+        {Array.isArray(application.skills_required ?? application.required_skills) ? (
+          (application.skills_required ?? application.required_skills).map((skill, key) => (
+            <p key={key} className="p-1 bg-gray-100 text-xs rounded px-2">
+              {skill}
+            </p>
+          ))
         ) : (
-          (application.skills_required ?? application.required_skills).map(
-            (skill, key) => (
-              <p key={key} className="p-1 bg-gray-100 text-xs rounded px-2">
-                {skill}
-              </p>
-            )
-          )
+          application.skills_required ?? application.required_skills ? (
+            <p className="p-1 bg-gray-100 text-xs rounded px-2">
+              {application.skills_required ?? application.required_skills}
+            </p>
+          ) : null
         )}
       </div>
       <div className="flex text-[#8C8C8C] items-center space-x-2 mt-2">
@@ -172,12 +163,6 @@ export default function ApplicationCard({ application, savedJobs=[] }) {
       </div>
       <div className="flex justify-between items-center mt-5">
         <p className="text-[#FFC800] text-xl">{application.salary_range}/-</p>
-        <button
-          className="bg-[#FFC800] p-2 rounded text-xs cursor-pointer"
-          onClick={handleApplyClick}
-        >
-          Apply Now
-        </button>
       </div>
     </div>
   );

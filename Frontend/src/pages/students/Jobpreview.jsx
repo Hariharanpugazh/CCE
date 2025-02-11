@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const JobPreview = () => {
     const { id } = useParams();
     const [job, setJob] = useState(null);
+    const [showPopup, setShowPopup] = useState(false);
 
     useEffect(() => {
         fetch(`http://127.0.0.1:8000/api/job/${id}/`)
@@ -11,6 +14,39 @@ const JobPreview = () => {
             .then(data => setJob(data.job))
             .catch(error => console.error("Error fetching job:", error));
     }, [id]);
+
+    const handleApplyClick = () => {
+        // Store the job ID in local storage or session storage
+        sessionStorage.setItem('appliedJobId', id);
+        window.open(job.job_data.company_website, "_blank", "noopener noreferrer");
+      };
+    
+      useEffect(() => {
+        const appliedJobId = sessionStorage.getItem('appliedJobId');
+        if (appliedJobId) {
+          setShowPopup(true);
+          sessionStorage.removeItem('appliedJobId'); // Clear the storage after showing the popup
+        }
+      }, []);
+    
+      const handleConfirm = async () => {
+        try {
+          const token = Cookies.get("jwt");
+          const userId = JSON.parse(atob(token.split(".")[1])).student_user;
+          await axios.post('http://localhost:8000/api/apply-job/', {
+            studentId: userId,
+            jobId: id
+          });
+          setShowPopup(false);
+        } catch (error) {
+          console.error("Error confirming job application:", error);
+          alert("Unable to track application. Please try again later.");
+        }
+      };
+    
+      const handleCancel = () => {
+        setShowPopup(false);
+      };
 
     if (!job) return <p className="text-center text-lg font-semibold">Loading...</p>;
 
@@ -90,15 +126,37 @@ const JobPreview = () => {
 
             {/* Apply Button */}
             <div className="text-center mt-8">
-                <a
-                    href={job.job_data.company_website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md"
-                >
-                    Apply Now
-                </a>
+        <button
+          onClick={handleApplyClick}
+          className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md"
+        >
+          Apply Now
+        </button>
+      </div>
+
+      {/* Confirmation Popup */}
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h2 className="text-xl font-semibold mb-4">Confirm Your Job Application</h2>
+            <p className="mb-4">Did you complete your job application for "{job.job_data.title}"?</p>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={handleConfirm}
+                className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700"
+              >
+                Yes, Confirm
+              </button>
+              <button
+                onClick={handleCancel}
+                className="bg-gray-600 text-white px-4 py-2 rounded-full hover:bg-gray-700"
+              >
+                No, Cancel
+              </button>
             </div>
+          </div>
+        </div>
+      )}
         </div>
     );
 };
