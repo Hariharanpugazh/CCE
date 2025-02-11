@@ -174,6 +174,7 @@ def student_login(request):
 
             # Find the student user by email
             student_user = student_collection.find_one({"email": email})
+            username = student_user.get('name')
             if not student_user:
                 return JsonResponse(
                     {"error": "No account found with this email"}, status=404
@@ -198,7 +199,7 @@ def student_login(request):
                 # Generate JWT token
                 student_id = student_user.get("_id")
                 tokens = generate_tokens(student_id)
-                return JsonResponse({"message": "Login successful", "token": tokens}, status=200)
+                return JsonResponse({"username": "username", "token": tokens}, status=200)
             else:
                 # Track failed attempts
                 if email not in failed_login_attempts:

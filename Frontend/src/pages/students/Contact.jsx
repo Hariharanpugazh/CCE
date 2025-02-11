@@ -10,21 +10,21 @@ const ContactForm = () => {
     message: "",
   });
 
-  useEffect(() => {
-    const fetchUserEmail = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/api/user-email/", {
-          headers: { "Content-Type": "application/json" },
-        });
-        const loggedInUserEmail = response.data.email;
-        setFormData((prevData) => ({ ...prevData, contact: loggedInUserEmail }));
-      } catch (error) {
-        toast.error("Failed to fetch user email.");
-      }
-    };
+  // useEffect(() => {
+  //   const fetchUserEmail = async () => {
+  //     try {
+  //       const response = await axios.get("http://127.0.0.1:8000/api/user-email/", {
+  //         headers: { "Content-Type": "application/json" },
+  //       });
+  //       const loggedInUserEmail = response.data.email;
+  //       setFormData((prevData) => ({ ...prevData, contact: loggedInUserEmail }));
+  //     } catch (error) {
+  //       toast.error("Failed to fetch user email.");
+  //     }
+  //   };
 
-    fetchUserEmail();
-  }, []);
+  //   fetchUserEmail();
+  // }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

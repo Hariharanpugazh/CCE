@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from "js-cookie";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import AdminPageNavbar from '../../components/Admin/AdminNavBar';
 
 export default function AdminMail() {
@@ -11,7 +11,6 @@ export default function AdminMail() {
   const [activeTab, setActiveTab] = useState('jobs'); // State to manage active tab
   const token = Cookies.get("jwt");
   const navigate = useNavigate();
-
 
   useEffect(() => {
     if (!token) {
@@ -108,7 +107,7 @@ export default function AdminMail() {
             <div className="space-y-4">
               {jobs.length > 0 ? (
                 jobs.map((job) => (
-                  <div key={job._id} className="p-3 border rounded-lg shadow-sm bg-gray-50">
+                  <div key={job._id} className="p-3 border rounded-lg shadow-sm bg-white">
                     <div className="flex justify-between items-center">
                       <span className="text-blue-600 font-semibold">{job.job_data.title}</span>
                       <span className="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded">{job.status}</span>
@@ -125,14 +124,21 @@ export default function AdminMail() {
           {activeTab === 'notifications' && reviews.length > 0 && (
             <div className="space-y-4">
               {reviews.map((review) => (
-                <div key={review.review_id} className="p-3 border rounded-lg shadow-sm bg-yellow-100">
-                  <h3 className="text-lg font-semibold text-gray-800">Review Notification</h3>
-                  <p className="mt-1 text-gray-700 text-sm">Item ID: {review.item_id}</p>
-                  <p className="mt-1 text-gray-700 text-sm">Item Name: {review.item_name || 'N/A'}</p>
-                  <p className="mt-1 text-gray-700 text-sm">Item Type: {review.item_type}</p>
-                  <p className="mt-1 text-gray-700 text-sm">Feedback: {review.feedback}</p>
-                  <p className="mt-1 text-gray-700 text-sm">Timestamp: {new Date(review.timestamp).toLocaleString()}</p>
-                </div>
+                <Link
+                  to={review.item_type === 'internship' ? `/internship-edit/${review.item_id}` : `/job-edit/${review.item_id}`}
+                  key={review.review_id}
+                >
+                  <div className="p-4 border rounded-lg shadow-sm bg-white hover:shadow-lg transition-shadow duration-300 cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-gray-800">Review Notification</h3>
+                      <span className="text-gray-500 text-sm">{new Date(review.timestamp).toLocaleString()}</span>
+                    </div>
+                    <p className="mt-2 text-gray-700 text-sm">Item ID: {review.item_id}</p>
+                    <p className="text-gray-700 text-sm">Item Name: {review.item_name || 'N/A'}</p>
+                    <p className="text-gray-700 text-sm">Item Type: {review.item_type}</p>
+                    <p className="mt-1 text-gray-700 text-sm">Feedback: {review.feedback}</p>
+                  </div>
+                </Link>
               ))}
             </div>
           )}
