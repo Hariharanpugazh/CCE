@@ -1,31 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CardContent } from "../../components/ui/card";
 import { motion } from 'framer-motion';
-import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-
-
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const SuperAdminProfile = () => {
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
   const [profileImage, setProfileImage] = useState("https://via.placeholder.com/150");
+  const [superAdmin, setSuperAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const superAdmin = {
-    _id: "67a2dc39eb9ad92f59c8ebef",
-    name: "superadmin User",
-    email: "superadmin@sns.com",
-    department: "Administration",
-    status: "Active",
-    created_at: "2025-02-11T05:50:44.903+00:00",
-    last_login: null,
-    saved_jobs: [
-      { id: 1, title: "System Administrator" },
-      { id: 2, title: "Cloud Specialist" },
-      { id: 3, title: "Security Analyst" },
-    ],
-  };
+  useEffect(() => {
+    const fetchSuperAdminProfile = async () => {
+      try {
+        const token = Cookies.get("jwt");
+        const userId = JSON.parse(atob(token.split(".")[1])).superadmin_user;
+        const response = await axios.get(`http://localhost:8000/api/get-superadmin/${userId}/`);
+        const superAdminData = response.data.data;
+        setSuperAdmin(superAdminData);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching super admin profile:", err);
+        setError("Failed to load super admin profile.");
+        setLoading(false);
+      }
+    };
+
+    fetchSuperAdminProfile();
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -36,11 +42,16 @@ const SuperAdminProfile = () => {
     }
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300">
-      {/* Navbar at the top */}
- 
-
       {/* Profile content below the navbar */}
       <div className="flex items-center justify-center p-6">
         <motion.div
@@ -79,7 +90,7 @@ const SuperAdminProfile = () => {
               <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
                 <h2 className="font-semibold text-xl mb-4">SuperAdmin Information</h2>
                 <ul className="space-y-2 text-gray-800">
-                  <li><strong className="font-medium">Department:</strong> {superAdmin.department}</li>
+                  <li><strong className="font-medium">Department:</strong> {superAdmin.department || 'N/A'}</li>
                   <li><strong className="font-medium">Email:</strong> {superAdmin.email}</li>
                   <li><strong className="font-medium">Created At:</strong> {new Date(superAdmin.created_at).toLocaleString()}</li>
                   <li>
@@ -88,17 +99,6 @@ const SuperAdminProfile = () => {
                   </li>
                 </ul>
               </div>
-              {/* <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="font-semibold text-xl mb-4">Saved Jobs</h2>
-                <ul className="space-y-3">
-                  {superAdmin.saved_jobs.map((job) => (
-                    <li key={job.id} className="flex items-center space-x-3">
-                      <Badge className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full">Job</Badge>
-                      <span className="text-gray-800 font-medium">{job.title}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div> */}
             </div>
           </CardContent>
 

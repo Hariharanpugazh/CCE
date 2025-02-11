@@ -837,65 +837,6 @@ def delete_job(request, job_id):
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 
-# @csrf_exempt
-# @api_view(['POST'])
-# def post_achievement(request):
-#     auth_header = request.headers.get('Authorization')
-
-#     if not auth_header or not auth_header.startswith("Bearer "):
-#         return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
-
-#     token = auth_header.split(" ")[1]
-#     try:
-#         # Decode the JWT token
-#         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-#         admin_id = payload.get('admin_user')  # Extract admin_id from token
-#         if not admin_id:
-#             return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-
-#         # Get text data from request
-#         name = request.POST.get("name")
-#         achievement_description = request.POST.get("achievement_description")  # Corrected field name
-#         achievement_type = request.POST.get("achievement_type")
-#         company_name = request.POST.get("company_name")
-#         date_of_achievement = request.POST.get("date_of_achievement")
-#         batch = request.POST.get("batch")
-
-#         # Check if an image was uploaded
-#         if "photo" in request.FILES:
-#             image_file = request.FILES["photo"]
-#             # Convert the image to base64
-#             image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
-#         else:
-#             image_base64 = None  # Photo is optional
-
-#         # Prepare the document to insert
-#         achievement_data = {
-#             "name": name,
-#             "achievement_description": achievement_description,  # Corrected field name
-#             "achievement_type": achievement_type,
-#             "company_name": company_name,
-#             "date_of_achievement": date_of_achievement,
-#             "batch": batch,
-#             "photo": image_base64,  # Store as base64
-#             "user_id": admin_id,  # Save the admin_id from the token
-#             "is_publish": True,  # Directly publish as no approval needed
-#             "updated_at": datetime.now()
-#         }
-
-#         # Insert into MongoDB
-#         achievement_collection.insert_one(achievement_data)
-
-#         return Response({"message": "Achievement stored successfully"}, status=status.HTTP_201_CREATED)
-
-#     except jwt.ExpiredSignatureError:
-#         return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
-#     except jwt.DecodeError:
-#         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-#     except Exception as e:
-#         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 @csrf_exempt
 @api_view(['POST'])
 def post_achievement(request):
@@ -933,7 +874,7 @@ def post_achievement(request):
             "date_of_achievement": date_of_achievement,
             "batch": batch,
             "photo": image_base64,  # Store as base64
-            "user_id": userid,  # Save the admin_id from the token
+            "admin_id": userid,  # Save the admin_id from the token
             "created_by": role,
             "is_publish": True,  # Directly publish as no approval needed
             "updated_at": datetime.now()
@@ -973,102 +914,6 @@ def get_published_achievements(request):
         return JsonResponse({"error": str(e)}, status=500)
     
 # ============================================================== INTERNSHIP ======================================================================================
-
-# @csrf_exempt
-# def post_internship(request):
-#     if request.method == 'POST':
-#         try:
-#             # Get JWT token from cookies
-#             jwt_token = request.COOKIES.get("jwt")
-#             if not jwt_token:
-#                 raise AuthenticationFailed("Authentication credentials were not provided.")
-
-#             # Decode JWT token
-#             try:
-#                 decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
-#             except jwt.ExpiredSignatureError:
-#                 raise AuthenticationFailed("Access token has expired. Please log in again.")
-#             except jwt.InvalidTokenError:
-#                 raise AuthenticationFailed("Invalid token. Please log in again.")
-
-#             role = decoded_token.get('role')
-#             auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-#             is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
-
-#             is_publish = None
-
-#             if role == 'admin':
-#                 admin_id = decoded_token.get('admin_user')
-#                 if not admin_id:
-#                     return JsonResponse({"error": "Invalid token"}, status=401)
-#                 if is_auto_approval:
-#                     is_publish = True
-
-#             elif role == 'superadmin':
-#                 superadmin_id = decoded_token.get('superadmin_user')
-#                 if not superadmin_id:
-#                     return JsonResponse({"error": "Invalid token"}, status=401)
-#                 is_publish = True
-
-#             # Parse incoming JSON data
-#             data = json.loads(request.body)
-#             application_deadline_str = data.get('application_deadline')
-
-#             # Convert application_deadline to a timezone-aware datetime
-#             try:
-#                 application_deadline = datetime.strptime(application_deadline_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-#             except ValueError:
-#                 return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
-
-#             now = datetime.now(timezone.utc)
-#             current_status = "active" if application_deadline >= now else "expired"
-
-#             # Ensure required fields are present
-#             required_fields = [
-#                 'title', 'company_name', 'location', 'duration', 'stipend',
-#                 'application_deadline', 'skills_required', 'job_description',
-#                 'company_website', 'internship_type'
-#             ]
-#             for field in required_fields:
-#                 if field not in data:
-#                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
-
-#             # Prepare internship data for insertion
-#             internship_post = {
-#                 "internship_data": {
-#                     "title": data['title'],
-#                     "company_name": data['company_name'],
-#                     "location": data['location'],
-#                     "duration": data['duration'],
-#                     "stipend": data['stipend'],
-#                     "application_deadline": application_deadline,
-#                     "required_skills": data['skills_required'],
-#                     "education_requirements": data.get('education_requirements', ""),
-#                     "job_description": data['job_description'],
-#                     "company_website": data['company_website'],
-#                     "job_link": data.get('job_link', ""),
-#                     "internship_type": data['internship_type'],
-#                 },
-#                 "admin_id" if role == "admin" else "superadmin_id": admin_id if role == "admin" else superadmin_id,
-#                 "is_publish": is_publish,
-#                 "status": current_status,
-#                 "updated_at": datetime.utcnow()
-#             }
-
-#             # Insert into MongoDB
-#             internship_collection.insert_one(internship_post)
-
-#             # Return success response
-#             return JsonResponse({"message": "Internship posted successfully, awaiting approval."}, status=200)
-
-#         except AuthenticationFailed as auth_error:
-#             return JsonResponse({"error": str(auth_error)}, status=401)
-#         except json.JSONDecodeError:
-#             return JsonResponse({"error": "Invalid JSON format."}, status=400)
-#         except Exception as e:
-#             return JsonResponse({"error": str(e)}, status=500)
-
-#     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
 
 @csrf_exempt
 def post_internship(request):
@@ -1421,8 +1266,10 @@ def get_jobs(request):
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+#===================================================================Admin-Mails====================================================================== 
+
 @csrf_exempt
-def get_admin_jobs(request):
+def get_admin_inbox(request):
     if request.method == "GET":
         # Retrieve JWT token from Authorization header
         auth_header = request.headers.get('Authorization')
@@ -1440,14 +1287,24 @@ def get_admin_jobs(request):
             if not admin_id:
                 return JsonResponse({"error": "Invalid token: No admin_id"}, status=401)
 
-            # Fetch jobs from MongoDB where admin_id matches
+            # Fetch jobs, internships, achievements, and study materials from MongoDB where admin_id matches
             jobs = list(job_collection.find({"admin_id": admin_id}))
+            internships = list(internship_collection.find({"admin_id": admin_id}))
+            achievements = list(achievement_collection.find({"admin_id": admin_id}))
+            study_materials = list(study_material_collection.find({"admin_id": admin_id}))
 
             # Convert MongoDB ObjectId to string for JSON serialization
-            for job in jobs:
-                job["_id"] = str(job["_id"])
+            def convert_objectid_to_str(items):
+                for item in items:
+                    item["_id"] = str(item["_id"])  # Convert ObjectId to string
+                return items
 
-            return JsonResponse(jobs, safe=False, status=200)
+            return JsonResponse({
+                "jobs": convert_objectid_to_str(jobs),
+                "internships": convert_objectid_to_str(internships),
+                "achievements": convert_objectid_to_str(achievements),
+                "study_materials": convert_objectid_to_str(study_materials),
+            }, safe=False, status=200)
 
         except jwt.ExpiredSignatureError:
             return JsonResponse({"error": "Token has expired"}, status=401)
@@ -1457,6 +1314,7 @@ def get_admin_jobs(request):
             return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 @csrf_exempt
 def submit_feedback(request):
@@ -1832,3 +1690,69 @@ def get_achievements_with_admin(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+@csrf_exempt
+def get_admin_details(request, userId):
+    if request.method == "GET":
+        try:
+            # Find the admin user by ID
+            admin = admin_collection.find_one({"_id": ObjectId(userId)})
+
+            if not admin:
+                return JsonResponse(
+                    {"error": "Admin with this ID does not exist"}, status=400
+                )
+
+            # Prepare response data
+            data = {
+                "name": admin.get("name"),
+                "email": admin.get("email"),
+                "status": admin.get("status"),
+                "created_at": admin.get("created_at"),
+                "last_login": admin.get("last_login"),
+                "college_name": admin.get("college_name", "N/A"),
+                "department": admin.get("department", "N/A"),
+                "role": "admin",
+            }
+
+            return JsonResponse(
+                {"message": "Admin details found", "data": data}, status=200
+            )
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def get_superadmin_details(request, userId):
+    if request.method == "GET":
+        try:
+            # Find the super admin user by ID
+            superadmin = superadmin_collection.find_one({"_id": ObjectId(userId)})
+
+            if not superadmin:
+                return JsonResponse(
+                    {"error": "Super Admin with this ID does not exist"}, status=400
+                )
+
+            # Prepare response data
+            data = {
+                "name": superadmin.get("name"),
+                "email": superadmin.get("email"),
+                "status": superadmin.get("status"),
+                "created_at": superadmin.get("created_at"),
+                "last_login": superadmin.get("last_login"),
+                "college_name": superadmin.get("college_name", "N/A"),
+                "department": superadmin.get("department", "N/A"),
+                "role": "superadmin",
+            }
+
+            return JsonResponse(
+                {"message": "Super Admin details found", "data": data}, status=200
+            )
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
