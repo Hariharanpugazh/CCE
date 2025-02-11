@@ -36,6 +36,9 @@ import StudentAchievementPostForm from "./pages/students/PostAchievement";
 import StudyMaterialForm from "./components/Common/StudyMaterialForm"
 import StudyEdit from "./pages/admin/StudyEdit";
 import StudentProfile from "./pages/common/StudentProfile";
+import AdminProfile from "./pages/common/AdminProfile";
+import SuperAdminProfile from "./pages/common/SuperAdminProfile";
+import Profile from "./pages/common/profile";
 
 
 
@@ -73,7 +76,7 @@ function App() {
 
         {/* Protected Student Routes */}
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute> <StudentProfile /> </ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
         <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
         <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
@@ -87,6 +90,7 @@ function App() {
           
         {/* Protected Admin Routes */}
         <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
+        <Route path="/admin/profile" element={<ProtectedRoute> <AdminProfile /> </ProtectedRoute>} />
         <Route path="/admin/mail" element={<ProtectedRoute> <AdminMail /> </ProtectedRoute>} />
         <Route path="/admin/achievements" element={ <ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
         <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
@@ -105,6 +109,7 @@ function App() {
         <Route path={"/admin-signup"} element={<AdminSignup />} />
         <Route path={"/student-signup"} element={<StudentSignup />} />
         <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
+        <Route path={"/superadmin-profile"} element={<ProtectedRoute> <SuperAdminProfile /> </ProtectedRoute>} />
         <Route path={"/Admin-Management"} element={<ProtectedRoute> <AdminManagement /> </ProtectedRoute> } />
         <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
         <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />

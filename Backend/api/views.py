@@ -471,6 +471,7 @@ def get_profile(request, userId):
                     "email": user.get("email"),
                     "department": user.get("department"),
                     "year": user.get("year"),
+                    "college_name": user.get("college_name"),
                     "role": "student",
                 }
                 return JsonResponse(
