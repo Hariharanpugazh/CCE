@@ -694,3 +694,24 @@ def get_all_study_material(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+    
+
+@csrf_exempt
+def job_click(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            job_id = data.get("job_id")
+            job = job_collection.find_one({"_id": ObjectId(job_id)})
+            if not job:
+                return JsonResponse({"error": "Job not found"}, status=404)
+
+            job_collection.update_one(
+                {"_id": ObjectId(job_id)},
+                {"$inc": {"clicks": 1}}
+            )
+
+            return JsonResponse({"message": "Job click recorded successfully"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)

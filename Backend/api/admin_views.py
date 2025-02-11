@@ -549,41 +549,135 @@ def super_admin_login(request):
     
 # ============================================================== JOBS ======================================================================================
 
+# @csrf_exempt
+# @api_view(["POST"])
+# def job_post(request):
+#     auth_header = request.headers.get('Authorization')    
+
+#     if not auth_header or not auth_header.startswith("Bearer "):
+#         return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
+
+#     token = auth_header.split(" ")[1]
+#     try:
+#         # Decode the JWT token
+#         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+
+#         role = payload.get('role')
+#         auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+#         is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
+#         is_publish = None  # Default: Pending (null)
+
+#         if role == 'admin':
+#             admin_id = payload.get('admin_user')  # Extract admin_id from token
+#             if not admin_id:
+#                 return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+#             if is_auto_approval:
+#                 is_publish = True  # Auto-approve enabled, mark as approved
+
+#         elif role == 'superadmin':
+#             superadmin_id = payload.get('superadmin_user')
+#             if not superadmin_id:
+#                 return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+            
+#             is_publish = True  # Superadmin posts are always approved
+
+#         data = json.loads(request.body)
+
+#         application_deadline_str = data.get('application_deadline')
+#         application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
+#         now = datetime.now(timezone.utc)
+
+#         current_status = "active" if application_deadline >= now else "expired"
+
+#         # Prepare job data
+#         job_post = {
+#             "job_data": {
+#                 "title": data.get('title'),
+#                 "company_name": data.get('company_name'),
+#                 "company_overview": data.get('company_overview'),
+#                 "company_website": data.get('company_website'),
+#                 "job_description": data.get('job_description'),
+#                 "key_responsibilities": data.get('key_responsibilities'),
+#                 "required_skills": data.get('required_skills'),
+#                 "education_requirements": data.get('education_requirements'),
+#                 "experience_level": data.get('experience_level'),
+#                 "salary_range": data.get('salary_range'),
+#                 "benefits": data.get('benefits'),
+#                 "job_location": data.get('job_location'),
+#                 "work_type": data.get('work_type'),
+#                 "work_schedule": data.get('work_schedule'),
+#                 "application_instructions": data.get('application_instructions'),
+#                 "application_deadline": data.get('application_deadline'),
+#                 "contact_email": data.get('contact_email'),
+#                 "contact_phone": data.get('contact_phone'),
+#                 "job_link": data.get('job_link'),
+#                 "selectedCategory": data.get('selectedCategory'),
+#                 "selectedWorkType": data.get('selectedWorkType')
+#             },
+#             "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
+#             "is_publish": is_publish,  # Auto-approve if enabled
+#             "status": current_status,
+#             "updated_at": datetime.now()
+#         }
+
+#         # Insert the job post into the database
+#         job_collection.insert_one(job_post)
+
+#         return Response(
+#             {
+#                 "message": "Job stored successfully",
+#                 "auto_approved": is_auto_approval
+#             },
+#             status=status.HTTP_201_CREATED
+#         )
+
+#     except jwt.ExpiredSignatureError:
+#         return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
+#     except jwt.DecodeError:
+#         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+#     except ValueError:
+#         return Response({"error": "Invalid date"}, status=status.HTTP_400_BAD_REQUEST)
+#     except Exception as e:
+#         print(e)
+#         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 @csrf_exempt
 @api_view(["POST"])
 def job_post(request):
-    auth_header = request.headers.get('Authorization')
-
-    if not auth_header or not auth_header.startswith("Bearer "):
-        return Response({"error": "No token provided"}, status=status.HTTP_401_UNAUTHORIZED)
-
-    token = auth_header.split(" ")[1]
     try:
-        # Decode the JWT token
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-
-        role = payload.get('role')
+        data = json.loads(request.body)
+    
+        role = data.get('role')
+        print(role)
         auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
         is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
 
         is_publish = None  # Default: Pending (null)
+        userid = data.get('userId')
 
-        if role == 'admin':
-            admin_id = payload.get('admin_user')  # Extract admin_id from token
-            if not admin_id:
-                return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+        if not userid:
+            return Response({"error": "Userid not found"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # if role == 'admin':
+        #     admin_id = data.get('userId')  # Extract admin_id from token
+        #     if not admin_id:
+        #         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
             
-            if is_auto_approval:
-                is_publish = True  # Auto-approve enabled, mark as approved
+        #     if is_auto_approval:
+        #         is_publish = True  # Auto-approve enabled, mark as approved
 
-        elif role == 'superadmin':
-            superadmin_id = payload.get('superadmin_user')
-            if not superadmin_id:
-                return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
+        # elif role == 'superadmin':
+        #     superadmin_id = data.get('userId')
+        #     if not superadmin_id:
+        #         return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
             
             is_publish = True  # Superadmin posts are always approved
 
-        data = json.loads(request.body)
+        
 
         application_deadline_str = data.get('application_deadline')
         application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
@@ -616,7 +710,7 @@ def job_post(request):
                 "selectedCategory": data.get('selectedCategory'),
                 "selectedWorkType": data.get('selectedWorkType')
             },
-            "admin_id" if role == "admin" else "superadmin_id":  admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
+            "admin_id" if role == "admin" else "superadmin_id":  userid,#admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
             "is_publish": is_publish,  # Auto-approve if enabled
             "status": current_status,
             "updated_at": datetime.now()
@@ -632,13 +726,6 @@ def job_post(request):
             },
             status=status.HTTP_201_CREATED
         )
-
-    except jwt.ExpiredSignatureError:
-        return Response({"error": "Token expired"}, status=status.HTTP_401_UNAUTHORIZED)
-    except jwt.DecodeError:
-        return Response({"error": "Invalid token"}, status=status.HTTP_401_UNAUTHORIZED)
-    except ValueError:
-        return Response({"error": "Invalid date"}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(e)
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -1070,14 +1157,26 @@ def manage_internships(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+# @csrf_exempt
+# def get_published_internships(request):
+#     try:
+#         published_internships = internship_collection.find({"is_publish": True})
+#         internship_list = [
+#             {**internship, "_id": str(internship["_id"])}  # Convert ObjectId to string
+#             for internship in published_internships
+#         ]
+#         return JsonResponse({"internships": internship_list}, status=200)
+#     except Exception as e:
+#         return JsonResponse({"error": str(e)}, status=500)
+
 @csrf_exempt
 def get_published_internships(request):
     try:
+        internship_list = []
         published_internships = internship_collection.find({"is_publish": True})
-        internship_list = [
-            {**internship, "_id": str(internship["_id"])}  # Convert ObjectId to string
-            for internship in published_internships
-        ]
+        for internship in published_internships:
+            internship["_id"] = str(internship["_id"])
+            internship_list.append(internship)
         return JsonResponse({"internships": internship_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
