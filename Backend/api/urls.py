@@ -17,6 +17,7 @@ urlpatterns = [
     path('post-study-material/',post_study_material, name="post_study_material"),
     path("manage-internships/", manage_internships, name="manage_internships"),
     path('manage-study-materials/',manage_study_materials, name="manage_study_materials" ),
+    path('fetch-review/', fetch_review, name='fetch_review'),
     
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
@@ -53,7 +54,7 @@ urlpatterns = [
 
     #Achievements
     path("upload_achievement/",post_achievement,name="upload_achievement"),
-    path('achievements', get_achievements, name='get_achievements'),
+    path('achievements/', get_achievements, name='get_achievements'),
     # path('review-achievement/<str:achievement_id>/', review_achievement, name='review_achievement'),
     path('published-achievement/', get_published_achievements, name='get_published_achievements'),
     path("studentachievement/", post_student_achievement, name="get_student_achievements"),
@@ -73,9 +74,13 @@ urlpatterns = [
     path('published-jobs/', get_published_jobs, name='get_published_jobs'),
     path('published-internship/', get_published_internships, name='get_published_internships'),
     path("contact-us/",contact_us,name="contact-us"),
+    path("save-job/<str:pk>/", save_job, name="save-job"),
+    path("unsave-job/<str:pk>/", unsave_job, name="unsave-job"),
+    path("saved-jobs/<str:user_id>/", get_saved_jobs, name="get-saved-jobs"),
 
     #study_material
     path("study-material/<str:study_material_id>/", get_study_material_by_id, name="get_study_material_by_id"),
     path("study-material-edit/<str:study_material_id>/", update_study_material, name="update_study_material"),
     path("study-material-delete/<str:study_material_id>/", delete_study_material, name="delete_study_material"),
+    path("all-study-material/", get_all_study_material, name="get_all_study_material"),
 ]

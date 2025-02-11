@@ -921,31 +921,7 @@ def get_achievements(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-# @csrf_exempt
-# def review_achievement(request, achievement_id):
-#     if request.method == "POST":
-#         try:
-#             data = json.loads(request.body)
-#             action = data.get("action")
-#             if action not in ["approve", "reject"]:
-#                 return JsonResponse({"error": "Invalid action"}, status=400)
 
-#             achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
-#             if not achievement:
-#                 return JsonResponse({"error": "Achievement not found"}, status=404)
-
-#             is_publish = True if action == "approve" else False
-#             achievement_collection.update_one(
-#                 {"_id": ObjectId(achievement_id)},
-#                 {"$set": {"is_publish": is_publish, "updated_at": datetime.now()}}
-#             )
-
-#             message = "Achievement approved and published successfully" if is_publish else "Achievement rejected successfully"
-#             return JsonResponse({"message": message}, status=200)
-
-#         except Exception as e:
-#             return JsonResponse({"error": str(e)}, status=400)
-#     return JsonResponse({"error": "Invalid request method"}, status=400)
 
 @csrf_exempt
 def get_published_achievements(request):
@@ -1288,27 +1264,28 @@ def manage_jobs(request):
 @csrf_exempt
 def get_jobs(request):
     if request.method == 'GET':
-        jwt_token = request.COOKIES.get('jwt')
-        if not jwt_token:
-            return JsonResponse({'error': 'JWT token missing'}, status=401)
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return JsonResponse({'error': 'JWT token missing or invalid'}, status=401)
+
+        jwt_token = auth_header.split(" ")[1]
 
         try:
-            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])  
             admin_user = decoded_token.get('admin_user')
 
-            # Fetch jobs from MongoDB based on admin_user
             jobs = job_collection.find({'admin_id': admin_user})
             jobs_list = []
+
             for job in jobs:
                 job['_id'] = str(job['_id'])
-                job['type'] = 'job'  # Add a type field to differentiate between jobs and internships
+                job['type'] = 'job' 
                 jobs_list.append(job)
 
-            # Fetch internships from MongoDB based on admin_user
             internships = internship_collection.find({'admin_id': admin_user})
             for internship in internships:
                 internship['_id'] = str(internship['_id'])
-                internship['type'] = 'internship'  # Add a type field to differentiate between jobs and internships
+                internship['type'] = 'internship'
                 jobs_list.append(internship)
 
             return JsonResponse({'jobs': jobs_list}, status=200)
@@ -1319,8 +1296,8 @@ def get_jobs(request):
             return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
         except Exception as e:
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def get_admin_jobs(request):
@@ -1386,6 +1363,8 @@ def submit_feedback(request):
                 return JsonResponse({'error': 'Invalid item_id: Job not found'}, status=404)
 
             admin_id = job_data.get('admin_id')  # Map the admin_id from the job data
+            item_name = job_data['job_data'].get('title')
+
             if not admin_id:
                 return JsonResponse({'error': 'admin_id not found for the provided job'}, status=404)
 
@@ -1393,6 +1372,7 @@ def submit_feedback(request):
             review_document = {
                 'admin_id': admin_id,  # Map the admin_id from job data
                 'item_id': item_id,
+                'item_name': item_name,
                 'item_type': item_type,
                 'feedback': feedback,
                 'timestamp': datetime.now().isoformat()
@@ -1578,3 +1558,43 @@ def delete_study_material(request, study_material_id):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
+
+@csrf_exempt
+def fetch_review(request):
+    """Extracts JWT, validates it, and fetches all review documents for the admin ID."""
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return JsonResponse({"error": "Unauthorized access"}, status=401)
+
+    token = auth_header.split(" ")[1]
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        return JsonResponse({"error": "Token has expired"}, status=401)
+    except jwt.InvalidTokenError:
+        return JsonResponse({"error": "Invalid token"}, status=401)
+
+    admin_id = payload.get("admin_user")
+    if not admin_id:
+        return JsonResponse({"error": "Invalid token payload"}, status=401)
+
+    print(f"Querying for admin_id: {admin_id}")  # Log the query
+    reviews_cursor = reviews_collection.find({"admin_id": admin_id})  # Fetch all matching documents
+
+    reviews_list = []
+    for review in reviews_cursor:
+        formatted_review = {
+            "review_id": str(review["_id"]),  # Convert ObjectId to string
+            "admin_id": review["admin_id"],
+            "item_id": review["item_id"],
+            "item_name": review.get("item_name", ""),  # Use `.get()` to avoid KeyError
+            "item_type": review["item_type"],
+            "feedback": review["feedback"],
+            "timestamp": review["timestamp"],
+        }
+        reviews_list.append(formatted_review)
+
+    if not reviews_list:
+        return JsonResponse({"error": "Reviews not found"}, status=404)
+
+    return JsonResponse({"reviews": reviews_list}, status=200, safe=False)  # Return as a list
