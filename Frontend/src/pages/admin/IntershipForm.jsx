@@ -32,6 +32,7 @@ const InternPostForm = () => {
   const [isTypeOpen, setIsTypeOpen] = useState(false);
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   const internshipTypes = [
     'Full-time',
@@ -40,6 +41,7 @@ const InternPostForm = () => {
     'Temporary',
     'Volunteer',
   ];
+
 
   useEffect(() => {
     const token = Cookies.get('jwt');
@@ -57,6 +59,20 @@ const InternPostForm = () => {
 
     if (decodedToken.role !== 'superadmin' && decodedToken.role !== 'admin') {
       setError('You do not have permission to access this page.');
+    }
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+      console.log("Decoded JWT Payload:", payload); // Debugging line
+      setUserRole(payload.role); // Assuming the payload has a 'role' field
+      if (payload.role === "admin") 
+        {
+          setUserId(payload.admin_user); // Assuming the payload has an 'id' field
+        }
+      else if (payload.role === "superadmin")
+        {
+          setUserId(payload.superadmin_user); // Assuming the payload has an 'id' field
+        }
+
     }
   }, [navigate]);
 
@@ -125,18 +141,18 @@ const InternPostForm = () => {
 
       const response = await axios.post(
         'http://localhost:8000/api/post-internship/',
-        formattedData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        }
+        {...formattedData, userId , role : userRole },
+        // {
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        //   withCredentials: true,
+        // }
       );
       setMessage(response.data.message);
       setError('');
-      window.location.href = `${window.location.origin}/superadmin/internships`;
+      window.location.href = `${window.location.origin}/internships`;
     } catch (error) {
       setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
       setMessage('');
