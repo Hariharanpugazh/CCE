@@ -788,7 +788,6 @@ def get_job_by_id(request, job_id):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-
 @csrf_exempt
 def update_job(request, job_id):
     """
@@ -804,6 +803,9 @@ def update_job(request, job_id):
             # Exclude the _id field from the update
             if '_id' in data:
                 del data['_id']
+
+            # Add or update the 'edited' field
+            data['edited'] = "yes"
 
             # # Ensure is_publish is set to false
             # data['is_publish'] = False
@@ -889,6 +891,44 @@ def post_achievement(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @csrf_exempt
+def update_achievement(request, achievement_id):
+    """
+    Update an achievement by its ID, including image updates.
+    """
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
+
+            if not achievement:
+                return JsonResponse({"error": "Achievement not found"}, status=404)
+
+            # Remove _id if present in the update data
+            if '_id' in data:
+                del data['_id']
+
+            # Check if an image was uploaded (optional)
+            if "photo" in request.FILES:
+                image_file = request.FILES["photo"]
+                image_base64 = base64.b64encode(image_file.read()).decode('utf-8')
+                data["photo"] = image_base64  # Store the updated image as base64
+
+            # Update the achievement in MongoDB
+            data["updated_at"] = datetime.now()  # Update timestamp
+            achievement_collection.update_one({"_id": ObjectId(achievement_id)}, {"$set": data})
+
+            # Fetch updated achievement
+            updated_achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
+            updated_achievement["_id"] = str(updated_achievement["_id"])  # Convert ObjectId to string
+
+            return JsonResponse({"achievement": updated_achievement}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
+    
+@csrf_exempt
 def get_achievements(request):
     try:
         achievements = achievement_collection.find()
@@ -900,7 +940,23 @@ def get_achievements(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
+@csrf_exempt
+def delete_achievement(request, achievement_id):
+    """
+    Delete an achievement by its ID.
+    """
+    if request.method == 'DELETE':
+        try:
+            result = achievement_collection.delete_one({"_id": ObjectId(achievement_id)})
 
+            if result.deleted_count == 0:
+                return JsonResponse({"error": "Achievement not found"}, status=404)
+
+            return JsonResponse({"message": "Achievement deleted successfully"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid method"}, status=405)
 
 @csrf_exempt
 def get_published_achievements(request):

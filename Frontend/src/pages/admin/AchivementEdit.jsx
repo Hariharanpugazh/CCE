@@ -10,6 +10,8 @@ export default function AchievementEdit() {
   const [error, setError] = useState(null);
   const [editedAchievement, setEditedAchievement] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [newImage, setNewImage] = useState(null);
   const token = Cookies.get("jwt");
   const navigate = useNavigate();
 
@@ -37,6 +39,11 @@ export default function AchievementEdit() {
         const data = await response.json();
         setAchievement(data);
         setEditedAchievement(data);
+
+        // Decode base64 image if available
+        if (data.photo) {
+          setImagePreview(`data:image/png;base64,${data.photo}`);
+        }
       } catch (error) {
         setError(error.message);
       } finally {
@@ -55,24 +62,68 @@ export default function AchievementEdit() {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setNewImage(null);
+    setImagePreview(null);
+    setEditedAchievement((prevAchievement) => ({
+      ...prevAchievement,
+      photo: null, // Remove existing image from backend
+    }));
+  };
+
   const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/get-achievement/${id}/`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(editedAchievement)
-      });
+      let updatedData = { ...editedAchievement };
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update achievement');
+      if (newImage) {
+        const reader = new FileReader();
+        reader.readAsDataURL(newImage);
+        reader.onloadend = async () => {
+          updatedData.photo = reader.result.split(',')[1]; // Get only base64 part
+
+          const response = await fetch(`http://localhost:8000/api/edit-achievement/${id}/`, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to update achievement');
+          }
+
+          setAchievement(updatedData);
+          setIsEditing(false);
+        };
+      } else {
+        const response = await fetch(`http://localhost:8000/api/edit-achievement/${id}/`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updatedData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to update achievement');
+        }
+
+        setAchievement(updatedData);
+        setIsEditing(false);
       }
-
-      setAchievement(editedAchievement);
-      setIsEditing(false);
     } catch (error) {
       setError(error.message);
     }
@@ -81,25 +132,26 @@ export default function AchievementEdit() {
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this achievement?")) {
       try {
-        const response = await fetch(`http://localhost:8000/api/delete-achievement/${id}`, {
+        const response = await fetch(`http://localhost:8000/api/delete-achievement/${id}/`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
-
+  
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || 'Failed to delete achievement');
         }
-
-        navigate('/admin-mail');
+  
+        alert("Achievement deleted successfully!");
+        navigate('/superadmin-manage-jobs'); // Redirect after deletion
       } catch (error) {
         setError(error.message);
       }
     }
-  };
+  };  
 
   if (loading) {
     return <div className="text-center text-gray-500">Loading...</div>;
@@ -141,33 +193,10 @@ export default function AchievementEdit() {
             <form>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Name</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    name="name"
-                    value={editedAchievement.name}
-                    onChange={handleChange}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  />
-                ) : (
-                  <p>{achievement.name}</p>
-                )}
+                <input type="text" name="name" value={editedAchievement.name} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Description</label>
-                {isEditing ? (
-                  <textarea
-                    name="achievement_description"
-                    value={editedAchievement.achievement_description}
-                    onChange={handleChange}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  />
-                ) : (
-                  <p>{achievement.achievement_description}</p>
-                )}
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Type</label>
+                <label className="block text-gray-700 text-sm font-bold mb-2">Achievement Type</label>
                 {isEditing ? (
                   <input
                     type="text"
@@ -180,6 +209,7 @@ export default function AchievementEdit() {
                   <p>{achievement.achievement_type}</p>
                 )}
               </div>
+
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Company Name</label>
                 {isEditing ? (
@@ -194,6 +224,7 @@ export default function AchievementEdit() {
                   <p>{achievement.company_name}</p>
                 )}
               </div>
+
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Date of Achievement</label>
                 {isEditing ? (
@@ -208,6 +239,7 @@ export default function AchievementEdit() {
                   <p>{achievement.date_of_achievement}</p>
                 )}
               </div>
+
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Batch</label>
                 {isEditing ? (
@@ -220,6 +252,26 @@ export default function AchievementEdit() {
                   />
                 ) : (
                   <p>{achievement.batch}</p>
+                )}
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Achievement Description</label>
+                <textarea name="achievement_description" value={editedAchievement.achievement_description} onChange={handleChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2">Upload New Image</label>
+                {imagePreview && (
+                  <div className="mb-2">
+                    <img src={imagePreview} alt="Achievement Preview" className="w-32 h-32 object-cover rounded-md" />
+                    {isEditing && (
+                      <button onClick={handleRemoveImage} className="bg-red-500 text-white px-2 py-1 rounded mt-2">Remove Image</button>
+                    )}
+                  </div>
+                )}
+                {isEditing && (
+                  <input type="file" accept="image/*" onChange={handleImageChange} className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
                 )}
               </div>
             </form>
