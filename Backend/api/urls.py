@@ -82,4 +82,5 @@ urlpatterns = [
     path("study-material/<str:study_material_id>/", get_study_material_by_id, name="get_study_material_by_id"),
     path("study-material-edit/<str:study_material_id>/", update_study_material, name="update_study_material"),
     path("study-material-delete/<str:study_material_id>/", delete_study_material, name="delete_study_material"),
+    path("all-study-material/", get_all_study_material, name="get_all_study_material"),
 ]

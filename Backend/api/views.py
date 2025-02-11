@@ -47,6 +47,7 @@ admin_collection = db["admin"]
 job_collection = db["jobs"]
 contactus_collection = db["contact_us"]
 achievement_collection = db['student_achievement']
+study_material_collection = db['studyMaterial']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -671,3 +672,25 @@ def review_achievement(request, achievement_id):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+
+@csrf_exempt
+def get_all_study_material(request):
+    """
+    Fetch a single study material by its ID.
+    """
+    try:
+        study_materials = study_material_collection.find({})
+        study_material_list = []
+        for material in study_materials:
+            material["_id"] = str(material["_id"])  # Convert ObjectId to string
+            study_material_list.append(material)
+
+        if not study_material_list:
+            return JsonResponse({"error": "Study materials not found"}, status=404)
+
+        return JsonResponse({"study_materials": study_material_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
