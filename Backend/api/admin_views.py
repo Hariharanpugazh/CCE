@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.response import Response
 from rest_framework import status
 import base64
+from bson.errors import InvalidId
 import re  # Add this import for regex
 from django.core.mail import send_mail
 from django.conf import settings
@@ -1911,4 +1912,33 @@ def get_superadmin_details(request, userId):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@api_view(['GET', 'PUT'])
+def achievement_detail(request, achievement_id):
+    try:
+        # Convert ID to ObjectId
+        object_id = ObjectId(achievement_id)
+    except:
+        return Response({"error": "Invalid Achievement ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Fetch achievement from MongoDB
+    achievement = achievement_collection.find_one({"_id": object_id})
+    if not achievement:
+        return Response({"error": "Achievement not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        # Convert MongoDB document to JSON response
+        achievement["_id"] = str(achievement["_id"])  # Convert ObjectId to string
+        return Response(achievement, status=status.HTTP_200_OK)
+
+    elif request.method == 'PUT':
+        # Update the achievement
+        updated_data = request.data
+        achievement_collection.update_one(
+            {"_id": object_id},
+            {"$set": updated_data}
+        )
+        return Response({"message": "Achievement updated successfully"}, status=status.HTTP_200_OK)
+
 
