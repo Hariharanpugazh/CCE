@@ -3,6 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 
 export default function StudentAchievementPostForm() {
   const [formData, setFormData] = useState({
@@ -116,8 +117,9 @@ export default function StudentAchievementPostForm() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-3xl font-bold mb-6 text-center">Submit Your Achievement</h2>
+    <div className="max-w-1xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <StudentPageNavbar />
+      <h2 className="text-3xl pt-2 font-bold mb-6 text-center">Submit Your Achievement</h2>
 
       {message && <p className="text-green-600 mb-4">{message}</p>}
 
