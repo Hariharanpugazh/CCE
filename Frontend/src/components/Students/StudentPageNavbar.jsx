@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
 import { FiUser } from "react-icons/fi";
@@ -71,6 +71,12 @@ export default function StudentPageNavbar() {
                   onClick={() => (window.location.href = "/studentachievement")}
                 >
                   Post Achievement
+                </li>
+                <li
+                  className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                  onClick={() => (window.location.href = "/saved-jobs")}
+                >
+                  Saved Jobs
                 </li>
                 <li
                   className="px-4 py-2 cursor-pointer hover:bg-gray-100"
