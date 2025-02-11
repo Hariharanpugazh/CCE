@@ -7,41 +7,124 @@ import { AppPages } from "../../utils/constants";
 import Cookies from "js-cookie";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import { FaCaretDown, FaCaretUp, FaCircle, FaWindowClose } from "react-icons/fa";
+import { FiBookmark, FiCircle, FiSearch, FiX } from "react-icons/fi";
+
+// icon imports
+import { useNavigate } from "react-router-dom";
+import Filters from "../../components/Common/Filters";
+import SidePreview from "../../components/Common/SidePreview";
 
 export default function JobDashboard() {
   const [jobs, setJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([])
-  const [filter, setFilter] = useState("All");
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("")
   const [userRole, setUserRole] = useState(null);
-  const [activeButton, setActiveButton] = useState(null);
+
+  const [selectedJob, setSelectedJob] = useState()
+
+  const [isSalaryOpen, setIsSalaryOpen] = useState(false)
+  const [isExperienceOpen, setIsExperienceOpen] = useState(false)
+  const [isEmployTypeOpen, setIsEmployTypeOpen] = useState(false)
+  const [isWorkModeOpen, setIsWorkModeOpen] = useState(false)
+  const [isSortOpen, setIsSortOpen] = useState(false)
+
+  const [salaryRangeIndex, setSalaryRangeIndex] = useState(0)
+
+  const [filters, setFilters] = useState({
+    salaryRange: { min: 10000, max: 1000000 },
+    experience: { value: 0, category: "under" },
+    employmentType: {
+      onSite: false,
+      remote: false,
+      hybrid: false
+    },
+    workingMode: {
+      online: false,
+      offline: false,
+      hybrid: false
+    },
+    sortBy: "Relevance",
+  });
 
   useEffect(() => {
-    console.log(filter)
-    if (filter === "All") {
-      setFilteredJobs(jobs)
-      return
+    let filtered = jobs;
+
+    // Filter by salary range
+    filtered = filtered.filter((job) => {
+      const salary = parseInt(job.job_data.salary_range.replace(/,/g, ""), 10); // Convert "50,000" → 50000
+      return salary >= filters.salaryRange.min && salary <= filters.salaryRange.max;
+    });
+
+    // Filter by experience level
+    if (filters.experience.value !== 0) {
+      filtered = filtered.filter((job) => {
+        const jobExperience = parseInt(job.job_data.experience_level, 10);
+        if (filters.experience.category === "under") {
+          return jobExperience < filters.experience.value;
+        } else {
+          return jobExperience >= filters.experience.value;
+        }
+      });
     }
-    setFilteredJobs(jobs.filter((job) => job.job_data.selectedCategory === filter))
-  }, [filter])
+
+    // Filter by employment type
+    const { onSite, remote, hybrid } = filters.employmentType;
+    if (onSite || remote || hybrid) {
+      filtered = filtered.filter((job) => {
+        const workType = job.job_data.selectedWorkType.toLowerCase();
+        return (
+          (onSite && workType.includes("on-site")) ||
+          (remote && workType.includes("remote")) ||
+          (hybrid && workType.includes("hybrid"))
+        );
+      });
+    }
+
+    // Filter by working mode
+    const { online, offline, } = filters.workingMode;
+    if (online || offline) {
+      filtered = filtered.filter((job) => {
+        const workMode = job.job_data.work_type.toLowerCase();
+        return (
+          (online && workMode.includes("online")) ||
+          (offline && workMode.includes("offline"))
+        );
+      });
+    }
+
+    // Sorting logic
+    if (filters.sortBy === "Experience") {
+      filtered.sort((a, b) => parseInt(a.job_data.experience_level, 10) - parseInt(b.job_data.experience_level, 10));
+    } else if (filters.sortBy === "Salary") {
+      filtered.sort((a, b) => parseInt(a.job_data.salary_range.replace(/,/g, ""), 10) - parseInt(b.job_data.salary_range.replace(/,/g, ""), 10));
+    } else if (filters.sortBy === "Latest") {
+      filtered.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+    }
+
+    setFilteredJobs(filtered);
+  }, [filters]);
 
   useEffect(() => {
     if (searchPhrase === "") {
+      clearFilters()
       setFilteredJobs(jobs)
     } else {
-      setFilteredJobs(jobs.filter((job) => job.job_data.title.includes(searchPhrase)
+      setFilteredJobs(jobs.filter((job) => job.job_data.title.toLowerCase().includes(searchPhrase)
         ||
-        job.job_data.company_name.includes(searchPhrase)
+        job.job_data.company_name.toLowerCase().includes(searchPhrase)
         ||
-        job.job_data.job_description.includes(searchPhrase)
+        job.job_data.job_description.toLowerCase().includes(searchPhrase)
         ||
-        job.job_data.required_skills.includes(searchPhrase)
+        job.job_data.required_skills.filter((skill) => skill.toLowerCase().includes(searchPhrase)).length > 0
         ||
-        job.job_data.work_type.includes(searchPhrase)
+        job.job_data.work_type.toLowerCase().includes(searchPhrase)
       ))
     }
   }, [searchPhrase])
+
+  const navigate = useNavigate(); // Initialize useNavigate for navigation
 
   // Fetch published jobs from the backend
   useEffect(() => {
@@ -72,65 +155,106 @@ export default function JobDashboard() {
     }
   }, []);
 
-  useEffect(() => {
-    function dateDiff(deadline) {
-      const deadDate = new Date(deadline);
-      const today = Date.now();
-
-      const timeDifference = deadDate.getTime() - today;
-      console.log(Math.floor(timeDifference / (1000 * 3600 * 24)))
-      return Math.floor(timeDifference / (1000 * 3600 * 24));
+  const handleViewJob = () => {
+    if (selectedJob._id) {
+      if (selectedJob.type === "internship") {
+        navigate(`/internship-preview/${selectedJob._id}`);
+      } else if (selectedJob.type === "job") {
+        navigate(`/job-preview/${selectedJob._id}`);
+      } else {
+        console.error("Unknown application type:", selectedJob.type);
+      }
+    } else {
+      console.error("ObjectId is missing in the application:", selectedJob);
     }
-
-    if (activeButton === "Active") {
-      setFilteredJobs(jobs.filter((job) => dateDiff(job.job_data.application_deadline) >= 0))
-    }
-
-    if (activeButton === "Expired") {
-      setFilteredJobs(jobs.filter((job) => dateDiff(job.job_data.application_deadline) < 0))
-    }
-  }, [activeButton])
-
-  const handleStatusFilterChange = (status) => {
-    setActiveButton(status);
-    setFilter(status === "All" ? "All" : status);
   };
+
+  const clearFilters = () => {
+    setFilters({
+      salaryRange: { min: 10000, max: 1000000 },
+      experience: { value: 0, category: "under" },
+      employmentType: {
+        onSite: false,
+        remote: false,
+        hybrid: false
+      },
+      workingMode: {
+        online: false,
+        offline: false,
+        hybrid: false
+      },
+      sortBy: "Relevance",
+    })
+  }
+
+  const filterArgs = {
+    searchPhrase,
+    clearFilters,
+    isSalaryOpen,
+    setIsSalaryOpen,
+    salaryRangeIndex,
+    setSalaryRangeIndex,
+    filters,
+    setFilters,
+    isExperienceOpen,
+    setIsExperienceOpen,
+    isEmployTypeOpen,
+    setIsEmployTypeOpen,
+    isWorkModeOpen,
+    setIsWorkModeOpen,
+    isSortOpen,
+    setIsSortOpen,
+  }
+
+  const borderColor = "border-gray-300"
 
   return (
     <div className="flex flex-col">
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
       {userRole === "student" && <StudentPageNavbar />}
-      <PageHeader page={AppPages.jobDashboard} filter={filter} setFilter={setFilter} searchPhrase={searchPhrase} setSearchPhrase={setSearchPhrase} />
+      <header className="flex flex-col items-center justify-center py-14 container self-center">
+        <p className="text-6xl tracking-[0.8px]">
+          Jobs
+        </p>
+        <p className="text-lg mt-2 text-center">
+          Explore all the job opportunities
+          in all the existing fields <br />around the globe.
+        </p>
+      </header>
 
-      {/* status based filters */}
-      <div className="flex text-sm gap-4 w-[80%] self-center mb-2 px-1">
-        {['All', 'Active', 'Expired',].map((status) => (
-          <button
-            key={status}
-            className={` rounded-[10000px] p-1 ${filter === status ? "text-blue-400 underline" : "text-gray-600 hover:text-gray-900"}`}
-            onClick={() => handleStatusFilterChange(status)}
-          >
-            {status}
-          </button>
-        ))}
-      </div>
+      <div className="flex px-10 space-x-5 items-start">
+        {/* filters */}
+        <Filters args={filterArgs} />
 
-      {/* Job cards */}
-      <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-        {error ?
-          <p className="text-red-600">{error}</p>
-          : jobs.length === 0 ?
-            <p className="text-gray-600">No jobs available at the moment.</p>
-            :
-            filteredJobs.length === 0 ? <p className="alert alert-danger w-full col-span-full text-center">
-              !! No Jobs Found !!
-            </p>
-              :
-              filteredJobs.map((job) => (
-                <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} />
-              ))
-        }
+        {/* Job cards */}
+        <div className="flex-1 max-w-[80%] flex flex-col space-y-3">
+          {/* search */}
+          <div className="flex items-stretch">
+            <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())} placeholder={`Search Jobs`} className={`w-full text-lg p-2 px-4 rounded-tl rounded-bl bg-white border border-r-[0px] hover:border-gray-400 outline-none ${borderColor}`} />
+            <button className={`px-5 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}> Search </button>
+          </div>
+
+          {/* jobs */}
+          <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
+            {error ?
+              <p className="text-red-600">{error}</p>
+              : jobs.length === 0 ?
+                <p className="text-gray-600">No jobs available at the moment.</p>
+                :
+                filteredJobs.length === 0 ? <p className="alert alert-danger w-full col-span-full text-center">
+                  !! No Jobs Found !!
+                </p>
+                  :
+                  filteredJobs.map((job) => (
+                    <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { setSelectedJob(job); console.log(job) }} />
+                  ))
+            }
+          </div>
+        </div>
+
+        {/* job preview */}
+          <SidePreview selectedItem={selectedJob} handleViewJob={handleViewJob} setSelectedItem={setSelectedJob}/>
       </div>
     </div>
   );

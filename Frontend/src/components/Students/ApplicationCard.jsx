@@ -41,44 +41,31 @@ function timeAgo(dateString) {
     return "Just now";
 }
 
-export default function ApplicationCard({ application }) {
-    const navigate = useNavigate(); // Initialize useNavigate for navigation
-
-    const handleCardClick = () => {
-        if (application._id) {
-            if (application.type === "internship") {
-                navigate(`/internship-preview/${application._id}`);
-            } else if (application.type === "job") {
-                navigate(`/job-preview/${application._id}`);
-            } else {
-                console.error("Unknown application type:", application.type);
-            }
-        } else {
-            console.error("ObjectId is missing in the application:", application);
-        }
-    };
-
+export default function ApplicationCard({ application, handleCardClick }) {
     const handleApplyClick = (event) => {
         event.stopPropagation(); // Prevent triggering card click
         window.open(application.job_link, "_blank", "noopener noreferrer");
     };
 
+    // Determine if salary is available for the job
+    const salary = application.salary_range || application.stipend || "Not Provided";
+
     return (
         <div
-            className="flex flex-col p-3 border border-gray-200 rounded-lg justify-between cursor-pointer"
+            className="flex flex-col p-3 border border-gray-200 rounded-lg justify-between cursor-pointer hover:scale-[1.03]"
             onClick={handleCardClick} // Attach card click handler
         >
             {/* Title Section */}
             <div className="flex justify-between items-start">
                 <div className="flex flex-col">
                     <p className="text-2xl">{application.title}</p>
-                    <div className="flex items-center space-x-3 text-sm">
+                    <div className="flex items-center space-x-3 text-sm flex-wrap">
                         <p className="text-[#8C8C8C] flex items-center">
                             <i className="bi bi-building w-[15px] mr-[5px]"></i> {application.company_name}
                         </p>
                         <FiCircle style={{ width: "4px", height: "4px", backgroundColor: "#8C8C8C", borderRadius: "50%" }} />
                         <p className="text-[#8C8C8C] flex items-center">
-                            <FiMapPin style={{ width: "15px", marginRight: "5px" }} /> {application.job_location}
+                            <FiMapPin style={{ width: "15px", marginRight: "5px" }} /> {application.job_location || application.location}
                         </p>
                     </div>
                 </div>
@@ -95,9 +82,9 @@ export default function ApplicationCard({ application }) {
             {/* Skills Badges */}
             <div className="w-[85%] flex flex-wrap space-x-3">
                 {typeof (application.skills_required ?? application.required_skills) === "string"
-                    ? <p className="p-1 bg-gray-100 text-xs rounded px-2">{application.skills_required ?? application.required_skills}</p>
+                    ? <p className="p-1 bg-gray-100 text-xs rounded px-2 my-1">{application.skills_required ?? application.required_skills}</p>
                     : (application.skills_required ?? application.required_skills).map((skill, key) => (
-                        <p key={key} className="p-1 bg-gray-100 text-xs rounded px-2">{skill}</p>
+                        <p key={key} className="p-1 bg-gray-200 text-xs rounded px-2 my-1">{skill}</p>
                     ))}
             </div>
 
@@ -118,7 +105,7 @@ export default function ApplicationCard({ application }) {
 
             {/* Apply Now Section */}
             <div className="flex justify-between items-center mt-5">
-                <p className="text-[#FFC800] text-xl">{application.salary_range}/-</p>
+                <p className="text-[#FFC800] text-xl">{salary}</p>
                 <button
                     className="bg-[#FFC800] p-2 rounded text-xs cursor-pointer"
                     onClick={handleApplyClick}
@@ -129,3 +116,4 @@ export default function ApplicationCard({ application }) {
         </div>
     );
 }
+
