@@ -67,9 +67,10 @@ export default function SuperAdminPageNavbar() {
           onClick={() => setProfileMenuOpen((toggle) => !toggle)}
         >
           <p>{username || "SuperAdmin"}</p>
-          <FiUser
-            className="text-2xl bi bi-person-circle text-theme-yellow cursor-pointer hover:cursor-pointer"
+          <SlOptions 
+            className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
             style={{ width: "2rem" }}
+            title="Options"
           />
 
           {/* Profile Menu */}
