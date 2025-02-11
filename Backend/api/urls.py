@@ -53,7 +53,7 @@ urlpatterns = [
 
     #Achievements
     path("upload_achievement/",post_achievement,name="upload_achievement"),
-    path('achievements', get_achievements, name='get_achievements'),
+    path('achievements/', get_achievements, name='get_achievements'),
     # path('review-achievement/<str:achievement_id>/', review_achievement, name='review_achievement'),
     path('published-achievement/', get_published_achievements, name='get_published_achievements'),
     path("studentachievement/", post_student_achievement, name="get_student_achievements"),
