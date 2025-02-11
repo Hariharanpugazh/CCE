@@ -475,6 +475,10 @@ def get_profile(request, userId):
                     "department": user.get("department"),
                     "year": user.get("year"),
                     "college_name": user.get("college_name"),
+                    "status": user.get("status"),
+                    "last_login": user.get("last_login"),
+                    "created_at": user.get("created_at"),
+                    "saved_jobs": user.get("saved_jobs", []),
                     "role": "student",
                 }
                 return JsonResponse(
@@ -486,6 +490,8 @@ def get_profile(request, userId):
                     "name": user.get("name"),
                     "email": user.get("email"),
                     "department": user.get("department"),
+                    "college_name": user.get("college_name"),
+                    "status": user.get("status"),
                     "role": "admin",
                 }
                 return JsonResponse(
@@ -508,7 +514,7 @@ def get_profile(request, userId):
 def save_job(request, pk):
     if request.method == "POST":
         try:
-            data=json.loads(request.body)
+            data = json.loads(request.body)
             user_id = data.get("userId")
             if not user_id:
                 return JsonResponse(
@@ -529,7 +535,9 @@ def save_job(request, pk):
 def unsave_job(request, pk):
     if request.method == "POST":
         try:
-            user_id = "67a05ea42707509d6d292eb1"
+            data = json.loads(request.body)
+            user_id = data.get("userId")
+
             if not user_id:
                 return JsonResponse(
                     {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
