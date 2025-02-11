@@ -1,49 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CardContent } from "../../components/ui/card";
 import { motion } from 'framer-motion';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
-import axios from 'axios';
-import Cookies from 'js-cookie';
 
-const StudentProfile = () => {
+
+
+const AdminProfile = () => {
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
   const [profileImage, setProfileImage] = useState("https://via.placeholder.com/150");
-  const [student, setStudent] = useState(null);
-  const [savedJobs, setSavedJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchStudentProfile = async () => {
-      try {
-        const token = Cookies.get("jwt");
-        const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-        const response = await axios.get(`http://localhost:8000/api/profile/${userId}/`);
-        const studentData = response.data.data;
-        setStudent(studentData);
-
-        // Fetch details for each saved job
-        const jobDetailsPromises = studentData.saved_jobs.map(jobId =>
-          axios.get(`http://localhost:8000/api/job/${jobId}/`)
-        );
-
-        const jobDetails = await Promise.all(jobDetailsPromises);
-        const jobTitles = jobDetails.map(job => job.data.job.job_data.title);
-        setSavedJobs(jobTitles);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching student profile:", err);
-        setError("Failed to load student profile.");
-        setLoading(false);
-      }
-    };
-
-    fetchStudentProfile();
-  }, []);
+  const student = {
+    _id: "67aae5341996e201d7a7ca94",
+    name: "Hari",
+    email: "hari.j.ihub@snsgroups.com",
+    department: "CSD",
+    college_name: "SNSCE",
+    status: "Inactive",
+    created_at: "2025-02-11T05:50:44.903+00:00",
+    last_login: null,
+    saved_jobs: [
+      { id: 1, title: "Data Analyst Intern" },
+      { id: 2, title: "AI Research Assistant" },
+      { id: 3, title: "Backend Developer" },
+    ],
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -53,14 +36,6 @@ const StudentProfile = () => {
       reader.readAsDataURL(file);
     }
   };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300">
@@ -101,27 +76,31 @@ const StudentProfile = () => {
           </div>
 
           <CardContent className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-1 text-center gap-6">
               <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="font-semibold text-xl mb-4">Student Information</h2>
+                <h2 className="font-semibold text-xl mb-4">Admin Information</h2>
                 <ul className="space-y-2 text-gray-800">
                   <li><strong className="font-medium">Department:</strong> {student.department}</li>
-                  <li><strong className="font-medium">Year:</strong> {student.year}</li>
+                  <li><strong className="font-medium">College Name:</strong> {student.college_name}</li>
                   <li><strong className="font-medium">Email:</strong> {student.email}</li>
-                  <li><strong className="font-medium">Last Login:</strong> {new Date(student.last_login).toLocaleString()}</li>
+                  <li><strong className="font-medium">Created At:</strong> {new Date(student.created_at).toLocaleString()}</li>
+                  <li>
+                    <strong className="font-medium">Last Login:</strong>{" "}
+                    {student.last_login ? new Date(student.last_login).toLocaleString() : "Inactive"}
+                  </li>
                 </ul>
               </div>
-              <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
+              {/* <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
                 <h2 className="font-semibold text-xl mb-4">Saved Jobs</h2>
                 <ul className="space-y-3">
-                  {savedJobs.map((jobTitle, index) => (
-                    <li key={index} className="flex items-center space-x-3">
+                  {student.saved_jobs.map((job) => (
+                    <li key={job.id} className="flex items-center space-x-3">
                       <Badge className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full">Job</Badge>
-                      <span className="text-gray-800 font-medium">{jobTitle}</span>
+                      <span className="text-gray-800 font-medium">{job.title}</span>
                     </li>
                   ))}
                 </ul>
-              </div>
+              </div> */}
             </div>
           </CardContent>
 
@@ -134,7 +113,7 @@ const StudentProfile = () => {
             </Button>
             <Button
               className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg shadow-md"
-              onClick={() => navigate('/home')}
+              onClick={() => navigate('/admin/home')}
             >
               Back
             </Button>
@@ -145,4 +124,4 @@ const StudentProfile = () => {
   );
 };
 
-export default StudentProfile;
+export default AdminProfile;
