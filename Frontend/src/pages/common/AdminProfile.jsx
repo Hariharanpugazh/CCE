@@ -1,32 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CardContent } from "../../components/ui/card";
 import { motion } from 'framer-motion';
-import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-
-
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const AdminProfile = () => {
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
   const [profileImage, setProfileImage] = useState("https://via.placeholder.com/150");
+  const [admin, setAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const student = {
-    _id: "67aae5341996e201d7a7ca94",
-    name: "Hari",
-    email: "hari.j.ihub@snsgroups.com",
-    department: "CSD",
-    college_name: "SNSCE",
-    status: "Inactive",
-    created_at: "2025-02-11T05:50:44.903+00:00",
-    last_login: null,
-    saved_jobs: [
-      { id: 1, title: "Data Analyst Intern" },
-      { id: 2, title: "AI Research Assistant" },
-      { id: 3, title: "Backend Developer" },
-    ],
-  };
+  useEffect(() => {
+    const fetchAdminProfile = async () => {
+      try {
+        const token = Cookies.get("jwt");
+        const userId = JSON.parse(atob(token.split(".")[1])).admin_user;
+        const response = await axios.get(`http://localhost:8000/api/get-admin/${userId}/`);
+        const adminData = response.data.data;
+        setAdmin(adminData);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching admin profile:", err);
+        setError("Failed to load admin profile.");
+        setLoading(false);
+      }
+    };
+
+    fetchAdminProfile();
+  }, []);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -37,11 +42,16 @@ const AdminProfile = () => {
     }
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300">
-      {/* Navbar at the top */}
-
-
       {/* Profile content below the navbar */}
       <div className="flex items-center justify-center p-6">
         <motion.div
@@ -54,7 +64,7 @@ const AdminProfile = () => {
             <div className="flex flex-col items-center relative">
               <img
                 src={profileImage}
-                alt="Student Profile"
+                alt="Admin Profile"
                 className="w-32 h-32 rounded-full border-4 border-white mb-4 shadow-lg"
               />
               {editMode && (
@@ -70,8 +80,8 @@ const AdminProfile = () => {
                   </label>
                 </div>
               )}
-              <h1 className="text-3xl font-bold tracking-wide">{student.name}</h1>
-              <p className="text-sm mt-2">Status: <span className="font-medium uppercase">{student.status}</span></p>
+              <h1 className="text-3xl font-bold tracking-wide">{admin.name}</h1>
+              <p className="text-sm mt-2">Status: <span className="font-medium uppercase">{admin.status}</span></p>
             </div>
           </div>
 
@@ -80,27 +90,16 @@ const AdminProfile = () => {
               <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
                 <h2 className="font-semibold text-xl mb-4">Admin Information</h2>
                 <ul className="space-y-2 text-gray-800">
-                  <li><strong className="font-medium">Department:</strong> {student.department}</li>
-                  <li><strong className="font-medium">College Name:</strong> {student.college_name}</li>
-                  <li><strong className="font-medium">Email:</strong> {student.email}</li>
-                  <li><strong className="font-medium">Created At:</strong> {new Date(student.created_at).toLocaleString()}</li>
+                  <li><strong className="font-medium">Department:</strong> {admin.department || 'N/A'}</li>
+                  <li><strong className="font-medium">College Name:</strong> {admin.college_name || 'N/A'}</li>
+                  <li><strong className="font-medium">Email:</strong> {admin.email}</li>
+                  <li><strong className="font-medium">Created At:</strong> {new Date(admin.created_at).toLocaleString()}</li>
                   <li>
                     <strong className="font-medium">Last Login:</strong>{" "}
-                    {student.last_login ? new Date(student.last_login).toLocaleString() : "Inactive"}
+                    {admin.last_login ? new Date(admin.last_login).toLocaleString() : "Inactive"}
                   </li>
                 </ul>
               </div>
-              {/* <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h2 className="font-semibold text-xl mb-4">Saved Jobs</h2>
-                <ul className="space-y-3">
-                  {student.saved_jobs.map((job) => (
-                    <li key={job.id} className="flex items-center space-x-3">
-                      <Badge className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full">Job</Badge>
-                      <span className="text-gray-800 font-medium">{job.title}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div> */}
             </div>
           </CardContent>
 
