@@ -506,7 +506,8 @@ def get_profile(request, userId):
 def save_job(request, pk):
     if request.method == "POST":
         try:
-            user_id = "67a05ea42707509d6d292eb1"
+            data = json.loads(request.body)
+            user_id = data.get("userId")
             if not user_id:
                 return JsonResponse(
                     {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
@@ -526,7 +527,9 @@ def save_job(request, pk):
 def unsave_job(request, pk):
     if request.method == "POST":
         try:
-            user_id = "67a05ea42707509d6d292eb1"
+            data = json.loads(request.body)
+            user_id = data.get("userId")
+
             if not user_id:
                 return JsonResponse(
                     {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
