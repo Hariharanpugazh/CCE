@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import Cookies from "js-cookie";
+import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 
 const JobPreview = () => {
     const { id } = useParams();
     const [job, setJob] = useState(null);
+    const [userRole, setUserRole] = useState(null);
+    const [userId, setUserId] = useState(null);
 
     useEffect(() => {
         fetch(`http://127.0.0.1:8000/api/job/${id}/`)
@@ -12,9 +18,41 @@ const JobPreview = () => {
             .catch(error => console.error("Error fetching job:", error));
     }, [id]);
 
+    useEffect(() => {
+        const token = Cookies.get("jwt");
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+                console.log("Decoded JWT Payload:", payload);
+    
+                // Explicitly set the role if it exists in payload
+                if (payload.role) {
+                    setUserRole(payload.role);
+                } else if (payload.student_user) {
+                    setUserRole("student"); // ✅ Default to "student" if student_user is present
+                }
+    
+                if (payload.role === "admin") {
+                    setUserId(payload.admin_user);
+                } else if (payload.role === "superadmin") {
+                    setUserId(payload.superadmin_user);
+                } else if (payload.student_user) { // ✅ Handle students correctly
+                    setUserId(payload.student_user);
+                }
+            } catch (error) {
+                console.error("Invalid JWT token:", error);
+            }
+        }
+    }, []);
+    
     if (!job) return <p className="text-center text-lg font-semibold">Loading...</p>;
 
     return (
+    <div>
+        {/* Render navbar dynamically based on user role */}
+        {userRole === "admin" && <AdminPageNavbar />}
+        {userRole === "superadmin" && <SuperAdminPageNavbar />}
+        {userRole === "student" && <StudentPageNavbar />}
         <div className="w-4/5 mx-auto bg-white shadow-lg rounded-lg p-8 my-10 border border-gray-200">
             {/* Job Title & Company */}
             <div className="border-b pb-4 mb-6">
@@ -100,6 +138,7 @@ const JobPreview = () => {
                 </a>
             </div>
         </div>
+    </div>
     );
 };
 
