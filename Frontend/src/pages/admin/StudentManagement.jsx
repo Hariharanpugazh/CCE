@@ -111,11 +111,18 @@ const StudentManagement = () => {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.put(`http://localhost:8000/api/students/${selectedStudent._id}/update/`, formData);
+      const validData = {
+        name: formData.name || selectedStudent.name,
+        email: formData.email || selectedStudent.email,
+        department: formData.department || selectedStudent.department,
+        year: formData.year || selectedStudent.year
+      };
+  
+      const response = await axios.put(`http://localhost:8000/api/students/${selectedStudent._id}/update/`, validData);
       if (response.status === 200) {
         setStudents((prev) =>
           prev.map((s) =>
-            s._id === selectedStudent._id ? { ...s, ...formData } : s
+            s._id === selectedStudent._id ? { ...s, ...validData } : s
           )
         );
         setEditMode(false);
@@ -125,7 +132,7 @@ const StudentManagement = () => {
     }
     setIsLoading(false);
   };
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({

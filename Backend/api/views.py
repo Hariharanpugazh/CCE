@@ -14,6 +14,7 @@ from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework import status
 import random
 import string
 import traceback
@@ -43,8 +44,10 @@ client = MongoClient("mongodb+srv://ihub:ihub@cce.ksniz.mongodb.net/")
 db = client["CCE"]
 student_collection = db["students"]
 admin_collection = db["admin"]
+job_collection = db["jobs"]
 contactus_collection = db["contact_us"]
 achievement_collection = db['student_achievement']
+study_material_collection = db['studyMaterial']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -313,11 +316,10 @@ def get_students(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-
 @csrf_exempt
 def update_student(request, student_id):
     """
-    API to update a student's profile.
+    API to update a student's profile, including status updates.
     """
     if request.method == 'PUT':
         try:
@@ -326,8 +328,8 @@ def update_student(request, student_id):
             if not student:
                 return JsonResponse({'error': 'Student not found'}, status=404)
 
-            # Define allowed fields for updating
-            allowed_fields = ['name', 'department', 'year', 'email']
+            # ✅ Add "status" to allowed fields
+            allowed_fields = ['name', 'department', 'year', 'email', 'status']
 
             # Filter data to include only allowed fields
             update_data = {field: data[field] for field in allowed_fields if field in data}
@@ -343,6 +345,7 @@ def update_student(request, student_id):
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 @csrf_exempt
 def delete_student(request, student_id):
@@ -498,6 +501,69 @@ def get_profile(request, userId):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
     
+
+#================================================================Jobs================================================================================================
+@csrf_exempt
+def save_job(request, pk):
+    if request.method == "POST":
+        try:
+            data=json.loads(request.body)
+            user_id = data.get("userId")
+            if not user_id:
+                return JsonResponse(
+                    {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            student_collection.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$addToSet": {"saved_jobs": pk}},
+            )
+
+            return JsonResponse({"message": "Job saved successfully"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@csrf_exempt
+def unsave_job(request, pk):
+    if request.method == "POST":
+        try:
+            user_id = "67a05ea42707509d6d292eb1"
+            if not user_id:
+                return JsonResponse(
+                    {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            student_collection.update_one(
+                {"_id": ObjectId(user_id)}, {"$pull": {"saved_jobs": pk}}
+            )
+
+            return JsonResponse({"message": "Job removed from saved"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+@csrf_exempt
+def get_saved_jobs(request, user_id):
+    try:
+        user = student_collection.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return JsonResponse(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        saved_jobs = user.get("saved_jobs", [])
+        jobs = []
+
+        for job_id in saved_jobs:
+            job = job_collection.find_one({"_id": ObjectId(job_id)})
+            if job:
+                job["_id"] = str(job["_id"])
+                jobs.append(job)
+        
+        return JsonResponse({"message": "Saved jobs retrieved successfully", "jobs": jobs})
+        
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 # ===================== ACHIEVEMENTS =====================
 
 @csrf_exempt
@@ -569,7 +635,7 @@ def post_student_achievement(request):
         achievement_collection.insert_one(achievement_data)
 
         return JsonResponse(
-            {"message": "Achievement submitted successfully. Please wait for approval."},
+            {"message": "Achievement submitted successfully. Admin will contact you soon"},
             status=201
         )
 
@@ -581,3 +647,51 @@ def post_student_achievement(request):
         # Log unexpected errors for debugging
         traceback.print_exc()
         return JsonResponse({"error": f"Server error: {str(e)}"}, status=500)
+    
+@csrf_exempt
+def review_achievement(request, achievement_id):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            action = data.get("action")
+            if action not in ["approve", "reject"]:
+                return JsonResponse({"error": "Invalid action"}, status=400)
+
+            achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
+            if not achievement:
+                return JsonResponse({"error": "Achievement not found"}, status=404)
+
+            is_publish = True if action == "approve" else False
+            achievement_collection.update_one(
+                {"_id": ObjectId(achievement_id)},
+                {"$set": {"is_publish": is_publish, "updated_at": datetime.now()}}
+            )
+
+            message = "Achievement approved and published successfully" if is_publish else "Achievement rejected successfully"
+            return JsonResponse({"message": message}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+
+@csrf_exempt
+def get_all_study_material(request):
+    """
+    Fetch a single study material by its ID.
+    """
+    try:
+        study_materials = study_material_collection.find({})
+        study_material_list = []
+        for material in study_materials:
+            material["_id"] = str(material["_id"])  # Convert ObjectId to string
+            study_material_list.append(material)
+
+        if not study_material_list:
+            return JsonResponse({"error": "Study materials not found"}, status=404)
+
+        return JsonResponse({"study_materials": study_material_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
