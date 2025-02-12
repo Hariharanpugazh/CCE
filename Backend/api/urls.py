@@ -16,6 +16,7 @@ urlpatterns = [
     path('mailjobs/', get_admin_inbox, name='get_admin_inbox'),
     path('post-study-material/',post_study_material, name="post_study_material"),
     path("manage-internships/", manage_internships, name="manage_internships"),
+    path('manage-achievements/',manage_achievements, name="manage_achievements"),
     path('manage-study-materials/',manage_study_materials, name="manage_study_materials" ),
     path('fetch-review/', fetch_review, name='fetch_review'),
     path('get-admin/<str:userId>/', get_admin_details, name='get_admin_details'),
