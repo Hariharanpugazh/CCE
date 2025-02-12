@@ -30,6 +30,8 @@ export default function JobDashboard() {
   const [isWorkModeOpen, setIsWorkModeOpen] = useState(false)
   const [isSortOpen, setIsSortOpen] = useState(false)
 
+  const [savedJobs, setSavedJobs] = useState([])
+
   const [salaryRangeIndex, setSalaryRangeIndex] = useState(0)
 
   const [filters, setFilters] = useState({
@@ -155,19 +157,21 @@ export default function JobDashboard() {
     }
   }, []);
 
-  const handleViewJob = () => {
-    if (selectedJob._id) {
-      if (selectedJob.type === "internship") {
-        navigate(`/internship-preview/${selectedJob._id}`);
-      } else if (selectedJob.type === "job") {
-        navigate(`/job-preview/${selectedJob._id}`);
-      } else {
-        console.error("Unknown application type:", selectedJob.type);
-      }
-    } else {
-      console.error("ObjectId is missing in the application:", selectedJob);
+  const fetchSavedJobs = async () => {
+    try {
+      const token = Cookies.get("jwt");
+      const userId = JSON.parse(atob(token.split(".")[1])).student_user;
+      const response = await axios.get(`http://localhost:8000/api/saved-jobs/${userId}/`);
+      setSavedJobs(response.data.jobs.map(job => job._id));
+      console.log(response.data.jobs.map(job => job._id))
+    } catch (err) {
+      console.error("Error fetching saved jobs:", err);
     }
   };
+
+  useEffect(() => {
+    fetchSavedJobs();
+  }, []);
 
   const clearFilters = () => {
     setFilters({
@@ -247,14 +251,19 @@ export default function JobDashboard() {
                 </p>
                   :
                   filteredJobs.map((job) => (
-                    <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { setSelectedJob(job); console.log(job) }} />
+                    <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { setSelectedJob(job); }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedJobs.includes(job._id)} />
                   ))
             }
           </div>
         </div>
 
         {/* job preview */}
-          <SidePreview selectedItem={selectedJob} handleViewJob={handleViewJob} setSelectedItem={setSelectedJob}/>
+        <SidePreview selectedItem={selectedJob}
+          handleViewItem={() => navigate(`/job-preview/${selectedJob._id}`)}
+          setSelectedItem={setSelectedJob}
+          isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedJobs.includes(selectedJob?._id)}
+          fetchSavedJobs={fetchSavedJobs}
+        />
       </div>
     </div>
   );

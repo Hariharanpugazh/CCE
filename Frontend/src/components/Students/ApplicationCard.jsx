@@ -41,7 +41,7 @@ function timeAgo(dateString) {
     return "Just now";
 }
 
-export default function ApplicationCard({ application, handleCardClick }) {
+export default function ApplicationCard({ application, handleCardClick, isSaved }) {
     const handleApplyClick = (event) => {
         event.stopPropagation(); // Prevent triggering card click
         window.open(application.job_link, "_blank", "noopener noreferrer");
@@ -49,14 +49,14 @@ export default function ApplicationCard({ application, handleCardClick }) {
 
     return (
         <div
-            className="flex flex-col p-3 border border-gray-200 rounded-lg justify-between cursor-pointer hover:scale-[1.03]"
+            className="flex flex-col p-3 border border-gray-200 rounded-lg justify-between  hover:scale-[1.03]"
             onClick={handleCardClick} // Attach card click handler
         >
             {/* Title Section */}
             <div className="flex justify-between items-start">
                 <div className="flex flex-col">
-                    <p className="text-2xl">{application.title}</p>
-                    <div className="flex items-center space-x-3 text-sm">
+                    <p className="text-xl">{application.title}</p>
+                    <div className="flex items-center space-x-3 text-sm flex-wrap text-xs mt-1">
                         <p className="text-[#8C8C8C] flex items-center">
                             <i className="bi bi-building w-[15px] mr-[5px]"></i> {application.company_name}
                         </p>
@@ -68,7 +68,7 @@ export default function ApplicationCard({ application, handleCardClick }) {
                 </div>
 
                 {/* Save Icon */}
-                <FiBookmark className="text-2xl cursor-pointer mt-2" />
+                {isSaved !== undefined && <FiBookmark className={`text-2xl cursor-pointer ${isSaved ? "text-blue-500 fill-current" : ""}`} />}
             </div>
 
             {/* Description Section */}
@@ -93,7 +93,9 @@ export default function ApplicationCard({ application, handleCardClick }) {
                     className="underline text-xs truncate w-[65%] leading-none cursor-pointer"
                     onClick={(e) => {
                         e.stopPropagation(); // Prevent triggering card click
-                        window.open(application.company_website, "_blank", "noopener noreferrer");
+                        window.open(application.company_website?.startsWith("http")
+                            ? application.company_website
+                            : `https://${application.company_website}`, "_blank", "noopener noreferrer");
                     }}
                 >
                     {application.company_website}

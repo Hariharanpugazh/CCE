@@ -3,7 +3,10 @@ import experienceIcon from '../../assets/icons/experience-icon.svg'
 import jobRoleIcon from '../../assets/icons/job-role-icon.svg'
 import locationIcon from '../../assets/icons/location-icon.svg'
 import timeIcon from '../../assets/icons/time-icon.svg'
+import Cookies from "js-cookie"
+import axios from "axios"
 import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 const borderColor = "border-gray-300";
 
@@ -65,11 +68,56 @@ function getTimeAgo(dateString) {
 // }
 
 
-export default function SidePreview({ selectedItem, handleViewJob, setSelectedItem }) {
+export default function SidePreview({ selectedItem, handleViewItem, setSelectedItem, isSaved, fetchSavedJobs }) {
     useEffect(() => {
         console.log({ selectedItem, happy: "happy" })
         console.log(selectedItem?.updated_at);
     }, [selectedItem])
+
+    const handleBookmark = async (event) => {
+        event.stopPropagation();
+        if (!selectedItem.job_data) {
+            toast.warning("Updating info");
+            return
+        }
+
+        try {
+            const token = Cookies.get("jwt");
+            const userId = JSON.parse(atob(token.split(".")[1])).student_user;
+            const res = await axios.post(
+                `http://localhost:8000/api/save-job/${selectedItem._id}/`,
+                { applicationId: selectedItem._id, userId }
+            );
+            if (res.status === 200) {
+                toast.success("Item Bookmarked")
+                fetchSavedJobs()
+            }
+        } catch (error) {
+            console.error("Error saving job:", error);
+        }
+    };
+
+    const handleUnbookmark = async (event) => {
+        event.stopPropagation();
+        if (!selectedItem.job_data) {
+            toast.warning("Updating info");
+            return
+        }
+        try {
+            const token = Cookies.get("jwt");
+            const userId = JSON.parse(atob(token.split(".")[1])).student_user;
+            const res = await axios.post(
+                `http://localhost:8000/api/unsave-job/${selectedItem._id}/`,
+                { applicationId: selectedItem._id, userId }
+            );
+            if (res.status === 200) {
+                fetchSavedJobs()
+                toast.warn("Item unbookmarked")
+            }
+        } catch (error) {
+            console.error("Error unsaving job:", error);
+        }
+    };
 
     const dataFields = {
         itemTitle: selectedItem?.job_data ? selectedItem?.job_data.title : selectedItem?.title,
@@ -123,12 +171,12 @@ export default function SidePreview({ selectedItem, handleViewJob, setSelectedIt
                 <div className="flex flex-col">
                     {/* title */}
                     <div className="flex justify-between items-start p-3 px-5">
-                        <div>
+                        <div className='w-[85%] break-words'>
                             <p className="text-xl"> {dataFields.itemTitle} </p>
                             <p className="text-xs text-yellow-300"> {dataFields.company_name} </p>
                         </div>
 
-                        <FiBookmark className="text-2xl cursor-pointer" />
+                        {isSaved !== undefined && <FiBookmark className={`text-2xl cursor-pointer ${isSaved && "text-blue-500 fill-current"}`} onClick={isSaved ? handleUnbookmark : handleBookmark} />}
                     </div>
 
                     {/* details */}
@@ -151,13 +199,19 @@ export default function SidePreview({ selectedItem, handleViewJob, setSelectedIt
                     </span>
 
                     <div className="flex space-x-2 my-5 text-xs px-5">
-                        <button className="rounded px-3 p-1 flex-1 bg-yellow-400 cursor-pointer" onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering card click
-                            window.open(dataFields.company_website, "_blank", "noopener noreferrer");
-                        }}>
+                        <a
+                            href={
+                                dataFields?.company_website?.startsWith("http")
+                                    ? dataFields?.company_website
+                                    : `https://${dataFields?.company_website}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded px-3 p-1 flex-1 bg-yellow-400 cursor-pointer text-center"
+                        >
                             Apply Now
-                        </button>
-                        <button className="rounded px-3 p-1 flex-1 bg-gray-300 cursor-pointer" onClick={handleViewJob}>
+                        </a>
+                        <button className="rounded px-3 p-1 flex-1 bg-gray-300 cursor-pointer" onClick={handleViewItem}>
                             View Details
                         </button>
                     </div>
