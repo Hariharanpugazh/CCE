@@ -82,6 +82,9 @@ urlpatterns = [
     path('internship/<str:internship_id>/', get_internship_id, name='get_internship'),
     path('internship-edit/<str:internship_id>/', update_internship, name='update_internship'),
     path('internship-delete/<str:internship_id>/', delete_internship, name='delete_internship'),
+    path("save-internship/<str:pk>/", save_internship, name="save-job"),
+    path("unsave-internship/<str:pk>/", unsave_internship, name="unsave-job"),
+    path("saved-internships/<str:user_id>/", get_saved_internships, name="get-saved-jobs"),
     
     #student
     path("student-signup/", student_signup, name="student_signup"),

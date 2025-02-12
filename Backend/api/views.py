@@ -45,6 +45,7 @@ student_collection = db["students"]
 superadmin_collection = db["superadmin"]
 admin_collection = db["admin"]
 job_collection = db["jobs"]
+internship_collection = db['internships']
 contactus_collection = db["contact_us"]
 achievement_collection = db['student_achievement']
 study_material_collection = db['studyMaterial']
@@ -643,7 +644,72 @@ def get_saved_jobs(request, user_id):
         
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-# ===================== ACHIEVEMENTS =====================
+    
+#============================================================================ Internships =============================================================================================
+@csrf_exempt
+def save_internship(request, pk):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user_id = data.get("userId")
+            if not user_id:
+                return JsonResponse(
+                    {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            student_collection.update_one(
+                {"_id": ObjectId(user_id)},
+                {"$addToSet": {"saved_internships": pk}},
+            )
+
+            return JsonResponse({"message": "Internship saved successfully"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+@csrf_exempt
+def unsave_internship(request, pk):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            user_id = data.get("userId")
+
+            if not user_id:
+                return JsonResponse(
+                    {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+            student_collection.update_one(
+                {"_id": ObjectId(user_id)}, {"$pull": {"saved_internships": pk}}
+            )
+
+            return JsonResponse({"message": "Internship removed from saved"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+def get_saved_internships(request, user_id):
+    try:
+        user = student_collection.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return JsonResponse(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        saved_internships = user.get("saved_internships", [])
+        internships = []
+
+        for internship_id in saved_internships:
+            internship = internship_collection.find_one({"_id": ObjectId(internship_id)})
+            if internship:
+                internship["_id"] = str(internship["_id"])
+                internships.append(internship)
+        
+        return JsonResponse({"message": "Saved internships retrieved successfully", "internships": internships})
+        
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+# =========================================================================== ACHIEVEMENTS =============================================================================================
 
 @csrf_exempt
 @api_view(['POST'])
