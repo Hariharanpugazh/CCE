@@ -40,20 +40,39 @@ const InternshipEdit = () => {
     };
 
     const handleSave = () => {
+        const token = Cookies.get("jwt");
+        let role = null;
+        if (token) {
+            const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+            role = payload.role; // Extract the role from the payload
+        }
+    
+        const updatedInternshipData = {
+            ...editedInternship,
+            edited: role
+        };
+    
         fetch(`http://127.0.0.1:8000/api/internship-edit/${id}/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(editedInternship)
+            body: JSON.stringify(updatedInternshipData)
         })
         .then(response => response.json())
         .then(data => {
-            setInternship(data.internship.internship_data);
-            setIsEditing(false);
+            // Ensure the response structure matches what the component expects
+            if (data.internship && data.internship.internship_data) {
+                setInternship(data.internship.internship_data);
+                setIsEditing(false);
+            } else {
+                console.error("Unexpected response structure:", data);
+            }
         })
         .catch(error => console.error("Error saving internship:", error));
     };
+    
+    
 
     const handleDelete = () => {
         if (window.confirm("Are you sure you want to delete this internship?")) {

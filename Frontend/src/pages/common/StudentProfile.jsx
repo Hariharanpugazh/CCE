@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CardContent } from "../../components/ui/card";
+import CardContent from "../../components/ui/Card";
 import { motion } from 'framer-motion';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
