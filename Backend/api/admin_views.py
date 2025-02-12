@@ -902,6 +902,40 @@ def post_achievement(request):
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @csrf_exempt
+def manage_achievements(request):
+    if request.method == 'GET':
+        jwt_token = request.COOKIES.get('jwt')
+        
+        if not jwt_token:
+            return JsonResponse({'error': 'JWT token missing'}, status=401)
+
+        try:
+            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            role = decoded_token.get('role')
+            admin_user = decoded_token.get('admin_user') if role == "admin" else decoded_token.get('superadmin_user')
+
+            if not admin_user:
+                return JsonResponse({"error": "Invalid token"}, status=401)
+
+            # Fetch achievements from MongoDB based on admin_user
+            achievements = achievement_collection.find({"admin_id": admin_user} if role == "admin" else {})
+            achievement_list = []
+            for achievement in achievements:
+                achievement["_id"] = str(achievement["_id"])  # Convert ObjectId to string
+                achievement_list.append(achievement)
+
+            return JsonResponse({"achievements": achievement_list}, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'error': 'JWT token has expired'}, status=401)
+        except jwt.InvalidTokenError as e:
+            return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
+@csrf_exempt
 def update_achievement(request, achievement_id):
     """
     Update an achievement by its ID, including image updates.
