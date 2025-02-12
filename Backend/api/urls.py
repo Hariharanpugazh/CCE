@@ -34,7 +34,7 @@ urlpatterns = [
     path("get_internships_with_admin/", get_internships_with_admin, name="get_internships_with_admin"),
     path("get_study_materials_with_admin/", get_study_materials_with_admin, name="get_study_materials_with_admin"),
     path("get_student_achievements_with_students/", get_student_achievements, name="get_student_achievements_with_students"),
-
+    
     #account management 
     path('students/', get_students, name='get_students'),
     path('students/<str:student_id>/update/', update_student, name='update_student'),
@@ -58,6 +58,9 @@ urlpatterns = [
     path('job-delete/<str:job_id>/', delete_job, name='delete_job'),
     path('get-jobs/', get_jobs, name='get_jobs'),
     path('submit-feedback/', submit_feedback, name='submit_feedback'),
+    path('apply-job/', apply_job, name='apply_job'),
+    path('confirm-job/', confirm_job, name='confirm_job'),
+    path('applied-jobs/<str:userId>/', get_applied_jobs, name='get_applied_jobs'),
     
 
     #Achievements

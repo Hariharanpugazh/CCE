@@ -48,6 +48,7 @@ job_collection = db["jobs"]
 contactus_collection = db["contact_us"]
 achievement_collection = db['student_achievement']
 study_material_collection = db['studyMaterial']
+superadmin_collection = db['superadmin']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -743,3 +744,92 @@ def job_click(request):
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
+
+
+#================================================================Applied Jobs================================================================================================
+
+
+@csrf_exempt
+def apply_job(request):
+    try:
+        data = json.loads(request.body)
+        student_id = data.get("studentId")
+        job_id = data.get("jobId")
+
+        if not student_id or not job_id:
+            return JsonResponse({"error": "Student ID and Job ID are required"}, status=400)
+
+        # Update the student's applied jobs in the database with confirmation status
+        result = student_collection.update_one(
+            {"_id": ObjectId(student_id)},
+            {"$addToSet": {"applied_jobs": {
+                "job_id": str(ObjectId(job_id)),  # Convert ObjectId to string
+                "confirmed": False
+            }}}
+        )
+
+        if result.modified_count == 0:
+            return JsonResponse({"error": "Failed to update applied jobs"}, status=400)
+
+
+        return JsonResponse({"message": "Job application recorded successfully"})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+
+@csrf_exempt
+def confirm_job(request):
+    try:
+        data = json.loads(request.body)
+        student_id = data.get("studentId")
+        job_id = data.get("jobId")
+
+        if not student_id or not job_id:
+            return JsonResponse({"error": "Student ID and Job ID are required"}, status=400)
+
+        # Log the received data for debugging
+        print(f"Received studentId: {student_id}, jobId: {job_id}")
+
+        # Update the confirmation status of the applied job in the student collection
+        result = student_collection.update_one(
+            {"_id": ObjectId(student_id), "applied_jobs.job_id": job_id},
+            {"$set": {"applied_jobs.$.confirmed": True}}
+        )
+
+        # Log the result for debugging
+        print(f"Update result in student collection: {result.raw_result}")
+
+        if result.modified_count == 0:
+            return JsonResponse({"error": "Failed to update confirmation status. No matching document found."}, status=400)
+
+        # Update the job collection to add the student ID to the applied array
+        job_result = job_collection.update_one(
+            {"_id": ObjectId(job_id)},
+            {"$addToSet": {"applied": str(ObjectId(student_id))}}  # Use $addToSet to avoid duplicates
+        )
+
+        # Log the result for debugging
+        print(f"Update result in job collection: {job_result.raw_result}")
+
+        if job_result.modified_count == 0:
+            return JsonResponse({"error": "Failed to update job data. No matching document found."}, status=400)
+
+        return JsonResponse({"message": "Job application confirmed successfully"})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@csrf_exempt
+def get_applied_jobs(request, userId):
+    try:
+        # Find the student by ID
+        student = student_collection.find_one({"_id": ObjectId(userId)})
+
+        if not student:
+            return JsonResponse({"error": "Student not found"}, status=404)
+
+        # Get the list of applied job IDs
+        applied_jobs = student.get("applied_jobs", [])
+
+        return JsonResponse({"jobs": applied_jobs})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
