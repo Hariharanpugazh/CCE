@@ -41,12 +41,17 @@ const JobEdit = () => {
     
 
     const handleSave = () => {
+        const updatedJobData = {
+            ...editedJob,
+            edited: "yes" // Add the 'edited' field when saving
+        };
+    
         fetch(`http://127.0.0.1:8000/api/job-edit/${id}/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(editedJob)
+            body: JSON.stringify(updatedJobData)
         })
         .then(response => response.json())
         .then(data => {
@@ -248,7 +253,7 @@ const JobEdit = () => {
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Required Skills & Qualifications</h3>
                 {isEditing ? (
                     <>
-                        <div className="mb-4">
+                        {/* <div className="mb-4">
                             <label className="block mb-2 text-gray-700">Required Skills:</label>
                             <input
                                 type="text"
@@ -257,7 +262,7 @@ const JobEdit = () => {
                                 onChange={handleInputChange}
                                 className="w-full p-2 border rounded"
                             />
-                        </div>
+                        </div> */}
                         <div className="mb-4">
                             <label className="block mb-2 text-gray-700">Education Requirements:</label>
                             <input

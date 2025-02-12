@@ -172,7 +172,7 @@ export default function MailPage() {
         type === "job"
           ? `http://localhost:8000/api/job-delete/${id}/`
           : type === "achievement"
-          ? `http://localhost:8000/api/achievement-delete/${id}/`
+          ? `http://localhost:8000/api/delete-achievement/${id}/`
           : `http://localhost:8000/api/internship-delete/${id}/`;
 
       const response = await axios.delete(endpoint, {
@@ -486,6 +486,7 @@ export default function MailPage() {
             <span className="ml-2">Select All</span>
           </div>
         </div>
+
         {achievements.length === 0 ? (
           <p className="text-gray-600">No achievements to review.</p>
         ) : (
@@ -495,8 +496,10 @@ export default function MailPage() {
                 <tr>
                   <th className="border border-gray-300 px-4 py-2">Select</th>
                   <th className="border border-gray-300 px-4 py-2">Name</th>
-                  <th className="border border-gray-300 px-4 py-2">Department</th>
-                  <th className="border border-gray-300 px-4 py-2">Achievement</th>
+                  <th className="border border-gray-300 px-4 py-2">Description</th>
+                  <th className="border border-gray-300 px-4 py-2">Type</th>
+                  <th className="border border-gray-300 px-4 py-2">Company</th>
+                  <th className="border border-gray-300 px-4 py-2">Date</th>
                   <th className="border border-gray-300 px-4 py-2">Batch</th>
                   <th className="border border-gray-300 px-4 py-2">Status</th>
                   <th className="border border-gray-300 px-4 py-2">Actions</th>
@@ -520,10 +523,14 @@ export default function MailPage() {
                       />
                     </td>
                     <td className="border border-gray-300 px-4 py-2">{achievement.name}</td>
-                    <td className="border border-gray-300 px-4 py-2">{achievement.department}</td>
-                    <td className="border border-gray-300 px-4 py-2">{achievement.achievement}</td>
+                    <td className="border border-gray-300 px-4 py-2">{achievement.achievement_description}</td>
+                    <td className="border border-gray-300 px-4 py-2">{achievement.achievement_type}</td>
+                    <td className="border border-gray-300 px-4 py-2">{achievement.company_name}</td>
+                    <td className="border border-gray-300 px-4 py-2">{achievement.date_of_achievement}</td>
                     <td className="border border-gray-300 px-4 py-2">{achievement.batch}</td>
-                    <td className="border border-gray-300 px-4 py-2">{achievement.is_publish ? "Published" : "Pending"}</td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {achievement.is_publish ? "Published" : "Pending"}
+                    </td>
                     <td className="border border-gray-300 px-4 py-2">
                       <div className="flex space-x-2">
                         {!achievement.is_publish && (

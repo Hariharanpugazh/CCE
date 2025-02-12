@@ -38,9 +38,8 @@ import StudyEdit from "./pages/admin/StudyEdit";
 import Profile from "./pages/common/profile";
 import SavedJobs from './pages/students/SavedJobs';
 import StudentStudyMaterial from "./pages/students/StudentStudyMaterial";
-
-
-
+import AchivementEdit from "./pages/admin/AchivementEdit";
+import StudentMail from "./pages/students/StudentMail";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -81,6 +80,7 @@ function App() {
         <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
         <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
+        <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
         <Route path="/internship-preview/:id" element={<InternshipPreview />} />
         <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
@@ -88,7 +88,7 @@ function App() {
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
-          
+           
         {/* Protected Admin Routes */}
         <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
         <Route path="/admin/mail" element={<ProtectedRoute> <AdminMail /> </ProtectedRoute>} />
@@ -98,6 +98,7 @@ function App() {
         <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
         <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
         <Route path="/internship-edit/:id" element= {<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>}/>
+        <Route path="/achievement-edit/:id" element= {<ProtectedRoute> <AchivementEdit /> </ProtectedRoute>} />
         <Route path="//study-edit/:id" element= {<ProtectedRoute> <StudyEdit /> </ProtectedRoute>} />
         <Route path="/manage-jobs" element= {<ProtectedRoute> <ManageJobs /> </ProtectedRoute>}/>
         <Route path="/manage-student" element={<ProtectedRoute> <StudentManagement /> </ProtectedRoute>} />

@@ -99,12 +99,15 @@ export default function InternshipDashboard() {
     const fetchPublishedInternships = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/published-internship/");
+        console.log("Response:", response.data); // Debugging line
+
         const internshipsWithType = response.data.internships.map((internship) => ({
           ...internship.internship_data, // Extract internship_data
           id: internship._id, // Add id field
           type: "internship",
           updated_at: internship.updated_at // Add type field
         }));
+        // console.log("Internships with type:", internshipsWithType); // Debugging line
         setInternships(internshipsWithType); // Set internships with type
         setFilteredInterns(internshipsWithType); // Update filtered internships
       } catch (err) {
