@@ -34,8 +34,7 @@ urlpatterns = [
     path("get_internships_with_admin/", get_internships_with_admin, name="get_internships_with_admin"),
     path("get_study_materials_with_admin/", get_study_materials_with_admin, name="get_study_materials_with_admin"),
     path("get_student_achievements_with_students/", get_student_achievements, name="get_student_achievements_with_students"),
-    path("get-applied-count/<str:job_id>/", get_applied_count, name="get_applied_count"),
-
+    
     #account management 
     path('students/', get_students, name='get_students'),
     path('students/<str:student_id>/update/', update_student, name='update_student'),

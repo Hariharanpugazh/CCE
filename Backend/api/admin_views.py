@@ -837,26 +837,6 @@ def delete_job(request, job_id):
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
 
-@csrf_exempt
-def get_applied_count(request, job_id):
-    try:
-        # Convert job_id to ObjectId
-        job_object_id = ObjectId(job_id)
-
-        # Retrieve the job document from the job collection
-        job = job_collection.find_one({"_id": job_object_id})
-
-        if not job:
-            return JsonResponse({"error": "Job not found"}, status=404)
-
-        # Get the applied array and calculate its length, default to 0 if not present
-        applied_count = len(job.get("applied", []))
-
-        # Return the applied count in the response
-        return JsonResponse({"applied_count": applied_count})
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
-        
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 
