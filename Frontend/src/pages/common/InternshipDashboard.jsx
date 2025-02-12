@@ -9,6 +9,7 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Filters from "../../components/Common/Filters";
 import SidePreview from "../../components/Common/SidePreview";
+import { toast } from "react-toastify";
 
 export default function InternshipDashboard() {
   const [internships, setInternships] = useState([]);
@@ -16,7 +17,7 @@ export default function InternshipDashboard() {
   const [filteredInterns, setFilteredInterns] = useState([]);
   const [searchPhrase, setSearchPhrase] = useState("");
   const [userRole, setUserRole] = useState(null);
-  const [selectedJob, setSelectedJob] = useState()
+  const [selectedIntern, setSelectedIntern] = useState()
 
   const borderColor = "border-gray-300"
 
@@ -27,20 +28,6 @@ export default function InternshipDashboard() {
   const [isSortOpen, setIsSortOpen] = useState(false)
 
   const [salaryRangeIndex, setSalaryRangeIndex] = useState(0)
-
-  const handleViewJob = () => {
-    if (selectedJob._id) {
-      if (selectedJob.type === "internship") {
-        navigate(`/internship-preview/${selectedJob._id}`);
-      } else if (selectedJob.type === "job") {
-        navigate(`/job-preview/${selectedJob._id}`);
-      } else {
-        console.error("Unknown application type:", selectedJob.type);
-      }
-    } else {
-      console.error("ObjectId is missing in the application:", selectedJob);
-    }
-  };
 
   const [filters, setFilters] = useState({
     salaryRange: { min: 10000, max: 1000000 },
@@ -186,14 +173,18 @@ export default function InternshipDashboard() {
               </p>
             ) : (
               filteredInterns.map((intern) => (
-                <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedJob(intern); console.log(intern) }} />
+                <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedIntern(intern); console.log(intern) }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : false} />
               ))
             )}
           </div>
         </div>
 
         {/* job preview */}
-        <SidePreview selectedItem={selectedJob} handleViewJob={handleViewJob} setSelectedItem={setSelectedJob} />
+        <SidePreview selectedItem={selectedIntern}
+          handleViewItem={() => { window.location.href = `/internship-preview/${selectedIntern.id}` }}
+          isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : false}
+          fetchSavedJobs={() => { toast.info("Updating info..") }}
+          setSelectedItem={setSelectedIntern} />
       </div>
     </div>
   );
