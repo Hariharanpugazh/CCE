@@ -19,11 +19,13 @@ urlpatterns = [
     path('manage-study-materials/',manage_study_materials, name="manage_study_materials" ),
     path('fetch-review/', fetch_review, name='fetch_review'),
     path('get-admin/<str:userId>/', get_admin_details, name='get_admin_details'),
-    path('get-superadmin/<str:userId>/', get_superadmin_details, name='get_superadmin_details'),
+    path('update-admin/<str:userId>/', update_admin_profile, name='update_admin_profile'),
     
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
     path("superadmin_login/",super_admin_login,name="super_admin_login"),
+    path('get-superadmin/<str:userId>/', get_superadmin_details, name='get_superadmin_details'),
+    path('update-superadmin/<str:userId>/', update_superadmin_profile, name='update_superadmin_profile'),
     path("get-contact-messages/",get_contact_messages,name="get_contact_messages"),
     path('reply_to_message/',reply_to_message,name="reply_to_message"),
     path("toggle-auto-approval/",toggle_auto_approval, name="toggle_auto_approval"),
@@ -44,7 +46,6 @@ urlpatterns = [
     path('admin/<str:id>/edit/', edit_admin_details, name='edit_admin_details'),
 
     #common
-    path("profile/<str:userId>/", get_profile, name="get_profile"),
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
     path("verify-otp/", verify_otp, name="verify_otp"),
@@ -81,6 +82,8 @@ urlpatterns = [
     #student
     path("student-signup/", student_signup, name="student_signup"),
     path("stud/login/", student_login, name="student_login"),
+    path("profile/<str:userId>/", get_profile, name="get_profile"),
+    path('update-profile/<str:userId>/', update_profile, name='update_profile'),
     path('student-forgot-password/', student_forgot_password, name='student_forgot_password'),
     path('student-reset-password/', student_reset_password, name='student_reset_password'),
     path('published-jobs/', get_published_jobs, name='get_published_jobs'),

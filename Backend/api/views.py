@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
 from django.conf import settings
-from bson import ObjectId
+from bson import ObjectId, Binary
 from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
@@ -22,7 +22,6 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import base64
-from rest_framework import status
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -43,6 +42,7 @@ def generate_tokens(student_user):
 client = MongoClient("mongodb+srv://ihub:ihub@cce.ksniz.mongodb.net/")
 db = client["CCE"]
 student_collection = db["students"]
+superadmin_collection = db["superadmin"]
 admin_collection = db["admin"]
 job_collection = db["jobs"]
 contactus_collection = db["contact_us"]
@@ -374,62 +374,111 @@ def delete_student(request, student_id):
 def get_profile(request, userId):
     if request.method == "GET":
         try:
-            # Find the student user by id
-            user = student_collection.find_one({"_id": ObjectId(userId)}) 
+            # Find the student user by ID
+            user = student_collection.find_one({"_id": ObjectId(userId)})
             
             if not user:
-                user = admin_collection.find_one({"_id": ObjectId(userId)})
-                user['source'] = 'admin' if user else None 
-            else:
-                user['source'] = 'student'
+                return JsonResponse({"error": "User with this ID does not exist"}, status=400)
 
+            # Ensure profile_image field is correctly retrieved as a filename
+            profile_image = user.get("profile_image", "default.png")  # Default image if none
+
+            # Prepare response data
+            data = {
+                "name": user.get("name"),
+                "email": user.get("email"),
+                "department": user.get("department", "N/A"),
+                "year": user.get("year", "N/A"),
+                "college_name": user.get("college_name", "N/A"),
+                "status": user.get("status", "N/A"),
+                "last_login": str(user.get("last_login")) if user.get("last_login") else "Never",
+                "created_at": str(user.get("created_at")) if user.get("created_at") else "N/A",
+                "saved_jobs": user.get("saved_jobs", []),
+                "role": "student",
+                "profile_image": profile_image,  # Send only filename, not binary data
+            }
+
+            return JsonResponse({"message": "Student user found", "data": data}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def update_profile(request, userId):
+    if request.method == "PUT":
+        try:
+            # Parse JSON request body
+            data = json.loads(request.body)
+
+            # Find the student user by ID
+            user = student_collection.find_one({"_id": ObjectId(userId)})
             if not user:
-                return JsonResponse(
-                    {"error": "User with this id does not exist"}, status=400
-                )     
-            
-            if user.get('source') == 'student':
-                # Handle student user
-                data = {
-                    "name": user.get("name"),
-                    "email": user.get("email"),
-                    "department": user.get("department"),
-                    "year": user.get("year"),
-                    "college_name": user.get("college_name"),
-                    "status": user.get("status"),
-                    "last_login": user.get("last_login"),
-                    "created_at": user.get("created_at"),
-                    "saved_jobs": user.get("saved_jobs", []),
-                    "role": "student",
-                }
-                return JsonResponse(
-                    {"message": "Student user found", "data": data}, status=200
+                return JsonResponse({"error": "User not found"}, status=404)
+
+            # Prevent email from being changed
+            data.pop("email", None)
+
+            # Ensure only valid predefined images are used
+            allowed_images = ["boy-1.png", "boy-2.png", "boy-3.png", "boy-4.png", "boy-5.png", "boy-6.png", "Girl-1.png", "Girl-2.png", "Girl-3.png", "Girl-4.png", "Girl-5.png"]
+            if "profile_image" in data and data["profile_image"] not in allowed_images:
+                return JsonResponse({"error": "Invalid image selection"}, status=400)
+
+            # Update only name and profile image
+            updated_fields = {key: value for key, value in data.items() if key in ["name", "profile_image"]}
+            if updated_fields:
+                student_collection.update_one(
+                    {"_id": ObjectId(userId)}, {"$set": updated_fields}
                 )
-            elif user.get('source') == 'admin':
-                # Handle admin user
-                data = {
-                    "name": user.get("name"),
-                    "email": user.get("email"),
-                    "department": user.get("department"),
-                    "college_name": user.get("college_name"),
-                    "status": user.get("status"),
-                    "role": "admin",
-                }
-                return JsonResponse(
-                    {"message": "Admin user found", "data":data}, status=200
-                )
-            
-            else:
-                return JsonResponse(
-                    {"error": "User source not found"}, status=400
-                )
-            
+
+            return JsonResponse({"message": "Profile updated successfully"}, status=200)
+
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
     
+@csrf_exempt
+def update_superadmin_profile(request, userId):
+    if request.method == "PUT":
+        try:
+            # Parse JSON request body
+            data = json.loads(request.body)
 
+            # Find the super admin user by ID
+            super_admin = superadmin_collection.find_one({"_id": ObjectId(userId)})
+            if not super_admin:
+                return JsonResponse({"error": "SuperAdmin not found"}, status=404)
+
+            # Validate request payload
+            if "name" not in data or "profile_image" not in data:
+                return JsonResponse({"error": "Missing required fields"}, status=400)
+
+            # Prevent email from being changed
+            data.pop("email", None)
+
+            # Ensure only valid predefined images are used
+            allowed_images = ["boy-1.png", "boy-2.png", "boy-3.png", "boy-4.png", "boy-5.png", "boy-6.png", "Girl-1.png", "Girl-2.png", "Girl-3.png", "Girl-4.png", "Girl-5.png"]
+            if data["profile_image"] not in allowed_images:
+                return JsonResponse({"error": "Invalid image selection"}, status=400)
+
+            # Update only name and profile image
+            updated_fields = {
+                "name": data["name"],
+                "profile_image": data["profile_image"]
+            }
+
+            superadmin_collection.update_one({"_id": ObjectId(userId)}, {"$set": updated_fields})
+
+            return JsonResponse({"message": "SuperAdmin profile updated successfully"}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
+    
 # ================================================================ CONTACT US ================================================================
 
 @csrf_exempt

@@ -1915,21 +1915,62 @@ def get_admin_details(request, userId):
                     {"error": "Admin with this ID does not exist"}, status=400
                 )
 
+            # Ensure profile_image field is correctly retrieved as a filename
+            profile_image = admin.get("profile_image", "default.png")  # Default image if none
+
             # Prepare response data
             data = {
                 "name": admin.get("name"),
                 "email": admin.get("email"),
                 "status": admin.get("status"),
-                "created_at": admin.get("created_at"),
-                "last_login": admin.get("last_login"),
+                "created_at": str(admin.get("created_at")) if admin.get("created_at") else "N/A",
+                "last_login": str(admin.get("last_login")) if admin.get("last_login") else "Never",
                 "college_name": admin.get("college_name", "N/A"),
                 "department": admin.get("department", "N/A"),
                 "role": "admin",
+                "profile_image": profile_image,  # Send only filename, not binary data
             }
 
-            return JsonResponse(
-                {"message": "Admin details found", "data": data}, status=200
-            )
+            return JsonResponse({"message": "Admin details found", "data": data}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+@csrf_exempt
+def update_admin_profile(request, userId):
+    if request.method == "PUT":
+        try:
+            # Parse JSON request body
+            data = json.loads(request.body)
+
+            # Find the admin user by ID
+            admin = admin_collection.find_one({"_id": ObjectId(userId)})
+            if not admin:
+                return JsonResponse({"error": "Admin not found"}, status=404)
+
+            # Validate request payload
+            if "name" not in data or "profile_image" not in data:
+                return JsonResponse({"error": "Missing required fields"}, status=400)
+
+            # Prevent email from being changed
+            data.pop("email", None)
+
+            # Ensure only valid predefined images are used
+            allowed_images = ["boy-1.png", "boy-2.png", "boy-3.png", "boy-4.png", "boy-5.png", "boy-6.png", "Girl-1.png", "Girl-2.png", "Girl-3.png", "Girl-4.png", "Girl-5.png"]
+            if data["profile_image"] not in allowed_images:
+                return JsonResponse({"error": "Invalid image selection"}, status=400)
+
+            # Update only name and profile image
+            updated_fields = {
+                "name": data["name"],
+                "profile_image": data["profile_image"]
+            }
+
+            admin_collection.update_one({"_id": ObjectId(userId)}, {"$set": updated_fields})
+
+            return JsonResponse({"message": "Admin profile updated successfully"}, status=200)
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
@@ -1948,16 +1989,27 @@ def get_superadmin_details(request, userId):
                     {"error": "Super Admin with this ID does not exist"}, status=400
                 )
 
+            # Handle profile image (Check if image is stored as a filename or binary)
+            profile_image = ""
+            if "profile_image" in superadmin:
+                if isinstance(superadmin["profile_image"], bytes):
+                    # Convert Binary image to Base64 format
+                    profile_image = "data:image/jpeg;base64," + base64.b64encode(superadmin["profile_image"]).decode('utf-8')
+                elif isinstance(superadmin["profile_image"], str):
+                    # If stored as a filename, return it directly
+                    profile_image = superadmin["profile_image"]
+
             # Prepare response data
             data = {
                 "name": superadmin.get("name"),
                 "email": superadmin.get("email"),
-                "status": superadmin.get("status"),
-                "created_at": superadmin.get("created_at"),
-                "last_login": superadmin.get("last_login"),
+                "status": superadmin.get("status", "N/A"),
+                "created_at": str(superadmin.get("created_at")) if superadmin.get("created_at") else "N/A",
+                "last_login": str(superadmin.get("last_login")) if superadmin.get("last_login") else "Never",
                 "college_name": superadmin.get("college_name", "N/A"),
                 "department": superadmin.get("department", "N/A"),
                 "role": "superadmin",
+                "profile_image": profile_image,  # Send either Base64 or filename
             }
 
             return JsonResponse(
@@ -1968,7 +2020,6 @@ def get_superadmin_details(request, userId):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
 
 @api_view(['GET', 'PUT'])
 def achievement_detail(request, achievement_id):
