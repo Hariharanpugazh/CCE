@@ -76,21 +76,29 @@ export default function SidePreview({ selectedItem, handleViewItem, setSelectedI
 
     const handleBookmark = async (event) => {
         event.stopPropagation();
-        if (!selectedItem.job_data) {
-            toast.warning("Updating info");
-            return
-        }
 
         try {
             const token = Cookies.get("jwt");
             const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-            const res = await axios.post(
-                `http://localhost:8000/api/save-job/${selectedItem._id}/`,
-                { applicationId: selectedItem._id, userId }
-            );
-            if (res.status === 200) {
-                toast.success("Item Bookmarked")
-                fetchSavedJobs()
+            if (selectedItem.job_data) {
+                const res = await axios.post(
+                    `http://localhost:8000/api/save-job/${selectedItem._id}/`,
+                    { applicationId: selectedItem._id, userId }
+                );
+                if (res.status === 200) {
+                    toast.success("Item Bookmarked")
+                    fetchSavedJobs()
+                }
+            } else {
+                const res = await axios.post(
+                    `http://localhost:8000/api/save-internship/${selectedItem.id}/`,
+                    { applicationId: selectedItem.id, userId }
+                );
+                if (res.status === 200) {
+                    toast.success("Item Bookmarked")
+                    fetchSavedJobs()
+
+                }
             }
         } catch (error) {
             console.error("Error saving job:", error);
@@ -99,20 +107,27 @@ export default function SidePreview({ selectedItem, handleViewItem, setSelectedI
 
     const handleUnbookmark = async (event) => {
         event.stopPropagation();
-        if (!selectedItem.job_data) {
-            toast.warning("Updating info");
-            return
-        }
         try {
             const token = Cookies.get("jwt");
             const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-            const res = await axios.post(
-                `http://localhost:8000/api/unsave-job/${selectedItem._id}/`,
-                { applicationId: selectedItem._id, userId }
-            );
-            if (res.status === 200) {
-                fetchSavedJobs()
-                toast.warn("Item unbookmarked")
+            if (selectedItem.job_data) {
+                const res = await axios.post(
+                    `http://localhost:8000/api/unsave-job/${selectedItem._id}/`,
+                    { applicationId: selectedItem._id, userId }
+                );
+                if (res.status === 200) {
+                    fetchSavedJobs()
+                    toast.warn("Item unbookmarked")
+                }
+            } else {
+                const res = await axios.post(
+                    `http://localhost:8000/api/unsave-internship/${selectedItem.id}/`,
+                    { applicationId: selectedItem.id, userId }
+                );
+                if (res.status === 200) {
+                    fetchSavedJobs()
+                    toast.warn("Item unbookmarked")
+                }
             }
         } catch (error) {
             console.error("Error unsaving job:", error);

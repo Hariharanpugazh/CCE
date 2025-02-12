@@ -26,6 +26,7 @@ export default function InternshipDashboard() {
   const [isEmployTypeOpen, setIsEmployTypeOpen] = useState(false)
   const [isWorkModeOpen, setIsWorkModeOpen] = useState(false)
   const [isSortOpen, setIsSortOpen] = useState(false)
+  const [savedInterns, setSavedInterns] = useState([])
 
   const [salaryRangeIndex, setSalaryRangeIndex] = useState(0)
 
@@ -132,6 +133,23 @@ export default function InternshipDashboard() {
     }
   }, []);
 
+  const fetchSavedInternships = async () => {
+    try {
+      const token = Cookies.get("jwt");
+      const userId = JSON.parse(atob(token.split(".")[1])).student_user;
+      const response = await axios.get(`http://localhost:8000/api/saved-internships/${userId}/`);
+      setSavedInterns(response.data.internships.map(internship => internship._id));
+      console.log(response.data.internships.map(internship => internship._id))
+    } catch (err) {
+      console.error("Error fetching saved jobs:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSavedInternships();
+    console.log(savedInterns)
+  }, []);
+
 
   return (
     <div className="flex flex-col">
@@ -173,7 +191,7 @@ export default function InternshipDashboard() {
               </p>
             ) : (
               filteredInterns.map((intern) => (
-                <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedIntern(intern); console.log(intern) }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : false} />
+                <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedIntern(intern); console.log(intern) }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(intern.id)} />
               ))
             )}
           </div>
@@ -182,8 +200,8 @@ export default function InternshipDashboard() {
         {/* job preview */}
         <SidePreview selectedItem={selectedIntern}
           handleViewItem={() => { window.location.href = `/internship-preview/${selectedIntern.id}` }}
-          isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : false}
-          fetchSavedJobs={() => { toast.info("Updating info..") }}
+          isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(selectedIntern?.id)}
+          fetchSavedJobs={fetchSavedInternships}
           setSelectedItem={setSelectedIntern} />
       </div>
     </div>
