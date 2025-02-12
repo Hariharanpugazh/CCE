@@ -40,6 +40,8 @@ import SavedJobs from './pages/students/SavedJobs';
 import StudentStudyMaterial from "./pages/students/StudentStudyMaterial";
 import AppliedJobs from "./pages/students/AppliedJobs";import AchivementEdit from "./pages/admin/AchivementEdit";
 import StudentMail from "./pages/students/StudentMail";
+import { LoaderContext, LoaderLayout } from "./components/Common/Layout";
+import { useState } from "react";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -52,6 +54,9 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+
+  const [isLoading, setIsLoading] = useState(false)
+
   return (
     <BrowserRouter>
       {/* Add ToastContainer here */}
@@ -67,11 +72,13 @@ function App() {
         pauseOnHover
         theme="light" // Optional: Adjust theme as per your design
       />
-      <Routes>
-        <Route path={"/"} element={<LandingPage />} />
+      <LoaderContext.Provider value={{ isLoading, setIsLoading }}>
+        <LoaderLayout />
+        <Routes>
+          <Route path={"/"} element={<LandingPage />} />
 
-        {/* Student Routes */}
-        <Route path="/student" element={<StudentLogin />} />
+          {/* Student Routes */}
+          <Route path="/student" element={<StudentLogin />} />
 
         {/* Protected Student Routes */}
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
@@ -87,36 +94,37 @@ function App() {
         <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />        <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />
         <Route path="/applied-jobs" element={<ProtectedRoute> <AppliedJobs /> </ProtectedRoute>} />
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLogin />} />
-           
-        {/* Protected Admin Routes */}
-        <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
-        <Route path="/admin/mail" element={<ProtectedRoute> <AdminMail /> </ProtectedRoute>} />
-        <Route path="/admin/achievements" element={ <ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
-        <Route path="/jobpost" element={ <ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
-        <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
-        <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
-        <Route path="/job-edit/:id" element= {<ProtectedRoute> <JobEdit /> </ProtectedRoute>}/>
-        <Route path="/internship-edit/:id" element= {<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>}/>
-        <Route path="/achievement-edit/:id" element= {<ProtectedRoute> <AchivementEdit /> </ProtectedRoute>} />
-        <Route path="//study-edit/:id" element= {<ProtectedRoute> <StudyEdit /> </ProtectedRoute>} />
-        <Route path="/manage-jobs" element= {<ProtectedRoute> <ManageJobs /> </ProtectedRoute>}/>
-        <Route path="/manage-student" element={<ProtectedRoute> <StudentManagement /> </ProtectedRoute>} />
-        <Route path="/studymaterial-post" element={<ProtectedRoute> <StudyMaterialForm /> </ProtectedRoute>} />
-      
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLogin />} />
 
-        {/* Super Admin Login */}
-        <Route path={"/superadmin"} element={<SuperAdminLogin />} />
-        <Route path={"/admin-signup"} element={<AdminSignup />} />
-        <Route path={"/student-signup"} element={<StudentSignup />} />
-        <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
-        <Route path={"/Admin-Management"} element={<ProtectedRoute> <AdminManagement /> </ProtectedRoute> } />
-        <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
-        <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
-        <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
-        <Route path={"/admin-details/:id"} element={<ProtectedRoute> <AdminDetailPage /> </ProtectedRoute>} />
-      </Routes>
+          {/* Protected Admin Routes */}
+          <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
+          <Route path="/admin/mail" element={<ProtectedRoute> <AdminMail /> </ProtectedRoute>} />
+          <Route path="/admin/achievements" element={<ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
+          <Route path="/jobpost" element={<ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
+          <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
+          <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
+          <Route path="/job-edit/:id" element={<ProtectedRoute> <JobEdit /> </ProtectedRoute>} />
+          <Route path="/internship-edit/:id" element={<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>} />
+          <Route path="/achievement-edit/:id" element={<ProtectedRoute> <AchivementEdit /> </ProtectedRoute>} />
+          <Route path="//study-edit/:id" element={<ProtectedRoute> <StudyEdit /> </ProtectedRoute>} />
+          <Route path="/manage-jobs" element={<ProtectedRoute> <ManageJobs /> </ProtectedRoute>} />
+          <Route path="/manage-student" element={<ProtectedRoute> <StudentManagement /> </ProtectedRoute>} />
+          <Route path="/studymaterial-post" element={<ProtectedRoute> <StudyMaterialForm /> </ProtectedRoute>} />
+
+
+          {/* Super Admin Login */}
+          <Route path={"/superadmin"} element={<SuperAdminLogin />} />
+          <Route path={"/admin-signup"} element={<AdminSignup />} />
+          <Route path={"/student-signup"} element={<StudentSignup />} />
+          <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
+          <Route path={"/Admin-Management"} element={<ProtectedRoute> <AdminManagement /> </ProtectedRoute>} />
+          <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
+          <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
+          <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
+          <Route path={"/admin-details/:id"} element={<ProtectedRoute> <AdminDetailPage /> </ProtectedRoute>} />
+        </Routes>
+      </LoaderContext.Provider>
     </BrowserRouter>
   );
 }

@@ -53,7 +53,6 @@ export default function StudentPageNavbar() {
             Contact
           </p>
         </div>
-
         <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative space-x-4">
           {/* Profile Button */}
           <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => {
