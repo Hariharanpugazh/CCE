@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import Cookies from "js-cookie";
+import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 
 const JobPreview = () => {
     const { id } = useParams();
     const [job, setJob] = useState(null);
+    const [userRole, setUserRole] = useState(null);
+    const [userId, setUserId] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
 
     useEffect(() => {
@@ -15,6 +21,33 @@ const JobPreview = () => {
             .catch(error => console.error("Error fetching job:", error));
     }, [id]);
 
+    useEffect(() => {
+        const token = Cookies.get("jwt");
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+                console.log("Decoded JWT Payload:", payload);
+    
+                // Explicitly set the role if it exists in payload
+                if (payload.role) {
+                    setUserRole(payload.role);
+                } else if (payload.student_user) {
+                    setUserRole("student"); // ✅ Default to "student" if student_user is present
+                }
+    
+                if (payload.role === "admin") {
+                    setUserId(payload.admin_user);
+                } else if (payload.role === "superadmin") {
+                    setUserId(payload.superadmin_user);
+                } else if (payload.student_user) { // ✅ Handle students correctly
+                    setUserId(payload.student_user);
+                }
+            } catch (error) {
+                console.error("Invalid JWT token:", error);
+            }
+        }
+    }, []);
+    
     const handleApplyClick = () => {
         // Store the job ID in local storage or session storage
         sessionStorage.setItem('appliedJobId', id);
@@ -51,6 +84,11 @@ const JobPreview = () => {
     if (!job) return <p className="text-center text-lg font-semibold">Loading...</p>;
 
     return (
+    <div>
+        {/* Render navbar dynamically based on user role */}
+        {userRole === "admin" && <AdminPageNavbar />}
+        {userRole === "superadmin" && <SuperAdminPageNavbar />}
+        {userRole === "student" && <StudentPageNavbar />}
         <div className="w-4/5 mx-auto bg-white shadow-lg rounded-lg p-8 my-10 border border-gray-200">
             {/* Job Title & Company */}
             <div className="border-b pb-4 mb-6">
@@ -154,10 +192,11 @@ const JobPreview = () => {
                 No, Cancel
               </button>
             </div>
+        </div>
           </div>
         </div>
       )}
-        </div>
+    </div>
     );
 };
 

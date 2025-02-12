@@ -114,7 +114,7 @@ export default function JobDashboard() {
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
       {userRole === "student" && <StudentPageNavbar />}
-      <PageHeader
+      <PageHeader 
         page={AppPages.jobDashboard}
         filter={filter}
         setFilter={setFilter}
