@@ -114,6 +114,7 @@ export default function AdminMail() {
                       </div>
                     </div>
                     <p className="text-gray-700">{job.job_data.company_name}</p>
+                    <p className="text-gray-700">Edited by: {job.edited || "null"}</p>
                     <AnimatePresence>
                       {expandedIndex === index && (
                         <motion.div

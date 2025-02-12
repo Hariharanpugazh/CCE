@@ -647,7 +647,6 @@ def get_jobs_for_mail(request):
             # Fetch admin details using admin_id
             admin_id = job.get("admin_id")
             admin_name = "Unknown Admin"
-
             if admin_id:
                 admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
                 if admin:
@@ -676,7 +675,7 @@ def get_jobs_for_mail(request):
 
             job_list.append(job)
 
-        return JsonResponse({"jobs": job_list}, status=200)
+        return JsonResponse({"jobs": job_list}, status=200, safe=False)
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
@@ -796,24 +795,36 @@ def update_job(request, job_id):
     if request.method == 'PUT':
         try:
             data = json.loads(request.body)
-            job = job_collection.find_one({"_id": ObjectId(job_id)})
+
+            # Convert job_id to ObjectId
+            job_object_id = ObjectId(job_id)
+
+            # Find the existing job
+            job = job_collection.find_one({"_id": job_object_id})
             if not job:
                 return JsonResponse({"error": "Job not found"}, status=404)
 
-            # Exclude the _id field from the update
-            if '_id' in data:
-                del data['_id']
+            # Ensure _id is not modified
+            data.pop('_id', None)
 
             # Add or update the 'edited' field
-            data['edited'] = "yes"
+            data['edited'] = data.get('edited', True)  # Default to True if not provided
 
-            # # Ensure is_publish is set to false
-            # data['is_publish'] = False
+            # Update the job document
+            job_collection.update_one({"_id": job_object_id}, {"$set": data})
 
-            job_collection.update_one({"_id": ObjectId(job_id)}, {"$set": data})
-            updated_job = job_collection.find_one({"_id": ObjectId(job_id)})
-            updated_job["_id"] = str(updated_job["_id"])  # Convert ObjectId to string
+            # Fetch updated job and convert ObjectId fields to strings
+            updated_job = job_collection.find_one({"_id": job_object_id})
+            updated_job["_id"] = str(updated_job["_id"])
+
+            # Ensure all ObjectId fields (like admin_id, item_id) are converted to strings
+            if "admin_id" in updated_job and isinstance(updated_job["admin_id"], ObjectId):
+                updated_job["admin_id"] = str(updated_job["admin_id"])
+            if "item_id" in updated_job and isinstance(updated_job["item_id"], ObjectId):
+                updated_job["item_id"] = str(updated_job["item_id"])
+
             return JsonResponse({"job": updated_job}, status=200)
+
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     else:
@@ -1234,7 +1245,17 @@ def update_internship(request, internship_id):
             if '_id' in data:
                 del data['_id']
 
-            internship_collection.update_one({"_id": ObjectId(internship_id)}, {"$set": data})
+            # Separate the 'edited' field from the rest of the data
+            edited_value = data.pop("edited", None)
+
+            # Prepare the update data for nested fields
+            update_data = {"$set": {f"internship_data.{key}": value for key, value in data.items()}}
+
+            # If 'edited' is provided, add it to the root level update
+            if edited_value is not None:
+                update_data["$set"]["edited"] = edited_value
+
+            internship_collection.update_one({"_id": ObjectId(internship_id)}, update_data)
             updated_internship = internship_collection.find_one({"_id": ObjectId(internship_id)})
             updated_internship["_id"] = str(updated_internship["_id"])  # Convert ObjectId to string
             return JsonResponse({"internship": updated_internship}, status=200)
