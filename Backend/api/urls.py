@@ -59,6 +59,7 @@ urlpatterns = [
     path('get-jobs/', get_jobs, name='get_jobs'),
     path('submit-feedback/', submit_feedback, name='submit_feedback'),
     path('apply-job/', apply_job, name='apply_job'),
+    path('confirm-job/', confirm_job, name='confirm_job'),
     path('applied-jobs/<str:userId>/', get_applied_jobs, name='get_applied_jobs'),
     
 

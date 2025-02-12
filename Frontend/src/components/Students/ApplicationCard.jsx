@@ -92,11 +92,11 @@ export default function ApplicationCard({ application, savedJobs = [] }) {
     >
       <div className="flex justify-between items-start">
         <div className="flex flex-col">
-          <p className="text-2xl">{application.title}</p>
+          <p className="text-2xl">{application.job_data.title}</p>
           <div className="flex items-center space-x-3 text-sm">
             <p className="text-[#8C8C8C] flex items-center">
               <i className="bi bi-building w-[15px] mr-[5px]"></i>{" "}
-              {application.company_name}
+              {application.job_data.company_name}
             </p>
             <FiCircle
               style={{
@@ -108,7 +108,7 @@ export default function ApplicationCard({ application, savedJobs = [] }) {
             />
             <p className="text-[#8C8C8C] flex items-center">
               <FiMapPin style={{ width: "15px", marginRight: "5px" }} />{" "}
-              {application.job_location}
+              {application.job_data.job_location}
             </p>
           </div>
         </div>
@@ -121,20 +121,21 @@ export default function ApplicationCard({ application, savedJobs = [] }) {
           onClick={isBookmarked ? handleUnbookmark : handleBookmark}
         />
       </div>
-      <p className="w-[95%] text-xs my-4">{application.job_description}</p>
+      <p className="w-[95%] text-xs my-4">{application.job_data.job_description}</p>
       <div className="w-[85%] flex flex-wrap space-x-3">
-        {Array.isArray(application.skills_required ?? application.required_skills) ? (
-          (application.skills_required ?? application.required_skills).map((skill, key) => (
-            <p key={key} className="p-1 bg-gray-100 text-xs rounded px-2">
-              {skill}
-            </p>
-          ))
+        {typeof (application.job_data.skills_required ?? application.job_data.required_skills) ===
+        "string" ? (
+          <p className="p-1 bg-gray-100 text-xs rounded px-2">
+            {application.job_data.skills_required ?? application.job_data.required_skills}
+          </p>
         ) : (
-          application.skills_required ?? application.required_skills ? (
-            <p className="p-1 bg-gray-100 text-xs rounded px-2">
-              {application.skills_required ?? application.required_skills}
-            </p>
-          ) : null
+          (application.job_data.skills_required ?? application.job_data.required_skills).map(
+            (skill, key) => (
+              <p key={key} className="p-1 bg-gray-100 text-xs rounded px-2">
+                {skill}
+              </p>
+            )
+          )
         )}
       </div>
       <div className="flex text-[#8C8C8C] items-center space-x-2 mt-2">
@@ -152,17 +153,17 @@ export default function ApplicationCard({ application, savedJobs = [] }) {
           onClick={(e) => {
             e.stopPropagation();
             window.open(
-              application.company_website,
+              application.job_data.company_website,
               "_blank",
               "noopener noreferrer"
             );
           }}
         >
-          {application.company_website}
+          {application.job_data.company_website}
         </p>
       </div>
       <div className="flex justify-between items-center mt-5">
-        <p className="text-[#FFC800] text-xl">{application.salary_range}/-</p>
+        <p className="text-[#FFC800] text-xl">{application.job_data.salary_range}/-</p>
       </div>
     </div>
   );

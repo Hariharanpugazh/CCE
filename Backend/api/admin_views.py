@@ -836,7 +836,7 @@ def delete_job(request, job_id):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
-
+        
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 

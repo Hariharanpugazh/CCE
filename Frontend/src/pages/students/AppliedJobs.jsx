@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 
 export default function AppliedJobs() {
   const [appliedJobs, setAppliedJobs] = useState([]);
+  const [savedJobs, setSavedJobs] = useState([]);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filter, setFilter] = useState("All");
   const [error, setError] = useState("");
@@ -22,23 +23,34 @@ export default function AppliedJobs() {
           `http://localhost:8000/api/applied-jobs/${userId}/`
         );
 
-        // Access the job IDs within the response data
-        const jobIds = response.data.jobs;
+        // Access the job details within the response data
+        const jobDetails = response.data.jobs;
 
-        // Fetch details for each job ID
+        // Filter jobs where confirmed is true
+        const confirmedJobs = jobDetails.filter(job => job.confirmed);
+
+        // Fetch additional job details if necessary
+        const jobIds = confirmedJobs.map(job => job.job_id);
         const jobDetailsPromises = jobIds.map(jobId =>
           axios.get(`http://localhost:8000/api/job/${jobId}/`)
         );
 
-        const jobDetails = await Promise.all(jobDetailsPromises);
-        const jobsWithDetails = jobDetails.map(job => job.data.job);
+        const jobResponses = await Promise.all(jobDetailsPromises);
+        const jobsWithDetails = jobResponses.map(job => job.data.job);
+
+        // Combine job details with confirmation status
+        const jobsWithType = jobsWithDetails.map((job, index) => ({
+          ...job,
+          ...confirmedJobs[index], // Include the confirmed status
+          type: "job", // Add type field
+        }));
 
         // Log the jobs to inspect their structure
-        console.log("Applied Jobs:", jobsWithDetails);
+        console.log("Applied Jobs:", jobsWithType);
 
-        if (Array.isArray(jobsWithDetails)) {
-          setAppliedJobs(jobsWithDetails);
-          setFilteredJobs(jobsWithDetails);
+        if (Array.isArray(jobsWithType)) {
+          setAppliedJobs(jobsWithType);
+          setFilteredJobs(jobsWithType);
         } else {
           throw new Error("Unexpected response structure");
         }
@@ -48,7 +60,33 @@ export default function AppliedJobs() {
       }
     };
 
+    const fetchSavedJobs = async () => {
+      try {
+        const token = Cookies.get("jwt");
+        const userId = JSON.parse(atob(token.split(".")[1])).student_user;
+        const response = await axios.get(
+          `http://localhost:8000/api/saved-jobs/${userId}/`
+        );
+
+        // Access the jobs array within the response data
+        const jobs = response.data.jobs;
+
+        // Log the jobs to inspect their structure
+        console.log("Saved Jobs:", jobs);
+
+        if (Array.isArray(jobs)) {
+          setSavedJobs(jobs);
+        } else {
+          throw new Error("Unexpected response structure");
+        }
+      } catch (err) {
+        console.error("Error fetching saved jobs:", err);
+        setError("Unable to load job applications. Please try again later.");
+      }
+    };
+
     fetchAppliedJobs();
+    fetchSavedJobs();
   }, []);
 
   useEffect(() => {
@@ -91,23 +129,24 @@ export default function AppliedJobs() {
 
       {/* Job cards */}
       <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-  {error ? (
-    <p className="text-red-600">{error}</p>
-  ) : appliedJobs.length === 0 ? (
-    <p className="text-gray-600">You haven&apos;t applied for any jobs yet.</p>
-  ) : filteredJobs.length === 0 ? (
-    <p className="alert alert-danger w-full col-span-full text-center">
-      !! No Jobs Found !!
-    </p>
-  ) : (
-    filteredJobs.map((job) => (
-      <ApplicationCard
-        application={{ ...job, ...job.job_data }} // Ensure correct structure
-        key={job._id}
-      />
-    ))
-  )}
-</div>
+        {error ? (
+          <p className="text-red-600">{error}</p>
+        ) : appliedJobs.length === 0 ? (
+          <p className="text-gray-600">You haven&apos;t applied for any jobs yet.</p>
+        ) : filteredJobs.length === 0 ? (
+          <p className="alert alert-danger w-full col-span-full text-center">
+            !! No Jobs Found !!
+          </p>
+        ) : (
+          filteredJobs.map((job) => (
+            <ApplicationCard
+              application={{ ...job, ...job.job_data }}
+              key={job._id}
+              savedJobs={savedJobs.map(j => j._id)} // Pass saved job IDs as a prop
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 }
