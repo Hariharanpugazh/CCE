@@ -3,7 +3,7 @@ import axios from "axios";
 import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus, FaFilter } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Cookies from 'js-cookie';
-import JobCard from "../../components/Admin/JobCard";
+import ApplicationCard from "../../components/Students/ApplicationCard";
 import InternCard from "../../components/Admin/InternCard"; // Import InternCard
 import { AppPages, Departments } from "../../utils/constants";
 import { FiSearch } from "react-icons/fi";
@@ -243,14 +243,14 @@ const AdminHome = () => {
         {/* Render Job Cards */}
         <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
           {filteredJobs.map((job) => (
-            <JobCard key={job._id} job={{...job.job_data, _id: job._id}}  />
+            <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { setSelectedJob(job); }} isSaved={ undefined } />
           ))}
         </div>
 
         {/* Render Internship Cards */}
         <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
           {filteredInterns.map((internship) => (
-            <InternCard key={internship._id} internship={{...internship, _id: internship._id}} />
+            <ApplicationCard application={{ ...internship}} key={internship._id} handleCardClick={() => { setSelectedJob(internship); }} isSaved={ undefined } />
           ))}
         </div>
       </div>
