@@ -176,7 +176,7 @@ def admin_signup(request):
 
 
 def generate_reset_token(length=6):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    return ''.join(random.choices(string.digits, k=length))
  
 @csrf_exempt
 def admin_login(request):
@@ -237,9 +237,9 @@ def admin_login(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-def generate_reset_token(length=4):
-    # return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
-    return ''.join(random.choices(string.digits, k=length))
+# def generate_reset_token(length=4):
+#     # return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+#     return ''.join(random.choices(string.digits, k=length))
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -665,7 +665,7 @@ def get_jobs_for_mail(request):
                     #         formatted_deadline = datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
                     #     except ValueError:
                     #         # If neither format works, keep it as is (to avoid crashes)
-                    
+
                     formatted_deadline = deadline
 
                     job["job_data"]["application_deadline"] = formatted_deadline  # Update formatted value

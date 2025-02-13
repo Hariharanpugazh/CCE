@@ -92,6 +92,7 @@ urlpatterns = [
     path("profile/<str:userId>/", get_profile, name="get_profile"),
     path('update-profile/<str:userId>/', update_profile, name='update_profile'),
     path('student-forgot-password/', student_forgot_password, name='student_forgot_password'),
+    path('student-verify-otp/', student_verify_otp, name='student_verify_otp'),
     path('student-reset-password/', student_reset_password, name='student_reset_password'),
     path('published-jobs/', get_published_jobs, name='get_published_jobs'),
     path('published-internship/', get_published_internships, name='get_published_internships'),
