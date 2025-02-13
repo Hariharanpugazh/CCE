@@ -125,11 +125,23 @@ export default function SavedJobs() {
           (job) => dateDiff(job.job_data.application_deadline) >= 0
         )
       );
+
+      setFilteredInterns(
+        savedInterns.filter(
+          (intern) => dateDiff(intern.internship_data.application_deadline) >= 0
+        )
+      );
       
     } else if (filter === "Closed") {
       setFilteredJobs(
         savedJobs.filter(
           (job) => dateDiff(job.job_data.application_deadline) < 0
+        )
+      );
+
+      setFilteredInterns(
+        savedInterns.filter(
+          (intern) => dateDiff(intern.internship_data.application_deadline) < 0
         )
       );
     }
@@ -213,7 +225,7 @@ export default function SavedJobs() {
           <p className="text-gray-600">You haven&apos;t saved any jobs yet.</p>
         ) : filteredInterns.length === 0 ? (
           <p className="alert alert-danger w-full col-span-full text-center">
-            !! No Jobs Found !!
+            !! No Internships Found !!
           </p>
         ) : (
           filteredInterns.map((intern) => (
