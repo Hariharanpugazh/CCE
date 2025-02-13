@@ -129,7 +129,9 @@ export default function InternshipDashboard() {
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
       console.log("Decoded JWT Payload:", payload); // Debugging line
-      setUserRole(!payload.student_user ? payload.role : "student"); // Assuming the payload has a 'role' field
+      const user = !payload.student_user ? payload.role : "student";
+      setUserRole(user);
+      user === "superadmin" || user === "admin" ? undefined : fetchSavedInternships(); // Assuming the payload has a 'role' field
     }
   }, []);
 
@@ -146,7 +148,6 @@ export default function InternshipDashboard() {
   };
 
   useEffect(() => {
-    fetchSavedInternships();
     console.log(savedInterns)
   }, []);
 
