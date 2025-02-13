@@ -114,11 +114,11 @@ export default function InternshipDashboard() {
       setFilteredInterns(
         internships.filter(
           (intern) =>
-            intern.title.includes(searchPhrase) ||
-            intern.company_name.includes(searchPhrase) ||
-            intern.job_description.includes(searchPhrase) ||
+            intern.title.toLowerCase().includes(searchPhrase) ||
+            intern.company_name.toLowerCase().includes(searchPhrase) ||
+            intern.job_description.toLowerCase().includes(searchPhrase) ||
             intern.required_skills.includes(searchPhrase) ||
-            intern.internship_type.includes(searchPhrase)
+            intern.internship_type.toLowerCase().includes(searchPhrase)
         )
       );
     }

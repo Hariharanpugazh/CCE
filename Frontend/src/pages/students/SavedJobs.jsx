@@ -113,6 +113,36 @@ export default function SavedJobs() {
   }, [filter, savedJobs]);
 
   useEffect(() => {
+    if (searchPhrase === "") {
+      setFilteredJobs(savedJobs)
+      setFilteredInterns(savedInterns)
+    } else {
+      setFilter("")
+      setFilteredJobs(savedJobs.filter((job) => job.job_data.title.toLowerCase().includes(searchPhrase)
+        ||
+        job.job_data.company_name.toLowerCase().includes(searchPhrase)
+        ||
+        job.job_data.job_description.toLowerCase().includes(searchPhrase)
+        ||
+        job.job_data.required_skills.filter((skill) => skill.toLowerCase().includes(searchPhrase)).length > 0
+        ||
+        job.job_data.work_type.toLowerCase().includes(searchPhrase)
+      ))
+
+      setFilteredInterns(
+        savedInterns.filter(
+          (intern) =>
+            intern.internship_data.title.toLowerCase().includes(searchPhrase) ||
+            intern.internship_data.company_name.toLowerCase().includes(searchPhrase) ||
+            intern.internship_data.job_description.toLowerCase().includes(searchPhrase) ||
+            intern.internship_data.required_skills.includes(searchPhrase) ||
+            intern.internship_data.internship_type.toLowerCase().includes(searchPhrase)
+        )
+      );
+    }
+  }, [searchPhrase])
+
+  useEffect(() => {
     function dateDiff(deadline) {
       const deadDate = new Date(deadline);
       const today = Date.now();
@@ -131,7 +161,7 @@ export default function SavedJobs() {
           (intern) => dateDiff(intern.internship_data.application_deadline) >= 0
         )
       );
-      
+
     } else if (filter === "Closed") {
       setFilteredJobs(
         savedJobs.filter(
@@ -197,7 +227,7 @@ export default function SavedJobs() {
       </div>
 
       {/* Job cards */}
-      { currentSelected === "jobs" && <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
+      {currentSelected === "jobs" && <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
         {error ? (
           <p className="text-red-600">{error}</p>
         ) : savedJobs.length === 0 ? (
@@ -218,7 +248,7 @@ export default function SavedJobs() {
         )}
       </div>}
 
-      { currentSelected === "internships" && <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
+      {currentSelected === "internships" && <div className="w-[80%] self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
         {error ? (
           <p className="text-red-600">{error}</p>
         ) : savedInterns.length === 0 ? (
