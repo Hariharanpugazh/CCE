@@ -16,14 +16,17 @@ urlpatterns = [
     path('mailjobs/', get_admin_inbox, name='get_admin_inbox'),
     path('post-study-material/',post_study_material, name="post_study_material"),
     path("manage-internships/", manage_internships, name="manage_internships"),
+    path('manage-achievements/',manage_achievements, name="manage_achievements"),
     path('manage-study-materials/',manage_study_materials, name="manage_study_materials" ),
     path('fetch-review/', fetch_review, name='fetch_review'),
     path('get-admin/<str:userId>/', get_admin_details, name='get_admin_details'),
-    path('get-superadmin/<str:userId>/', get_superadmin_details, name='get_superadmin_details'),
+    path('update-admin/<str:userId>/', update_admin_profile, name='update_admin_profile'),
     
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
     path("superadmin_login/",super_admin_login,name="super_admin_login"),
+    path('get-superadmin/<str:userId>/', get_superadmin_details, name='get_superadmin_details'),
+    path('update-superadmin/<str:userId>/', update_superadmin_profile, name='update_superadmin_profile'),
     path("get-contact-messages/",get_contact_messages,name="get_contact_messages"),
     path('reply_to_message/',reply_to_message,name="reply_to_message"),
     path("toggle-auto-approval/",toggle_auto_approval, name="toggle_auto_approval"),
@@ -34,7 +37,7 @@ urlpatterns = [
     path("get_internships_with_admin/", get_internships_with_admin, name="get_internships_with_admin"),
     path("get_study_materials_with_admin/", get_study_materials_with_admin, name="get_study_materials_with_admin"),
     path("get_student_achievements_with_students/", get_student_achievements, name="get_student_achievements_with_students"),
-
+    
     #account management 
     path('students/', get_students, name='get_students'),
     path('students/<str:student_id>/update/', update_student, name='update_student'),
@@ -44,7 +47,6 @@ urlpatterns = [
     path('admin/<str:id>/edit/', edit_admin_details, name='edit_admin_details'),
 
     #common
-    path("profile/<str:userId>/", get_profile, name="get_profile"),
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
     path("verify-otp/", verify_otp, name="verify_otp"),
@@ -58,6 +60,9 @@ urlpatterns = [
     path('job-delete/<str:job_id>/', delete_job, name='delete_job'),
     path('get-jobs/', get_jobs, name='get_jobs'),
     path('submit-feedback/', submit_feedback, name='submit_feedback'),
+    path('apply-job/', apply_job, name='apply_job'),
+    path('confirm-job/', confirm_job, name='confirm_job'),
+    path('applied-jobs/<str:userId>/', get_applied_jobs, name='get_applied_jobs'),
     
 
     #Achievements
@@ -77,10 +82,15 @@ urlpatterns = [
     path('internship/<str:internship_id>/', get_internship_id, name='get_internship'),
     path('internship-edit/<str:internship_id>/', update_internship, name='update_internship'),
     path('internship-delete/<str:internship_id>/', delete_internship, name='delete_internship'),
+    path("save-internship/<str:pk>/", save_internship, name="save-job"),
+    path("unsave-internship/<str:pk>/", unsave_internship, name="unsave-job"),
+    path("saved-internships/<str:user_id>/", get_saved_internships, name="get-saved-jobs"),
     
     #student
     path("student-signup/", student_signup, name="student_signup"),
     path("stud/login/", student_login, name="student_login"),
+    path("profile/<str:userId>/", get_profile, name="get_profile"),
+    path('update-profile/<str:userId>/', update_profile, name='update_profile'),
     path('student-forgot-password/', student_forgot_password, name='student_forgot_password'),
     path('student-reset-password/', student_reset_password, name='student_reset_password'),
     path('published-jobs/', get_published_jobs, name='get_published_jobs'),

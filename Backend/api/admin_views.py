@@ -647,7 +647,6 @@ def get_jobs_for_mail(request):
             # Fetch admin details using admin_id
             admin_id = job.get("admin_id")
             admin_name = "Unknown Admin"
-
             if admin_id:
                 admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
                 if admin:
@@ -676,7 +675,7 @@ def get_jobs_for_mail(request):
 
             job_list.append(job)
 
-        return JsonResponse({"jobs": job_list}, status=200)
+        return JsonResponse({"jobs": job_list}, status=200, safe=False)
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
@@ -796,24 +795,36 @@ def update_job(request, job_id):
     if request.method == 'PUT':
         try:
             data = json.loads(request.body)
-            job = job_collection.find_one({"_id": ObjectId(job_id)})
+
+            # Convert job_id to ObjectId
+            job_object_id = ObjectId(job_id)
+
+            # Find the existing job
+            job = job_collection.find_one({"_id": job_object_id})
             if not job:
                 return JsonResponse({"error": "Job not found"}, status=404)
 
-            # Exclude the _id field from the update
-            if '_id' in data:
-                del data['_id']
+            # Ensure _id is not modified
+            data.pop('_id', None)
 
             # Add or update the 'edited' field
-            data['edited'] = "yes"
+            data['edited'] = data.get('edited', True)  # Default to True if not provided
 
-            # # Ensure is_publish is set to false
-            # data['is_publish'] = False
+            # Update the job document
+            job_collection.update_one({"_id": job_object_id}, {"$set": data})
 
-            job_collection.update_one({"_id": ObjectId(job_id)}, {"$set": data})
-            updated_job = job_collection.find_one({"_id": ObjectId(job_id)})
-            updated_job["_id"] = str(updated_job["_id"])  # Convert ObjectId to string
+            # Fetch updated job and convert ObjectId fields to strings
+            updated_job = job_collection.find_one({"_id": job_object_id})
+            updated_job["_id"] = str(updated_job["_id"])
+
+            # Ensure all ObjectId fields (like admin_id, item_id) are converted to strings
+            if "admin_id" in updated_job and isinstance(updated_job["admin_id"], ObjectId):
+                updated_job["admin_id"] = str(updated_job["admin_id"])
+            if "item_id" in updated_job and isinstance(updated_job["item_id"], ObjectId):
+                updated_job["item_id"] = str(updated_job["item_id"])
+
             return JsonResponse({"job": updated_job}, status=200)
+
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     else:
@@ -890,6 +901,40 @@ def post_achievement(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@csrf_exempt
+def manage_achievements(request):
+    if request.method == 'GET':
+        jwt_token = request.COOKIES.get('jwt')
+        
+        if not jwt_token:
+            return JsonResponse({'error': 'JWT token missing'}, status=401)
+
+        try:
+            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            role = decoded_token.get('role')
+            admin_user = decoded_token.get('admin_user') if role == "admin" else decoded_token.get('superadmin_user')
+
+            if not admin_user:
+                return JsonResponse({"error": "Invalid token"}, status=401)
+
+            # Fetch achievements from MongoDB based on admin_user
+            achievements = achievement_collection.find({"admin_id": admin_user} if role == "admin" else {})
+            achievement_list = []
+            for achievement in achievements:
+                achievement["_id"] = str(achievement["_id"])  # Convert ObjectId to string
+                achievement_list.append(achievement)
+
+            return JsonResponse({"achievements": achievement_list}, status=200)
+
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'error': 'JWT token has expired'}, status=401)
+        except jwt.InvalidTokenError as e:
+            return JsonResponse({'error': f'Invalid JWT token: {str(e)}'}, status=401)
+        except Exception as e:
+            return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    
 @csrf_exempt
 def update_achievement(request, achievement_id):
     """
@@ -1234,7 +1279,17 @@ def update_internship(request, internship_id):
             if '_id' in data:
                 del data['_id']
 
-            internship_collection.update_one({"_id": ObjectId(internship_id)}, {"$set": data})
+            # Separate the 'edited' field from the rest of the data
+            edited_value = data.pop("edited", None)
+
+            # Prepare the update data for nested fields
+            update_data = {"$set": {f"internship_data.{key}": value for key, value in data.items()}}
+
+            # If 'edited' is provided, add it to the root level update
+            if edited_value is not None:
+                update_data["$set"]["edited"] = edited_value
+
+            internship_collection.update_one({"_id": ObjectId(internship_id)}, update_data)
             updated_internship = internship_collection.find_one({"_id": ObjectId(internship_id)})
             updated_internship["_id"] = str(updated_internship["_id"])  # Convert ObjectId to string
             return JsonResponse({"internship": updated_internship}, status=200)
@@ -1915,21 +1970,62 @@ def get_admin_details(request, userId):
                     {"error": "Admin with this ID does not exist"}, status=400
                 )
 
+            # Ensure profile_image field is correctly retrieved as a filename
+            profile_image = admin.get("profile_image", "default.png")  # Default image if none
+
             # Prepare response data
             data = {
                 "name": admin.get("name"),
                 "email": admin.get("email"),
                 "status": admin.get("status"),
-                "created_at": admin.get("created_at"),
-                "last_login": admin.get("last_login"),
+                "created_at": str(admin.get("created_at")) if admin.get("created_at") else "N/A",
+                "last_login": str(admin.get("last_login")) if admin.get("last_login") else "Never",
                 "college_name": admin.get("college_name", "N/A"),
                 "department": admin.get("department", "N/A"),
                 "role": "admin",
+                "profile_image": profile_image,  # Send only filename, not binary data
             }
 
-            return JsonResponse(
-                {"message": "Admin details found", "data": data}, status=200
-            )
+            return JsonResponse({"message": "Admin details found", "data": data}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+@csrf_exempt
+def update_admin_profile(request, userId):
+    if request.method == "PUT":
+        try:
+            # Parse JSON request body
+            data = json.loads(request.body)
+
+            # Find the admin user by ID
+            admin = admin_collection.find_one({"_id": ObjectId(userId)})
+            if not admin:
+                return JsonResponse({"error": "Admin not found"}, status=404)
+
+            # Validate request payload
+            if "name" not in data or "profile_image" not in data:
+                return JsonResponse({"error": "Missing required fields"}, status=400)
+
+            # Prevent email from being changed
+            data.pop("email", None)
+
+            # Ensure only valid predefined images are used
+            allowed_images = ["boy-1.png", "boy-2.png", "boy-3.png", "boy-4.png", "boy-5.png", "boy-6.png", "Girl-1.png", "Girl-2.png", "Girl-3.png", "Girl-4.png", "Girl-5.png"]
+            if data["profile_image"] not in allowed_images:
+                return JsonResponse({"error": "Invalid image selection"}, status=400)
+
+            # Update only name and profile image
+            updated_fields = {
+                "name": data["name"],
+                "profile_image": data["profile_image"]
+            }
+
+            admin_collection.update_one({"_id": ObjectId(userId)}, {"$set": updated_fields})
+
+            return JsonResponse({"message": "Admin profile updated successfully"}, status=200)
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
@@ -1948,16 +2044,27 @@ def get_superadmin_details(request, userId):
                     {"error": "Super Admin with this ID does not exist"}, status=400
                 )
 
+            # Handle profile image (Check if image is stored as a filename or binary)
+            profile_image = ""
+            if "profile_image" in superadmin:
+                if isinstance(superadmin["profile_image"], bytes):
+                    # Convert Binary image to Base64 format
+                    profile_image = "data:image/jpeg;base64," + base64.b64encode(superadmin["profile_image"]).decode('utf-8')
+                elif isinstance(superadmin["profile_image"], str):
+                    # If stored as a filename, return it directly
+                    profile_image = superadmin["profile_image"]
+
             # Prepare response data
             data = {
                 "name": superadmin.get("name"),
                 "email": superadmin.get("email"),
-                "status": superadmin.get("status"),
-                "created_at": superadmin.get("created_at"),
-                "last_login": superadmin.get("last_login"),
+                "status": superadmin.get("status", "N/A"),
+                "created_at": str(superadmin.get("created_at")) if superadmin.get("created_at") else "N/A",
+                "last_login": str(superadmin.get("last_login")) if superadmin.get("last_login") else "Never",
                 "college_name": superadmin.get("college_name", "N/A"),
                 "department": superadmin.get("department", "N/A"),
                 "role": "superadmin",
+                "profile_image": profile_image,  # Send either Base64 or filename
             }
 
             return JsonResponse(
@@ -1968,7 +2075,6 @@ def get_superadmin_details(request, userId):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
-
 
 @api_view(['GET', 'PUT'])
 def achievement_detail(request, achievement_id):

@@ -38,7 +38,7 @@ import StudyEdit from "./pages/admin/StudyEdit";
 import Profile from "./pages/common/profile";
 import SavedJobs from './pages/students/SavedJobs';
 import StudentStudyMaterial from "./pages/students/StudentStudyMaterial";
-import AchivementEdit from "./pages/admin/AchivementEdit";
+import AppliedJobs from "./pages/students/AppliedJobs";import AchivementEdit from "./pages/admin/AchivementEdit";
 import StudentMail from "./pages/students/StudentMail";
 import { LoaderContext, LoaderLayout } from "./components/Common/Layout";
 import { useState } from "react";
@@ -80,18 +80,19 @@ function App() {
           {/* Student Routes */}
           <Route path="/student" element={<StudentLogin />} />
 
-          {/* Protected Student Routes */}
-          <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
-          <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
-          <Route path="/jobs" element={<ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
-          <Route path="/achievements" element={<ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
-          <Route path="/contact" element={<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
-          <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />
-          <Route path="/job-preview/:id" element={<JobPreview />} />
-          <Route path="/internship-preview/:id" element={<InternshipPreview />} />
-          <Route path="/studentachievement" element={<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
-          <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />        <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />
+        {/* Protected Student Routes */}
+        <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
+        <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
+        <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
+        <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
+        <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
+        <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />
+        <Route path="/job-preview/:id" element={<JobPreview />} />
+        <Route path="/internship-preview/:id" element={<InternshipPreview />} />
+        <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
+        <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />        <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />
+        <Route path="/applied-jobs" element={<ProtectedRoute> <AppliedJobs /> </ProtectedRoute>} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />

@@ -42,7 +42,7 @@ export default function StudentLogin() {
         if (isLocked) return;
     
         try {
-            const response = await fetch("http://localhost:8000/api/stud/login/", {
+            const response = await fetch("https://1xpug8kx2c.execute-api.us-east-1.amazonaws.com/dev/api/stud/login/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
