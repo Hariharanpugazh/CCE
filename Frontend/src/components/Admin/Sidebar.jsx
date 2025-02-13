@@ -1,13 +1,13 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const Sidebar = ({ 
-  isOpen, 
-  onToggle, 
-  categories, 
-  selectedCategory, 
+const Sidebar = ({
+  isOpen,
+  onToggle,
+  categories,
+  selectedCategory,
   onCategorySelect,
-  className = "" 
+  className = "",
 }) => {
   return (
     <div
