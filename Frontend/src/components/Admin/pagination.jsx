@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   
@@ -71,6 +72,7 @@ const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => 
           )
         )}
 
+
         {/* Next button */}
         <button
           className="p-2 rounded-full hover:bg-gray-100 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none transition-colors"
@@ -86,5 +88,6 @@ const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => 
     </div>
   );
 };
+
 
 export default Pagination;
