@@ -15,7 +15,7 @@ const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => 
     } else {
       // Always show first page
       pageNumbers.push(1);
-      
+
       if (currentPage <= 3) {
         // Near the start
         pageNumbers.push(2, 3, 4);
@@ -70,7 +70,7 @@ const Pagination = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => 
             </button>
           )
         )}
-        
+
         {/* Next button */}
         <button
           className="p-2 rounded-full hover:bg-gray-100 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none transition-colors"
