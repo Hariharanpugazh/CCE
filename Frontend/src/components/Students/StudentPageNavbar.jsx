@@ -94,7 +94,7 @@ export default function StudentPageNavbar() {
                     <MdOutlinePostAdd className="text-xl mr-2" />  Post Achievement
                   </li>
                   <li className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => (window.location.href = "/saved-jobs")}>
-                    <IoBookmarksSharp className="text-xl mr-2" /> Saved Jobs
+                    <IoBookmarksSharp className="text-xl mr-2" /> Saved Items
                   </li>
                   <li className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => (window.location.href = "/applied-jobs")}>
                     <MdWork className="text-xl mr-2" /> Applied Jobs
