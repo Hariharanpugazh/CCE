@@ -852,9 +852,16 @@ def delete_job(request, job_id):
             job_collection.delete_one({"_id": ObjectId(job_id)})
 
             # Update students' saved jobs
+             # Update students' saved jobs
             student_collection.update_many(
                 {"saved_jobs": job_id},
                 {"$pull": {"saved_jobs": job_id}}
+            )
+
+            # Update students' applied jobs
+            student_collection.update_many(
+                {"applied_jobs.job_id": job_id},
+                {"$pull": {"applied_jobs": {"job_id": job_id}}}
             )
 
             return JsonResponse({"message": "Job deleted successfully"}, status=200)
