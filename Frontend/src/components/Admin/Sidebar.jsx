@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -8,11 +9,14 @@ const Sidebar = ({
   selectedCategory, 
   onCategorySelect,
   className = "" 
+
 }) => {
   return (
     <div
       className={`bg-white shadow-xl transition-all duration-300 ease-in-out fixed h-full z-10${
+
         isOpen ? "w-64" : "w-20"
+
       } ${className}`}
     >
       <div className="flex flex-col h-full">
@@ -28,6 +32,7 @@ const Sidebar = ({
               </div>
             ) : (
               <ChevronRight className="h-5 w-5" />
+
             )}
           </button>
         </div>
@@ -47,6 +52,7 @@ const Sidebar = ({
               `}
             >
               <Icon className={`h-5 w-5 ${isOpen ? "mr-3" : ""}`} />
+
               {isOpen && (
                 <span className="font-medium whitespace-nowrap">{name}</span>
               )}
@@ -59,3 +65,4 @@ const Sidebar = ({
 };
 
 export default Sidebar;
+
