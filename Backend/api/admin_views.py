@@ -839,21 +839,29 @@ def update_job(request, job_id):
 @csrf_exempt
 def delete_job(request, job_id):
     """
-    Delete a job by its ID.
+    Delete a job by its ID and remove it from students' saved jobs.
     """
     if request.method == 'DELETE':
         try:
+            # Check if the job exists
             job = job_collection.find_one({"_id": ObjectId(job_id)})
             if not job:
                 return JsonResponse({"error": "Job not found"}, status=404)
 
+            # Delete the job from the job collection
             job_collection.delete_one({"_id": ObjectId(job_id)})
+
+            # Update students' saved jobs
+            student_collection.update_many(
+                {"saved_jobs": job_id},
+                {"$pull": {"saved_jobs": job_id}}
+            )
+
             return JsonResponse({"message": "Job deleted successfully"}, status=200)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
-
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 
