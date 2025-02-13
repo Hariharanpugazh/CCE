@@ -156,7 +156,6 @@ def student_signup(request):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
-
 @csrf_exempt
 def student_login(request):
     if request.method == "POST":
@@ -219,7 +218,9 @@ def student_login(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
 def generate_reset_token(length=6):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    return ''.join(random.choices(string.digits, k=length))
+
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -249,35 +250,59 @@ def student_forgot_password(request):
     except Exception as e:
         return Response({"error": str(e)}, status=500)
 
+@csrf_exempt   
+def student_verify_otp(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email = data.get("email")
+            otp = data.get("token")
+
+            # Find the student user by email
+            student_user = student_collection.find_one({"email": email})
+            if not student_user:
+                return JsonResponse(
+                    {"error": "No account found with this email"}, status=404
+                )
+            
+            print(student_user.get("password_reset_token"),otp)
+
+            # Validate the OTP
+            if student_user.get("password_reset_token") == otp:
+                return JsonResponse({"message": "OTP verification successful"}, status=200)
+            else:
+                return JsonResponse({"error": "Invalid OTP"}, status=403)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
+
 @csrf_exempt
 def student_reset_password(request):
-    """Reset Password for Students"""
+    """Reset Password Function for Students"""
     if request.method == 'POST':
         try:
             # Parse the request payload
             data = json.loads(request.body)
             email = data.get('email')
-            token = data.get('token')
             new_password = data.get('newPassword')
 
             # Validate the request data
-            if not email or not token or not new_password:
-                return JsonResponse({"error": "Email, token, and new password are required."}, status=400)
+            if not email or not new_password:
+                return JsonResponse({"error": "Email and new password are required."}, status=400)
 
-            # Fetch the user by email
-            user = student_collection.find_one({"email": email})
-            if not user:
-                return JsonResponse({"error": "User not found."}, status=404)
-
-            # Validate the token and expiration
-            if user.get("password_reset_token") != token:
-                return JsonResponse({"error": "Invalid password reset token."}, status=403)
-
-            if user.get("password_reset_expires") and datetime.utcnow() > user["password_reset_expires"]:
-                return JsonResponse({"error": "Password reset token has expired."}, status=403)
+            # Fetch the student by email
+            student = student_collection.find_one({"email": email})
+            if not student:
+                return JsonResponse({"error": "Student not found."}, status=404)
 
             # Hash the new password
             hashed_password = make_password(new_password)
+
+            # Ensure hashed password starts with "pbkdf2_sha256$"
+            if not hashed_password.startswith("pbkdf2_sha256$"):
+                return JsonResponse({"error": "Failed to hash the password correctly."}, status=500)
 
             # Update the password in MongoDB
             result = student_collection.update_one(

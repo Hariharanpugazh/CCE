@@ -112,7 +112,7 @@ export default function AchievementPostForm() {
         formDataObj,
         {
           headers: {
-            // Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
