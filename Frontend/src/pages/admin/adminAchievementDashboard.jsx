@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import StudentPageSearchBar from "../../components/Students/StudentPageSearchBar";
 import PageHeader from "../../components/Common/StudentPageHeader";
@@ -8,6 +9,7 @@ export default function AchievementDashboard() {
   const [achievements, setAchievements] = useState([]);
   const [filter, setFilter] = useState("All");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   // Fetch published achievements from the backend
   useEffect(() => {
@@ -23,6 +25,10 @@ export default function AchievementDashboard() {
 
     fetchPublishedAchievements();
   }, []);
+
+  const handleCardClick = (id) => {
+    navigate(`/achievement-preview/${id}`);
+  };
 
   return (
     <div className="flex flex-col">
@@ -44,7 +50,8 @@ export default function AchievementDashboard() {
           achievements.map((achievement) => (
             <div
               key={achievement._id}
-              className="p-4 border rounded-lg shadow-md bg-white flex flex-col justify-between items-center"
+              className="p-4 border rounded-lg shadow-md bg-white flex flex-col justify-between items-center cursor-pointer"
+              onClick={() => handleCardClick(achievement._id)}
             >
               {achievement.photo && (
                 <img

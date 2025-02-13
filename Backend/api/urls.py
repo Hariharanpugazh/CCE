@@ -70,7 +70,7 @@ urlpatterns = [
     path('achievements/', get_achievements, name='get_achievements'),
     path('edit-achievement/<str:achievement_id>/', update_achievement, name='edit-achievement'),
     path('delete-achievement/<str:achievement_id>/', delete_achievement, name='delete_achievement'),
-
+    path("achievement/<str:achievement_id>/",get_achievement_by_id,name="get_achievement_by_id"),
     # path('review-achievement/<str:achievement_id>/', review_achievement, name='review_achievement'),
     path('published-achievement/', get_published_achievements, name='get_published_achievements'),
     path('get-achievement/<str:achievement_id>/', achievement_detail, name='achievement_detail'),
