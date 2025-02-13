@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { FiBookmark, FiCircle, FiMapPin } from "react-icons/fi";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 
@@ -46,6 +47,8 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
         event.stopPropagation(); // Prevent triggering card click
         window.open(application.job_link, "_blank", "noopener noreferrer");
     };
+
+    useEffect(() => {console.log(application)}, [])
 
     return (
         <div
