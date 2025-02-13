@@ -654,19 +654,24 @@ def get_jobs_for_mail(request):
 
             # Ensure job_data exists and has application_deadline
             if "job_data" in job and "application_deadline" in job["job_data"]:
-                if job["job_data"]["application_deadline"]:  # Check if it's not None
-                    deadline = job["job_data"]["application_deadline"]
-                    # try:
-                    #     # Try parsing full datetime format
-                    #     formatted_deadline = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
-                    # except ValueError:
-                    #     try:
-                    #         # If the first format fails, try the plain date format
-                    #         formatted_deadline = datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
-                    #     except ValueError:
-                    #         # If neither format works, keep it as is (to avoid crashes)
-
-                    formatted_deadline = deadline
+                deadline = job["job_data"]["application_deadline"]
+                if deadline:
+                    if isinstance(deadline, datetime):
+                        # If deadline is already a datetime object, format it directly
+                        formatted_deadline = deadline.strftime("%Y-%m-%d")
+                    elif isinstance(deadline, str):
+                        try:
+                            # Try parsing full datetime format
+                            formatted_deadline = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
+                        except ValueError:
+                            try:
+                                # If the first format fails, try the plain date format
+                                formatted_deadline = datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
+                            except ValueError:
+                                # If neither format works, keep it as is (to avoid crashes)
+                                formatted_deadline = deadline
+                    else:
+                        formatted_deadline = str(deadline)  # Fallback to string conversion
 
                     job["job_data"]["application_deadline"] = formatted_deadline  # Update formatted value
 

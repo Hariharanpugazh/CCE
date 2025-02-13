@@ -1,4 +1,4 @@
-import { FiBookmark, FiCircle, FiMapPin } from "react-icons/fi";
+import { FiBookmark, FiCircle, FiMapPin, FiEye } from "react-icons/fi"; // Import FiEye for views icon
 import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 
 function timeAgo(dateString) {
@@ -76,41 +76,43 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
                 {application.job_description}
             </p>
 
-            {/* Skills Badges */}
-            <div className="w-[85%] flex flex-wrap space-x-3">
-                {typeof (application.skills_required ?? application.required_skills) === "string"
-                    ? <p className="p-1 bg-gray-100 text-xs rounded px-2 my-1">{application.skills_required ?? application.required_skills}</p>
-                    : (application.skills_required ?? application.required_skills).map((skill, key) => (
-                        <p key={key} className="p-1 bg-gray-200 text-xs rounded px-2 my-1">{skill}</p>
-                    ))}
+            {/* Tags Section */}
+            <div className="flex flex-wrap gap-2 text-xs mt-2">
+                {application.selectedWorkType && (
+                    <span className="bg-gray-200 px-2 py-1 rounded-full">{application.selectedWorkType}</span>
+                )}
+                {application.work_type && (
+                    <span className="bg-gray-200 px-2 py-1 rounded-full">{application.work_type}</span>
+                )}
+                {application.experience_level && (
+                    <span className="bg-gray-200 px-2 py-1 rounded-full">{application.experience_level}</span>
+                )}
             </div>
 
-            {/* Time and Website Section */}
-            <div className="flex text-[#8C8C8C] items-center space-x-2 mt-2">
-                <p className="text-xs">{timeAgo(application.updated_at)}</p>
-                <FiCircle style={{ width: "4px", height: "4px", backgroundColor: "#8C8C8C", borderRadius: "50%" }} />
-                <p
-                    className="underline text-xs truncate w-[65%] leading-none cursor-pointer"
-                    onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering card click
-                        window.open(application.company_website?.startsWith("http")
-                            ? application.company_website
-                            : `https://${application.company_website}`, "_blank", "noopener noreferrer");
-                    }}
-                >
-                    {application.company_website}
-                </p>
+            {/* Meta Info Section */}
+            <div className="flex items-center text-gray-500 text-xs mt-3 space-x-2">
+                <span>{timeAgo(application.updated_at)}</span>
+                <span>|</span>
+                <span className="flex items-center">
+                    <FiEye className="mr-1" /> {application.views ?? 0} views
+                </span>
             </div>
 
-            {/* Apply Now Section */}
-            <div className="flex justify-between items-center mt-5">
-                <p className="text-[#FFC800] text-xl">{application.salary_range}/-</p>
-                <button
-                    className="bg-[#FFC800] p-2 rounded text-xs cursor-pointer"
-                    onClick={handleApplyClick}
-                >
-                    Apply Now
-                </button>
+      {/* Footer Section */}
+      <div className="flex justify-between items-center mt-4">
+        <span
+          className={`text-sm font-bold transition-all duration-300 
+            ${application.status === "active" ? "text-green-500" : "text-red-500"}`}
+        >
+          {application.status === "active" ? "ON GOING" : "EXPIRED"}
+        </span>
+
+        <button
+          className="bg-yellow-400 text-black px-4 py-2 rounded font-medium text-sm hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105"
+          onClick={handleApplyClick}
+        >
+          View Details
+        </button>
             </div>
         </div>
     );
