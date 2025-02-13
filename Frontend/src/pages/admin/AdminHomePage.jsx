@@ -94,15 +94,13 @@ const AdminHome = () => {
         job.job_data.work_type.includes(searchPhrase)
       ))
 
-      setFilteredInterns(jobs.filter((interns) => interns.job_data.title.includes(searchPhrase)
+      setFilteredInterns(internships.filter((interns) => interns.internship_data.title.includes(searchPhrase)
         ||
-        interns.job_data.company_name.includes(searchPhrase)
+        interns.internship_data.company_name.includes(searchPhrase)
         ||
-        interns.job_data.job_description.includes(searchPhrase)
+        interns.internship_data.job_description.includes(searchPhrase)
         ||
-        interns.job_data.required_skills.includes(searchPhrase)
-        ||
-        interns.job_data.work_type.includes(searchPhrase)
+        interns.internship_data.required_skills.includes(searchPhrase)
       ))
     }
   }, [searchPhrase])
