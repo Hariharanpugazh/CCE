@@ -136,6 +136,8 @@ export default function JobDashboard() {
         const jobsWithType = response.data.jobs.map((job) => ({
           ...job,
           type: "job", // Add type field
+          status: job.status, // Add status field
+          updated_at: job.updated_at // Add updated_at field
         }));
         setJobs(jobsWithType); // Set jobs with type
         setFilteredJobs(jobsWithType); // Update filtered jobs

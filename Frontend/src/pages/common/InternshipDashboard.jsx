@@ -93,6 +93,7 @@ export default function InternshipDashboard() {
           ...internship.internship_data, // Extract internship_data
           id: internship._id, // Add id field
           type: "internship",
+          status: internship.status,
           updated_at: internship.updated_at // Add type field
         }));
         // console.log("Internships with type:", internshipsWithType); // Debugging line
