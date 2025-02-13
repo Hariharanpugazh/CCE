@@ -83,29 +83,27 @@ const AdminHome = () => {
     if (searchPhrase === "") {
       setFilteredJobs(jobs)
     } else {
-      setFilteredJobs(jobs.filter((job) => job.job_data.title.includes(searchPhrase)
+      setFilteredJobs(jobs.filter((job) => job.job_data.title.toLocaleLowerCase().includes(searchPhrase)
         ||
-        job.job_data.company_name.includes(searchPhrase)
+        job.job_data.company_name.toLocaleLowerCase().includes(searchPhrase)
         ||
-        job.job_data.job_description.includes(searchPhrase)
+        job.job_data.job_description.toLocaleLowerCase().includes(searchPhrase)
         ||
-        job.job_data.required_skills.includes(searchPhrase)
+        job.job_data.required_skills.map(skill => skill.toLowerCase()).includes(searchPhrase.toLowerCase())
         ||
-        job.job_data.work_type.includes(searchPhrase)
+        job.job_data.work_type.toLocaleLowerCase().includes(searchPhrase)
       ))
 
-      setFilteredInterns(jobs.filter((interns) => interns.job_data.title.includes(searchPhrase)
+      setFilteredInterns(internships.filter((interns) => interns.internship_data.title.toLocaleLowerCase().includes(searchPhrase)
         ||
-        interns.job_data.company_name.includes(searchPhrase)
+        interns.internship_data.company_name.toLocaleLowerCase().includes(searchPhrase)
         ||
-        interns.job_data.job_description.includes(searchPhrase)
+        interns.internship_data.job_description.toLocaleLowerCase().includes(searchPhrase)
         ||
-        interns.job_data.required_skills.includes(searchPhrase)
-        ||
-        interns.job_data.work_type.includes(searchPhrase)
+        interns.internship_data.required_skills.map(skill => skill.toLowerCase()).includes(searchPhrase.toLowerCase())
       ))
     }
-  }, [searchPhrase])
+  }, [searchPhrase, jobs, internships])
 
 
   useEffect(() => {
@@ -160,7 +158,7 @@ const AdminHome = () => {
         </p>
 
         <div className="relative flex items-stretch w-[70%]">
-          <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value)} placeholder={`Search postings`} className="w-full text-lg my-5 p-2 px-5 rounded-full bg-gray-100 border-transparent border-2 hover:bg-white hover:border-blue-200 outline-blue-400" />
+          <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())} placeholder={`Search postings`} className="w-full text-lg my-5 p-2 px-5 rounded-full bg-gray-100 border-transparent border-2 hover:bg-white hover:border-blue-200 outline-blue-400" />
           <div className="absolute right-2 h-full flex items-center">
             <FiSearch className="bi bi-search bg-blue-400 rounded-full text-white" style={{ color: "white", width: "35", height: "35", padding: "8px" }} />
           </div>
