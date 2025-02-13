@@ -654,19 +654,24 @@ def get_jobs_for_mail(request):
 
             # Ensure job_data exists and has application_deadline
             if "job_data" in job and "application_deadline" in job["job_data"]:
-                if job["job_data"]["application_deadline"]:  # Check if it's not None
-                    deadline = job["job_data"]["application_deadline"]
-                    # try:
-                    #     # Try parsing full datetime format
-                    #     formatted_deadline = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
-                    # except ValueError:
-                    #     try:
-                    #         # If the first format fails, try the plain date format
-                    #         formatted_deadline = datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
-                    #     except ValueError:
-                    #         # If neither format works, keep it as is (to avoid crashes)
-
-                    formatted_deadline = deadline
+                deadline = job["job_data"]["application_deadline"]
+                if deadline:
+                    if isinstance(deadline, datetime):
+                        # If deadline is already a datetime object, format it directly
+                        formatted_deadline = deadline.strftime("%Y-%m-%d")
+                    elif isinstance(deadline, str):
+                        try:
+                            # Try parsing full datetime format
+                            formatted_deadline = datetime.strptime(deadline, "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%Y-%m-%d")
+                        except ValueError:
+                            try:
+                                # If the first format fails, try the plain date format
+                                formatted_deadline = datetime.strptime(deadline, "%Y-%m-%d").strftime("%Y-%m-%d")
+                            except ValueError:
+                                # If neither format works, keep it as is (to avoid crashes)
+                                formatted_deadline = deadline
+                    else:
+                        formatted_deadline = str(deadline)  # Fallback to string conversion
 
                     job["job_data"]["application_deadline"] = formatted_deadline  # Update formatted value
 
@@ -834,21 +839,29 @@ def update_job(request, job_id):
 @csrf_exempt
 def delete_job(request, job_id):
     """
-    Delete a job by its ID.
+    Delete a job by its ID and remove it from students' saved jobs.
     """
     if request.method == 'DELETE':
         try:
+            # Check if the job exists
             job = job_collection.find_one({"_id": ObjectId(job_id)})
             if not job:
                 return JsonResponse({"error": "Job not found"}, status=404)
 
+            # Delete the job from the job collection
             job_collection.delete_one({"_id": ObjectId(job_id)})
+
+            # Update students' saved jobs
+            student_collection.update_many(
+                {"saved_jobs": job_id},
+                {"$pull": {"saved_jobs": job_id}}
+            )
+
             return JsonResponse({"message": "Job deleted successfully"}, status=200)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
-
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 
