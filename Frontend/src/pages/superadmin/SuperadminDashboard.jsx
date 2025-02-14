@@ -5,6 +5,7 @@ import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import ApplicationCard from "../../components/Students/ApplicationCard";
 import { FiSearch } from "react-icons/fi";
 import { AppPages, Departments } from "../../utils/constants";
+import Pagination from "../../components/Admin/pagination"; // Import Pagination component
 
 const SuperAdminHome = () => {
   const [internships, setInternships] = useState([]);
@@ -16,6 +17,9 @@ const SuperAdminHome = () => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filteredInterns, setFilteredInterns] = useState([]);
+  const [currentJobPage, setCurrentJobPage] = useState(1);
+  const [currentInternPage, setCurrentInternPage] = useState(1);
+  const itemsPerPage = 3;
 
   const cardsData = [
     { title: "OverAll", count: jobs.length + internships.length, icon: <FaListAlt /> },
@@ -95,6 +99,24 @@ const SuperAdminHome = () => {
 
   const handleButtonClick = (status) => {
     setFilter(status === "All" ? "All" : status);
+  };
+
+  // Pagination logic for jobs
+  const indexOfLastJob = currentJobPage * itemsPerPage;
+  const indexOfFirstJob = indexOfLastJob - itemsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  const handleJobPageChange = (pageNumber) => {
+    setCurrentJobPage(pageNumber);
+  };
+
+  // Pagination logic for internships
+  const indexOfLastIntern = currentInternPage * itemsPerPage;
+  const indexOfFirstIntern = indexOfLastIntern - itemsPerPage;
+  const currentInterns = filteredInterns.slice(indexOfFirstIntern, indexOfLastIntern);
+
+  const handleInternPageChange = (pageNumber) => {
+    setCurrentInternPage(pageNumber);
   };
 
   return (
@@ -191,33 +213,51 @@ const SuperAdminHome = () => {
         </div>
 
         {/* Render Job Cards */}
-        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
-          {error ? (
-            <p className="text-red-600">{error}</p>
-          ) : jobs.length === 0 ? (
-            <p className="text-gray-600">No jobs available at the moment.</p>
-          ) : filteredJobs.length === 0 ? (
-            <p className="alert alert-danger w-full col-span-full text-center">!! No Jobs Found !!</p>
-          ) : (
-            filteredJobs.map((job) => (
-              <ApplicationCard key={job.id} application={{ ...job }} />
-            ))
-          )}
+        <div className="w-full self-center mt-6">
+          <h2 className="text-2xl font-bold mb-4">Job Listings</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
+            {error ? (
+              <p className="text-red-600">{error}</p>
+            ) : jobs.length === 0 ? (
+              <p className="text-gray-600">No jobs available at the moment.</p>
+            ) : currentJobs.length === 0 ? (
+              <p className="alert alert-danger w-full col-span-full text-center">!! No Jobs Found !!</p>
+            ) : (
+              currentJobs.map((job) => (
+                <ApplicationCard key={job.id} application={{ ...job }} />
+              ))
+            )}
+          </div>
+          <Pagination
+            currentPage={currentJobPage}
+            totalItems={filteredJobs.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handleJobPageChange}
+          />
         </div>
 
         {/* Render Internship Cards */}
-        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
-          {error ? (
-            <p className="text-red-600">{error}</p>
-          ) : internships.length === 0 ? (
-            <p className="text-gray-600">No internships available at the moment.</p>
-          ) : filteredInterns.length === 0 ? (
-            <p className="alert alert-danger w-full col-span-full text-center">!! No Internships Found !!</p>
-          ) : (
-            filteredInterns.map((intern) => (
-              <ApplicationCard key={intern.id} application={{ ...intern }} />
-            ))
-          )}
+        <div className="w-full self-center mt-6">
+          <h2 className="text-2xl font-bold mb-4">Internship Listings</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
+            {error ? (
+              <p className="text-red-600">{error}</p>
+            ) : internships.length === 0 ? (
+              <p className="text-gray-600">No internships available at the moment.</p>
+            ) : currentInterns.length === 0 ? (
+              <p className="alert alert-danger w-full col-span-full text-center">!! No Internships Found !!</p>
+            ) : (
+              currentInterns.map((intern) => (
+                <ApplicationCard key={intern.id} application={{ ...intern }} />
+              ))
+            )}
+          </div>
+          <Pagination
+            currentPage={currentInternPage}
+            totalItems={filteredInterns.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handleInternPageChange}
+          />
         </div>
       </div>
     </div>

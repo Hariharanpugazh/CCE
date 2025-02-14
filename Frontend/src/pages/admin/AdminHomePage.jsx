@@ -7,6 +7,7 @@ import InternCard from "../../components/Admin/InternCard"; // Import InternCard
 import { AppPages, Departments } from "../../utils/constants";
 import { FiSearch } from "react-icons/fi";
 import ApplicationCard from "../../components/Students/ApplicationCard";
+import Pagination from "../../components/Admin/pagination"; // Import Pagination component
 
 const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
@@ -19,6 +20,10 @@ const AdminHome = () => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filteredInterns, setFilteredInterns] = useState([]);
+  const [currentJobPage, setCurrentJobPage] = useState(1);
+  const [currentInternPage, setCurrentInternPage] = useState(1);
+  const itemsPerPage = 3;
+
   const approvedCount = jobs.filter((job) => job.is_publish === true).length;
   const rejectedCount = jobs.filter((job) => job.is_publish === false).length;
   const pendingCount = jobs.filter((job) => job.is_publish === null).length;
@@ -132,6 +137,24 @@ const AdminHome = () => {
     setShowFilterOptions(false);
   };
 
+  // Pagination logic for jobs
+  const indexOfLastJob = currentJobPage * itemsPerPage;
+  const indexOfFirstJob = indexOfLastJob - itemsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  const handleJobPageChange = (pageNumber) => {
+    setCurrentJobPage(pageNumber);
+  };
+
+  // Pagination logic for internships
+  const indexOfLastIntern = currentInternPage * itemsPerPage;
+  const indexOfFirstIntern = indexOfLastIntern - itemsPerPage;
+  const currentInterns = filteredInterns.slice(indexOfFirstIntern, indexOfLastIntern);
+
+  const handleInternPageChange = (pageNumber) => {
+    setCurrentInternPage(pageNumber);
+  };
+
   return (
     <div className="flex flex-col w-full h-screen overflow-auto bg-gray-0">
       <AdminPageNavbar />
@@ -226,17 +249,51 @@ const AdminHome = () => {
         </div>
 
         {/* Render Job Cards */}
-        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-          {filteredJobs.map((job) => (
-            <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { setSelectedJob(job); }} isSaved={undefined} />
-          ))}
+        <div className="w-full self-center mt-6">
+          <h2 className="text-2xl font-bold mb-4">Job Listings</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
+            {error ? (
+              <p className="text-red-600">{error}</p>
+            ) : jobs.length === 0 ? (
+              <p className="text-gray-600">No jobs available at the moment.</p>
+            ) : currentJobs.length === 0 ? (
+              <p className="alert alert-danger w-full col-span-full text-center">!! No Jobs Found !!</p>
+            ) : (
+              currentJobs.map((job) => (
+                <ApplicationCard key={job._id} application={{ ...job, ...job.job_data }} />
+              ))
+            )}
+          </div>
+          <Pagination
+            currentPage={currentJobPage}
+            totalItems={filteredJobs.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handleJobPageChange}
+          />
         </div>
 
         {/* Render Internship Cards */}
-        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-          {filteredInterns.map((internship) => (
-            <ApplicationCard application={{ ...internship, ...internship.internship_data }} key={internship._id} handleCardClick={() => { setSelectedJob(internship); }} isSaved={undefined} />
-          ))}
+        <div className="w-full self-center mt-6">
+          <h2 className="text-2xl font-bold mb-4">Internship Listings</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
+            {error ? (
+              <p className="text-red-600">{error}</p>
+            ) : internships.length === 0 ? (
+              <p className="text-gray-600">No internships available at the moment.</p>
+            ) : currentInterns.length === 0 ? (
+              <p className="alert alert-danger w-full col-span-full text-center">!! No Internships Found !!</p>
+            ) : (
+              currentInterns.map((internship) => (
+                <ApplicationCard key={internship._id} application={{ ...internship, ...internship.internship_data }} />
+              ))
+            )}
+          </div>
+          <Pagination
+            currentPage={currentInternPage}
+            totalItems={filteredInterns.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handleInternPageChange}
+          />
         </div>
       </div>
     </div>

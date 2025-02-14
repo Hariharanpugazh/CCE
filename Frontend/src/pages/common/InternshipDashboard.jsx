@@ -9,6 +9,7 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Filters from "../../components/Common/Filters";
 import SidePreview from "../../components/Common/SidePreview";
+import Pagination from "../../components/Admin/pagination"; // Import Pagination component
 import { toast } from "react-toastify";
 
 export default function InternshipDashboard() {
@@ -17,18 +18,20 @@ export default function InternshipDashboard() {
   const [filteredInterns, setFilteredInterns] = useState([]);
   const [searchPhrase, setSearchPhrase] = useState("");
   const [userRole, setUserRole] = useState(null);
-  const [selectedIntern, setSelectedIntern] = useState()
+  const [selectedIntern, setSelectedIntern] = useState();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
-  const borderColor = "border-gray-300"
+  const borderColor = "border-gray-300";
 
-  const [isSalaryOpen, setIsSalaryOpen] = useState(false)
-  const [isExperienceOpen, setIsExperienceOpen] = useState(false)
-  const [isEmployTypeOpen, setIsEmployTypeOpen] = useState(false)
-  const [isWorkModeOpen, setIsWorkModeOpen] = useState(false)
-  const [isSortOpen, setIsSortOpen] = useState(false)
-  const [savedInterns, setSavedInterns] = useState([])
+  const [isSalaryOpen, setIsSalaryOpen] = useState(false);
+  const [isExperienceOpen, setIsExperienceOpen] = useState(false);
+  const [isEmployTypeOpen, setIsEmployTypeOpen] = useState(false);
+  const [isWorkModeOpen, setIsWorkModeOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const [savedInterns, setSavedInterns] = useState([]);
 
-  const [salaryRangeIndex, setSalaryRangeIndex] = useState(0)
+  const [salaryRangeIndex, setSalaryRangeIndex] = useState(0);
 
   const [filters, setFilters] = useState({
     salaryRange: { min: 10000, max: 1000000 },
@@ -61,8 +64,8 @@ export default function InternshipDashboard() {
         hybrid: false
       },
       sortBy: "Relevance",
-    })
-  }
+    });
+  };
 
   const filterArgs = {
     searchPhrase,
@@ -81,7 +84,8 @@ export default function InternshipDashboard() {
     setIsWorkModeOpen,
     isSortOpen,
     setIsSortOpen,
-  }
+  };
+
   // Fetch published internships from the backend
   useEffect(() => {
     const fetchPublishedInternships = async () => {
@@ -142,20 +146,27 @@ export default function InternshipDashboard() {
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
       const response = await axios.get(`http://localhost:8000/api/saved-internships/${userId}/`);
       setSavedInterns(response.data.internships.map(internship => internship._id));
-      console.log(response.data.internships.map(internship => internship._id))
+      console.log(response.data.internships.map(internship => internship._id));
     } catch (err) {
       console.error("Error fetching saved jobs:", err);
     }
   };
 
   useEffect(() => {
-    console.log(savedInterns)
+    console.log(savedInterns);
   }, []);
 
+  // Pagination logic
+  const indexOfLastIntern = currentPage * itemsPerPage;
+  const indexOfFirstIntern = indexOfLastIntern - itemsPerPage;
+  const currentInterns = filteredInterns.slice(indexOfFirstIntern, indexOfLastIntern);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
     <div className="flex flex-col">
-
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
       {userRole === "student" && <StudentPageNavbar />}
@@ -187,21 +198,27 @@ export default function InternshipDashboard() {
               <p className="text-red-600">{error}</p>
             ) : internships.length === 0 ? (
               <p className="text-gray-600">No internships available at the moment.</p>
-            ) : filteredInterns.length === 0 ? (
+            ) : currentInterns.length === 0 ? (
               <p className="alert alert-danger w-full col-span-full text-center">
                 !! No Internships Found !!
               </p>
             ) : (
-              filteredInterns.map((intern) => (
-                <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedIntern(intern); console.log(intern) }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(intern.id)} />
+              currentInterns.map((intern) => (
+                <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedIntern(intern); console.log(intern); }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(intern.id)} />
               ))
             )}
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredInterns.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+          />
         </div>
 
         {/* job preview */}
         <SidePreview selectedItem={selectedIntern}
-          handleViewItem={() => { window.location.href = `/internship-preview/${selectedIntern.id}` }}
+          handleViewItem={() => { window.location.href = `/internship-preview/${selectedIntern.id}`; }}
           isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(selectedIntern?.id)}
           fetchSavedJobs={fetchSavedInternships}
           setSelectedItem={setSelectedIntern} />
