@@ -650,6 +650,12 @@ def unsave_job(request, pk):
 @csrf_exempt
 def get_saved_jobs(request, user_id):
     try:
+
+        if not user_id or not ObjectId.is_valid(user_id):
+            return JsonResponse(
+                {"error": "Invalid or missing user_id"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         user = student_collection.find_one({"_id": ObjectId(user_id)})
         if not user:
             return JsonResponse(
@@ -657,9 +663,12 @@ def get_saved_jobs(request, user_id):
             )
 
         saved_jobs = user.get("saved_jobs", [])
-        jobs = []
 
+        jobs = []
         for job_id in saved_jobs:
+            if not ObjectId.is_valid(job_id):
+                continue  # Skip invalid ObjectIds
+
             job = job_collection.find_one({"_id": ObjectId(job_id)})
             if job:
                 job["_id"] = str(job["_id"])
@@ -669,6 +678,7 @@ def get_saved_jobs(request, user_id):
         
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     
 #============================================================================ Internships =============================================================================================
 @csrf_exempt
