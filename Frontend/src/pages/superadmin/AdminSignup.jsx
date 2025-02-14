@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import login1 from "../../assets/images/LoginImg1.png";
+import login2 from "../../assets/images/LoginImg2.png";
+import login3 from "../../assets/images/LoginImg3.png";
+import Squares from "../../components/ui/GridLogin";
 import "react-toastify/dist/ReactToastify.css";
 import wavyPattern from "../../assets/images/wavy-circles.png";
 
@@ -15,29 +20,47 @@ export default function AdminSignup() {
     college_name: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const navigate = useNavigate();
+  const [index, setIndex] = useState(0);
+  const images = [login1, login2, login3];
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [images.length]); // Added images.length as a dependency
 
-  const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
-  const toggleConfirmPasswordVisibility = () => setConfirmPasswordVisible(!confirmPasswordVisible);
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { name, email, password, confirmPassword, department, college_name } = formData;
+    const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
+    const toggleConfirmPasswordVisibility = () => setConfirmPasswordVisible(!confirmPasswordVisible);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const { name, email, password, confirmPassword, department, college_name } = formData;
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match!");
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const response = await fetch("http://localhost:8000/api/admin-signup/", {
@@ -45,44 +68,111 @@ export default function AdminSignup() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, password, department, college_name }),
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          department,
+          college_name,
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Signup successful! Redirecting...");
-        setTimeout(() => navigate("/Admin-Management"), 3000); // Redirect to Admin-Management after 3 seconds
+        toast.success("Account created successfully!");
+        setTimeout(() => navigate("/Admin-Management"), 2000);
       } else {
         toast.error(data.error || "Signup failed");
       }
     } catch (error) {
       console.error("Error during signup:", error);
       toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const PasswordStrengthIndicator = ({ strength }) => {
+    const getColor = () => {
+      if (strength === 0) return "bg-gray-300";
+      if (strength === 1) return "bg-red-500";
+      if (strength === 2) return "bg-yellow-500";
+      if (strength === 3) return "bg-blue-500";
+      if (strength === 4) return "bg-green-500";
+    };
+
+    return (
+      <div className="mt-2">
+        <div className="flex justify-between mb-1">
+          <span className="text-sm">Password Strength:</span>
+          <span className="text-sm font-medium">
+            {strength === 0
+              ? "Very Weak"
+              : strength === 1
+              ? "Weak"
+              : strength === 2
+              ? "Fair"
+              : strength === 3
+              ? "Good"
+              : "Strong"}
+          </span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div
+            className={`h-2.5 rounded-full ${getColor()}`}
+            style={{ width: `${strength * 25}%` }}
+          ></div>
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="w-screen h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background Image */}
-      <div className="h-full w-full absolute z-[-1] flex items-center top-[10%]">
-        <img src={wavyPattern} alt="Background Pattern" />
+      {/* Background */}
+      <div className="h-full w-full absolute top-0 left-0 z[-5]">
+        <Squares
+          speed={0.1}
+          squareSize={40}
+          direction="diagonal"
+          borderColor="#FCF55F"
+          hoverFillColor="#ffcc00"
+        />
       </div>
 
       {/* Form Container */}
-      <div className="w-3/4 min-h-3/4 max-h-[85%] bg-white shadow-lg rounded-lg flex items-stretch p-2">
-        {/* Illustration Section */}
-        <div className="flex-1 bg-yellow-100 rounded-lg"></div>
+      <div className="w-3/4 min-h-3/4 max-h-[90%] bg-white shadow-lg rounded-lg flex items-stretch p-2 relative">
+        {/* Image Slider */}
+        <div className="flex-1 flex justify-center items-center p-2">
+          <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[550px] overflow-hidden">
+            <AnimatePresence>
+              <motion.img
+                key={index}
+                src={images[index]}
+                alt={`Slide ${index + 1}`}
+                className="absolute w-full h-full object-cover rounded-lg shadow-md"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.1 }}
+                transition={{ duration: 0.8 }}
+              />
+            </AnimatePresence>
+          </div>
+        </div>
 
         {/* Form Section */}
-        <div className="flex-1 p-6 flex flex-col items-center justify-evenly">
-          <p className="text-3xl">Admin Signup</p>
-          <p className="text-[#838383] text-sm w-3/4 text-center mb-6">
+        <div className="flex-1 p-1 flex flex-col items-center justify-evenly">
+          <p className="text-3xl font-medium mb-2 pt-2">Admin Create</p>
+          <p className="text-[#838383] text-sm w-3/4 text-center mb-2">
             Create a new account by filling out the details below.
           </p>
 
-          <form onSubmit={handleSubmit} className="w-3/4 flex flex-col items-center">
-            <div className="space-y-4 mb-6 w-full">
+          <form
+            onSubmit={handleSubmit}
+            className="w-3/4 flex flex-col items-center"
+          >
+            <div className="space-y-4 mb-6 w-full relative">
               {/* Name Field */}
               <input
                 type="text"
@@ -90,7 +180,7 @@ export default function AdminSignup() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-yellow-400"
                 required
               />
 
@@ -101,33 +191,37 @@ export default function AdminSignup() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className={`w-full p-3 rounded-md border ${
+                  errors.email ? "border-red-500" : "border-gray-300"
+                } focus:ring-2 focus:ring-yellow-400`}
                 required
               />
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email}</p>
+              )}
 
-              {/* Department Field */}
+              {/* Department & College */}
               <input
                 type="text"
                 placeholder="Enter your Department"
                 name="department"
                 value={formData.department}
                 onChange={handleChange}
-                className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-yellow-400"
                 required
               />
 
-              {/* College Name Field */}
               <input
                 type="text"
                 placeholder="Enter your College Name"
                 name="college_name"
                 value={formData.college_name}
                 onChange={handleChange}
-                className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full p-3 rounded-md border border-gray-300 focus:ring-2 focus:ring-yellow-400"
                 required
               />
 
-              {/* Password Field */}
+              {/* Password Field with Eye Icon */}
               <div className="relative">
                 <input
                   type={passwordVisible ? "text" : "password"}
@@ -142,11 +236,16 @@ export default function AdminSignup() {
                   className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
                   onClick={togglePasswordVisibility}
                 >
-                  {passwordVisible ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  {passwordVisible ? (
+                    <FiEyeOff size={20} />
+                  ) : (
+                    <FiEye size={20} />
+                  )}
                 </div>
               </div>
+              <PasswordStrengthIndicator strength={passwordStrength} />
 
-              {/* Confirm Password Field */}
+              {/* Confirm Password Field with Eye Icon */}
               <div className="relative">
                 <input
                   type={confirmPasswordVisible ? "text" : "password"}
@@ -161,15 +260,51 @@ export default function AdminSignup() {
                   className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer"
                   onClick={toggleConfirmPasswordVisibility}
                 >
-                  {confirmPasswordVisible ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  {confirmPasswordVisible ? (
+                    <FiEyeOff size={20} />
+                  ) : (
+                    <FiEye size={20} />
+                  )}
                 </div>
               </div>
-            </div>
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
+              )}
 
-            {/* Sign Up Button */}
-            <button type="submit" className="p-3 rounded-2xl w-full font-semibold bg-[#FECC00]">
-              Sign Up
-            </button>
+              <button
+                type="submit"
+                className="p-2 rounded-2xl w-full font-semibold bg-[#FECC00] hover:bg-yellow-500 transition duration-300 flex items-center justify-center"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Signing Up...
+                  </>
+                ) : (
+                  "Sign Up"
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

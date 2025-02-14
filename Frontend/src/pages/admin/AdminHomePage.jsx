@@ -3,8 +3,10 @@ import axios from "axios";
 import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus, FaUsers } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Cookies from 'js-cookie';
-import ApplicationCard from "../../components/Students/ApplicationCard";
 import InternCard from "../../components/Admin/InternCard"; // Import InternCard
+import { AppPages, Departments } from "../../utils/constants";
+import { FiSearch } from "react-icons/fi";
+import ApplicationCard from "../../components/Students/ApplicationCard";
 
 const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
@@ -86,8 +88,7 @@ const AdminHome = () => {
   }, []);
 
   useEffect(() => {
-    let filteredJobsData = jobs;
-    let filteredInternsData = internships;
+    let filtered = jobs;
 
     if (filter === "Approved") {
       filteredJobsData = approvedJobs;
@@ -100,9 +101,9 @@ const AdminHome = () => {
       filteredInternsData = pendingInternships;
     }
 
-    setFilteredJobs(filteredJobsData);
-    setFilteredInterns(filteredInternsData);
-  }, [filter, jobs, internships]);
+    setFilteredJobs(filtered);
+  }, [filter, jobs]);
+
 
   useEffect(() => {
     if (searchPhrase === "") {
@@ -183,7 +184,8 @@ const AdminHome = () => {
             {["All", "Approved", "Rejected", "Pending Approvals"].map((status) => (
               <button
                 key={status}
-                className={`px-4 rounded-full py-1 ${filter === status ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"}`}
+                className={`px-4 rounded-[10000px] py-1 ${filter === status ? "text-blue-400 underline" : "text-gray-600 hover:text-gray-900"
+                  }`}
                 onClick={() => setFilter(status)}
               >
                 {status}
