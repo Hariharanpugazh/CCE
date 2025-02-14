@@ -108,4 +108,8 @@ urlpatterns = [
     path("study-material-edit/<str:study_material_id>/", update_study_material, name="update_study_material"),
     path("study-material-delete/<str:study_material_id>/", delete_study_material, name="delete_study_material"),
     path("all-study-material/", get_all_study_material, name="get_all_study_material"),
+
+
+    #test
+    path("test_job_post/", test_job_post, name="test_job_post"),
 ]

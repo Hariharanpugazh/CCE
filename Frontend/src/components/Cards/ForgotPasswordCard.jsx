@@ -28,6 +28,7 @@ export default function ForgotPasswordCard({
       } else {
         // Initial OTP submission
         await onSubmit(e);
+        
         toast.success("OTP sent successfully! Please check your email.");
         setOtpSent(true);
       }
@@ -79,7 +80,7 @@ export default function ForgotPasswordCard({
                   placeholder: "Enter your Email", 
                   required: true,
                   type: "email",
-                  disabled: otpSent // Disable email after OTP is sent
+                  // disabled: otpSent // Disable email after OTP is sent
                 }}
                 value={formData.email}
                 setter={(val) => formDataSetter((prev) => ({ ...prev, email: val }))}
