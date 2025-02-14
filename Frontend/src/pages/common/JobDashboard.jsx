@@ -14,6 +14,7 @@ import { FiBookmark, FiCircle, FiSearch, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import Filters from "../../components/Common/Filters";
 import SidePreview from "../../components/Common/SidePreview";
+import Pagination from "../../components/Admin/pagination"; // Import Pagination component
 
 export default function JobDashboard() {
   const [jobs, setJobs] = useState([]);
@@ -49,6 +50,9 @@ export default function JobDashboard() {
     },
     sortBy: "Relevance",
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
   useEffect(() => {
     let filtered = jobs;
@@ -214,6 +218,15 @@ export default function JobDashboard() {
 
   const borderColor = "border-gray-300"
 
+  // Pagination logic
+  const indexOfLastJob = currentPage * itemsPerPage;
+  const indexOfFirstJob = indexOfLastJob - itemsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <div className="flex flex-col">
       {userRole === "admin" && <AdminPageNavbar />}
@@ -248,15 +261,21 @@ export default function JobDashboard() {
               : jobs.length === 0 ?
                 <p className="text-gray-600">No jobs available at the moment.</p>
                 :
-                filteredJobs.length === 0 ? <p className="alert alert-danger w-full col-span-full text-center">
+                currentJobs.length === 0 ? <p className="alert alert-danger w-full col-span-full text-center">
                   !! No Jobs Found !!
                 </p>
                   :
-                  filteredJobs.map((job) => (
+                  currentJobs.map((job) => (
                     <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { setSelectedJob(job); }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedJobs.includes(job._id)} />
                   ))
             }
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredJobs.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+          />
         </div>
 
         {/* job preview */}

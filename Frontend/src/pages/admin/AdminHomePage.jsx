@@ -1,34 +1,43 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus, FaFilter } from "react-icons/fa";
+import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus ,FaUsers } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Cookies from 'js-cookie';
-import InternCard from "../../components/Admin/InternCard"; // Import InternCard
-import { AppPages, Departments } from "../../utils/constants";
-import { FiSearch } from "react-icons/fi";
 import ApplicationCard from "../../components/Students/ApplicationCard";
 
 const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
   const [internships, setInternships] = useState([]);
+  const [students, setStudents] = useState([]);
   const [filter, setFilter] = useState("All");
   const [deptFilter, setdeptFilter] = useState("All");
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   const [activeButton, setActiveButton] = useState(null);
-  const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filteredInterns, setFilteredInterns] = useState([]);
-  const approvedCount = jobs.filter((job) => job.is_publish === true).length;
-  const rejectedCount = jobs.filter((job) => job.is_publish === false).length;
-  const pendingCount = jobs.filter((job) => job.is_publish === null).length;
+
+  const approvedJobs = jobs.filter((job) => job.is_publish === true);
+  const rejectedJobs = jobs.filter((job) => job.is_publish === false);
+  const pendingJobs = jobs.filter((job) => job.is_publish === null);
+
+  const approvedInternships = internships.filter((internship) => internship.is_publish === true);
+  const rejectedInternships = internships.filter((internship) => internship.is_publish === false);
+  const pendingInternships = internships.filter((internship) => internship.is_publish === null);
+
+  const approvedCount = approvedJobs.length;
+  const rejectedCount = rejectedJobs.length;
+  const pendingCount = pendingJobs.length + pendingInternships.length;
+  const studentCount = students.length;
 
   const cardsData = [
     { title: "Overall", count: jobs.length + internships.length, icon: <FaListAlt /> },
     { title: "Total Job Listings", count: jobs.length, icon: <FaCheck /> },
     { title: "Total Internship Listings", count: internships.length, icon: <FaBook /> },
+    { title: "Approved Jobs", count: approvedCount, icon: <FaCheck /> },
     { title: "Rejected Jobs", count: rejectedCount, icon: <FaTrophy /> },
     { title: "Pending Approvals", count: pendingCount, icon: <FaUserPlus /> },
+    { title: "Total Students", count: studentCount, icon: <FaUsers /> },
   ];
 
   useEffect(() => {
@@ -60,26 +69,45 @@ const AdminHome = () => {
         setError("Failed to load data.");
       }
     };
+
+    const fetchStudents = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/students/");
+        setStudents(response.data.students);
+      } catch (err) {
+        console.error("Error fetching students:", err);
+        setError("Failed to load student data.");
+      }
+    };
+
     fetchData();
+    fetchStudents();
   }, []);
 
   useEffect(() => {
-    let filtered = jobs;
+    let filteredJobsData = jobs;
+    let filteredInternsData = internships;
 
     if (filter === "Approved") {
-      filtered = jobs.filter((job) => job.is_publish === true);
+      filteredJobsData = approvedJobs;
+      filteredInternsData = approvedInternships;
     } else if (filter === "Rejected") {
-      filtered = jobs.filter((job) => job.is_publish === false);
+      filteredJobsData = rejectedJobs;
+      filteredInternsData = rejectedInternships;
     } else if (filter === "Pending Approvals") {
-      filtered = jobs.filter((job) => job.is_publish === null);
+      filteredJobsData = pendingJobs;
+      filteredInternsData = pendingInternships;
     }
 
-    setFilteredJobs(filtered);
-  }, [filter, jobs]);
+    setFilteredJobs(filteredJobsData);
+    setFilteredInterns(filteredInternsData);
+  }, [filter, jobs, internships]);
 
   useEffect(() => {
     if (searchPhrase === "") {
       setFilteredJobs(jobs);
+      setFilteredInterns(internships);
+
     } else {
       setFilteredJobs(jobs.filter((job) =>
         job.job_data.title.toLowerCase().includes(searchPhrase) ||
@@ -89,11 +117,11 @@ const AdminHome = () => {
         job.job_data.work_type.toLowerCase().includes(searchPhrase)
       ));
 
-      setFilteredInterns(internships.filter((intern) =>
-        intern.internship_data.title.toLowerCase().includes(searchPhrase) ||
-        intern.internship_data.company_name.toLowerCase().includes(searchPhrase) ||
-        intern.internship_data.job_description.toLowerCase().includes(searchPhrase) ||
-        intern.internship_data.required_skills.some(skill => skill.toLowerCase().includes(searchPhrase))
+      setFilteredInterns(internships.filter((internship) =>
+        internship.internship_data.title.toLowerCase().includes(searchPhrase) ||
+        internship.internship_data.company_name.toLowerCase().includes(searchPhrase) ||
+        internship.internship_data.job_description.toLowerCase().includes(searchPhrase) ||
+        internship.internship_data.required_skills.some(skill => skill.toLowerCase().includes(searchPhrase))
       ));
     }
   }, [searchPhrase, jobs, internships]);
@@ -102,20 +130,18 @@ const AdminHome = () => {
     function dateDiff(deadline) {
       const deadDate = new Date(deadline);
       const today = Date.now();
-
       const timeDifference = deadDate.getTime() - today;
       return Math.floor(timeDifference / (1000 * 3600 * 24)); // Returns whole days difference
     }
 
     if (activeButton === "Active Postings") {
       setFilteredJobs(jobs.filter((job) => dateDiff(job.job_data.application_deadline) >= 0));
-      setFilteredInterns(internships.filter((intern) => dateDiff(intern.internship_data.application_deadline) >= 0));
+      setFilteredInterns(internships.filter((internship) => dateDiff(internship.internship_data.application_deadline) >= 0));
+    } else if (activeButton === "Expired Postings") {
+      setFilteredJobs(jobs.filter((job) => dateDiff(job.job_data.application_deadline) < 0));
+      setFilteredInterns(internships.filter((internship) => dateDiff(internship.internship_data.application_deadline) < 0));
     }
 
-    if (activeButton === "Expired Postings") {
-      setFilteredJobs(jobs.filter((job) => dateDiff(job.job_data.application_deadline) < 0));
-      setFilteredInterns(internships.filter((intern) => dateDiff(intern.internship_data.application_deadline) < 0));
-    }
   }, [activeButton, jobs, internships]);
 
   useEffect(() => {
@@ -126,35 +152,25 @@ const AdminHome = () => {
     }
   }, [deptFilter, jobs]);
 
-  const handleButtonClick = (status) => {
-    setActiveButton(status);
-    setFilter(status === "All" ? "All" : status);
-    setShowFilterOptions(false);
-  };
-
   return (
-    <div className="flex flex-col w-full h-screen overflow-auto bg-gray-0">
+    <div className="flex flex-col w-full h-screen overflow-auto bg-gray-100">
       <AdminPageNavbar />
-
-      <header className="flex flex-col items-center justify-center py-14 container self-center">
-        <p className="text-6xl tracking-[0.8px]">Admin Dashboard</p>
-        <p className="text-lg mt-2 text-center">
+      <header className="flex flex-col items-center justify-center py-6 container self-center">
+        <p className="text-4xl font-bold tracking-[0.8px]">Admin Dashboard</p>
+        <p className="text-lg mt-2 text-center text-gray-600">
           Explore all the Postings in all the existing fields around the globe.
         </p>
-
       </header>
-
       <div className="w-[80%] mx-auto">
-        {/* Stats Cards Section */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           {cardsData.map((card, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-sm">
-              <div className="p-4 flex items-start justify-between">
+            <div key={index} className="bg-white rounded-lg shadow-sm p-4">
+              <div className="flex items-start justify-between">
                 <div className="flex flex-col gap-1">
-                  <span className="font-normal text-sm text-[#a0aec0] font-sans">{card.title}</span>
-                  <span className="text-md text-[#2d3748] font-sans text-4xl">{card.count}</span>
+                  <span className="font-normal text-sm text-gray-500">{card.title}</span>
+                  <span className="text-2xl font-semibold text-gray-800">{card.count}</span>
                 </div>
-                <div className="p-2 bg-[#FFC800] text-sm text-white rounded flex items-center justify-center shadow-sm">
+                <div className="p-2 bg-yellow-500 text-white rounded flex items-center justify-center shadow-sm">
                   {card.icon}
                 </div>
               </div>
@@ -162,59 +178,60 @@ const AdminHome = () => {
           ))}
         </div>
 
-        {/* Filter Section */}
-        <div className="flex justify-between items-center my-14">
+        {/* Filter Section with Yellow Navigation */}
+        <div className="flex justify-between items-center my-6">
           <div className="flex text-sm gap-4">
             {["All", "Approved", "Rejected", "Pending Approvals"].map((status) => (
               <button
                 key={status}
-                className={`px-4 rounded-[10000px] py-1 ${filter === status ? "text-blue-400 underline" : "text-gray-600 hover:text-gray-900"}`}
+
+                className={`px-4 rounded-full py-1 ${filter === status ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"}`}
                 onClick={() => setFilter(status)}
               >
                 {status}
               </button>
             ))}
           </div>
-
-          {/* Search and Filter Icon */}
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <FaFilter
-                size={24}
-                className="cursor-pointer text-gray-600 hover:text-gray-900"
-                onClick={() => setShowFilterOptions(!showFilterOptions)}
-              />
-              {showFilterOptions && (
-                <div className="absolute top-8 right-0 bg-white shadow-md rounded-md w-40 p-2 space-y-2">
-                  {['Active Postings', 'Expired Postings'].map((option) => (
-                    <button
-                      key={option}
-                      className={`w-full px-4 py-2 cursor-pointer hover:bg-gray-100 ${filter === option ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
-                      onClick={() => handleButtonClick(option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
-
-        {/* Render Job Cards */}
         <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
           {filteredJobs.map((job) => (
-            <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { setSelectedJob(job); }} isSaved={undefined} />
+            <ApplicationCard
+              key={job._id}
+              application={{ ...job, ...job.job_data }}
+              handleCardClick={() => { setSelectedJob(job); }}
+              isSaved={undefined}
+            />
           ))}
         </div>
-
-        {/* Render Internship Cards */}
         <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
           {filteredInterns.map((internship) => (
-            <ApplicationCard application={{ ...internship, ...internship.internship_data }} key={internship._id} handleCardClick={() => { setSelectedJob(internship); }} isSaved={undefined} />
+            <ApplicationCard
+              key={internship._id}
+              application={{ ...internship, ...internship.internship_data }}
+              handleCardClick={() => { setSelectedJob(internship); }}
+              isSaved={undefined}
+            />
           ))}
         </div>
       </div>
+      <style>
+        {`
+          @keyframes countUp {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .count-up {
+            animation: countUp 1s ease-out;
+          }
+        `}
+      </style>
     </div>
   );
 };

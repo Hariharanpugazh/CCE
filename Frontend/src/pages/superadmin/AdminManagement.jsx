@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import Pagination from "../../components/Admin/pagination"; // Import Pagination component
 
 export default function ManagementHomePage() {
     const navigate = useNavigate();
@@ -10,6 +11,8 @@ export default function ManagementHomePage() {
     const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
     const [admins, setAdmins] = useState([]);
     const [error, setError] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     // Fetch admin details from the backend
     useEffect(() => {
@@ -84,6 +87,15 @@ export default function ManagementHomePage() {
         }
         setSortConfig({ key, direction });
         console.log("Sort requested:", key, direction); // Debugging line
+    };
+
+    // Pagination logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredAdmins.slice(indexOfFirstItem, indexOfLastItem);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
     };
 
     return (
@@ -198,6 +210,13 @@ export default function ManagementHomePage() {
                             </table>
                         </div>
                     )}
+
+                    <Pagination
+                        currentPage={currentPage}
+                        totalItems={filteredAdmins.length}
+                        itemsPerPage={itemsPerPage}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
             </main>
         </div>

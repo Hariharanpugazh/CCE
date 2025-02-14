@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import login1 from "../../assets/images/LoginImg1.png";
 import login2 from "../../assets/images/LoginImg2.png";
 import login3 from "../../assets/images/LoginImg3.png";
 import Squares from "../../components/ui/GridLogin";
+import "react-toastify/dist/ReactToastify.css";
+import wavyPattern from "../../assets/images/wavy-circles.png";
 
 export default function AdminSignup() {
   const [formData, setFormData] = useState({
@@ -35,59 +36,20 @@ export default function AdminSignup() {
     return () => clearInterval(interval);
   }, [images.length]); // Added images.length as a dependency
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
 
-    // Real-time validation
-    if (name === "email") {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        email: value.includes("@sns") ? "" : "Use your domain id",
-      }));
-    }
-    if (name === "confirmPassword") {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        confirmPassword:
-          value === formData.password ? "" : "Passwords do not match",
-      }));
-    }
-    if (name === "password") {
-      checkPasswordStrength(value);
-    }
-  };
+    const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
+    const toggleConfirmPasswordVisibility = () => setConfirmPasswordVisible(!confirmPasswordVisible);
 
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setConfirmPasswordVisible(!confirmPasswordVisible);
-  };
-
-  const checkPasswordStrength = useCallback((password) => {
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
-    if (password.match(/\d/)) strength++;
-    if (password.match(/[^a-zA-Z\d]/)) strength++;
-    setPasswordStrength(strength);
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const { name, email, password, confirmPassword, department, college_name } =
-      formData;
-
-    const newErrors = {};
-
-    if (!email.includes("@sns")) {
-      newErrors.email = "Use your domain id";
-    }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const { name, email, password, confirmPassword, department, college_name } = formData;
 
     if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";

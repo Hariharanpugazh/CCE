@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 
 export default function AchievementDashboard() {
   const [achievements, setAchievements] = useState([]);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPublishedAchievements = async () => {
@@ -19,6 +21,10 @@ export default function AchievementDashboard() {
 
     fetchPublishedAchievements();
   }, []);
+
+  const handleCardClick = (id) => {
+    navigate(`/achievement-preview/${id}`);
+  };
 
   return (
     <div className="flex flex-col">
@@ -39,6 +45,7 @@ export default function AchievementDashboard() {
             <div
               key={achievement._id}
               className="p-6 border-gray-900 rounded-xl shadow-lg bg-white flex flex-col items-center relative transition-transform duration-300 hover:scale-109 hover:shadow-xl"
+
             >
               {achievement.photo && (
                 <img
