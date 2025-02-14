@@ -67,44 +67,44 @@ const JobPreview = () => {
               <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Overview</h3>
               <p className="text-gray-700 mb-2 flex items-center">
                 <FaBuilding className="mr-2 text-gray-600" />
-                <div className="flex flex-col">
+                <div className="ml-1 flex flex-col">
                   <h3 className="font-semibold">Company Name:</h3>
-                  <span className="ml-1">{job.job_data.company_name}</span>
+                  <span className="text-sm">{job.job_data.company_name}</span>
                 </div>
               </p>
               <p className="text-gray-700 mb-2 flex items-center">
                 <FaBriefcase className="mr-2 text-gray-600" />
-                <div className="flex flex-col">
+                <div className="ml-1 flex flex-col">
                   <h3 className="font-semibold">Work Type:</h3>
-                  <span className="ml-1">{job.job_data.work_type}</span>
+                  <span className="text-sm">{job.job_data.work_type}</span>
                 </div>
               </p>
               <p className="text-gray-700 mb-2 flex items-center">
                 <FaMapMarkerAlt className="mr-2 text-gray-600" />
-                <div className="flex flex-col">
+                <div className="ml-1 flex flex-col">
                   <h3 className="font-semibold">Location:</h3>
-                  <span className="ml-1 text-sm">{job.job_data.job_location}</span>
+                  <span className="text-sm">{job.job_data.job_location}</span>
                 </div>
               </p>
               <p className="text-gray-700 mb-2 flex items-center">
-                <FaGraduationCap className="mr-2 text-3xl text-gray-600" />
-                <div className="flex flex-col">
+                <FaGraduationCap className="mr-2 text-lg text-gray-600" />
+                <div className="ml-1 flex flex-col">
                   <h3 className="font-semibold">Education:</h3>
-                  <span className="ml-1 text-sm">{job.job_data.education_requirements}</span>
+                  <span className="text-sm">{job.job_data.education_requirements}</span>
                 </div>
               </p>
               <p className="text-gray-700 mb-2 flex items-center">
                 <FaUserTie className="mr-2 text-gray-600" />
-                <div className="flex flex-col">
+                <div className="ml-1 flex flex-col">
                   <h3 className="font-semibold">Experience:</h3>
-                  <span className="ml-1 text-sm">{job.job_data.experience_level} years</span>
+                  <span className="text-sm">{job.job_data.experience_level} years</span>
                 </div>
               </p>
               <p className="text-gray-700 mb-2 flex items-center">
                 <RiMoneyRupeeCircleFill className="mr-2 text-gray-600" />
-                <div className="flex flex-col">
+                <div className="ml-1 flex flex-col">
                   <h3 className="font-semibold">Salary:</h3>
-                  <span className="ml-1 text-sm">₹ {job.job_data.salary_range} per annum</span>
+                  <span className="text-sm">₹ {job.job_data.salary_range} per annum</span>
                 </div>
               </p>
             </div>

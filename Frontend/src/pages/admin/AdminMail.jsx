@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Cookies from "js-cookie";
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from "framer-motion";
 import AdminPageNavbar from '../../components/Admin/AdminNavBar';
 import {
-  Mail,Bell,Briefcase,
+  Mail, Bell, Briefcase,
   GraduationCap,
   BookOpen,
   Trophy, Search, X,
   Send
 } from 'lucide-react';
+import { LoaderContext } from "../../components/Common/Loader"; // Import Loader Context
 
 export default function AdminMail() {
   const [jobs, setJobs] = useState([]);
   const [internships, setInternships] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [studyMaterials, setStudyMaterials] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [activeTab, setActiveTab] = useState('jobs');
@@ -24,16 +24,18 @@ export default function AdminMail() {
   const [searchQuery, setSearchQuery] = useState('');
   const token = Cookies.get("jwt");
   const navigate = useNavigate();
+  const { isLoading, setIsLoading } = useContext(LoaderContext); // Use Loader Context
 
   useEffect(() => {
     if (!token) {
       setError("JWT token not found!");
-      setLoading(false);
+      setIsLoading(false);
       navigate("/login");
       return;
     }
 
     const fetchData = async () => {
+      setIsLoading(true); // Show loader when fetching data
       try {
         const response = await fetch('http://localhost:8000/api/mailjobs/', {
           method: 'GET',
@@ -56,7 +58,7 @@ export default function AdminMail() {
       } catch (error) {
         setError(error.message);
       } finally {
-        setLoading(false);
+        setIsLoading(false); // Hide loader after data fetch
       }
     };
 
@@ -84,10 +86,10 @@ export default function AdminMail() {
 
     fetchData();
     fetchReview();
-  }, [token, navigate]);
+  }, [token, navigate, setIsLoading]);
 
-  if (loading) {
-    return <div className="text-center text-gray-500">Loading...</div>;
+  if (isLoading) {
+    return <div className="text-center text-gray-500"></div>;
   }
 
   if (error) {

@@ -14,6 +14,7 @@ export default function LoginCard({
   isLocked,
   lockoutTime,
   onForgotPassword,
+  isLoading, // Add isLoading prop
 }) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [emailError, setEmailError] = useState("");
@@ -25,7 +26,7 @@ export default function LoginCard({
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000); // Change image every 2 seconds
+    }, 3000); // Change image every 3 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -54,12 +55,11 @@ export default function LoginCard({
     <div className="w-screen h-screen flex items-center justify-center relative overflow-hidden">
       {/* Background Image */}
       <div className="h-full w-full absolute top-0 left-0 z[-5]">
-        {/* <img src={wavyPattern} alt="Background Pattern" className="w-full" /> */}
         <Squares
           speed={0.1}
           squareSize={40}
           direction="diagonal" // up, down, left, right, diagonal
-          borderColor="	#FCF55F"
+          borderColor="#FCF55F"
           hoverFillColor="#ffcc00"
         />
       </div>
@@ -67,7 +67,7 @@ export default function LoginCard({
       {/* Card Container */}
       <div className="w-3/4 min-h-3/4 max-h-[85%] bg-white shadow-lg rounded-lg flex items-stretch p-2 relative">
         {/* Image Slider Section */}
-        <div className="flex-1  flex justify-center items-center p-2">
+        <div className="flex-1 flex justify-center items-center p-2">
           <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[550px] overflow-hidden">
             <AnimatePresence>
               <motion.img
@@ -160,11 +160,39 @@ export default function LoginCard({
             <button
               type="submit"
               className={`p-3 rounded-2xl w-full font-semibold ${
-                isLocked ? "bg-gray-300 cursor-not-allowed" : "bg-[#FECC00]"
+                isLocked ? "bg-gray-300 cursor-not-allowed" : "bg-[#FECC00] hover:bg-yellow-500 transition duration-300 flex items-center justify-center"
               }`}
-              disabled={isLocked}
+              disabled={isLocked || isLoading}
             >
-              {isLocked ? `Try again in ${lockoutTime}s` : "Login"}
+              {isLoading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Logging In...
+                </>
+              ) : isLocked ? (
+                `Try again in ${lockoutTime}s`
+              ) : (
+                "Login"
+              )}
             </button>
           </form>
         </div>

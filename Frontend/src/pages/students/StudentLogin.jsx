@@ -21,6 +21,7 @@ export default function StudentLogin() {
     const [isResetPassword, setIsResetPassword] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
     const [lockoutTime, setLockoutTime] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     // Timer for lockout countdown
@@ -38,6 +39,7 @@ export default function StudentLogin() {
     /** Handle Student Login */
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         if (isLocked) return;
 
         try {
@@ -71,6 +73,7 @@ export default function StudentLogin() {
         } catch (error) {
             console.error("Error during login:", error);
             toast.error("Something went wrong. Please try again.");
+            setIsLoading(false);
         }
     };
 
@@ -217,6 +220,7 @@ export default function StudentLogin() {
                 onResetPassword={handleResetPassword}
                 isLocked={isLocked}
                 lockoutTime={lockoutTime}
+                isLoading={isLoading}
             />
             <ToastContainer position="top-right" autoClose={3000} />
         </>
