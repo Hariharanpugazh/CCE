@@ -40,8 +40,10 @@ import SavedJobs from './pages/students/SavedJobs';
 import StudentStudyMaterial from "./pages/students/StudentStudyMaterial";
 import AppliedJobs from "./pages/students/AppliedJobs";import AchivementEdit from "./pages/admin/AchivementEdit";
 import StudentMail from "./pages/students/StudentMail";
+import AchievementPreview from "./pages/students/AchievementPreview";
 import { LoaderContext, LoaderLayout } from "./components/Common/Layout";
 import { useState } from "react";
+
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -79,6 +81,7 @@ function App() {
 
           {/* Student Routes */}
           <Route path="/student" element={<StudentLogin />} />
+          <Route path="/achievement-preview/:id" element={<AchievementPreview />} />
 
         {/* Protected Student Routes */}
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />

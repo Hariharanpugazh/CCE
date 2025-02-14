@@ -5,6 +5,7 @@ import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import ApplicationCard from "../../components/Students/ApplicationCard";
 import { FiSearch } from "react-icons/fi";
 import { AppPages, Departments } from "../../utils/constants";
+import Pagination from "../../components/Admin/pagination"; // Import Pagination component
 
 const SuperAdminHome = () => {
   const [internships, setInternships] = useState([]);
@@ -16,6 +17,9 @@ const SuperAdminHome = () => {
   const [showFilterOptions, setShowFilterOptions] = useState(false);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filteredInterns, setFilteredInterns] = useState([]);
+  const [currentJobPage, setCurrentJobPage] = useState(1);
+  const [currentInternPage, setCurrentInternPage] = useState(1);
+  const itemsPerPage = 3;
 
   const cardsData = [
     { title: "OverAll", count: jobs.length + internships.length, icon: <FaListAlt /> },
@@ -71,32 +75,48 @@ const SuperAdminHome = () => {
       setFilteredJobs(jobs);
       setFilteredInterns(internships);
     } else {
-      setFilteredJobs(
-        jobs.filter(
-          (job) =>
-            job.title.includes(searchPhrase) ||
-            job.company_name.includes(searchPhrase) ||
-            job.job_description.includes(searchPhrase) ||
-            job.required_skills.includes(searchPhrase) ||
-            job.work_type.includes(searchPhrase)
-        )
-      );
+      setFilteredJobs(jobs.filter((job) => job.title.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        job.company_name.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        job.job_description.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        job.required_skills.map(skill => skill.toLowerCase()).includes(searchPhrase.toLowerCase())
+        ||
+        job.selectedWorkType.toLocaleLowerCase().includes(searchPhrase)
+      ))
 
-      setFilteredInterns(
-        internships.filter(
-          (intern) =>
-            intern.title.includes(searchPhrase) ||
-            intern.company_name.includes(searchPhrase) ||
-            intern.job_description.includes(searchPhrase) ||
-            intern.required_skills.includes(searchPhrase) ||
-            intern.internship_type.includes(searchPhrase)
-        )
-      );
+      setFilteredInterns(internships.filter((interns) => interns.title.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        interns.company_name.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        interns.job_description.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        interns.required_skills.map(skill => skill.toLowerCase()).includes(searchPhrase.toLowerCase())
+      ))
     }
-  }, [searchPhrase, jobs, internships]);
+  }, [searchPhrase, jobs, internships])
 
   const handleButtonClick = (status) => {
     setFilter(status === "All" ? "All" : status);
+  };
+
+  // Pagination logic for jobs
+  const indexOfLastJob = currentJobPage * itemsPerPage;
+  const indexOfFirstJob = indexOfLastJob - itemsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  const handleJobPageChange = (pageNumber) => {
+    setCurrentJobPage(pageNumber);
+  };
+
+  // Pagination logic for internships
+  const indexOfLastIntern = currentInternPage * itemsPerPage;
+  const indexOfFirstIntern = indexOfLastIntern - itemsPerPage;
+  const currentInterns = filteredInterns.slice(indexOfFirstIntern, indexOfLastIntern);
+
+  const handleInternPageChange = (pageNumber) => {
+    setCurrentInternPage(pageNumber);
   };
 
   return (
@@ -109,6 +129,30 @@ const SuperAdminHome = () => {
           Explore all the postings in all the existing fields around the globe.
         </p>
 
+        <div className="relative flex items-stretch w-[70%]">
+          <input
+            type="text"
+            value={searchPhrase}
+            onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())}
+            placeholder="Search postings"
+            className="w-full text-lg my-5 p-2 px-5 rounded-full bg-gray-100 border-transparent border-2 hover:bg-white hover:border-blue-200 outline-blue-400"
+          />
+          <div className="absolute right-2 h-full flex items-center">
+            <FiSearch className="text-blue-400 rounded-full text-white" style={{ color: "white", width: "35", height: "35", padding: "8px" }} />
+          </div>
+        </div>
+
+        <div className="flex space-x-2 flex-wrap w-[50%] justify-center">
+          {["All", ...Object.values(Departments)].map((department, key) => (
+            <p
+              key={key}
+              className={`${deptFilter === department ? "bg-[#000000] text-white" : ""} border-gray-700 border-[1px] py-1 px-[10px] rounded-full text-xs my-1 cursor-pointer`}
+              onClick={() => setDeptFilter(department)}
+            >
+              {department}
+            </p>
+          ))}
+        </div>
       </header>
 
       <div className="max-w-[80%] mx-auto">
@@ -169,33 +213,51 @@ const SuperAdminHome = () => {
         </div>
 
         {/* Render Job Cards */}
-        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
-          {error ? (
-            <p className="text-red-600">{error}</p>
-          ) : jobs.length === 0 ? (
-            <p className="text-gray-600">No jobs available at the moment.</p>
-          ) : filteredJobs.length === 0 ? (
-            <p className="alert alert-danger w-full col-span-full text-center">!! No Jobs Found !!</p>
-          ) : (
-            filteredJobs.map((job) => (
-              <ApplicationCard key={job.id} application={{ ...job }} />
-            ))
-          )}
+        <div className="w-full self-center mt-6">
+          <h2 className="text-2xl font-bold mb-4">Job Listings</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
+            {error ? (
+              <p className="text-red-600">{error}</p>
+            ) : jobs.length === 0 ? (
+              <p className="text-gray-600">No jobs available at the moment.</p>
+            ) : currentJobs.length === 0 ? (
+              <p className="alert alert-danger w-full col-span-full text-center">!! No Jobs Found !!</p>
+            ) : (
+              currentJobs.map((job) => (
+                <ApplicationCard key={job.id} application={{ ...job }} />
+              ))
+            )}
+          </div>
+          <Pagination
+            currentPage={currentJobPage}
+            totalItems={filteredJobs.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handleJobPageChange}
+          />
         </div>
 
         {/* Render Internship Cards */}
-        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
-          {error ? (
-            <p className="text-red-600">{error}</p>
-          ) : internships.length === 0 ? (
-            <p className="text-gray-600">No internships available at the moment.</p>
-          ) : filteredInterns.length === 0 ? (
-            <p className="alert alert-danger w-full col-span-full text-center">!! No Internships Found !!</p>
-          ) : (
-            filteredInterns.map((intern) => (
-              <ApplicationCard key={intern.id} application={{ ...intern }} />
-            ))
-          )}
+        <div className="w-full self-center mt-6">
+          <h2 className="text-2xl font-bold mb-4">Internship Listings</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
+            {error ? (
+              <p className="text-red-600">{error}</p>
+            ) : internships.length === 0 ? (
+              <p className="text-gray-600">No internships available at the moment.</p>
+            ) : currentInterns.length === 0 ? (
+              <p className="alert alert-danger w-full col-span-full text-center">!! No Internships Found !!</p>
+            ) : (
+              currentInterns.map((intern) => (
+                <ApplicationCard key={intern.id} application={{ ...intern }} />
+              ))
+            )}
+          </div>
+          <Pagination
+            currentPage={currentInternPage}
+            totalItems={filteredInterns.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handleInternPageChange}
+          />
         </div>
       </div>
     </div>
