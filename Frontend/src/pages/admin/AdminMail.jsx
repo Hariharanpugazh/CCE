@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Cookies from "js-cookie";
 import { useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import AdminPageNavbar from '../../components/Admin/AdminNavBar';
 import { Mail, Inbox, Star, Send, FileText, Archive, Users, Settings, Search } from 'lucide-react';
 
@@ -105,6 +105,9 @@ export default function AdminMail() {
         itemsToDisplay = studyMaterials;
         break;
       case "notifications":
+        // Sort reviews by timestamp in descending order
+        const sortedReviews = [...reviews].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
         return (
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-700">Notifications</h2>
