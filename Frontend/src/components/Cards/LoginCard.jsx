@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
-import wavyPattern from "../../assets/images/bg-grid.png";
+import Squares from "../../components/ui/GridLogin";
 import login1 from "../../assets/images/LoginImg1.png";
 import login2 from "../../assets/images/LoginImg2.png";
 import login3 from "../../assets/images/LoginImg3.png";
@@ -53,15 +53,22 @@ export default function LoginCard({
   return (
     <div className="w-screen h-screen flex items-center justify-center relative overflow-hidden">
       {/* Background Image */}
-      {/* <div className="h-full w-full absolute z-[-1] flex items-center top-[10%] rotate-270">
-        <img src={wavyPattern} alt="Background Pattern" className="w-full"  />
-      </div> */}
+      <div className="h-full w-full absolute top-0 left-0 z[-5]">
+        {/* <img src={wavyPattern} alt="Background Pattern" className="w-full" /> */}
+        <Squares
+          speed={0.1}
+          squareSize={40}
+          direction="diagonal" // up, down, left, right, diagonal
+          borderColor="	#FCF55F"
+          hoverFillColor="#ffcc00"
+        />
+      </div>
 
       {/* Card Container */}
-      <div className="w-3/4 min-h-3/4 max-h-[85%] bg-white shadow-lg rounded-lg flex items-stretch p-2">
+      <div className="w-3/4 min-h-3/4 max-h-[85%] bg-white shadow-lg rounded-lg flex items-stretch p-2 relative">
         {/* Image Slider Section */}
-        <div className="flex-1  flex justify-center items-center p-4">
-          <div className="relative w-full h-full overflow-hidden">
+        <div className="flex-1  flex justify-center items-center p-2">
+          <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[550px] overflow-hidden">
             <AnimatePresence>
               <motion.img
                 key={index}
