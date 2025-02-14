@@ -96,7 +96,7 @@ const StudentManagement = () => {
     currentPage * itemsPerPage
   );
 
-  const buttonStyles = "px-6 py-2.5 w-32 text-white rounded-lg text-sm font-medium transition-colors duration-200";
+  const buttonStyles = "px-4 py-3 w-32 text-white rounded-lg text-sm font-medium transition-colors duration-200";
 
   return (
     <div>
@@ -133,10 +133,10 @@ const StudentManagement = () => {
           <table className="min-w-full table-auto">
             <thead className="bg-gray-200">
               <tr>
-                <th className="p-4 text-left">Name</th>
-                <th className="p-4 text-left">Department</th>
-                <th className="p-4 text-left">Email</th>
-                <th className="p-4 text-left">Status</th>
+                <th className="text-center p-4 ">Name</th>
+                <th className="text-center p-4 ">Department</th>
+                <th className="text-center p-4 ">Email</th>
+                <th className="text-center p-4 ">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -146,15 +146,15 @@ const StudentManagement = () => {
                   onClick={() => setSelectedStudent(student)}
                   className="cursor-pointer hover:bg-gray-100"
                 >
-                  <td className="p-4">{student.name}</td>
-                  <td className="p-4">{student.department}</td>
-                  <td className="p-4">{student.email}</td>
-                  <td className="p-4">
+                  <td className="text-center p-4">{student.name}</td>
+                  <td className="text-center p-4">{student.department}</td>
+                  <td className="text-center p-4">{student.email}</td>
+                  <td className="text-center p-4">
                     <span
-                      className={`inline-block text-center w-24 px-3 py-1 rounded-full text-sm font-semibold ${
+                      className={`inline-block text-center w-24 px-3 py-1 rounded-full text-m font-semibold ${
                         student.status === "active"
-                          ? "bg-green-200 text-green-800"
-                          : "bg-red-200 text-red-800"
+                          ? "text-green-800"
+                          : "text-red-900"
                       }`}
                     >
                       {student.status.charAt(0).toUpperCase() + student.status.slice(1)}

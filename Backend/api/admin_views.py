@@ -773,6 +773,8 @@ def get_published_jobs(request):
         job_list = []
         for job in published_jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
+            if "job_data" in job and "job_location" in job["job_data"]:
+                job["job_data"]["location"] = job["job_data"].pop("job_location")
             job_list.append(job)
         return JsonResponse({"jobs": job_list}, status=200)
     except Exception as e:

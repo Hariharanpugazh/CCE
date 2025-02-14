@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar"; 
 import { LoaderContext } from "../../components/Common/Loader"; // Import Loader Context
 
 export default function AchievementDashboard() {

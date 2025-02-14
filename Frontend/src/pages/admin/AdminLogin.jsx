@@ -20,6 +20,7 @@ export default function AdminLogin() {
     const [isResetPassword, setIsResetPassword] = useState(false);
     const [isLocked, setIsLocked] = useState(false);
     const [lockoutTime, setLockoutTime] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     // Clear cookies when entering the login page
@@ -42,6 +43,7 @@ export default function AdminLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         if (isLocked) return;
     
         try {
@@ -74,6 +76,7 @@ export default function AdminLogin() {
         } catch (error) {
             console.error("Error during login:", error);
             toast.error("Something went wrong. Please try again.");
+            setIsLoading(false);
         }
     };
     
@@ -207,6 +210,7 @@ export default function AdminLogin() {
                 onResetPassword={handleResetPassword}
                 isLocked={isLocked}
                 lockoutTime={lockoutTime}
+                isLoading={isLoading}
             />
             <ToastContainer position="top-right" autoClose={3000} />
         </>

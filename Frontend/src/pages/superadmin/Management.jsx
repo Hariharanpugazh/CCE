@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import { FaEye } from "react-icons/fa";
-import { FaTrashAlt } from "react-icons/fa";
 import JobTable from "../../components/SuperAdmin/ManagementTable/JobTable";
 import AchievementTable from "../../components/SuperAdmin/ManagementTable/AchievementTable";
 import InternshipTable from "../../components/SuperAdmin/ManagementTable/InternshipTable";
+import { LoaderContext } from "../../components/Common/Loader"; // Import Loader Context
 
 export default function MailPage() {
   const [jobs, setJobs] = useState([]);
@@ -28,6 +27,7 @@ export default function MailPage() {
   const itemsPerPage = 10;
   const navigate = useNavigate();
   const token = Cookies.get("jwt"); // Retrieve JWT from cookies
+  const { isLoading, setIsLoading } = useContext(LoaderContext); // Use Loader Context
 
   // Decode JWT to check user role
   useEffect(() => {
@@ -50,6 +50,7 @@ export default function MailPage() {
   // Fetch jobs, achievements, and internships from backend
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true); // Show loader when fetching data
       try {
         const config = {
           headers: {
@@ -69,11 +70,13 @@ export default function MailPage() {
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load data.");
+      } finally {
+        setIsLoading(false); // Hide loader after data fetch
       }
     };
 
     fetchData();
-  }, [token]);
+  }, [token, setIsLoading]);
 
   // Fetch auto-approval status
   useEffect(() => {
@@ -367,55 +370,63 @@ export default function MailPage() {
         </div>
       </div>
 
-      {visibleSection === "jobs" && (
-        <JobTable
-          jobs={jobs}
-          selectedJobs={selectedJobs}
-          setSelectedJobs={setSelectedJobs}
-          handleAction={handleAction}
-          handleDelete={handleDelete}
-          handleView={handleView}
-          currentPage={currentPage}
-          itemsPerPage={itemsPerPage}
-          handlePageChange={handlePageChange}
-          handleBulkApprove={handleBulkApprove}
-          handleBulkDelete={handleBulkDelete}
-          handleSelectAll={handleSelectAll}
-        />
-      )}
+      {isLoading ? (
+        <div className="flex justify-center items-center h-screen">
+          <p className="text-lg font-semibold text-gray-700">Loading Data...</p>
+        </div>
+      ) : (
+        <>
+          {visibleSection === "jobs" && (
+            <JobTable
+              jobs={jobs}
+              selectedJobs={selectedJobs}
+              setSelectedJobs={setSelectedJobs}
+              handleAction={handleAction}
+              handleDelete={handleDelete}
+              handleView={handleView}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              handlePageChange={handlePageChange}
+              handleBulkApprove={handleBulkApprove}
+              handleBulkDelete={handleBulkDelete}
+              handleSelectAll={handleSelectAll}
+            />
+          )}
 
-      {visibleSection === "achievements" && (
-        <AchievementTable
-          achievements={achievements}
-          selectedAchievements={selectedAchievements}
-          setSelectedAchievements={setSelectedAchievements}
-          handleAction={handleAction}
-          handleDelete={handleDelete}
-          handleView={handleView}
-          currentPage={currentPage}
-          itemsPerPage={itemsPerPage}
-          handlePageChange={handlePageChange}
-          handleBulkApprove={handleBulkApprove}
-          handleBulkDelete={handleBulkDelete}
-          handleSelectAll={handleSelectAll}
-        />
-      )}
+          {visibleSection === "achievements" && (
+            <AchievementTable
+              achievements={achievements}
+              selectedAchievements={selectedAchievements}
+              setSelectedAchievements={setSelectedAchievements}
+              handleAction={handleAction}
+              handleDelete={handleDelete}
+              handleView={handleView}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              handlePageChange={handlePageChange}
+              handleBulkApprove={handleBulkApprove}
+              handleBulkDelete={handleBulkDelete}
+              handleSelectAll={handleSelectAll}
+            />
+          )}
 
-      {visibleSection === "internships" && (
-        <InternshipTable
-          internships={internships}
-          selectedInternships={selectedInternships}
-          setSelectedInternships={setSelectedInternships}
-          handleAction={handleAction}
-          handleDelete={handleDelete}
-          handleView={handleView}
-          currentPage={currentPage}
-          itemsPerPage={itemsPerPage}
-          handlePageChange={handlePageChange}
-          handleBulkApprove={handleBulkApprove}
-          handleBulkDelete={handleBulkDelete}
-          handleSelectAll={handleSelectAll}
-        />
+          {visibleSection === "internships" && (
+            <InternshipTable
+              internships={internships}
+              selectedInternships={selectedInternships}
+              setSelectedInternships={setSelectedInternships}
+              handleAction={handleAction}
+              handleDelete={handleDelete}
+              handleView={handleView}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              handlePageChange={handlePageChange}
+              handleBulkApprove={handleBulkApprove}
+              handleBulkDelete={handleBulkDelete}
+              handleSelectAll={handleSelectAll}
+            />
+          )}
+        </>
       )}
 
       {/* Feedback Modal */}
