@@ -71,29 +71,27 @@ const SuperAdminHome = () => {
       setFilteredJobs(jobs);
       setFilteredInterns(internships);
     } else {
-      setFilteredJobs(
-        jobs.filter(
-          (job) =>
-            job.title.includes(searchPhrase) ||
-            job.company_name.includes(searchPhrase) ||
-            job.job_description.includes(searchPhrase) ||
-            job.required_skills.includes(searchPhrase) ||
-            job.work_type.includes(searchPhrase)
-        )
-      );
+      setFilteredJobs(jobs.filter((job) => job.title.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        job.company_name.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        job.job_description.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        job.required_skills.map(skill => skill.toLowerCase()).includes(searchPhrase.toLowerCase())
+        ||
+        job.selectedWorkType.toLocaleLowerCase().includes(searchPhrase)
+      ))
 
-      setFilteredInterns(
-        internships.filter(
-          (intern) =>
-            intern.title.includes(searchPhrase) ||
-            intern.company_name.includes(searchPhrase) ||
-            intern.job_description.includes(searchPhrase) ||
-            intern.required_skills.includes(searchPhrase) ||
-            intern.internship_type.includes(searchPhrase)
-        )
-      );
+      setFilteredInterns(internships.filter((interns) => interns.title.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        interns.company_name.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        interns.job_description.toLocaleLowerCase().includes(searchPhrase)
+        ||
+        interns.required_skills.map(skill => skill.toLowerCase()).includes(searchPhrase.toLowerCase())
+      ))
     }
-  }, [searchPhrase, jobs, internships]);
+  }, [searchPhrase, jobs, internships])
 
   const handleButtonClick = (status) => {
     setFilter(status === "All" ? "All" : status);
@@ -113,7 +111,7 @@ const SuperAdminHome = () => {
           <input
             type="text"
             value={searchPhrase}
-            onChange={(e) => setSearchPhrase(e.target.value)}
+            onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())}
             placeholder="Search postings"
             className="w-full text-lg my-5 p-2 px-5 rounded-full bg-gray-100 border-transparent border-2 hover:bg-white hover:border-blue-200 outline-blue-400"
           />
