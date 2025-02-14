@@ -4,6 +4,7 @@ import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus ,FaUsers } from "react
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Cookies from 'js-cookie';
 import ApplicationCard from "../../components/Students/ApplicationCard";
+import Pagination from "../../components/Admin/pagination"; // Import Pagination component
 
 const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
@@ -16,19 +17,13 @@ const AdminHome = () => {
   const [activeButton, setActiveButton] = useState(null);
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filteredInterns, setFilteredInterns] = useState([]);
+  const [currentJobPage, setCurrentJobPage] = useState(1);
+  const [currentInternPage, setCurrentInternPage] = useState(1);
+  const itemsPerPage = 3;
 
-  const approvedJobs = jobs.filter((job) => job.is_publish === true);
-  const rejectedJobs = jobs.filter((job) => job.is_publish === false);
-  const pendingJobs = jobs.filter((job) => job.is_publish === null);
-
-  const approvedInternships = internships.filter((internship) => internship.is_publish === true);
-  const rejectedInternships = internships.filter((internship) => internship.is_publish === false);
-  const pendingInternships = internships.filter((internship) => internship.is_publish === null);
-
-  const approvedCount = approvedJobs.length;
-  const rejectedCount = rejectedJobs.length;
-  const pendingCount = pendingJobs.length + pendingInternships.length;
-  const studentCount = students.length;
+  const approvedCount = jobs.filter((job) => job.is_publish === true).length;
+  const rejectedCount = jobs.filter((job) => job.is_publish === false).length;
+  const pendingCount = jobs.filter((job) => job.is_publish === null).length;
 
   const cardsData = [
     { title: "Overall", count: jobs.length + internships.length, icon: <FaListAlt /> },
@@ -150,6 +145,30 @@ const AdminHome = () => {
     }
   }, [deptFilter, jobs]);
 
+  const handleButtonClick = (status) => {
+    setActiveButton(status);
+    setFilter(status === "All" ? "All" : status);
+    setShowFilterOptions(false);
+  };
+
+  // Pagination logic for jobs
+  const indexOfLastJob = currentJobPage * itemsPerPage;
+  const indexOfFirstJob = indexOfLastJob - itemsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  const handleJobPageChange = (pageNumber) => {
+    setCurrentJobPage(pageNumber);
+  };
+
+  // Pagination logic for internships
+  const indexOfLastIntern = currentInternPage * itemsPerPage;
+  const indexOfFirstIntern = indexOfLastIntern - itemsPerPage;
+  const currentInterns = filteredInterns.slice(indexOfFirstIntern, indexOfLastIntern);
+
+  const handleInternPageChange = (pageNumber) => {
+    setCurrentInternPage(pageNumber);
+  };
+
   return (
     <div className="flex flex-col w-full h-screen overflow-auto bg-gray-100">
       <AdminPageNavbar />
@@ -190,25 +209,53 @@ const AdminHome = () => {
             ))}
           </div>
         </div>
-        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-          {filteredJobs.map((job) => (
-            <ApplicationCard
-              key={job._id}
-              application={{ ...job, ...job.job_data }}
-              handleCardClick={() => { setSelectedJob(job); }}
-              isSaved={undefined}
-            />
-          ))}
+
+        {/* Render Job Cards */}
+        <div className="w-full self-center mt-6">
+          <h2 className="text-2xl font-bold mb-4">Job Listings</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
+            {error ? (
+              <p className="text-red-600">{error}</p>
+            ) : jobs.length === 0 ? (
+              <p className="text-gray-600">No jobs available at the moment.</p>
+            ) : currentJobs.length === 0 ? (
+              <p className="alert alert-danger w-full col-span-full text-center">!! No Jobs Found !!</p>
+            ) : (
+              currentJobs.map((job) => (
+                <ApplicationCard key={job._id} application={{ ...job, ...job.job_data }} />
+              ))
+            )}
+          </div>
+          <Pagination
+            currentPage={currentJobPage}
+            totalItems={filteredJobs.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handleJobPageChange}
+          />
         </div>
-        <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-          {filteredInterns.map((internship) => (
-            <ApplicationCard
-              key={internship._id}
-              application={{ ...internship, ...internship.internship_data }}
-              handleCardClick={() => { setSelectedJob(internship); }}
-              isSaved={undefined}
-            />
-          ))}
+
+        {/* Render Internship Cards */}
+        <div className="w-full self-center mt-6">
+          <h2 className="text-2xl font-bold mb-4">Internship Listings</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-stretch">
+            {error ? (
+              <p className="text-red-600">{error}</p>
+            ) : internships.length === 0 ? (
+              <p className="text-gray-600">No internships available at the moment.</p>
+            ) : currentInterns.length === 0 ? (
+              <p className="alert alert-danger w-full col-span-full text-center">!! No Internships Found !!</p>
+            ) : (
+              currentInterns.map((internship) => (
+                <ApplicationCard key={internship._id} application={{ ...internship, ...internship.internship_data }} />
+              ))
+            )}
+          </div>
+          <Pagination
+            currentPage={currentInternPage}
+            totalItems={filteredInterns.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handleInternPageChange}
+          />
         </div>
       </div>
       <style>
