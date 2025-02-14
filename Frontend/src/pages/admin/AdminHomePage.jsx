@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus, FaUsers } from "react-icons/fa";
+import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Cookies from 'js-cookie';
-import InternCard from "../../components/Admin/InternCard"; // Import InternCard
-import { AppPages, Departments } from "../../utils/constants";
-import { FiSearch } from "react-icons/fi";
 import ApplicationCard from "../../components/Students/ApplicationCard";
 
 const AdminHome = () => {
@@ -40,7 +37,6 @@ const AdminHome = () => {
     { title: "Approved Jobs", count: approvedCount, icon: <FaCheck /> },
     { title: "Rejected Jobs", count: rejectedCount, icon: <FaTrophy /> },
     { title: "Pending Approvals", count: pendingCount, icon: <FaUserPlus /> },
-    { title: "Total Students", count: studentCount, icon: <FaUsers /> },
   ];
 
   useEffect(() => {
@@ -88,7 +84,8 @@ const AdminHome = () => {
   }, []);
 
   useEffect(() => {
-    let filtered = jobs;
+    let filteredJobsData = jobs;
+    let filteredInternsData = internships;
 
     if (filter === "Approved") {
       filteredJobsData = approvedJobs;
@@ -101,9 +98,9 @@ const AdminHome = () => {
       filteredInternsData = pendingInternships;
     }
 
-    setFilteredJobs(filtered);
-  }, [filter, jobs]);
-
+    setFilteredJobs(filteredJobsData);
+    setFilteredInterns(filteredInternsData);
+  }, [filter, jobs, internships]);
 
   useEffect(() => {
     if (searchPhrase === "") {
@@ -151,26 +148,27 @@ const AdminHome = () => {
       setFilteredJobs(jobs.filter((job) => job.job_data.selectedCategory === deptFilter));
     }
   }, [deptFilter, jobs]);
+  
 
   return (
-    <div className="flex flex-col w-full h-screen overflow-auto bg-gray-0">
+    <div className="flex flex-col w-full h-screen overflow-auto bg-gray-100">
       <AdminPageNavbar />
-      <header className="flex flex-col items-center justify-center py-14 container self-center">
-        <p className="text-6xl tracking-[0.8px]">Admin Dashboard</p>
-        <p className="text-lg mt-2 text-center">
+      <header className="flex flex-col items-center justify-center py-6 container self-center">
+        <p className="text-4xl font-bold tracking-[0.8px]">Admin Dashboard</p>
+        <p className="text-lg mt-2 text-center text-gray-600">
           Explore all the Postings in all the existing fields around the globe.
         </p>
       </header>
       <div className="w-[80%] mx-auto">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
           {cardsData.map((card, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-sm">
-              <div className="p-4 flex items-start justify-between">
+            <div key={index} className="bg-white rounded-lg shadow-sm p-4">
+              <div className="flex items-start justify-between">
                 <div className="flex flex-col gap-1">
-                  <span className="font-normal text-sm text-[#a0aec0] font-sans">{card.title}</span>
-                  <span className="text-md text-[#2d3748] font-sans text-4xl">{card.count}</span>
+                  <span className="font-normal text-sm text-gray-500">{card.title}</span>
+                  <span className="text-2xl font-semibold text-gray-800">{card.count}</span>
                 </div>
-                <div className="p-2 bg-[#FFC800] text-sm text-white rounded flex items-center justify-center shadow-sm">
+                <div className="p-2 bg-yellow-500 text-white rounded flex items-center justify-center shadow-sm">
                   {card.icon}
                 </div>
               </div>
@@ -178,14 +176,47 @@ const AdminHome = () => {
           ))}
         </div>
 
+        {/* Placeholders for charts and graphs
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white rounded-lg shadow-sm p-4">
+                <span className="font-bold">Total Students:</span>
+                <span className="font-bold">{studentCount}</span>
+
+            <div className="h-64 overflow-y-auto rounded-lg shadow-sm p-4 mb-8">
+
+              <table className="min-w-full">
+                <thead>
+                  <tr>
+                    <th className="py-2 px-4 border-b">Name</th>
+                    <th className="py-2 px-4 border-b">Applied Jobs Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {students.map((student, index) => (
+                    <tr key={index}>
+                      <td className="py-2 px-4 border-b">{student.name}</td>
+                      <td className="py-2 px-4 border-b count-up">{student.applied_jobs?.length || 0}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <h2 className="text-xl font-semibold mb-4">Customer Growth</h2>
+            {/* Placeholder for customer growth chart */}
+            {/* <div className="h-48 bg-gray-200"></div>
+          </div>
+        </div> */} 
+
         {/* Filter Section with Yellow Navigation */}
-        <div className="flex justify-between items-center my-14">
+        <div className="flex justify-between items-center my-6">
           <div className="flex text-sm gap-4">
             {["All", "Approved", "Rejected", "Pending Approvals"].map((status) => (
               <button
                 key={status}
-                className={`px-4 rounded-[10000px] py-1 ${filter === status ? "text-blue-400 underline" : "text-gray-600 hover:text-gray-900"
-                  }`}
+                className={`px-4 rounded-full py-1 ${filter === status ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"}`}
                 onClick={() => setFilter(status)}
               >
                 {status}
@@ -195,15 +226,43 @@ const AdminHome = () => {
         </div>
         <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
           {filteredJobs.map((job) => (
-            <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { setSelectedJob(job); }} isSaved={undefined} />
+            <ApplicationCard
+              key={job._id}
+              application={{ ...job, ...job.job_data }}
+              handleCardClick={() => { setSelectedJob(job); }}
+              isSaved={undefined}
+            />
           ))}
         </div>
         <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
           {filteredInterns.map((internship) => (
-            <ApplicationCard application={{ ...internship }} key={internship._id} handleCardClick={() => { setSelectedJob(internship); }} isSaved={undefined} />
+            <ApplicationCard
+              key={internship._id}
+              application={{ ...internship, ...internship.internship_data }}
+              handleCardClick={() => { setSelectedJob(internship); }}
+              isSaved={undefined}
+            />
           ))}
         </div>
       </div>
+      <style>
+        {`
+          @keyframes countUp {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .count-up {
+            animation: countUp 1s ease-out;
+          }
+        `}
+      </style>
     </div>
   );
 };
