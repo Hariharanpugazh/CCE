@@ -21,14 +21,11 @@ const Sidebar = ({
             className="w-full flex items-center justify-center p-2 text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors duration-200"
             onClick={onToggle}
           >
-            {isOpen ? (
+          
               <div className="flex items-center space-x-2">
-                <ChevronLeft className="h-5 w-5" />
-                <span>Hide Sidebar</span>
+                <span>Tools</span>
               </div>
-            ) : (
-              <ChevronRight className="h-5 w-5" />
-            )}
+
           </button>
         </div>
 
