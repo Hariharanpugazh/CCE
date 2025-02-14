@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Pagination from "../../components/Admin/pagination";
 
@@ -13,6 +14,8 @@ const StudentManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const itemsPerPage = 10;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -118,6 +121,12 @@ const StudentManagement = () => {
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
+          <button
+            className={`${buttonStyles} bg-green-600 hover:bg-green-700`}
+            onClick={() => navigate("/student-signup")}
+          >
+            Create Student
+          </button>
         </div>
 
         <div className="bg-white rounded-lg shadow overflow-x-auto">

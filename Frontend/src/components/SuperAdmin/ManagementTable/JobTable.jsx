@@ -21,6 +21,14 @@ const JobTable = ({
     return items.slice(startIndex, startIndex + itemsPerPage);
   };
 
+  const handleSelectAll = () => {
+    if (selectedJobs.length === jobs.length) {
+      setSelectedJobs([]);
+    } else {
+      setSelectedJobs(jobs.map((job) => job._id));
+    }
+  };
+
   return (
     <div id="jobs-section" className="mt-4">
       <div className="flex justify-between items-center mb-4">
@@ -41,7 +49,7 @@ const JobTable = ({
           <input
             type="checkbox"
             checked={selectedJobs.length === jobs.length}
-            onChange={() => handleSelectAll("job")}
+            onChange={handleSelectAll}
             className="form-checkbox h-5 w-5 text-blue-600"
           />
           <span className="ml-2">Select All</span>
@@ -66,7 +74,7 @@ const JobTable = ({
             <tbody>
               {getCurrentItems(jobs).map((job) => (
                 <tr key={job._id} className="border-b border-gray-200 hover:bg-gray-100">
-                  <td className="px-4 py-2">
+                  <td className="text-center px-4 py-2">
                     <input
                       type="checkbox"
                       checked={selectedJobs.includes(job._id)}
@@ -80,27 +88,27 @@ const JobTable = ({
                       className="form-checkbox h-5 w-5 text-blue-600"
                     />
                   </td>
-                  <td className="px-4 py-2">{job.job_data.title}</td>
-                  <td className="px-4 py-2">{job.job_data.company_name}</td>
-                  <td className="px-4 py-2">{job.admin_name}</td>
-                  <td className="px-4 py-2">{job.job_data.application_deadline}</td>
-                  <td className="px-4 py-2 font-semibold">
+                  <td className="text-center px-4 py-2">{job.job_data.title}</td>
+                  <td className="text-center px-4 py-2">{job.job_data.company_name}</td>
+                  <td className="text-center px-4 py-2">{job.admin_name}</td>
+                  <td className="text-center px-4 py-2">{job.job_data.application_deadline}</td>
+                  <td className="text-center px-4 py-2 font-semibold">
                     {job.is_publish === true ? (
-                      <span className="bg-green-200 text-green-800 px-2 py-1 rounded-full">
+                      <span className="text-green-800 px-2 py-1 rounded-full">
                         Approved
                       </span>
                     ) : job.is_publish === false ? (
-                      <span className="bg-red-200 text-red-800 px-2 py-1 rounded-full">
+                      <span className="text-red-800 px-2 py-1 rounded-full">
                         Rejected
                       </span>
                     ) : (
-                      <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full">
+                      <span className="text-yellow-800 px-2 py-1 rounded-full">
                         Pending
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-2">
-                    <div className="flex space-x-2">
+                  <td className="text-center px-4 py-2">
+                    <div className="flex justify-center space-x-2">
                       {job.is_publish === null && (
                         <>
                           <IoMdCheckmark
