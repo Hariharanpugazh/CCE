@@ -12,7 +12,7 @@ const Sidebar = ({
   return (
     <div
       className={`bg-white shadow-xl transition-all duration-300 ease-in-out fixed h-full z-10${
-        isOpen ? "w-64" : "w-20"
+        isOpen ? "w-52" : "w-20"
       } ${className}`}
     >
       <div className="flex flex-col h-full">
@@ -21,9 +21,14 @@ const Sidebar = ({
             className="w-full flex items-center justify-center p-2 text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors duration-200"
             onClick={onToggle}
           >
+            {isOpen ? (
               <div className="flex items-center space-x-2">
-                <span>Tools</span>
+                <ChevronLeft className="h-4 w-4" />
+                <span>Hide Sidebar</span>
               </div>
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
           </button>
         </div>
 
@@ -41,7 +46,7 @@ const Sidebar = ({
                 ${!isOpen ? "justify-center" : "justify-start"}
               `}
             >
-              <Icon className={`h-5 w-5 ${isOpen ? "mr-3" : ""}`} />
+              <Icon className={`h-4 w-4 ${isOpen ? "mr-3" : ""}`} />
               {isOpen && (
                 <span className="font-medium whitespace-nowrap">{name}</span>
               )}
@@ -51,6 +56,6 @@ const Sidebar = ({
       </div>
     </div>
   );
-}; 
- 
+};
+
 export default Sidebar;
