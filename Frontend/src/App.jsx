@@ -41,7 +41,7 @@ import StudentStudyMaterial from "./pages/students/StudentStudyMaterial";
 import AppliedJobs from "./pages/students/AppliedJobs";import AchivementEdit from "./pages/admin/AchivementEdit";
 import StudentMail from "./pages/students/StudentMail";
 import AchievementPreview from "./pages/students/AchievementPreview";
-import { LoaderContext, LoaderLayout } from "./components/Common/Layout";
+import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
 
 
