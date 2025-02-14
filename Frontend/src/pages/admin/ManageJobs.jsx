@@ -178,7 +178,6 @@ const ManageJobs = () => {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           isOpen={sidebarOpen}
-
           categories={sidebarCategories}
           selectedCategory={selectedCategory}
           onCategorySelect={setSelectedCategory}
