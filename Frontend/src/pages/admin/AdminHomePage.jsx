@@ -107,6 +107,7 @@ const AdminHome = () => {
     if (searchPhrase === "") {
       setFilteredJobs(jobs);
       setFilteredInterns(internships);
+
     } else {
       setFilteredJobs(jobs.filter((job) =>
         job.job_data.title.toLowerCase().includes(searchPhrase) ||
@@ -140,6 +141,7 @@ const AdminHome = () => {
       setFilteredJobs(jobs.filter((job) => dateDiff(job.job_data.application_deadline) < 0));
       setFilteredInterns(internships.filter((internship) => dateDiff(internship.internship_data.application_deadline) < 0));
     }
+
   }, [activeButton, jobs, internships]);
 
   useEffect(() => {
@@ -182,6 +184,7 @@ const AdminHome = () => {
             {["All", "Approved", "Rejected", "Pending Approvals"].map((status) => (
               <button
                 key={status}
+
                 className={`px-4 rounded-full py-1 ${filter === status ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"}`}
                 onClick={() => setFilter(status)}
               >
