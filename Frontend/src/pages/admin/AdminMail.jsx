@@ -161,12 +161,19 @@ export default function AdminMail() {
                   <span className="font-semibold text-lg">
                     {item.job_data?.title || item.internship_data?.title || item.name || item.study_material_data?.title}
                   </span>
-                  <div className="flex space-x-2">
-                    <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">{item.status}</span>
+                  {item.study_material_data ? <div className="flex space-x-2">
+
                     <span className={`text-xs px-2 py-1 rounded ${item.is_publish === true ? 'bg-green-200 text-green-800' : item.is_publish === false ? 'bg-red-200 text-red-800' : 'bg-yellow-200 text-yellow-800'}`}>
                       {item.is_publish === true ? 'Approved' : item.is_publish === false ? 'Rejected' : 'Pending'}
                     </span>
-                  </div>
+                  </div> : (
+                    <div className="flex space-x-2">
+                      <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">{item.status}</span>
+                      <span className={`text-xs px-2 py-1 rounded ${item.is_publish === true ? 'bg-green-200 text-green-800' : item.is_publish === false ? 'bg-red-200 text-red-800' : 'bg-yellow-200 text-yellow-800'}`}>
+                        {item.is_publish === true ? 'Approved' : item.is_publish === false ? 'Rejected' : 'Pending'}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <p className="text-gray-700 mt-2">
                   {item.job_data?.company_name || item.internship_data?.company_name || item.achievement_description || item.study_material_data?.description}
