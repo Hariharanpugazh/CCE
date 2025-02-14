@@ -7,6 +7,7 @@ import JobCard from "../../components/Admin/JobCard";
 import InternCard from "../../components/Admin/InternCard"; // Import InternCard
 import { AppPages, Departments } from "../../utils/constants";
 import { FiSearch } from "react-icons/fi";
+import ApplicationCard from "../../components/Students/ApplicationCard";
 
 const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
@@ -66,7 +67,7 @@ const AdminHome = () => {
 
   useEffect(() => {
     let filtered = jobs;
-  
+
     if (filter === "Approved") {
       filtered = jobs.filter((job) => job.is_publish === true);
     } else if (filter === "Rejected") {
@@ -74,11 +75,11 @@ const AdminHome = () => {
     } else if (filter === "Pending Approvals") {
       filtered = jobs.filter((job) => job.is_publish === null);
     }
-  
+
     setFilteredJobs(filtered);
   }, [filter, jobs]);
 
-  
+
   useEffect(() => {
     if (searchPhrase === "") {
       setFilteredJobs(jobs)
@@ -203,13 +204,12 @@ const AdminHome = () => {
 
         {/* Filter Section */}
         <div className="flex justify-between items-center my-14">
-        <div className="flex text-sm gap-4">
+          <div className="flex text-sm gap-4">
             {["All", "Approved", "Rejected", "Pending Approvals"].map((status) => (
               <button
                 key={status}
-                className={`px-4 rounded-[10000px] py-1 ${
-                  filter === status ? "text-blue-400 underline" : "text-gray-600 hover:text-gray-900"
-                }`}
+                className={`px-4 rounded-[10000px] py-1 ${filter === status ? "text-blue-400 underline" : "text-gray-600 hover:text-gray-900"
+                  }`}
                 onClick={() => setFilter(status)}
               >
                 {status}
@@ -245,14 +245,16 @@ const AdminHome = () => {
         {/* Render Job Cards */}
         <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
           {filteredJobs.map((job) => (
-            <JobCard key={job._id} job={{...job.job_data, _id: job._id}}  />
+            <ApplicationCard application={{ ...job, ...job.job_data }}
+              key={job._id}
+              savedJobs={undefined} />
           ))}
         </div>
 
         {/* Render Internship Cards */}
         <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
           {filteredInterns.map((internship) => (
-            <InternCard key={internship._id} internship={{...internship, _id: internship._id}} />
+            <ApplicationCard key={internship.id} application={{ ...internship }} handleCardClick={() => { setSelectedIntern(internship); console.log(internship) }} isSaved={undefined} />
           ))}
         </div>
       </div>

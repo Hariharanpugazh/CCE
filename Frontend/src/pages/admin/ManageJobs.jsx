@@ -193,7 +193,6 @@ const ManageJobs = () => {
         {/* Sidebar */}
         <Sidebar
           isOpen={sidebarOpen}
-          onToggle={() => setSidebarOpen(!sidebarOpen)}
           categories={sidebarCategories}
           selectedCategory={selectedCategory}
           onCategorySelect={setSelectedCategory}
