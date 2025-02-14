@@ -1007,6 +1007,22 @@ def get_achievements(request):
         return JsonResponse({"error": str(e)}, status=500)
 
 @csrf_exempt
+def get_achievement_by_id(request, achievement_id):
+    """
+    Fetch a single achievement by its ID.
+    """
+    try:
+        achievement = achievement_collection.find_one({"_id": ObjectId(achievement_id)})
+        if not achievement:
+            return JsonResponse({"error": "Achievement not found"}, status=404)
+
+        achievement["_id"] = str(achievement["_id"])  # Convert ObjectId to string
+        return JsonResponse({"achievement": achievement}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+    
+
+@csrf_exempt
 def delete_achievement(request, achievement_id):
     """
     Delete an achievement by its ID.
