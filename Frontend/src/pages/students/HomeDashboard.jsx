@@ -5,6 +5,7 @@ import StudentPageSearchBar from "../../components/Students/StudentPageSearchBar
 import PageHeader from "../../components/Common/StudentPageHeader";
 import Cookies from "js-cookie";
 import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 
 import bgHero from "../../assets/images/hero-bg.jpg"; // Make sure to update the path accordingly
@@ -259,6 +260,76 @@ function AchievementSlider({ achievements }) {
   );
 }
 
+function FAQSection() {
+  const faqs = [
+    {
+      question: "Can I enroll in multiple courses at once?",
+      answer:
+        "Absolutely! You can enroll in multiple courses simultaneously and access them at your convenience.",
+    },
+    {
+      question: "What kind of support can I expect from instructors?",
+      answer:
+        "Instructors provide guidance through live Q&A sessions, discussion forums, and direct messaging.",
+    },
+    {
+      question: "Are the courses self-paced or do they have specific start and end dates?",
+      answer:
+        "Most courses are self-paced, but some have scheduled start and end dates depending on the program.",
+    },
+    {
+      question: "Are there any prerequisites for the courses?",
+      answer:
+        "Some advanced courses may require prior knowledge, but most beginner-friendly courses have no prerequisites.",
+    },
+    {
+      question: "Can I download the course materials for offline access?",
+      answer:
+        "Yes, many courses offer downloadable resources such as PDFs and recorded lectures for offline access.",
+    },
+  ];
+
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const toggleFAQ = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  return (
+    <section className="w-[80%] mx-auto p-6 flex justify-between mt-18">
+      <div>
+        <h2 className="text-3xl font-bold">Frequently Asked Questions</h2>
+        <p className="text-gray-600 mt-2">
+          Still have any questions? Contact our team via{" "}
+          <a href="mailto:snscce@snsgroups.com" className="text-blue-600">
+            snscce@snsgroups.com
+          </a>
+        </p>
+      </div>
+      <div className="space-y-4">
+        {faqs.map((faq, index) => (
+          <div key={index} className="border border-gray-400 rounded-lg overflow-hidden">
+            <button
+              className="w-full flex justify-between items-center p-4 bg-white hover:bg-gray-100 transition"
+              onClick={() => toggleFAQ(index)}
+            >
+              <span className="text-lg">{faq.question}</span>
+              {openIndex === index ? (
+                <ChevronUp className="w-5 h-5 text-gray-600" />
+              ) : (
+                <ChevronDown className="w-5 h-5 text-gray-600" />
+              )}
+            </button>
+            {openIndex === index && (
+              <div className="p-4 bg-gray-50 text-gray-700">{faq.answer}</div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function HomeDashboard() {
   const [jobs, setJobs] = useState([]);
   const [achievements, setAchievements] = useState([]);
@@ -366,6 +437,18 @@ export default function HomeDashboard() {
       <AboutCCEHeader />
       <AboutCCEContent />
 
+      {/* Achievements Section
+      <section className="w-[90%] self-center mt-6 items-center flex flex-col mt-18">
+        <p className="text-3xl">Our Team and Mentors</p>
+        <p className="text mb-4 mb-12 text-center">Our team of dedicated mentors and industry experts is here to guide you every step of the way. <br /> With years of experience and a passion for innovation, we are committed to helping you unlock your full potential.</p>
+        <div className="flex space-x-5">
+          {achievements.length === 0 ? <p>No achievements available at the moment.</p> :
+            achievements.map((achievement) => (
+              <AchievementCard image={achievement.photo} name={achievement.name} department={achievement.department} />
+            ))}
+        </div>
+      </section> */}
+
       {/* Achievements Section */}
       <section className="w-[90%] self-center mt-6 items-center flex flex-col mt-18">
         <p className="text-3xl">Achievement and Milestones</p>
@@ -377,6 +460,8 @@ export default function HomeDashboard() {
             ))}
         </div>
       </section>
+
+      <FAQSection />
 
       <Footer />
 
