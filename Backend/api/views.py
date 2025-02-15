@@ -902,27 +902,36 @@ def job_click(request):
 @csrf_exempt
 def apply_job(request):
     try:
-        data = json.loads(request.body)
-        student_id = data.get("studentId")
-        job_id = data.get("jobId")
+            data = json.loads(request.body)
+            student_id = data.get("studentId")
+            job_id = data.get("jobId")
 
-        if not student_id or not job_id:
-            return JsonResponse({"error": "Student ID and Job ID are required"}, status=400)
+            if not student_id or not job_id:
+                return JsonResponse({"error": "Student ID and Job ID are required"}, status=400)
 
-        # Update the student's applied jobs in the database with confirmation status
-        result = student_collection.update_one(
-            {"_id": ObjectId(student_id)},
-            {"$addToSet": {"applied_jobs": {
-                "job_id": str(ObjectId(job_id)),  # Convert ObjectId to string
-                "confirmed": False
-            }}}
-        )
+            # Retrieve the student document
+            student = student_collection.find_one({"_id": ObjectId(student_id)})
+            if not student:
+                return JsonResponse({"error": "Student not found"}, status=404)
 
-        if result.modified_count == 0:
-            return JsonResponse({"error": "Failed to update applied jobs"}, status=400)
+            applied_jobs = student.get("applied_jobs", [])
+            if len(applied_jobs) > 0:
+                if any(job["job_id"] == str(ObjectId(job_id)) for job in applied_jobs):
+                    return JsonResponse({"message": "Job already applied"}, status=200)
 
+            # Update the student's applied jobs in the database with confirmation status
+            result = student_collection.update_one(
+                {"_id": ObjectId(student_id)},
+                {"$addToSet": {"applied_jobs": {
+                    "job_id": str(ObjectId(job_id)),  # Convert ObjectId to string
+                    "confirmed": False
+                }}}
+            )
 
-        return JsonResponse({"message": "Job application recorded successfully"})
+            if result.modified_count == 0:
+                return JsonResponse({"error": "Failed to update applied jobs"}, status=400)
+
+            return JsonResponse({"message": "Job application recorded successfully"})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 
