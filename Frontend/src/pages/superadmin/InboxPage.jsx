@@ -8,6 +8,8 @@ const InboxPage = () => {
   const [messages, setMessages] = useState([]);
   const [achievements, setAchievements] = useState([]);
   const [jobs, setJobs] = useState([]);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [reply, setReply] = useState("");
   const [internships, setInternships] = useState([]);
   const [studyMaterials, setStudyMaterials] = useState([]);
   const [studentAchievements, setStudentAchievements] = useState([]);
@@ -51,9 +53,9 @@ const InboxPage = () => {
   const fetchMessages = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/get-contact-messages/");
-      setMessages(response.data.messages);
-    } catch (err) {
-      console.error("Failed to fetch messages.");
+      setMessages(response.data);
+    } catch (error) {
+      console.error("Failed to fetch messages.", error);
     }
   };
 
@@ -372,7 +374,7 @@ const InboxPage = () => {
 
   const renderContactPreview = () => {
     if (!selectedItem) return null;
-
+  
     return (
       <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl">
         <button
@@ -409,9 +411,19 @@ const InboxPage = () => {
                   onChange={(e) => handleReplyChange(selectedItem._id, e.target.value)}
                 />
                 <button
-                  className="mt-3 w-full bg-blue-600 text-white font-medium py-2 rounded-lg hover:bg-blue-700 transition duration-300"
-                  onClick={() => sendReply(selectedItem._id)}
-                  disabled={loading}
+                  className={`mt-3 w-full font-medium py-2 rounded-lg transition duration-300 ${
+                    selectedItem.reply_message
+                      ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
+                  onClick={() => {
+                    if (selectedItem.reply_message) {
+                      setToastMessage("The message has already been replied to.");
+                    } else {
+                      sendReply(selectedItem._id);
+                    }
+                  }}
+                  disabled={selectedItem.reply_message || loading}
                 >
                   {loading ? "Sending..." : "✉️ Send Reply"}
                 </button>

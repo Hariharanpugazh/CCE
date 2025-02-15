@@ -34,7 +34,7 @@ export default function SuperAdminPageNavbar() {
 
   return (
     <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg mx-3">
-      <nav className="flex justify-between p-2 items-stretch pt-6 relative">
+      <nav className="flex justify-between p-2 items-stretch pt-4 relative">
         {/* Logo */}
         <div className="flex items-center">
           <img
