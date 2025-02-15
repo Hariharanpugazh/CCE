@@ -646,11 +646,11 @@ def get_jobs_for_mail(request):
 
             # Fetch admin details using admin_id
             admin_id = job.get("admin_id")
-            admin_name = "Unknown Admin"
+            admin_name = "Super Admin"
             if admin_id:
                 admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
                 if admin:
-                    admin_name = admin.get("name", "Unknown Admin")
+                    admin_name = admin.get("name", "Super Admin")
 
             # Ensure job_data exists and has application_deadline
             if "job_data" in job and "application_deadline" in job["job_data"]:

@@ -25,6 +25,7 @@ const JobPreview = () => {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
+        console.log("JWT Payload:", payload); // Log the payload
         if (payload.role) {
           setUserRole(payload.role);
         } else if (payload.student_user) {
@@ -35,11 +36,13 @@ const JobPreview = () => {
       }
     }
   }, []);
+  
 
   const handleApplyClick = async () => {
     try {
       const token = Cookies.get("jwt");
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
+      console.log("Applying for job with userId:", userId, "and jobId:", id);
       await axios.post('http://localhost:8000/api/apply-job/', {
         studentId: userId,
         jobId: id
@@ -49,6 +52,7 @@ const JobPreview = () => {
       console.error("Error applying for job:", error);
     }
   };
+  
 
   if (!job) return <p className="text-center text-lg font-semibold">Loading...</p>;
 
