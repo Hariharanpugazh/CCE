@@ -402,6 +402,15 @@ export default function HomeDashboard() {
     setShowPopup(false);
   };
 
+  const mentors = [
+    { 'photo': "https://media.istockphoto.com/id/1300512215/photo/headshot-portrait-of-smiling-ethnic-businessman-in-office.jpg?s=612x612&w=0&k=20&c=QjebAlXBgee05B3rcLDAtOaMtmdLjtZ5Yg9IJoiy-VY=", 'name': "Joe" },
+    { 'photo': "https://t3.ftcdn.net/jpg/06/39/64/14/360_F_639641415_lLjzVDVwL0RwdNrkURYFboc4N21YIXJR.jpg", 'name': "Samaratian" },
+    { 'photo': "https://cdn2.f-cdn.com/files/download/38547697/ddc116.jpg", 'name': "Jane" },
+    { 'photo': "https://media.istockphoto.com/id/1317804578/photo/one-businesswoman-headshot-smiling-at-the-camera.jpg?s=612x612&w=0&k=20&c=EqR2Lffp4tkIYzpqYh8aYIPRr-gmZliRHRxcQC5yylY=", 'name': "Emma" },
+    { 'photo': "https://thumbs.dreamstime.com/b/profile-picture-caucasian-male-employee-posing-office-happy-young-worker-look-camera-workplace-headshot-portrait-smiling-190186649.jpg", 'name': "Shaun" },
+    { 'photo': "https://cdn2.f-cdn.com/files/download/42322552/f58f50.jpg", 'name': "Ghale" }
+  ]
+
   return (
     <div className="flex flex-col items-center">
       <div className="w-full">
@@ -437,20 +446,32 @@ export default function HomeDashboard() {
       <AboutCCEHeader />
       <AboutCCEContent />
 
-      {/* Achievements Section
-      <section className="w-[90%] self-center mt-6 items-center flex flex-col mt-18">
+      {/* mentor Section */}
+      <section className="w-[80%] self-center mt-6 items-center flex flex-col mt-18">
         <p className="text-3xl">Our Team and Mentors</p>
         <p className="text mb-4 mb-12 text-center">Our team of dedicated mentors and industry experts is here to guide you every step of the way. <br /> With years of experience and a passion for innovation, we are committed to helping you unlock your full potential.</p>
-        <div className="flex space-x-5">
-          {achievements.length === 0 ? <p>No achievements available at the moment.</p> :
-            achievements.map((achievement) => (
-              <AchievementCard image={achievement.photo} name={achievement.name} department={achievement.department} />
+        <div className="flex space-x-5 flex-wrap space-y-4 justify-center">
+          {mentors.length === 0 ? <p>No achievements available at the moment.</p> :
+            mentors.map((mentor) => (
+              <div className="relative w-60 h-80 rounded-xl overflow-hidden shadow-lg flex-1 min-w-[250px] max-w-[600px]">
+                {/* Background Image */}
+                <img src={mentor.photo} alt={mentor.photo} className="w-full h-full object-cover" />
+
+                {/* Overlay for Text Visibility */}
+                <div className="absolute inset-0 bg-[#00000087]"></div>
+
+                {/* Title */}
+                <div className="absolute bottom-4 left-4 text-white">
+                  <p className="text-2xl"> {mentor.name} </p>
+                  <p className="text"> {"SNS CCE"} </p>
+                </div>
+              </div>
             ))}
         </div>
-      </section> */}
+      </section>
 
       {/* Achievements Section */}
-      <section className="w-[90%] self-center mt-6 items-center flex flex-col mt-18">
+      <section className="w-[90%] self-center mt-6 items-center flex flex-col mt-20">
         <p className="text-3xl">Achievement and Milestones</p>
         <p className="text mb-4 mb-12 text-center">Achievements are not just milestones; they are reflections of dedication, passion, and perseverance. <br />Here, we celebrate those who dare to dream big, break barriers, and make a difference.</p>
         <div className="flex space-x-5">
