@@ -87,7 +87,7 @@ function App() {
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
         <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
-        <Route path="/jobs" element={ <ProtectedRoute><JobDashboard /> </ProtectedRoute>} />
+        <Route path="/jobs" element={ <ProtectedRoute> <JobDashboard /> </ProtectedRoute>} />
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
         <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
         <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />

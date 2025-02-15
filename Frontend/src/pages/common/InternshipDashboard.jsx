@@ -9,8 +9,7 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Filters from "../../components/Common/Filters";
 import SidePreview from "../../components/Common/SidePreview";
-import Pagination from "../../components/Admin/pagination"; // Import Pagination component
-import { toast } from "react-toastify";
+import Pagination from "../../components/Admin/pagination";
 
 export default function InternshipDashboard() {
   const [internships, setInternships] = useState([]);
@@ -91,7 +90,6 @@ export default function InternshipDashboard() {
     const fetchPublishedInternships = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/published-internship/");
-        console.log("Response:", response.data); // Debugging line
 
         const internshipsWithType = response.data.internships.map((internship) => ({
           ...internship.internship_data, // Extract internship_data
@@ -133,7 +131,6 @@ export default function InternshipDashboard() {
     const token = Cookies.get("jwt");
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-      console.log("Decoded JWT Payload:", payload); // Debugging line
       const user = !payload.student_user ? payload.role : "student";
       setUserRole(user);
       user === "superadmin" || user === "admin" ? undefined : fetchSavedInternships(); // Assuming the payload has a 'role' field
@@ -146,7 +143,6 @@ export default function InternshipDashboard() {
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
       const response = await axios.get(`http://localhost:8000/api/saved-internships/${userId}/`);
       setSavedInterns(response.data.internships.map(internship => internship._id));
-      console.log(response.data.internships.map(internship => internship._id));
     } catch (err) {
       console.error("Error fetching saved jobs:", err);
     }
