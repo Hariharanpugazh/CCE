@@ -95,10 +95,9 @@ const JobEdit = () => {
             {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
             <div className="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">
-                <div className="flex flex-col lg:flex-row w-full max-w-7xl bg-tranparent  rounded-lg overflow-hidden">
+                <div className="flex flex-col lg:flex-row w-[70%] max-w-7xl bg-transparent rounded-lg overflow-hidden">
                     {/* Job Overview */}
-                    <div className="lg:w-1/3 p-4 border border-gray-300 lg:mr-8 rounded-lg">
-                    <div className="bg-white">
+                    <div className="lg:w-1/3 p-4 bg-white border border-gray-300 lg:mr-8 rounded-lg">
                         <div className="mb-8">
                             <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Overview</h3>
                             {isEditing ? (
@@ -237,8 +236,7 @@ const JobEdit = () => {
                             >
                                 Delete
                             </button>
-                        </div>
-                    </div>    
+                        </div>   
                     </div>
                     
 

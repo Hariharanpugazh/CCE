@@ -94,7 +94,8 @@ function App() {
         <Route path="/job-preview/:id" element={<JobPreview />} />
         <Route path="/internship-preview/:id" element={<InternshipPreview />} />
         <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
-        <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />        <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />
+        <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />
+        <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />        
         <Route path="/applied-jobs" element={<ProtectedRoute> <AppliedJobs /> </ProtectedRoute>} />
 
           {/* Admin Routes */}
@@ -106,7 +107,7 @@ function App() {
           <Route path="/admin/achievements" element={<ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
           <Route path="/jobpost" element={<ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
           <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
-          <Route path="/internpost" element={<ProtectedRoute><InternshipForm /> </ProtectedRoute>} />
+          <Route path="/internpost" element={<ProtectedRoute> <InternshipForm /> </ProtectedRoute>} />
           <Route path="/job-edit/:id" element={<ProtectedRoute> <JobEdit /> </ProtectedRoute>} />
           <Route path="/internship-edit/:id" element={<ProtectedRoute> <InternshipEdit /> </ProtectedRoute>} />
           <Route path="/achievement-edit/:id" element={<ProtectedRoute> <AchivementEdit /> </ProtectedRoute>} />

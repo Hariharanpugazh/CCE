@@ -95,7 +95,7 @@
 // }
 
 
-import { FiBookmark, FiMapPin, FiEye } from "react-icons/fi";
+import { FiBookmark, FiMapPin, FiEye, FiClock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 function timeAgo(dateString) {
@@ -134,83 +134,88 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
 
   return (
     <div
-      className="relative bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-lg border border-gray-200 hover:border-gray-300 cursor-pointer transition-all duration-300"
+      className="relative bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 group"
       onClick={handleCardClick}
     >
-      {/* Bookmark Icon */}
-      {isSaved !== undefined && (
-        <FiBookmark
-          className={`absolute top-4 right-4 text-xl cursor-pointer ${
-            isSaved ? "text-blue-600 fill-current" : "text-gray-400"
-          }`}
-        />
-      )}
-
-      {/* Title Section */}
-      <div className="mb-4">
-        <h3 className="text-lg font-bold text-gray-900 mb-1">{application.title}</h3>
-        <div className="flex items-center space-x-2 text-xs text-gray-700">
-          <span className="flex items-center">
-            <i className="bi bi-building text-sm mr-1"></i>
-            {application.company_name}
-          </span>
-          <span className="text-gray-400">|</span>
-          <span className="flex items-center">
-            <FiMapPin className="mr-1" />
-            {application.location}
-          </span>
+      {/* Header Section */}
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h3 className="text-xl font-semibold text-gray-900 mb-1">
+            {application.title}
+          </h3>
+          <div className="flex items-center space-x-3 text-sm text-gray-600">
+            <span className="flex items-center">
+              <i className="bi bi-building text-sm mr-2 opacity-75"></i>
+              {application.company_name}
+            </span>
+            <span className="flex items-center">
+              <FiMapPin className="mr-2 opacity-75" />
+              {application.location}
+            </span>
+          </div>
         </div>
+        
+        {/* Status Badge */}
+        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+          application.status === "active" 
+            ? "bg-green-100 text-green-800" 
+            : "bg-red-100 text-red-800"
+        }`}>
+          {application.status === "active" ? "Active" : "Closed"}
+        </span>
       </div>
 
       {/* Description Section */}
-      <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+      <p className="text-gray-600 mb-5 line-clamp-3 leading-relaxed text-sm">
         {application.job_description}
       </p>
 
-      {/* Tags Section */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      {/* Metadata Section */}
+      <div className="flex flex-wrap gap-3 mb-6">
         {application.selectedWorkType && (
-          <span className="border border-gray-300 text-gray-700 px-2.5 py-1 rounded-md text-xs font-medium">
+          <div className="bg-blue-50 text-blue-800 px-3 py-1.5 rounded-lg text-sm">
             {application.selectedWorkType}
-          </span>
+          </div>
         )}
         {application.work_type && (
-          <span className="border border-gray-300 text-gray-700 px-2.5 py-1 rounded-md text-xs font-medium">
+          <div className="bg-purple-50 text-purple-800 px-3 py-1.5 rounded-lg text-sm">
             {application.work_type}
-          </span>
+          </div>
         )}
         {application.experience_level && (
-          <span className="border border-gray-300 text-gray-700 px-2.5 py-1 rounded-md text-xs font-medium">
+          <div className="bg-orange-50 text-orange-800 px-3 py-1.5 rounded-lg text-sm">
             {application.experience_level}
-          </span>
+          </div>
         )}
       </div>
 
-      {/* Divider */}
-      <hr className="mb-4 border-gray-200" />
-
       {/* Footer Section */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-3 text-xs text-gray-500">
-          <span>{timeAgo(application.updated_at)}</span>
-          <span className="text-gray-300">•</span>
-          <span className="flex items-center">
-            <FiEye className="mr-1" />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-t border-gray-100 pt-4">
+        <div className="flex items-center space-x-4 text-sm text-gray-500">
+          <div className="flex items-center">
+            <FiClock className="mr-2 opacity-75" />
+            {timeAgo(application.updated_at)}
+          </div>
+          <div className="flex items-center">
+            <FiEye className="mr-2 opacity-75" />
             {viewCount} views
-          </span>
+          </div>
         </div>
-        <div className="flex items-center space-x-3">
-          <span className={`text-xs font-semibold uppercase tracking-wide ${
-            application.status === "active" ? "text-green-700" : "text-red-700"
-          }`}>
-            {application.status === "active" ? "Active" : "Closed"}
-          </span>
+
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded-md font-medium text-xs hover:bg-blue-700 transition-colors duration-200 uppercase tracking-wide"
+            className="w-full sm:w-auto px-4 py-2.5 text-sm font-medium border border-gray-300 rounded-lg hover:border-gray-400 transition-colors duration-200"
             onClick={handleViewDetails}
           >
             View Details
           </button>
+          {isSaved !== undefined && (
+            <FiBookmark
+              className={`text-xl cursor-pointer p-2 hover:bg-gray-100 rounded-lg ${
+                isSaved ? "text-blue-600 fill-current" : "text-gray-400"
+              }`}
+            />
+          )}
         </div>
       </div>
     </div>
