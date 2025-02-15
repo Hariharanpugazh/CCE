@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import StudentPageSearchBar from "../../components/Students/StudentPageSearchBar";
@@ -12,8 +12,9 @@ import bgHero from "../../assets/images/hero-bg.jpg"; // Make sure to update the
 
 import gridImg from '../../assets/images/Grid.png'
 import HorizontalApplicationCard from "../../components/Students/HorizApplicationCard";
+import { LoaderContext } from "../../components/Common/Loader";
 
-const themeButton = "px-7 py-[6px] rounded-lg w-fit text-sm bg-[#FFC800]"
+const themeButton = "px-7 py-[6px] rounded-lg w-fit text-sm bg-[#FFC800] cursor-pointer"
 
 function HeroSection() {
   const phrases = [
@@ -64,15 +65,15 @@ function HeroSection() {
 function AboutCCEHeader() {
   return (
     <header className="flex flex-col items-center py-24 relative justify-center">
-      <img src={gridImg} alt="" className="absolute object-contain w-[800px] aspect-video" />
+      <img src={gridImg} alt="" className="absolute object-contain w-[800px] aspect-video -z-1" />
       <div className="flex flex-col items-center">
         <p className="text-5xl"> Center for </p>
         <p className="text-5xl"> Competitive Exams </p>
 
-        <p className="my-3 text-themeYellow">
+        <p className="my-3">
           Turning Aspirants into Achievments
         </p>
-        <button className={themeButton} onClick={() => window.location.href = "/jobs"}> Explore Jobs </button>
+        <button className={themeButton} onClick={() => window.location.href = "jobs"}> Explore Jobs </button>
       </div>
     </header>
   );
@@ -338,7 +339,10 @@ export default function HomeDashboard() {
   const [showPopup, setShowPopup] = useState(false);
   const [unconfirmedJob, setUnconfirmedJob] = useState(null);
 
+  const { setIsLoading } = useContext(LoaderContext)
+
   useEffect(() => {
+    setIsLoading(true)
     const fetchData = async () => {
       try {
         const [jobsRes, achievementsRes, internshipsRes] = await Promise.all([
@@ -350,9 +354,11 @@ export default function HomeDashboard() {
         setJobs(jobsRes.data.jobs);
         setAchievements(achievementsRes.data.achievements);
         setInternships(internshipsRes.data.internships);
+        setIsLoading(false)
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load data.");
+        setIsLoading(false)
       }
     };
 
@@ -423,24 +429,26 @@ export default function HomeDashboard() {
       <section className="w-[80%] self-center mt-6 items-center flex flex-col mt-16">
         <p className="text-3xl">Job Opportunities</p>
         <p className="text mb-4 mb-12 text-center">Search all the open positions on the web. Get your own personalized salary estimate. <br />Read reviews on over 30000+ companies worldwide.</p>
-        <div className="flex flex-col gap-6 w-full">
+        <div className="flex flex-col gap-6 w-full mb-10">
           {jobs.length === 0 ? <p>No jobs available at the moment.</p> :
             jobs.map((job) => (
               <HorizontalApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { }} isSaved={undefined} />
             ))}
         </div>
+        <button className={themeButton} onClick={() => window.location.href = "jobs"}> Explore Jobs </button>
       </section>
 
       {/* interns section */}
       <section className="w-[80%] self-center mt-6 items-center flex flex-col mt-14">
         <p className="text-3xl">Internship Opportunities</p>
         <p className="text mb-4 mb-12 text-center">Unlock your potential with an internship that fuels your growth! Gain hands-on experience <br /> work with industry experts, and take the first step toward an exciting career.</p>
-        <div className="flex flex-col gap-6 w-full">
+        <div className="flex flex-col gap-6 w-full mb-10">
           {internships.length === 0 ? <p>No internships available at the moment.</p> :
             internships.map((intern) => (
               <HorizontalApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { console.log(intern) }} isSaved={undefined} />
             ))}
         </div>
+        <button className={themeButton} onClick={() => window.location.href = "internships"}> Explore Internships </button>
       </section>
 
       <AboutCCEHeader />
@@ -474,12 +482,13 @@ export default function HomeDashboard() {
       <section className="w-[90%] self-center mt-6 items-center flex flex-col mt-20">
         <p className="text-3xl">Achievement and Milestones</p>
         <p className="text mb-4 mb-12 text-center">Achievements are not just milestones; they are reflections of dedication, passion, and perseverance. <br />Here, we celebrate those who dare to dream big, break barriers, and make a difference.</p>
-        <div className="flex space-x-5">
+        <div className="flex space-x-5 mb-10">
           {achievements.length === 0 ? <p>No achievements available at the moment.</p> :
             achievements.map((achievement) => (
               <AchievementCard image={achievement.photo} name={achievement.name} department={achievement.department} />
             ))}
         </div>
+        <button className={themeButton} onClick={() => window.location.href = "achievements"}> View all Achievements </button>
       </section>
 
       <FAQSection />
