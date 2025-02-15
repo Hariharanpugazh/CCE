@@ -71,7 +71,7 @@ function AboutCCEHeader() {
         <p className="my-3 text-themeYellow">
           Turning Aspirants into Achievments
         </p>
-        <p className={themeButton}> Explore Jobs </p>
+        <button className={themeButton} onClick={() => window.location.href = "/jobs"}> Explore Jobs </button>
       </div>
     </header>
   );
@@ -337,14 +337,10 @@ export default function HomeDashboard() {
         <StudentPageNavbar />
       </div>
 
-      <header>
-        <img src="" alt="" />
-      </header>
-
       <HeroSection />
 
       {/* Jobs Section */}
-      <section className="w-[80%] self-center mt-6 items-center flex flex-col">
+      <section className="w-[80%] self-center mt-6 items-center flex flex-col mt-16">
         <p className="text-3xl">Job Opportunities</p>
         <p className="text mb-4 mb-12 text-center">Search all the open positions on the web. Get your own personalized salary estimate. <br />Read reviews on over 30000+ companies worldwide.</p>
         <div className="flex flex-col gap-6 w-full">
