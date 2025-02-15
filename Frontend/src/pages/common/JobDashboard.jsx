@@ -228,7 +228,7 @@ export default function JobDashboard() {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col ml-50">
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
       {userRole === "student" && <StudentPageNavbar />}

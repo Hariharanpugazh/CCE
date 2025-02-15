@@ -255,7 +255,7 @@ export default function JobPostForm() {
 
   return (
     <motion.div
-      className={`max-w mx-auto bg-white shadow-xl rounded-2xl relative ${isPreview ? "overflow-hidden" : "overflow-auto"}`}
+      className={`max-w mx-auto bg-white shadow-xl rounded-2xl relative ml-55 ${isPreview ? "overflow-hidden" : "overflow-auto"}`}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}

@@ -610,7 +610,7 @@ export default function AdminMail() {
     } = selectedItem;
 
     return (
-      <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl">
+      <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl ">
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition duration-300"
           onClick={() => setSelectedItem(null)}
@@ -753,7 +753,7 @@ export default function AdminMail() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen ml-55">
       <AdminPageNavbar />
       <div className="flex flex-1 p-4 space-x-4">
         {/* Sidebar */}

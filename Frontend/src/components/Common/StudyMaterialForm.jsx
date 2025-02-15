@@ -62,7 +62,7 @@ export default function StudyMaterialForm() {
 
   return (
     <motion.div
-      className="max-w mx-auto bg-white shadow-xl rounded-2xl p-8"
+      className="max-w mx-auto bg-white shadow-xl rounded-2xl p-8 ml-55"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}

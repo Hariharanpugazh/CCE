@@ -229,7 +229,7 @@ const InboxPage = () => {
     const { job_data, internship_data, achievement_description, study_material_data, item_type, item_id } = selectedItem;
 
     return (
-      <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl">
+      <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl ">
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition duration-300"
           onClick={() => setSelectedItem(null)}
@@ -442,7 +442,7 @@ const InboxPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen ml-55">
       <SuperAdminPageNavbar />
       <div className="flex flex-1 p-4 space-x-4">
         <div className="w-1/4 max-w-[20%] space-y-4 shadow-md rounded-lg p-4 bg-white">
