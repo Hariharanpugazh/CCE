@@ -124,6 +124,12 @@ export default function AchievementPostForm() {
       setMessage(response.data.message);
       setError("");
       setLoading(false);
+
+      if (userRole === "admin") {
+        navigate("/admin/home");
+      } else if (userRole === "superadmin") {
+        navigate("/superadmin");
+      }
     } catch (err) {
       setError(err.response?.data?.error || "Something went wrong");
       setMessage("");
@@ -132,93 +138,98 @@ export default function AchievementPostForm() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-3xl font-bold mb-6 text-center">Post an Achievement</h2>
+    <div className="max-w-4xl mx-auto p-8 bg-white shadow-2xl rounded-xl">
+      <h2 className="text-4xl font-extrabold mb-8 text-center text-gray-800">Post an Achievement</h2>
 
-      {error && <p className="text-red-600 mb-4">{error}</p>}
-      {message && <p className="text-green-600 mb-4">{message}</p>}
+      {error && <p className="text-red-600 mb-6 text-center font-semibold">{error}</p>}
+      {message && <p className="text-green-600 mb-6 text-center font-semibold">{message}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block font-medium">Name</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Achievement Type</label>
+            <select
+              name="achievement_type"
+              value={formData.achievement_type}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            >
+              <option value="">Select Achievement Type</option>
+              <option value="Job Placement">Job Placement</option>
+              <option value="Internship">Internship</option>
+              <option value="Certification">Certification</option>
+              <option value="Exam Cracked">Exam Cracked</option>
+            </select>
+          </div>
         </div>
 
         <div>
-          <label className="block font-medium">Achievement Description</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Achievement Description</label>
           <textarea
             name="achievement_description"
             value={formData.achievement_description}
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            rows="4"
             required
           ></textarea>
         </div>
 
-        <div>
-          <label className="block font-medium">Achievement Type</label>
-          <select
-            name="achievement_type"
-            value={formData.achievement_type}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          >
-            <option value="">Select Achievement Type</option>
-            <option value="Job Placement">Job Placement</option>
-            <option value="Internship">Internship</option>
-            <option value="Certification">Certification</option>
-            <option value="Exam Cracked">Exam Cracked</option>
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Company/Organization Name</label>
+            <input
+              type="text"
+              name="company_name"
+              value={formData.company_name}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Date of Achievement</label>
+            <input
+              type="date"
+              name="date_of_achievement"
+              value={formData.date_of_achievement}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+          </div>
         </div>
 
         <div>
-          <label className="block font-medium">Company/Organization Name</label>
-          <input
-            type="text"
-            name="company_name"
-            value={formData.company_name}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">Date of Achievement</label>
-          <input
-            type="date"
-            name="date_of_achievement"
-            value={formData.date_of_achievement}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium">Batch</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Batch</label>
           <input
             type="text"
             name="batch"
             value={formData.batch}
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
         </div>
 
-        <div className="border-dashed border-2 border-gray-400 rounded-lg p-6 text-center">
+        <div className="border-dashed border-2 border-gray-400 rounded-xl p-6 py-15 text-center bg-white">
           <label
             htmlFor="photo"
-            className="cursor-pointer text-blue-600 font-semibold hover:underline"
+            className="cursor-pointer text-blue-600 font-semibold text-xl hover:underline"
           >
             {imagePreview ? "Change Image" : "Upload an Achievement Photo"}
           </label>
@@ -236,7 +247,7 @@ export default function AchievementPostForm() {
               <img
                 src={imagePreview}
                 alt="Uploaded"
-                className="max-h-40 mx-auto rounded-md shadow-lg"
+                className="max-h-48 mx-auto rounded-lg shadow-md"
               />
             </div>
           )}
@@ -244,7 +255,7 @@ export default function AchievementPostForm() {
 
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full"
+          className="w-full px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
           disabled={loading}
         >
           {loading ? "Submitting..." : "Submit Achievement"}

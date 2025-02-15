@@ -66,7 +66,7 @@ export default function ManagementHomePage() {
     // Calculate metrics
     const totalAdmins = admins.length;
     const activeAdmins = admins.filter(admin => admin.status === "active").length;
-    const inactiveAdmins = admins.filter(admin => admin.status === "Inactive").length;
+    const inactiveAdmins = admins.filter(admin => admin.status === "inactive").length;
 
     // Handle admin card click
     const handleAdminClick = (adminId) => {
@@ -137,7 +137,7 @@ export default function ManagementHomePage() {
                         >
                             <option value="">All Status</option>
                             <option value="active">Active</option>
-                            <option value="Inactive">Inactive</option>
+                            <option value="inactive">Inactive</option>
                         </select>
                         <button
                             onClick={handleCreateUser}
@@ -150,7 +150,7 @@ export default function ManagementHomePage() {
                     {/* Table */}
                     {error ? (
                         <p className="text-red-600 text-center">{error}</p>
-                    ) : currentItems.length === 0 ? (
+                    ) : filteredAdmins.length === 0 ? (
                         <p className="text-gray-600 text-center">No admin details match your search.</p>
                     ) : (
                         <div className="rounded-lg border border-gray-300 bg-white overflow-x-auto">
@@ -185,17 +185,17 @@ export default function ManagementHomePage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {currentItems.map((admin) => (
+                                    {filteredAdmins.map((admin) => (
                                         <tr
                                             key={admin._id}
                                             onClick={() => handleAdminClick(admin._id)}
                                             className="cursor-pointer hover:bg-gray-100"
                                         >
-                                            <td className="py-4 px-4 border-b border-gray-300">{admin.name || 'N/A'}</td>
-                                            <td className="py-4 px-4 border-b border-gray-300">{admin.email || 'N/A'}</td>
-                                            <td className="py-4 px-4 border-b border-gray-300">{admin.created_at ? new Date(admin.created_at).toLocaleString() : "N/A"}</td>
-                                            <td className="py-4 px-4 border-b border-gray-300">{admin.last_login ? new Date(admin.last_login).toLocaleString() : "N/A"}</td>
-                                            <td className="py-4 px-4 border-b border-gray-300">
+                                            <td className="py-2 px-4 border-b border-gray-300">{admin.name || 'N/A'}</td>
+                                            <td className="py-2 px-4 border-b border-gray-300">{admin.email || 'N/A'}</td>
+                                            <td className="py-2 px-4 border-b border-gray-300">{admin.created_at ? new Date(admin.created_at).toLocaleString() : "N/A"}</td>
+                                            <td className="py-2 px-4 border-b border-gray-300">{admin.last_login ? new Date(admin.last_login).toLocaleString() : "N/A"}</td>
+                                            <td className="py-2 px-4 border-b border-gray-300">
                                                 <span
                                                     className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                                                         admin.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
@@ -210,6 +210,7 @@ export default function ManagementHomePage() {
                             </table>
                         </div>
                     )}
+
                     <Pagination
                         currentPage={currentPage}
                         totalItems={filteredAdmins.length}

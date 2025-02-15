@@ -13,6 +13,7 @@ export default function SuperAdminLogin() {
     });
     const [isLocked, setIsLocked] = useState(false); // Track lockout state
     const [lockoutTime, setLockoutTime] = useState(0); // Track remaining lockout time
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     // Clear cookies when entering the login page
@@ -36,6 +37,7 @@ export default function SuperAdminLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
         if (isLocked) return;
 
         try {
@@ -64,6 +66,7 @@ export default function SuperAdminLogin() {
         } catch (error) {
             console.error("Error during login:", error);
             toast.error("Something went wrong. Please try again.");
+            setIsLoading(false);
         }
     };
 
@@ -76,6 +79,7 @@ export default function SuperAdminLogin() {
                 onSubmit={handleSubmit}
                 isLocked={isLocked}
                 lockoutTime={lockoutTime}
+                isLoading={isLoading}
             />
             <ToastContainer position="top-right" autoClose={3000} />
         </>

@@ -21,6 +21,14 @@ const InternshipTable = ({
     return items.slice(startIndex, startIndex + itemsPerPage);
   };
 
+  const handleSelectAll = () => {
+    if (selectedInternships.length === internships.length) {
+      setSelectedInternships([]);
+    } else {
+      setSelectedInternships(internships.map((internship) => internship._id));
+    }
+  };
+
   return (
     <div id="internships-section" className="mt-4">
       <div className="flex justify-between items-center mb-4">
@@ -41,10 +49,10 @@ const InternshipTable = ({
           <input
             type="checkbox"
             checked={selectedInternships.length === internships.length}
-            onChange={() => handleSelectAll("internship")}
+            onChange={handleSelectAll}
             className="form-checkbox h-5 w-5 text-blue-600"
           />
-          <span className="ml-2">Select All </span>
+          <span className="ml-2">Select All</span>
         </div>
       </div>
       {internships.length === 0 ? (
@@ -69,7 +77,7 @@ const InternshipTable = ({
                 const data = internship.internship_data || {};
                 return (
                   <tr key={internship._id} className="border-b border-gray-200 hover:bg-gray-100">
-                    <td className="px-4 py-2">
+                    <td className="text-center px-4 py-2">
                       <input
                         type="checkbox"
                         checked={selectedInternships.includes(internship._id)}
@@ -83,28 +91,28 @@ const InternshipTable = ({
                         className="form-checkbox h-5 w-5 text-blue-600"
                       />
                     </td>
-                    <td className="px-4 py-2">{data.title || "N/A"}</td>
-                    <td className="px-4 py-2">{data.company_name || "N/A"}</td>
-                    <td className="px-4 py-2">{internship.admin_name || "N/A"}</td>
-                    <td className="px-4 py-2">{data.application_deadline || "N/A"}</td>
-                    <td className="px-4 py-2">{data.duration || "N/A"}</td>
-                    <td className="px-4 py-2 font-semibold">
+                    <td className="text-center px-4 py-2">{data.title || "N/A"}</td>
+                    <td className="text-center px-4 py-2">{data.company_name || "N/A"}</td>
+                    <td className="text-center px-4 py-2">{internship.admin_name || "N/A"}</td>
+                    <td className="text-center px-4 py-2">{data.application_deadline || "N/A"}</td>
+                    <td className="text-center px-4 py-2">{data.duration || "N/A"}</td>
+                    <td className="text-center px-4 py-2 font-semibold">
                       {internship.is_publish === true ? (
-                        <span className="bg-green-200 text-green-800 px-2 py-1 rounded-full">
+                        <span className="text-green-800 px-2 py-1 rounded-full">
                           Approved
                         </span>
                       ) : internship.is_publish === false ? (
-                        <span className="bg-red-200 text-red-800 px-2 py-1 rounded-full">
+                        <span className="text-red-800 px-2 py-1 rounded-full">
                           Rejected
                         </span>
                       ) : (
-                        <span className="bg-yellow-200 text-yellow-800 px-2 py-1 rounded-full">
+                        <span className="text-yellow-800 px-2 py-1 rounded-full">
                           Pending
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-2">
-                      <div className="flex space-x-2">
+                    <td className="text-center px-4 py-2">
+                      <div className="flex justify-center space-x-2">
                         {internship.is_publish === null && (
                           <>
                             <IoMdCheckmark

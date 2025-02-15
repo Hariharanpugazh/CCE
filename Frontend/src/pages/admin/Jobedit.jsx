@@ -98,30 +98,7 @@ const JobEdit = () => {
                 <div className="flex flex-col lg:flex-row w-full max-w-7xl bg-tranparent  rounded-lg overflow-hidden">
                     {/* Job Overview */}
                     <div className="lg:w-1/3 p-4 border border-gray-300 lg:mr-8 rounded-lg">
-                    <div className="bg-white"></div>
-                        <div className="flex justify-between items-center mb-4">
-                            <button
-                                onClick={() => setIsEditing(!isEditing)}
-                                className="bg-blue-600 text-white px-4 py-2 rounded"
-                            >
-                                {isEditing ? "Cancel" : "Edit"}
-                            </button>
-                            {isEditing && (
-                                <button
-                                    onClick={handleSave}
-                                    className="bg-green-600 text-white px-4 py-2 rounded ml-2"
-                                >
-                                    Save
-                                </button>
-                            )}
-                            <button
-                                onClick={handleDelete}
-                                className="bg-red-600 text-white px-4 py-2 rounded ml-2"
-                            >
-                                Delete
-                            </button>
-                        </div>
-
+                    <div className="bg-white">
                         <div className="mb-8">
                             <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Overview</h3>
                             {isEditing ? (
@@ -193,7 +170,7 @@ const JobEdit = () => {
                                         <FaBuilding className="mr-2 text-gray-600" />
                                         <div className="flex flex-col">
                                         <h3 className="font-semibold">Company Name:</h3> 
-                                        <span className="ml-1">{job.job_data.company_name}</span>
+                                        <span className="text-sm">{job.job_data.company_name}</span>
                                         </div>
                                     </p>
 
@@ -201,7 +178,7 @@ const JobEdit = () => {
                                         <FaBriefcase className="mr-2 text-gray-600" />
                                         <div className="flex flex-col">
                                         <h3 className="font-semibold">Work Type:</h3> 
-                                        <span className="ml-1">{job.job_data.work_type}</span>
+                                        <span className="text-sm">{job.job_data.work_type}</span>
                                         </div>
                                     </p>
 
@@ -209,15 +186,15 @@ const JobEdit = () => {
                                         <FaMapMarkerAlt className="mr-2 text-gray-600" />
                                         <div className="flex flex-col">
                                         <h3 className="font-semibold">Location:</h3> 
-                                        <span className="ml-1 text-sm">{job.job_data.job_location}</span>
+                                        <span className="text-sm">{job.job_data.job_location}</span>
                                         </div>
                                     </p>
 
                                     <p className="text-gray-700 mb-2 flex items-center">
-                                        <FaGraduationCap className="mr-2 text-3xl text-gray-600" />
+                                        <FaGraduationCap className="mr-2 text-lg text-gray-600" />
                                         <div className="flex flex-col">
                                         <h3 className="font-semibold">Education:</h3> 
-                                        <span className="ml-1 text-sm">{job.job_data.education_requirements}</span>
+                                        <span className="text-sm">{job.job_data.education_requirements}</span>
                                         </div>
                                     </p>
 
@@ -225,7 +202,7 @@ const JobEdit = () => {
                                         <FaUserTie className="mr-2 text-gray-600" />
                                         <div className="flex flex-col">
                                         <h3 className="font-semibold">Experience:</h3> 
-                                        <span className="ml-1 text-sm">{job.job_data.experience_level} years</span>
+                                        <span className="text-sm">{job.job_data.experience_level} years</span>
                                         </div>
                                     </p>
 
@@ -233,13 +210,37 @@ const JobEdit = () => {
                                         <RiMoneyRupeeCircleFill className="mr-2 text-gray-600" />
                                         <div className="flex flex-col">
                                         <h3 className="font-semibold">Salary:</h3> 
-                                        <span className="ml-1 text-sm">₹ {job.job_data.salary_range} per annum</span>
+                                        <span className="text-sm">₹ {job.job_data.salary_range} per annum</span>
                                         </div>
                                     </p>
                                 </>
                             )}
                         </div>
+                        <div className="flex justify-between items-center mb-2 mt-50">
+                            <button
+                                onClick={() => setIsEditing(!isEditing)}
+                                className="bg-blue-600 text-white px-4 py-2 rounded"
+                            >
+                                {isEditing ? "Cancel" : "Edit"}
+                            </button>
+                            {isEditing && (
+                                <button
+                                    onClick={handleSave}
+                                    className="bg-green-600 text-white px-4 py-2 rounded ml-2"
+                                >
+                                    Save
+                                </button>
+                            )}
+                            <button
+                                onClick={handleDelete}
+                                className="bg-red-600 text-white px-4 py-2 rounded ml-2"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>    
                     </div>
+                    
 
                     {/* Job Description and Other Details */}
                     <div className="lg:w-2/3 p-4 overflow-y-auto" style={{ maxHeight: '600px' }}>

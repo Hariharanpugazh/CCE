@@ -33,6 +33,8 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
     navigate(`/${previewPage}/${application._id || application.id}`);
   };
 
+  const viewCount = application.applied ? application.applied.length : 0;
+
   return (
     <div
       className="flex flex-col p-3 border border-gray-200 rounded-lg hover:scale-[1.03] cursor-pointer"
@@ -48,7 +50,7 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
             </p>
             <FiCircle className="w-1 h-1 text-gray-600" />
             <p className="flex items-center">
-              <FiMapPin className="w-4 h-4 mr-1" /> {application.job_location}
+              <FiMapPin className="w-4 h-4 mr-1" /> {application.location}
             </p>
           </div>
         </div>
@@ -58,7 +60,7 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
       </div>
 
       {/* Description Section */}
-      <p className="text-xs text-gray-700 my-4">{application.job_description}</p>
+      <p className="text-xs text-gray-700 my-4 line-clamp-2">{application.job_description}</p>
 
       {/* Tags Section */}
       <div className="flex flex-wrap gap-2 text-xs text-gray-800">
@@ -72,7 +74,7 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
         <span>{timeAgo(application.updated_at)}</span>
         <span>|</span>
         <span className="flex items-center">
-          <FiEye className="mr-1" /> {application.views ?? 0} views
+          <FiEye className="mr-1" /> {viewCount} views
         </span>
       </div>
 
