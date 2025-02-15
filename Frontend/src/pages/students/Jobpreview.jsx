@@ -68,7 +68,7 @@ const JobPreview = () => {
           {/* Job Overview */}
           <div className="lg:w-1/3 p-4 border border-gray-300 lg:mr-8 rounded-lg">
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Overview</h3>
+              <h2 className="text-2xl font-semibold text-gray-800 mb-4">{job.job_data.title}</h2>
               <p className="text-gray-700 mb-2 flex items-center">
                 <FaBuilding className="mr-2 text-gray-600" />
                 <div className="ml-1 flex flex-col">
