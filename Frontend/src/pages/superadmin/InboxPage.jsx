@@ -53,16 +53,22 @@ const InboxPage = () => {
   const fetchMessages = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/get-contact-messages/");
-      setMessages(response.data);
+      const messagesData = response.data.messages || [];
+      if (Array.isArray(messagesData)) {
+        setMessages(messagesData);
+      } else {
+        console.error("Unexpected data format:", messagesData);
+      }
     } catch (error) {
       console.error("Failed to fetch messages.", error);
     }
   };
+  
 
   const fetchAchievements = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/get_achievements_with_admin/");
-      setAchievements(response.data.achievements);
+      setAchievements(response.data.achievements || []);
     } catch (err) {
       console.error("Failed to fetch achievements.");
     }
@@ -71,7 +77,7 @@ const InboxPage = () => {
   const fetchJobs = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/get_jobs_with_admin/");
-      setJobs(response.data.jobs);
+      setJobs(response.data.jobs || []);
     } catch (err) {
       console.error("Error fetching jobs:", err);
     }
@@ -80,7 +86,7 @@ const InboxPage = () => {
   const fetchInternships = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/get_internships_with_admin/");
-      setInternships(response.data.internships);
+      setInternships(response.data.internships || []);
     } catch (err) {
       console.error("Failed to fetch internships.");
     }
@@ -98,7 +104,7 @@ const InboxPage = () => {
   const fetchStudentAchievements = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/get_student_achievements_with_students/");
-      setStudentAchievements(response.data.student_achievements);
+      setStudentAchievements(response.data.student_achievements || []);
     } catch (err) {
       console.error("Failed to fetch student achievements.");
     }
@@ -374,7 +380,7 @@ const InboxPage = () => {
 
   const renderContactPreview = () => {
     if (!selectedItem) return null;
-  
+
     return (
       <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl">
         <button
