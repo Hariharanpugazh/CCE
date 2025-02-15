@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
 import { FiPlus, FiUser, FiMail, FiSettings } from "react-icons/fi";
-import { SlOptions } from "react-icons/sl";
+import { IoMdNotifications } from "react-icons/io";
 import { MdInbox, MdWork } from "react-icons/md"; // Icons for pop-up box
+import { RiAdminFill } from "react-icons/ri";
 
 export default function AdminPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -32,6 +33,8 @@ export default function AdminPageNavbar() {
     alert("Coming Soon!");
   };
 
+  const userInitials = username ? username.charAt(0).toUpperCase() : "A";
+
   return (
     <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg mx-0">
       <nav className="flex justify-between p-2 items-stretch pt-6 relative">
@@ -40,7 +43,7 @@ export default function AdminPageNavbar() {
           <img
             src="/sns (1).ico"
             alt="Logo"
-            className="ml-1 h-14 w-14"
+            className="ml-1 pl-3 h-14 w-17"
           />
         </div>
         
@@ -67,95 +70,24 @@ export default function AdminPageNavbar() {
           >
             Internships
           </p>
-          <p
+          {/* <p
             className="cursor-pointer hover:underline hover:text-blue-400"
             onClick={handleStudyMaterialClick}
           >
             Study Material
-          </p>
+          </p> */}
           <p
             className="cursor-pointer hover:underline hover:text-blue-400"
             onClick={() => (window.location.href = "/admin/achievements")}
           >
             Achievements
           </p>
-          <p className="cursor-pointer hover:underline hover:text-blue-400">
+          {/* <p className="cursor-pointer hover:underline hover:text-blue-400">
             Contact
-          </p>
+          </p> */}
         </div>
-
+        
         <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm space-x-4">
-          <div
-            className="flex space-x-2 items-center cursor-pointer relative"
-            onClick={() => {
-              setProfileMenuOpen((toggle) => !toggle);
-              setCreateMenuOpen(false);
-              setMailPopupOpen(false);
-            }}
-          >
-            <p>{username || "Admin"}</p>
-            <FiUser
-              className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
-              style={{ width: "2rem" }}
-            />
-
-            {/* Profile Menu */}
-            {isProfileMenuOpen && (
-              <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50 absolute p-2">
-                <ul className="flex flex-col">
-                  <li
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                    onClick={() => (window.location.href = "/profile")}
-                  >
-                    Profile
-                  </li>
-                  <li
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
-
-          {/* Mail Button */}
-          <div
-            className="flex space-x-2 items-center cursor-pointer relative"
-            onClick={() => {
-              setMailPopupOpen((toggle) => !toggle);
-              setProfileMenuOpen(false);
-              setCreateMenuOpen(false);
-            }}
-          >
-            <SlOptions
-              className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
-              style={{ width: "2rem" }}
-              title="Options"
-            />
-
-            {/* Mail Popup */}
-            {isMailPopupOpen && (
-              <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-60 z-50 absolute p-2">
-                <ul className="flex flex-col">
-                  <li
-                    className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
-                    onClick={() => (window.location.href = "/admin/mail")}
-                  >
-                    <FiMail className="text-xl mr-2" /> Inbox
-                  </li>
-                  <li
-                    className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
-                    onClick={() => (window.location.href = "/manage-jobs")}
-                  >
-                    <MdWork className="text-xl mr-2" /> Manage Jobs
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
-
           <div
             className="flex space-x-2 items-center relative cursor-pointer"
             onClick={() => {
@@ -206,6 +138,77 @@ export default function AdminPageNavbar() {
                     onClick={() => (window.location.href = "/manage-student")}
                   >
                     Student Management
+                  </li>
+                </ul>
+              </div>
+              
+            )}
+          </div>
+
+          {/* Mail Button */}
+          <div
+            className="flex space-x-2 items-center cursor-pointer relative"
+            onClick={() => {
+              setMailPopupOpen((toggle) => !toggle);
+              setProfileMenuOpen(false);
+              setCreateMenuOpen(false);
+            }}
+          >
+            <IoMdNotifications
+              className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
+              style={{ width: "2rem" }}
+              title="Options"
+            />
+
+            {/* Mail Popup */}
+            {isMailPopupOpen && (
+              <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-60 z-50 absolute p-2">
+                <ul className="flex flex-col">
+                  <li
+                    className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
+                    onClick={() => (window.location.href = "/admin/mail")}
+                  >
+                    <FiMail className="text-xl mr-2" /> Inbox
+                  </li>
+                  <li
+                    className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
+                    onClick={() => (window.location.href = "/manage-jobs")}
+                  >
+                    <MdWork className="text-xl mr-2" /> Manage Jobs
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+          <div
+            className="flex space-x-2 items-center cursor-pointer relative"
+            onClick={() => {
+              setProfileMenuOpen((toggle) => !toggle);
+              setCreateMenuOpen(false);
+              setMailPopupOpen(false);
+            }}
+          >
+            <p>{username || "Admin"}</p>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-300 text-gray-700 text-lg font-semibold">
+              {userInitials}
+            </div>
+            
+
+            {/* Profile Menu */}
+            {isProfileMenuOpen && (
+              <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50 absolute p-2">
+                <ul className="flex flex-col">
+                  <li
+                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                    onClick={() => (window.location.href = "/profile")}
+                  >
+                    Profile
+                  </li>
+                  <li
+                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                    onClick={handleLogout}
+                  >
+                    Logout
                   </li>
                 </ul>
               </div>

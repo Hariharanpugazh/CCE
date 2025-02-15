@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie"; // Import js-cookie
 import { AppPages } from "../../utils/constants";
 import { FiUser, FiMail } from "react-icons/fi";
-import { SlOptions } from "react-icons/sl";
+import { IoMdNotifications } from "react-icons/io";
 import { MdWork, MdOutlinePostAdd } from "react-icons/md";
 import { IoBookmarksSharp } from "react-icons/io5";
 
@@ -33,15 +33,17 @@ export default function StudentPageNavbar() {
     alert("Coming Soon!");
   };
 
+  const userInitials = username ? username.charAt(0).toUpperCase() : "A";
+
   return (
     <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg mx-3">
       <nav className="flex justify-between p-2 items-stretch pt-4 relative">
         {/* Logo */}
         <div className="flex items-center">
-          <img
+        <img
             src="/sns (1).ico"
             alt="Logo"
-            className="ml-1 h-14 w-14" // Adjust the size as needed
+            className="ml-1 pl-3 h-14 w-17"
           />
         </div>
         <span className="flex-1 max-w-[25%]"></span>
@@ -65,33 +67,12 @@ export default function StudentPageNavbar() {
           </p>
         </div>
         <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative space-x-4">
-          {/* Profile Button */}
-          <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => {
-            setProfileMenuOpen(toggle => !toggle);
-            setMailPopupOpen(false);
-          }}>
-            <p>{username || "Profile"}</p>
-            <FiUser className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500" style={{ width: "2rem" }} />
-            {isProfileMenuOpen && (
-              <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50 absolute p-2">
-                <ul className="flex flex-col">
-                  <li className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => (window.location.href = "/profile")}>
-                    Profile
-                  </li>
-                  <li className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={handleLogout}>
-                    Logout
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
-
           {/* Mail & Options Button */}
           <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => {
             setMailPopupOpen(toggle => !toggle);
             setProfileMenuOpen(false);
           }}>
-            <SlOptions className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500" style={{ width: "2rem" }} title="Options" />
+            <IoMdNotifications className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500" style={{ width: "2rem" }} title="Options" />
             {isMailPopupOpen && (
               <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-60 z-50 absolute p-2">
                 <ul className="flex flex-col">
@@ -106,6 +87,28 @@ export default function StudentPageNavbar() {
                   </li>
                   <li className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => (window.location.href = "/applied-jobs")}>
                     <MdWork className="text-xl mr-2" /> Applied Jobs
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+          {/* Profile Button */}
+          <div className="flex space-x-2 pr-2 items-center cursor-pointer relative" onClick={() => {
+            setProfileMenuOpen(toggle => !toggle);
+            setMailPopupOpen(false);
+          }}>
+            <p>{username || "Profile"}</p>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-300 text-gray-700 text-lg font-semibold">
+              {userInitials}
+            </div>
+            {isProfileMenuOpen && (
+              <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50 absolute p-2">
+                <ul className="flex flex-col">
+                  <li className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => (window.location.href = "/profile")}>
+                    Profile
+                  </li>
+                  <li className="px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={handleLogout}>
+                    Logout
                   </li>
                 </ul>
               </div>
