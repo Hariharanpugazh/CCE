@@ -6,6 +6,8 @@ import { SlOptions } from "react-icons/sl";
 import { MdWork, MdOutlinePostAdd } from "react-icons/md";
 import { IoBookmarksSharp } from "react-icons/io5";
 
+
+
 export default function StudentPageNavbar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMailPopupOpen, setMailPopupOpen] = useState(false);
@@ -34,8 +36,8 @@ export default function StudentPageNavbar() {
   };
 
   return (
-    <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg mx-3">
-      <nav className="flex justify-between p-4 items-stretch pt-8 relative">
+    <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg">
+      <nav className="flex justify-between p-4 items-stretch relative">
         <span className="flex-1 max-w-[25%]"></span>
 
         <div className="flex flex-1 justify-evenly space-x-5 items-center text-lg">

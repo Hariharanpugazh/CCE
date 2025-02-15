@@ -4,6 +4,260 @@ import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import StudentPageSearchBar from "../../components/Students/StudentPageSearchBar";
 import PageHeader from "../../components/Common/StudentPageHeader";
 import Cookies from "js-cookie";
+import { motion, AnimatePresence } from "framer-motion";
+
+
+import bgHero from "../../assets/images/hero-bg.jpg"; // Make sure to update the path accordingly
+
+import gridImg from '../../assets/images/Grid.png'
+import HorizontalApplicationCard from "../../components/Students/HorizApplicationCard";
+
+const themeButton = "px-7 py-[6px] rounded-lg w-fit text-sm bg-[#FFC800]"
+
+function HeroSection() {
+  const phrases = [
+    "Find & Apply for Your Dream Role Today!",
+    "Your Next Career Move Starts Here!",
+    "Discover Exciting Opportunities & Apply Now!",
+    "Step Into Your Future – Find Your Perfect Job!"
+  ];
+
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+  const [fade, setFade] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFade(false); // Start fade-out
+      setTimeout(() => {
+        setCurrentPhraseIndex((prevIndex) => (prevIndex + 1) % phrases.length);
+        setFade(true); // Start fade-in
+      }, 500); // Smooth transition delay
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <section className="w-full h-[600px] flex items-center justify-center text-center relative overflow-hidden">
+      {/* Background Image */}
+      <img src={bgHero} alt="Hero Background" className="absolute w-full h-full object-cover" />
+
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-[#00000087]"></div>
+
+      {/* Text Content */}
+      <div className="relative z-10 w-full max-w-3xl">
+        <div
+          className={`text-5xl font-bold text-white transition-opacity duration-500 ${fade ? "opacity-100" : "opacity-0"
+            }`}
+        >
+          {phrases[currentPhraseIndex]}
+        </div>
+        <p className="text-2xl text-gray-200 mt-2">
+          Explore the latest job openings across top industries. Apply now to advance your career!
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function AboutCCEHeader() {
+  return (
+    <header className="flex flex-col items-center py-24 relative justify-center">
+      <img src={gridImg} alt="" className="absolute object-contain w-[800px] aspect-video" />
+      <div className="flex flex-col items-center">
+        <p className="text-5xl"> Center for </p>
+        <p className="text-5xl"> Competitive Exams </p>
+
+        <p className="my-3 text-themeYellow">
+          Turning Aspirants into Achievments
+        </p>
+        <p className={themeButton}> Explore Jobs </p>
+      </div>
+    </header>
+  );
+}
+
+function AboutCCEContent() {
+  return (
+    <section className="flex flex-col items-center justify-self-center text-justify relative overflow-hidden w-[90%]">
+      {/* bottom left image */}
+      <img src={gridImg} alt="" className="absolute translate-x-[-70%] object-contain w-[800px] aspect-video" />
+
+      {/* bottom right image */}
+      <img src={gridImg} alt="" className="absolute translate-x-[70%] object-contain w-[800px] aspect-video" />
+
+      <p className="text-4xl"> About CCE </p>
+      <p className="my-5 text-sm w-[100%]">
+        At SNS Institutions, we constantly endeavor to identify the potential
+        opportunities for our students to elevate their personality and
+        professional competence, which in turn will enhance their socio-economic
+        status. To strengthen our endeavor further, a unique center by name
+        “Center for Competitive Exams” has been created, which will function
+        under the command and control of the Dr Nalin Vimal Kumar, Technical
+        Director, SNS Institutions, with an aim to guide and assist students to
+        get placed in Indian Armed Forces, Paramilitary Forces, Union & State
+        Public Service Commission (UPSC & TNPSC), Defence Research & Development
+        Organisation (DRDO) Labs, Council of Scientific & Industrial Research
+        (CSIR) Labs, Indian Space Research Organisation (ISRO), Department of
+        Science & Technology (DST), Indian Engineering Services, Defence Public
+        Sector Undertakings (DPSUs), Central Public Sector Undertakings (CPSUs)
+        and State Public Sector Undertakings (SPSUs), in addition to various
+        Micro Small & Medium Enterprise (MSME) clusters and Private companies
+        associated with the aforesaid organisations. In addition, the center
+        will also endeavor to identify opportunities for pursuing Internship &
+        Research in renowned Institutions and Organisations. To steer the
+        activities in the right direction, Commander (Dr.) D K Karthik (Retd.)
+        has been hired and appointed as Professor & Head-Center for Competitive
+        Exams, SNS Institutions.
+      </p>
+    </section>
+  );
+}
+
+const Footer = () => {
+  return (
+    <footer className="w-full flex justify-center items-center min-h-[30vh] border border-gray-300 mt-20">
+      <div className="container p-10">
+        <div className="flex">
+          <div className="w-2/5">
+            <h3 className="text-3xl mb-5">Centre for Competitive Exams</h3>
+            <div className="w-3/4">
+              <p className="text-sm">CCE focuses on constantly endeavor to identify the potential opportunities for our students to elevate their personality and professional competence, which in turn will enhance their socio-economic status</p>
+              <hr className="border-1 border-black my-5" />
+              <p className="text-sm mb-5">SNS Kalvi Nagar, Sathy Mani Road NH-209,<br />Vazhiyampalayam, Saravanampatti, Coimbatore,<br />Tamil Nadu<br />641035</p>
+              <div className="flex space-x-7">
+                <i className="bi bi-linkedin text-2xl"></i>
+                <i className="bi bi-youtube text-2xl"></i>
+                <i className="bi bi-instagram text-2xl"></i>
+                <i className="bi bi-twitter text-2xl"></i>
+              </div>
+            </div>
+          </div>
+          <div className="w-3/5 flex justify-between pl-20">
+            <div>
+              <p className="font-bold mb-10">Products</p>
+              <ul className="space-y-3">
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-bold mb-10">Resources</p>
+              <ul className="space-y-3">
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-bold mb-10">Company</p>
+              <ul className="space-y-3">
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-bold mb-10">Support</p>
+              <ul className="space-y-3">
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+                <li><p className="text-xs">Product</p></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div className="my-10 space-y-5 ">
+          <hr className="border-1 border-black" />
+          <p className="text-sm">&copy; {new Date().getFullYear()} SNS iHub Workplace. All Rights Reserved</p>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+function AchievementCard({ image, name, department }) {
+  return (
+    <div className="relative w-60 h-80 rounded-xl overflow-hidden shadow-lg">
+      {/* Background Image */}
+      <img src={`data:image/jpeg;base64,${image}`} alt={name} className="w-full h-full object-cover" />
+
+      {/* Overlay for Text Visibility */}
+      <div className="absolute inset-0 bg-[#00000087]"></div>
+
+      {/* Title */}
+      <div className="absolute bottom-4 left-4 text-white">
+        <p className="text-2xl"> {name} </p>
+        <p className="text-xl"> {department} </p>
+      </div>
+    </div>
+  );
+}
+
+function AchievementSlider({ achievements }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % achievements.length);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [achievements.length]);
+
+  return (
+    <div className="relative flex items-center justify-center w-full max-w-xl mx-auto">
+      {/* Previous Button */}
+      <button
+        onClick={() => setCurrentIndex((prevIndex) => (prevIndex - 1 + achievements.length) % achievements.length)}
+        className="absolute left-0 bg-gray-800 text-white p-2 rounded-full z-10"
+      >
+        ❮
+      </button>
+
+      {/* Slideshow */}
+      <div className="w-60 h-80 overflow-hidden relative flex justify-center">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.5 }}
+            className="absolute"
+          >
+            <AchievementCard
+              image={achievements[currentIndex].photo}
+              name={achievements[currentIndex].name}
+              department={achievements[currentIndex].department}
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Next Button */}
+      <button
+        onClick={() => setCurrentIndex((prevIndex) => (prevIndex + 1) % achievements.length)}
+        className="absolute right-0 bg-gray-800 text-white p-2 rounded-full z-10"
+      >
+        ❯
+      </button>
+    </div>
+  );
+}
 
 export default function HomeDashboard() {
   const [jobs, setJobs] = useState([]);
@@ -78,58 +332,57 @@ export default function HomeDashboard() {
   };
 
   return (
-    <div className="flex flex-col">
-      <StudentPageNavbar />
-      <PageHeader page="Home Dashboard" />
-
-      <div className="w-[80%] self-center">
-        <StudentPageSearchBar />
+    <div className="flex flex-col items-center">
+      <div className="w-full">
+        <StudentPageNavbar />
       </div>
 
+      <header>
+        <img src="" alt="" />
+      </header>
+
+      <HeroSection />
+
       {/* Jobs Section */}
-      <section className="w-[80%] self-center mt-6">
-        <h2 className="text-2xl font-bold mb-4">Job Opportunities</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="w-[80%] self-center mt-6 items-center flex flex-col">
+        <p className="text-3xl">Job Opportunities</p>
+        <p className="text mb-4 mb-12 text-center">Search all the open positions on the web. Get your own personalized salary estimate. <br />Read reviews on over 30000+ companies worldwide.</p>
+        <div className="flex flex-col gap-6 w-full">
           {jobs.length === 0 ? <p>No jobs available at the moment.</p> :
             jobs.map((job) => (
-              <div key={job._id} className="p-4 border rounded-lg shadow-md bg-white">
-                <h3 className="text-xl font-bold">{job.job_data.title}</h3>
-                <p>{job.job_data.company_name}</p>
-                <p>{job.job_data.job_location}</p>
-              </div>
+              <HorizontalApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { }} isSaved={undefined} />
             ))}
         </div>
       </section>
+
+      {/* interns section */}
+      <section className="w-[80%] self-center mt-6 items-center flex flex-col mt-14">
+        <p className="text-3xl">Internship Opportunities</p>
+        <p className="text mb-4 mb-12 text-center">Unlock your potential with an internship that fuels your growth! Gain hands-on experience <br /> work with industry experts, and take the first step toward an exciting career.</p>
+        <div className="flex flex-col gap-6 w-full">
+          {internships.length === 0 ? <p>No internships available at the moment.</p> :
+            internships.map((intern) => (
+              <HorizontalApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { console.log(intern) }} isSaved={undefined} />
+            ))}
+        </div>
+      </section>
+
+      <AboutCCEHeader />
+      <AboutCCEContent />
 
       {/* Achievements Section */}
-      <section className="w-[80%] self-center mt-6">
-        <h2 className="text-2xl font-bold mb-4">Achievements</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="w-[90%] self-center mt-6 items-center flex flex-col mt-18">
+        <p className="text-3xl">Achievement and Milestones</p>
+        <p className="text mb-4 mb-12 text-center">Achievements are not just milestones; they are reflections of dedication, passion, and perseverance. <br />Here, we celebrate those who dare to dream big, break barriers, and make a difference.</p>
+        <div className="flex space-x-5">
           {achievements.length === 0 ? <p>No achievements available at the moment.</p> :
             achievements.map((achievement) => (
-              <div key={achievement._id} className="p-4 border rounded-lg shadow-md bg-white flex flex-col items-center">
-                <img src={`data:image/jpeg;base64,${achievement.photo}`} alt="Achievement" className="w-full h-48 object-cover rounded-md" />
-                <h3 className="text-xl font-bold mt-2">{achievement.name}</h3>
-                <p>{achievement.department}</p>
-              </div>
+              <AchievementCard image={achievement.photo} name={achievement.name} department={achievement.department} />
             ))}
         </div>
       </section>
 
-      {/* Internships Section */}
-      <section className="w-[80%] self-center mt-6">
-        <h2 className="text-2xl font-bold mb-4">Internship Opportunities</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {internships.length === 0 ? <p>No internships available at the moment.</p> :
-            internships.map((internship) => (
-              <div key={internship._id} className="p-4 border rounded-lg shadow-md bg-white">
-                <h3 className="text-xl font-bold">{internship.title}</h3>
-                <p>{internship.company_name}</p>
-                <p>{internship.location}</p>
-              </div>
-            ))}
-        </div>
-      </section>
+      <Footer />
 
       {/* Confirmation Popup */}
       {showPopup && (
