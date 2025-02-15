@@ -66,7 +66,7 @@ export default function ManagementHomePage() {
     // Calculate metrics
     const totalAdmins = admins.length;
     const activeAdmins = admins.filter(admin => admin.status === "active").length;
-    const inactiveAdmins = admins.filter(admin => admin.status === "inactive").length;
+    const inactiveAdmins = admins.filter(admin => admin.status === "Inactive").length;
 
     // Handle admin card click
     const handleAdminClick = (adminId) => {
@@ -137,7 +137,7 @@ export default function ManagementHomePage() {
                         >
                             <option value="">All Status</option>
                             <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                            <option value="Inactive">Inactive</option>
                         </select>
                         <button
                             onClick={handleCreateUser}

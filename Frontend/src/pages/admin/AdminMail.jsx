@@ -1,16 +1,21 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from "react";
 import Cookies from "js-cookie";
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import AdminPageNavbar from '../../components/Admin/AdminNavBar';
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import {
-  Mail, Bell, Briefcase,
+  Mail,
+  Bell,
+  Briefcase,
   GraduationCap,
   BookOpen,
-  Trophy, Search, X,
-  Send
-} from 'lucide-react';
+  Trophy,
+  Search,
+  X,
+  Send,
+} from "lucide-react";
 import { LoaderContext } from "../../components/Common/Loader"; // Import Loader Context
+import Pagination from "../../components/Admin/pagination"; // Import Pagination Component
 
 export default function AdminMail() {
   const [jobs, setJobs] = useState([]);
@@ -19,9 +24,11 @@ export default function AdminMail() {
   const [studyMaterials, setStudyMaterials] = useState([]);
   const [error, setError] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [activeTab, setActiveTab] = useState('jobs');
+  const [activeTab, setActiveTab] = useState("jobs");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5); // Set items per page to 5
   const token = Cookies.get("jwt");
   const navigate = useNavigate();
   const { isLoading, setIsLoading } = useContext(LoaderContext); // Use Loader Context
@@ -37,17 +44,17 @@ export default function AdminMail() {
     const fetchData = async () => {
       setIsLoading(true); // Show loader when fetching data
       try {
-        const response = await fetch('http://localhost:8000/api/mailjobs/', {
-          method: 'GET',
+        const response = await fetch("http://localhost:8000/api/mailjobs/", {
+          method: "GET",
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch data');
+          throw new Error(errorData.error || "Failed to fetch data");
         }
 
         const data = await response.json();
@@ -64,17 +71,20 @@ export default function AdminMail() {
 
     const fetchReview = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/fetch-review/', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+        const response = await fetch(
+          "http://localhost:8000/api/fetch-review/",
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           }
-        });
+        );
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch review');
+          throw new Error(errorData.error || "Failed to fetch review");
         }
 
         const data = await response.json();
@@ -113,66 +123,81 @@ export default function AdminMail() {
         itemsToDisplay = studyMaterials;
         break;
       case "notifications":
-        return (
-          <section>
-            {reviews.length > 0 ? (
-              <div className="space-y-4">
-                {reviews.map((review) => (
-                  <motion.div
-                    key={review.review_id}
-                    className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition duration-300 cursor-pointer border border-gray-200"
-                    onClick={() => setSelectedItem(review)}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-lg">{review.item_name || 'Notification'}</span>
-                      <span className="text-sm text-gray-500">{new Date(review.timestamp).toLocaleString()}</span>
-                    </div>
-                    <p className="text-gray-700">Type: {review.item_type}</p>
-                    <p className="text-gray-700">Feedback: {review.feedback}</p>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-gray-600">No notifications found.</p>
-            )}
-          </section>
-        );
+        itemsToDisplay = reviews;
+        break;
       default:
         return null;
     }
 
-    const filteredItems = itemsToDisplay.filter(item =>
-      item.job_data?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.internship_data?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.study_material_data?.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredItems = itemsToDisplay.filter(
+      (item) =>
+        item.job_data?.title
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        item.internship_data?.title
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.study_material_data?.title
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        item.item_name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
 
     return (
       <section>
-        {filteredItems.length > 0 ? (
+        {currentItems.length > 0 ? (
           <div className="space-y-4">
-            {filteredItems.map((item) => (
+            {currentItems.map((item) => (
               <motion.div
-                key={item._id}
+                key={item._id || item.review_id}
                 className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition duration-300 cursor-pointer border border-gray-200"
                 onClick={() => setSelectedItem(item)}
               >
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-lg">
-                    {item.job_data?.title || item.internship_data?.title || item.name || item.study_material_data?.title}
+                    {item.job_data?.title ||
+                      item.internship_data?.title ||
+                      item.name ||
+                      item.study_material_data?.title ||
+                      item.item_name ||
+                      "Notification"}
                   </span>
-                  {item.study_material_data ? null : (
+                  {item.study_material_data ||
+                activeTab === "achievements" ||
+                activeTab === "notifications"  ? null : (
                     <div className="flex space-x-2">
-                      <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">{item.status}</span>
-                      <span className={`text-xs px-2 py-1 rounded ${item.is_publish === true ? 'bg-green-200 text-green-800' : item.is_publish === false ? 'bg-red-200 text-red-800' : 'bg-yellow-200 text-yellow-800'}`}>
-                        {item.is_publish === true ? 'Approved' : item.is_publish === false ? 'Rejected' : 'Pending'}
+                      <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">
+                        {item.status}
+                      </span>
+                      <span
+                        className={`text-xs px-2 py-1 rounded ${
+                          item.is_publish === true
+                            ? "bg-green-200 text-green-800"
+                            : item.is_publish === false
+                            ? "bg-red-200 text-red-800"
+                            : "bg-yellow-200 text-yellow-800"
+                        }`}
+                      >
+                        {item.is_publish === true
+                          ? "Approved"
+                          : item.is_publish === false
+                          ? "Rejected"
+                          : "Pending"}
                       </span>
                     </div>
                   )}
                 </div>
                 <p className="text-gray-700 mt-2">
-                  {item.job_data?.company_name || item.internship_data?.company_name || item.achievement_description || item.study_material_data?.description}
+                  {item.job_data?.company_name ||
+                    item.internship_data?.company_name ||
+                    item.achievement_description ||
+                    item.study_material_data?.description ||
+                    `Type: ${item.item_type}, Feedback: ${item.feedback}`}
                 </p>
               </motion.div>
             ))}
@@ -180,6 +205,12 @@ export default function AdminMail() {
         ) : (
           <p className="text-center text-gray-600">No items found.</p>
         )}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredItems.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </section>
     );
   };
@@ -187,7 +218,15 @@ export default function AdminMail() {
   const renderPreview = () => {
     if (!selectedItem) return null;
 
-    const { job_data, internship_data, achievement_description, study_material_data, is_publish, item_type, item_id } = selectedItem;
+    const {
+      job_data,
+      internship_data,
+      achievement_description,
+      study_material_data,
+      is_publish,
+      item_type,
+      item_id,
+    } = selectedItem;
 
     return (
       <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl">
@@ -200,25 +239,50 @@ export default function AdminMail() {
         <div className="bg-white p-4 rounded-lg shadow-md">
           <div className="flex items-start gap-4">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-300 text-gray-700 text-lg">
-              {selectedItem.name ? selectedItem.name[0] : 'A'}
+              {selectedItem.name ? selectedItem.name[0] : "A"}
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-semibold">
-                {job_data?.title || internship_data?.title || selectedItem.name || study_material_data?.title || 'Notification'}
+                {job_data?.title ||
+                  internship_data?.title ||
+                  selectedItem.name ||
+                  study_material_data?.title ||
+                  selectedItem.item_name ||
+                  "Notification"}
               </h2>
               <div className="flex justify-between items-center text-sm text-gray-500">
-                <span>{job_data?.company_name || internship_data?.company_name || 'Company Name'}</span>
+                <span>
+                  {job_data?.company_name ||
+                    internship_data?.company_name ||
+                    "Company Name"}
+                </span>
                 {item_type ? (
-                  <span>{is_publish === true ? 'Approved' : is_publish === false ? 'Rejected' : 'Pending'}</span>
+                  <span>
+                    {is_publish === true
+                      ? "Approved"
+                      : is_publish === false
+                      ? "Rejected"
+                      : "Pending"}
+                  </span>
                 ) : (
-                  <span>{is_publish === true ? 'Approved' : is_publish === false ? 'Rejected' : 'Pending'}</span>
+                  <span>
+                    {is_publish === true
+                      ? "Approved"
+                      : is_publish === false
+                      ? "Rejected"
+                      : "Pending"}
+                  </span>
                 )}
               </div>
             </div>
           </div>
           <div className="border-t my-4" />
           <div className="whitespace-pre-wrap text-sm text-gray-700">
-            {job_data?.job_description || internship_data?.job_description || achievement_description || study_material_data?.description || `Feedback: ${selectedItem.feedback}`}
+            {job_data?.job_description ||
+              internship_data?.job_description ||
+              achievement_description ||
+              study_material_data?.description ||
+              `Feedback: ${selectedItem.feedback}`}
           </div>
           {job_data && (
             <div className="grid grid-cols-2 gap-4 mt-4">
@@ -275,7 +339,11 @@ export default function AdminMail() {
           {item_type && (
             <div className="mt-4 text-center">
               <Link
-                to={item_type === 'internship' ? `/internship-edit/${item_id}` : `/job-edit/${item_id}`}
+                to={
+                  item_type === "internship"
+                    ? `/internship-edit/${item_id}`
+                    : `/job-edit/${item_id}`
+                }
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md inline-block"
               >
                 Edit
@@ -285,12 +353,16 @@ export default function AdminMail() {
           {!item_type && (
             <div className="mt-4">
               <a
-                href={job_data?.job_link || internship_data?.job_link || '#'}
+                href={job_data?.job_link || internship_data?.job_link || "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-center inline-block"
               >
-                {job_data ? 'Apply Now' : internship_data ? 'Apply Now' : 'View More'}
+                {job_data
+                  ? "Apply Now"
+                  : internship_data
+                  ? "Apply Now"
+                  : "View More"}
               </a>
             </div>
           )}
@@ -312,35 +384,55 @@ export default function AdminMail() {
 
           <nav className="space-y-2">
             <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === 'jobs' ? 'bg-yellow-50 text-yellow-600' : 'hover:bg-gray-200'}`}
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
+                activeTab === "jobs"
+                  ? "bg-yellow-50 text-yellow-600"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() => setActiveTab("jobs")}
             >
               <Briefcase className="h-4 w-4" />
               Jobs
             </button>
             <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === 'internships' ? 'bg-yellow-50 text-yellow-600' : 'hover:bg-gray-200'}`}
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
+                activeTab === "internships"
+                  ? "bg-yellow-50 text-yellow-600"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() => setActiveTab("internships")}
             >
               <GraduationCap className="h-4 w-4" />
               Internships
             </button>
             <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === 'study_materials' ? 'bg-yellow-50 text-yellow-600' : 'hover:bg-gray-200'}`}
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
+                activeTab === "study_materials"
+                  ? "bg-yellow-50 text-yellow-600"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() => setActiveTab("study_materials")}
             >
               <BookOpen className="h-4 w-4" />
               Study Materials
             </button>
             <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === 'achievements' ? 'bg-yellow-50 text-yellow-600' : 'hover:bg-gray-200'}`}
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
+                activeTab === "achievements"
+                  ? "bg-yellow-50 text-yellow-600"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() => setActiveTab("achievements")}
             >
               <Trophy className="h-4 w-4" />
               Achievements
             </button>
             <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === 'notifications' ? 'bg-yellow-50 text-yellow-600' : 'hover:bg-gray-200'}`}
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
+                activeTab === "notifications"
+                  ? "bg-yellow-50 text-yellow-600"
+                  : "hover:bg-gray-200"
+              }`}
               onClick={() => setActiveTab("notifications")}
             >
               <Bell className="h-4 w-4" />

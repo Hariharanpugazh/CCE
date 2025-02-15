@@ -12,6 +12,32 @@ const JobPreview = () => {
   const { id } = useParams();
   const [job, setJob] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        console.log("JWT Payload:", payload);
+        if (payload.role) {
+          setUserRole(payload.role);
+        } else if (payload.student_user) {
+          setUserRole("student");
+        }
+
+        if (payload.role === "admin") {
+          setUserId(payload.admin_user);
+        } else if (payload.role === "superadmin") {
+          setUserId(payload.superadmin_user);
+        } else if (payload.student_user) {
+          setUserId(payload.student_user);
+        }
+      } catch (error) {
+        console.error("Invalid JWT token:", error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     fetch(`http://127.0.0.1:8000/api/job/${id}/`)
@@ -20,39 +46,24 @@ const JobPreview = () => {
       .catch(error => console.error("Error fetching job:", error));
   }, [id]);
 
-  useEffect(() => {
-    const token = Cookies.get("jwt");
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        console.log("JWT Payload:", payload); // Log the payload
-        if (payload.role) {
-          setUserRole(payload.role);
-        } else if (payload.student_user) {
-          setUserRole("student");
-        }
-      } catch (error) {
-        console.error("Invalid JWT token:", error);
-      }
-    }
-  }, []);
-  
-
   const handleApplyClick = async () => {
-    try {
-      const token = Cookies.get("jwt");
-      const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-      console.log("Applying for job with userId:", userId, "and jobId:", id);
-      await axios.post('http://localhost:8000/api/apply-job/', {
-        studentId: userId,
-        jobId: id
-      });
+    if (userRole === "student") {
+      try {
+        const token = Cookies.get("jwt");
+        const userId = JSON.parse(atob(token.split(".")[1])).student_user;
+        console.log("Applying for job with userId:", userId, "and jobId:", id);
+        await axios.post('http://localhost:8000/api/apply-job/', {
+          studentId: userId,
+          jobId: id
+        });
+        window.open(job.job_data.company_website, "_blank", "noopener noreferrer");
+      } catch (error) {
+        console.error("Error applying for job:", error);
+      }
+    } else {
       window.open(job.job_data.company_website, "_blank", "noopener noreferrer");
-    } catch (error) {
-      console.error("Error applying for job:", error);
     }
   };
-  
 
   if (!job) return <p className="text-center text-lg font-semibold">Loading...</p>;
 
