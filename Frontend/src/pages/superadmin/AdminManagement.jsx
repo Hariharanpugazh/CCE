@@ -99,7 +99,7 @@ export default function ManagementHomePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50/50">
+        <div className="min-h-screen bg-gray-50/50 ml-55">
             <SuperAdminPageNavbar />
             <main className="p-8">
                 <div className="mb-8">

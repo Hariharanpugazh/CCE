@@ -153,7 +153,7 @@ const AdminHome = () => {
   }, [deptFilter, jobs]);
 
   return (
-    <div className="flex flex-col w-full h-screen overflow-auto bg-gray-100">
+    <div className="flex flex-col w-full h-screen overflow-auto bg-gray-100 ml-26">
       <AdminPageNavbar />
       <header className="flex flex-col items-center justify-center py-6 container self-center">
         <p className="text-4xl font-bold tracking-[0.8px]">Admin Dashboard</p>

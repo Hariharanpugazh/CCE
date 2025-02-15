@@ -118,7 +118,7 @@ const SuperAdminHome = () => {
   };
 
   return (
-    <div className="flex flex-col w-full h-screen overflow-auto bg-[#FFFAFA]">
+    <div className="flex flex-col w-full h-screen overflow-auto bg-[#FFFAFA] ml-30">
       <SuperAdminPageNavbar />
 
       <header className="flex flex-col items-center justify-center py-14 container self-center">

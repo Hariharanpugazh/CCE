@@ -1,3 +1,162 @@
+// import React from "react";
+// import { IoMdCheckmark } from "react-icons/io";
+// import { FaXmark } from "react-icons/fa6";
+// import { FaEye } from "react-icons/fa";
+// import { FaTrashAlt } from "react-icons/fa";
+// import Pagination from "../../../components/Admin/pagination";
+
+// const JobTable = ({
+//   jobs,
+//   selectedJobs,
+//   setSelectedJobs,
+//   handleAction,
+//   handleDelete,
+//   handleView,
+//   currentPage,
+//   itemsPerPage,
+//   handlePageChange,
+// }) => {
+//   const getCurrentItems = (items) => {
+//     const startIndex = (currentPage - 1) * itemsPerPage;
+//     return items.slice(startIndex, startIndex + itemsPerPage);
+//   };
+
+//   const handleSelectAll = () => {
+//     if (selectedJobs.length === jobs.length) {
+//       setSelectedJobs([]);
+//     } else {
+//       setSelectedJobs(jobs.map((job) => job._id));
+//     }
+//   };
+
+//   return (
+//     <div id="jobs-section" className="mt-4">
+//       <div className="flex justify-between items-center mb-4">
+//         <h2 className="text-xl font-bold">Job Approvals</h2>
+//         <div className="flex items-center space-x-4">
+//           <button
+//             className="px-3 py-1 bg-green-500 text-white rounded"
+//             onClick={() => handleBulkApprove("job")}
+//           >
+//             Approve all
+//           </button>
+//           <button
+//             className="px-3 py-1 bg-red-500 text-white rounded"
+//             onClick={() => handleBulkDelete("job")}
+//           >
+//             Delete all
+//           </button>
+//           <input
+//             type="checkbox"
+//             checked={selectedJobs.length === jobs.length}
+//             onChange={handleSelectAll}
+//             className="form-checkbox h-5 w-5 text-blue-600"
+//           />
+//           <span className="ml-2">Select All</span>
+//         </div>
+//       </div>
+//       {jobs.length === 0 ? (
+//         <p className="text-gray-600">No jobs to review.</p>
+//       ) : (
+//         <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+//           <table className="min-w-full">
+//             <thead className="bg-gray-50">
+//               <tr>
+//                 <th className="px-4 py-2 border-b border-gray-200">Select</th>
+//                 <th className="px-4 py-2 border-b border-gray-200">Title</th>
+//                 <th className="px-4 py-2 border-b border-gray-200">Company</th>
+//                 <th className="px-4 py-2 border-b border-gray-200">Staff Name</th>
+//                 <th className="px-4 py-2 border-b border-gray-200">Deadline</th>
+//                 <th className="px-4 py-2 border-b border-gray-200">Status</th>
+//                 <th className="px-4 py-2 border-b border-gray-200">Actions</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {getCurrentItems(jobs).map((job) => (
+//                 <tr key={job._id} className="border-b border-gray-200 hover:bg-gray-100">
+//                   <td className="text-center px-4 py-2">
+//                     <input
+//                       type="checkbox"
+//                       checked={selectedJobs.includes(job._id)}
+//                       onChange={() =>
+//                         setSelectedJobs((prev) =>
+//                           prev.includes(job._id)
+//                             ? prev.filter((id) => id !== job._id)
+//                             : [...prev, job._id]
+//                         )
+//                       }
+//                       className="form-checkbox h-5 w-5 text-blue-600"
+//                     />
+//                   </td>
+//                   <td className="text-center px-4 py-2">{job.job_data.title}</td>
+//                   <td className="text-center px-4 py-2">{job.job_data.company_name}</td>
+//                   <td className="text-center px-4 py-2">{job.admin_name}</td>
+//                   <td className="text-center px-4 py-2">{job.job_data.application_deadline}</td>
+//                   <td className="text-center px-4 py-2 font-semibold">
+//                     {job.is_publish === true ? (
+//                       <span className="text-green-800 px-2 py-1 rounded-full">
+//                         Approved
+//                       </span>
+//                     ) : job.is_publish === false ? (
+//                       <span className="text-red-800 px-2 py-1 rounded-full">
+//                         Rejected
+//                       </span>
+//                     ) : (
+//                       <span className="text-yellow-800 px-2 py-1 rounded-full">
+//                         Pending
+//                       </span>
+//                     )}
+//                   </td>
+//                   <td className="text-center px-4 py-2">
+//                     <div className="flex justify-center space-x-2">
+//                       {job.is_publish === null && (
+//                         <>
+//                           <IoMdCheckmark
+//                             className="text-green-500 cursor-pointer"
+//                             size={20}
+//                             onClick={() => handleAction(job._id, "approve", "job")}
+//                           />
+//                           <FaXmark
+//                             className="text-red-500 cursor-pointer"
+//                             size={20}
+//                             onClick={() => handleAction(job._id, "reject", "job")}
+//                           />
+//                         </>
+//                       )}
+//                       <FaEye
+//                         className="text-blue-500 cursor-pointer"
+//                         size={20}
+//                         onClick={() => handleView(job._id, "job")}
+//                       />
+//                       <FaTrashAlt
+//                         className="text-red-500 cursor-pointer"
+//                         size={20}
+//                         onClick={() => handleDelete(job._id, "job")}
+//                       />
+//                     </div>
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//           <Pagination
+//             currentPage={currentPage}
+//             totalItems={jobs.length}
+//             itemsPerPage={itemsPerPage}
+//             onPageChange={handlePageChange}
+//           />
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default JobTable;
+
+
+
+
+
 import React from "react";
 import { IoMdCheckmark } from "react-icons/io";
 import { FaXmark } from "react-icons/fa6";
@@ -31,17 +190,17 @@ const JobTable = ({
 
   return (
     <div id="jobs-section" className="mt-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Job Approvals</h2>
-        <div className="flex items-center space-x-4">
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-lg font-semibold">Job Approvals</h2>
+        <div className="flex items-center space-x-2 mr-62">
           <button
-            className="px-3 py-1 bg-green-500 text-white rounded"
+            className="px-1 py-1 bg-green-500 text-white rounded text-sm "
             onClick={() => handleBulkApprove("job")}
           >
             Approve all
           </button>
           <button
-            className="px-3 py-1 bg-red-500 text-white rounded"
+            className="px-2 py-1 bg-red-500 text-white rounded text-sm"
             onClick={() => handleBulkDelete("job")}
           >
             Delete all
@@ -50,31 +209,31 @@ const JobTable = ({
             type="checkbox"
             checked={selectedJobs.length === jobs.length}
             onChange={handleSelectAll}
-            className="form-checkbox h-5 w-5 text-blue-600"
+            className="form-checkbox h-4 w-4 text-blue-600"
           />
-          <span className="ml-2">Select All</span>
+          <span className="ml-1 text-sm">Select All</span>
         </div>
       </div>
       {jobs.length === 0 ? (
-        <p className="text-gray-600">No jobs to review.</p>
+        <p className="text-gray-600 text-sm">No jobs to review.</p>
       ) : (
         <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-          <table className="min-w-full">
+          <table className="min-w-98 text-lg">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-2 border-b border-gray-200">Select</th>
-                <th className="px-4 py-2 border-b border-gray-200">Title</th>
-                <th className="px-4 py-2 border-b border-gray-200">Company</th>
-                <th className="px-4 py-2 border-b border-gray-200">Staff Name</th>
-                <th className="px-4 py-2 border-b border-gray-200">Deadline</th>
-                <th className="px-4 py-2 border-b border-gray-200">Status</th>
-                <th className="px-4 py-2 border-b border-gray-200">Actions</th>
+                <th className="px-2 py-1 border-b border-gray-200">Select</th>
+                <th className="px-2 py-1 border-b border-gray-200">Title</th>
+                <th className="px-2 py-1 border-b border-gray-200">Company</th>
+                <th className="px-2 py-1 border-b border-gray-200">Staff Name</th>
+                <th className="px-2 py-1 border-b border-gray-200">Deadline</th>
+                <th className="px-2 py-1 border-b border-gray-200">Status</th>
+                <th className="px-2 py-1 border-b border-gray-200">Actions</th>
               </tr>
             </thead>
             <tbody>
               {getCurrentItems(jobs).map((job) => (
-                <tr key={job._id} className="border-b border-gray-200 hover:bg-gray-100">
-                  <td className="text-center px-4 py-2">
+                <tr key={job._id} className="border-b border-gray-200 hover:bg-gray-50">
+                  <td className="text-center px-2 py-1">
                     <input
                       type="checkbox"
                       checked={selectedJobs.includes(job._id)}
@@ -85,52 +244,52 @@ const JobTable = ({
                             : [...prev, job._id]
                         )
                       }
-                      className="form-checkbox h-5 w-5 text-blue-600"
+                      className="form-checkbox h-4 w-4 text-blue-600"
                     />
                   </td>
-                  <td className="text-center px-4 py-2">{job.job_data.title}</td>
-                  <td className="text-center px-4 py-2">{job.job_data.company_name}</td>
-                  <td className="text-center px-4 py-2">{job.admin_name}</td>
-                  <td className="text-center px-4 py-2">{job.job_data.application_deadline}</td>
-                  <td className="text-center px-4 py-2 font-semibold">
+                  <td className="text-center px-2 py-1">{job.job_data.title}</td>
+                  <td className="text-center px-2 py-1">{job.job_data.company_name}</td>
+                  <td className="text-center px-2 py-1">{job.admin_name}</td>
+                  <td className="text-center px-2 py-1">{job.job_data.application_deadline}</td>
+                  <td className="text-center px-2 py-1 font-semibold">
                     {job.is_publish === true ? (
-                      <span className="text-green-800 px-2 py-1 rounded-full">
+                      <span className="text-green-800 px-1 py-0.5 rounded-full text-xs">
                         Approved
                       </span>
                     ) : job.is_publish === false ? (
-                      <span className="text-red-800 px-2 py-1 rounded-full">
+                      <span className="text-red-800 px-1 py-0.5 rounded-full text-xs">
                         Rejected
                       </span>
                     ) : (
-                      <span className="text-yellow-800 px-2 py-1 rounded-full">
+                      <span className="text-yellow-800 px-1 py-0.5 rounded-full text-xs">
                         Pending
                       </span>
                     )}
                   </td>
-                  <td className="text-center px-4 py-2">
-                    <div className="flex justify-center space-x-2">
+                  <td className="text-center px-2 py-1">
+                    <div className="flex justify-center space-x-1">
                       {job.is_publish === null && (
                         <>
                           <IoMdCheckmark
                             className="text-green-500 cursor-pointer"
-                            size={20}
+                            size={16}
                             onClick={() => handleAction(job._id, "approve", "job")}
                           />
                           <FaXmark
                             className="text-red-500 cursor-pointer"
-                            size={20}
+                            size={16}
                             onClick={() => handleAction(job._id, "reject", "job")}
                           />
                         </>
                       )}
                       <FaEye
                         className="text-blue-500 cursor-pointer"
-                        size={20}
+                        size={16}
                         onClick={() => handleView(job._id, "job")}
                       />
                       <FaTrashAlt
                         className="text-red-500 cursor-pointer"
-                        size={20}
+                        size={16}
                         onClick={() => handleDelete(job._id, "job")}
                       />
                     </div>
