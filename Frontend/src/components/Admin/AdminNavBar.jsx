@@ -34,7 +34,16 @@ export default function AdminPageNavbar() {
 
   return (
     <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg mx-0">
-      <nav className="flex justify-between p-4 items-stretch pt-8 relative">
+      <nav className="flex justify-between p-2 items-stretch pt-6 relative">
+        {/* Logo */}
+        <div className="flex items-center">
+          <img
+            src="/sns (1).ico"
+            alt="Logo"
+            className="ml-1 h-14 w-14"
+          />
+        </div>
+        
         <span className="flex-1 max-w-[25%]"></span>
 
         <div className="flex flex-1 justify-evenly space-x-5 items-center text-lg">
