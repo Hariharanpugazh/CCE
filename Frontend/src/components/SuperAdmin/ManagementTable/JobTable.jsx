@@ -29,11 +29,31 @@ const JobTable = ({
     }
   };
 
+  const handleBulkDelete = async (type) => {
+    const ids =
+      type === "job"
+        ? selectedJobs
+        : type === "achievement"
+        ? selectedAchievements
+        : selectedInternships;
+
+    if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
+      try {
+        const promises = ids.map((id) => handleDelete(id, type));
+        await Promise.all(promises);
+        setMessage(`All selected ${type}s have been deleted.`);
+      } catch (err) {
+        console.error(`Error bulk deleting ${type}s:`, err);
+        setError(`Failed to bulk delete ${type}s.`);
+      }
+    }
+  };
+
   return (
     <div id="jobs-section" className="mt-4">
       <div className="flex justify-between items-center mb-2 w-[113.5%]">
         <h2 className="text-lg font-semibold">Job Approvals</h2>
-        <div className="flex items-center space-x-2 mr-62">
+        <div className="flex items-center pt-5 space-x-2 mr-62">
           <button
             className="px-2 py-1 bg-green-500 text-white rounded text-sm"
             onClick={() => handleBulkApprove("job")}

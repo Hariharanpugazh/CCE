@@ -327,7 +327,7 @@ export default function MailPage() {
   return (
     <div className="container mx-auto p-2 ml-60">
       <SuperAdminPageNavbar />
-      <h1 className="text-1xl font-semibold text-gray-800 mb-4">Manage Jobs</h1>
+      <h1 className="text-1xl font-semibold pt-4 text-gray-800 mb-4">Manage Jobs</h1>
 
       <div className="mb-4 flex items-center space-x-1">
         {/* Navigation Buttons */}
