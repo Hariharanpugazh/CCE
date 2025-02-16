@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
-import PageHeader from "../../components/Common/StudentPageHeader";
-import ApplicationCard from "../../components/Students/ApplicationCard";
-import Cookies from "js-cookie";
-import { FaCaretDown, FaCaretUp, FaCircle, FaWindowClose } from "react-icons/fa";
-import { FiBookmark, FiCircle, FiSearch, FiX } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
 import Filters from "../../components/Common/Filters";
 import SidePreview from "../../components/Common/SidePreview";
 import Pagination from "../../components/Admin/pagination";
+import ApplicationCard from "../../components/Students/ApplicationCard";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 export default function StudentJobDashboard() {
   const [jobs, setJobs] = useState([]);
@@ -210,9 +207,9 @@ export default function StudentJobDashboard() {
   };
 
   return (
-    <div className="flex flex-col ml-50">
+    <div className="flex flex-col items-center w-full">
       <StudentPageNavbar />
-      <header className="flex flex-col items-center justify-center py-14 container self-center">
+      <header className="flex flex-col items-center justify-center py-14 container self-center w-full">
         <p className="text-6xl tracking-[0.8px]">
           Jobs
         </p>
@@ -222,7 +219,7 @@ export default function StudentJobDashboard() {
         </p>
       </header>
 
-      <div className="flex px-10 space-x-5 items-start">
+      <div className="flex px-10 space-x-5 items-start w-full justify-center">
         <Filters args={filterArgs} />
         <div className="flex-1 max-w-[80%] flex flex-col space-y-3">
           <div className="flex items-stretch">
