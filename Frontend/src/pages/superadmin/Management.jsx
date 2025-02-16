@@ -351,7 +351,7 @@ export default function MailPage() {
         </button>
 
         {/* Auto-Approval Toggle */}
-        <div className="flex items-center space-x-1 ml-222">
+        <div className="flex items-center space-x-1 ml-185">
           <span className="text-gray-700">Auto-Approval</span>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
