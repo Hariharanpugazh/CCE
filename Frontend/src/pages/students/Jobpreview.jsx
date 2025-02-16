@@ -64,9 +64,9 @@ const JobPreview = () => {
       {userRole === "student" && <StudentPageNavbar />}
 
       <div className="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="flex flex-col lg:flex-row w-full max-w-7xl bg-transparent rounded-lg overflow-hidden">
+        <div className="flex flex-col lg:flex-row w-[70%] max-w-7xl bg-transparent rounded-lg overflow-hidden">
           {/* Job Overview */}
-          <div className="lg:w-1/3 p-4 border border-gray-300 lg:mr-8 rounded-lg">
+          <div className="lg:w-1/3 p-4 bg-white border border-gray-300 lg:mr-8 rounded-lg">
             <div className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">{job.job_data.title}</h2>
               <p className="text-gray-700 mb-2 flex items-center">

@@ -17,17 +17,27 @@ export default function ResetPasswordCard({ formDataSetter, formData, onSubmit }
   const [passwordMatchError, setPasswordMatchError] = useState(false);
   const navigate = useNavigate();
   const [index, setIndex] = useState(0);
-
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   // Image Slider Logic
   const images = [login1, login2, login3];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 3000); // Change image every 3 seconds
+    const slideInterval = setInterval(() => {
+      if (!isTransitioning) {
+        setIsTransitioning(true);
+        setCurrentImageIndex((prevIndex) => 
+          prevIndex === images.length - 1 ? 0 : prevIndex + 1
+        );
+        setTimeout(() => {
+          setIsTransitioning(false);
+        }, 1000);
+      }
+    }, 4000);
 
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(slideInterval);
+  }, [isTransitioning, images.length]);
+
 
   const evaluatePasswordStrength = (password) => {
     if (!password) return "Weak";
@@ -88,19 +98,20 @@ export default function ResetPasswordCard({ formDataSetter, formData, onSubmit }
       <div className="w-3/4 min-h-3/4 max-h-[85%] bg-white shadow-lg rounded-lg flex items-stretch p-2 relative">
         {/* Image Slider Section */}
         <div className="flex-1 flex justify-center items-center p-2">
-          <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[550px] overflow-hidden">
-            <AnimatePresence>
-              <motion.img
+        <div className="relative w-full rounded-lg h-full">
+            {images.map((img, index) => (
+              <img
                 key={index}
-                src={images[index]}
+                src={img}
                 alt={`Slide ${index + 1}`}
-                className="absolute w-full h-full object-cover rounded-lg shadow-md"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.1 }}
-                transition={{ duration: 0.8 }}
+                className="absolute w-full h-full rounded-lg object-cover transition-all duration-1000 ease-in-out"
+                style={{
+                  opacity: currentImageIndex === index ? 1 : 0,
+                  transform: `scale(${currentImageIndex === index ? 1 : 0.95})`,
+                  zIndex: currentImageIndex === index ? 1 : 0
+                }}
               />
-            </AnimatePresence>
+            ))}
           </div>
         </div>
 

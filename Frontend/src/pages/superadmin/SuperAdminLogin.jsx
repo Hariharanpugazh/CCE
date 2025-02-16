@@ -37,9 +37,10 @@ export default function SuperAdminLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
         if (isLocked) return;
-
+    
+        setIsLoading(true);
+    
         try {
             const response = await fetch("http://localhost:8000/api/superadmin_login/", {
                 method: "POST",
@@ -48,9 +49,9 @@ export default function SuperAdminLogin() {
                 },
                 body: JSON.stringify(formData),
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
                 Cookies.set("jwt", data.tokens.jwt, { expires: 1, path: "/" });
                 Cookies.set("username", data.username, { expires: 1, path: "/" });
@@ -59,16 +60,17 @@ export default function SuperAdminLogin() {
             } else {
                 if (data.error.includes("Too many failed attempts")) {
                     setIsLocked(true);
-                    setLockoutTime(120); // 5-minute lockout
+                    setLockoutTime(120);
                 }
                 toast.error(data.error || "Login failed");
+                setIsLoading(false); // Ensure loading state is stopped
             }
         } catch (error) {
             console.error("Error during login:", error);
             toast.error("Something went wrong. Please try again.");
-            setIsLoading(false);
+            setIsLoading(false); // Ensure loading state is stopped
         }
-    };
+    };    
 
     return (
         <>

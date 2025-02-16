@@ -176,7 +176,7 @@ const InternPostForm = () => {
 
   return (
     <motion.div
-      className="max-w mx-auto p-8 bg-white shadow-xl rounded-2xl relative"
+      className="max-w mx-auto p-8 bg-white shadow-xl rounded-2xl relative ml-50"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}

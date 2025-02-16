@@ -650,7 +650,7 @@ def unsave_job(request, pk):
 @csrf_exempt
 def get_saved_jobs(request, user_id):
     try:
-
+        
         if not user_id or not ObjectId.is_valid(user_id):
             return JsonResponse(
                 {"error": "Invalid or missing user_id"}, status=status.HTTP_400_BAD_REQUEST
