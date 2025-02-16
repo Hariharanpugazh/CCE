@@ -36,7 +36,6 @@ const JobTable = ({
         : type === "achievement"
         ? selectedAchievements
         : selectedInternships;
-
     if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
       try {
         const promises = ids.map((id) => handleDelete(id, type));
@@ -48,10 +47,9 @@ const JobTable = ({
       }
     }
   };
-
   return (
     <div id="jobs-section" className="mt-4">
-      <div className="flex justify-between items-center mb-2 w-[113.5%]">
+      <div className="flex justify-between items-center mb-2 w-[95%]">
         <h2 className="text-lg font-semibold">Job Approvals</h2>
         <div className="flex items-center pt-5 space-x-2 mr-62">
           <button
@@ -78,7 +76,7 @@ const JobTable = ({
       {jobs.length === 0 ? (
         <p className="text-gray-600 text-sm">No jobs to review.</p>
       ) : (
-        <div className="overflow-x-auto bg-white shadow-md rounded-lg w-[95%]">
+        <div className="overflow-x-auto bg-white shadow-md rounded-lg w-[80%]">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50">
               <tr>

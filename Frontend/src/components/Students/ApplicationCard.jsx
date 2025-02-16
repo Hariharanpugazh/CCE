@@ -95,6 +95,7 @@
 // }
 
 
+// New Card Design by @ajay_chaki
 import { FiBookmark, FiMapPin, FiEye, FiClock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
