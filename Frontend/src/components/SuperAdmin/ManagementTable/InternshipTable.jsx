@@ -36,7 +36,6 @@ const InternshipTable = ({
         : type === "achievement"
         ? selectedAchievements
         : selectedInternships;
-
     if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
       try {
         const promises = ids.map((id) => handleDelete(id, type));

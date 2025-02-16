@@ -50,7 +50,6 @@ import InboxPagey from "./pages/contact/InboxPagey";
 import StudentMaily from "./pages/contact/StudentMaily";
 
 
-
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const token = Cookies.get("jwt"); // Get JWT token from cookies

@@ -178,7 +178,7 @@ export default function InternshipDashboard() {
 
       <div className="flex px-10 space-x-5 items-start">
         {/* filters */}
-        <Filters args={filterArgs} />
+        {/* <Filters args={filterArgs} /> */}
 
         {/* Job cards */}
         <div className="flex-1 max-w-[80%] flex flex-col space-y-3">

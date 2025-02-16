@@ -43,8 +43,9 @@ export default function AdminLogin() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
         if (isLocked) return;
+    
+        setIsLoading(true);
     
         try {
             const response = await fetch("http://localhost:8000/api/login/", {
@@ -72,13 +73,14 @@ export default function AdminLogin() {
                     setLockoutTime(120); // ⏳ 5-minute lockout
                 }
                 toast.error(data.error || "Login failed");
+                setIsLoading(false); // Ensure loading state is stopped
             }
         } catch (error) {
             console.error("Error during login:", error);
             toast.error("Something went wrong. Please try again.");
-            setIsLoading(false);
+            setIsLoading(false); // Ensure loading state is stopped
         }
-    };
+    };    
     
 
     const handleForgotPassword = () => {

@@ -77,7 +77,7 @@ export default function LoginCard({
       <div className="w-3/4 min-h-3/4 max-h-[85%] bg-white shadow-lg rounded-lg flex items-stretch p-2 relative">
         {/* Image Slider Section */}
         <div className="flex-1 flex justify-center rounded items-center p-2">
-        <div className="relative w-full rounded-lg h-full">
+        <div className="relative w-full rounded h-full">
             {images.map((img, index) => (
               <img
                 key={index}
