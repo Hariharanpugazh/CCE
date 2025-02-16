@@ -148,9 +148,9 @@ export default function StudentInternshipDashboard() {
   };
 
   return (
-    <div className="flex flex-col ml-50">
-      <StudentPageNavbar />
-      <header className="flex flex-col items-center justify-center py-14 container self-center">
+    <div className="flex flex-col items-center w-full">
+      <StudentPageNavbar currentPage="jobs" />
+      <header className="flex flex-col items-center justify-center py-14 container self-center w-full">
         <p className="text-6xl tracking-[0.8px]">
           Internships
         </p>
@@ -160,8 +160,8 @@ export default function StudentInternshipDashboard() {
         </p>
       </header>
 
-      <div className="flex px-10 space-x-5 items-start">
-        <Filters args={filterArgs} />
+      <div className="flex px-10 space-x-5 items-start w-full justify-center">
+        {/* <Filters args={filterArgs} /> */}
         <div className="flex-1 max-w-[80%] flex flex-col space-y-3">
           <div className="flex items-stretch">
             <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())} placeholder={`Search Internships`} className={`w-full text-lg p-2 px-4 rounded-tl rounded-bl bg-white border border-r-[0px] hover:border-gray-400 outline-none ${borderColor}`} />

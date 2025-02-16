@@ -23,3 +23,58 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.custom-navbar-class {
+  width: 100%; /* Ensure the navbar takes full width */
+  padding: 0;
+  background-color: #ffffff; /* Light background color */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.custom-navbar-class nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%; /* Ensure the nav takes full width */
+  padding: 1rem 1rem; /* Adjust padding as needed */
+}
+
+.custom-navbar-class .nav-links {
+  display: flex;
+  flex: 1;
+  justify-content: space-evenly;
+}
+
+.custom-navbar-class .nav-links p {
+  margin: 0;
+  font-size: 1rem;
+  color: #333; /* Text color */
+  transition: color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.custom-navbar-class .nav-links p:hover {
+  color: #007bff; /* Hover color */
+  text-decoration: underline;
+}
+
+.custom-navbar-class .nav-icons {
+  display: flex;
+  align-items: center;
+}
+
+.custom-navbar-class .nav-icons div {
+  margin-left: 1rem;
+  cursor: pointer;
+}
+
+.custom-navbar-class .nav-icons svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #666; /* Icon color */
+  transition: color 0.1s ease; /* Smooth transition for hover effect */
+}
+
+.custom-navbar-class .nav-icons svg:hover {
+  color: #007bff; /* Hover color for icons */
+}
+
