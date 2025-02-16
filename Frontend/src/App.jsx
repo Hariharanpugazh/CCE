@@ -43,6 +43,8 @@ import StudentMail from "./pages/students/StudentMail";
 import AchievementPreview from "./pages/students/AchievementPreview";
 import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
+import StudentJobDashboard from "./pages/students/StudentJobDashboard";
+import StudentInternshipDashboard from "./pages/students/StudentinternshipDashboard";
 import Contacty from "./pages/contact/Contacty";
 import InboxPagey from "./pages/contact/InboxPagey";
 import StudentMaily from "./pages/contact/StudentMaily";
@@ -92,8 +94,8 @@ function App() {
         {/* Protected Student Routes */}
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
-        <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
-        <Route path="/jobs" element={ <ProtectedRoute> <JobDashboard /> </ProtectedRoute>} />
+        <Route path="/student/internships" element={<ProtectedRoute> <StudentInternshipDashboard /></ProtectedRoute>} />
+        <Route path="/student/jobs" element={ <ProtectedRoute> <StudentJobDashboard /> </ProtectedRoute>} />
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
         <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
         <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />
@@ -111,6 +113,8 @@ function App() {
           <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
           <Route path="/admin/mail" element={<ProtectedRoute> <AdminMail /> </ProtectedRoute>} />
           <Route path="/admin/achievements" element={<ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
+          <Route path="/jobs" element={ <ProtectedRoute> <JobDashboard /> </ProtectedRoute>} />
+          <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
           <Route path="/jobpost" element={<ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
           <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
           <Route path="/internpost" element={<ProtectedRoute> <InternshipForm /> </ProtectedRoute>} />

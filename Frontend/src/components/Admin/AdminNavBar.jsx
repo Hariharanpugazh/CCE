@@ -286,7 +286,7 @@ export default function AdminSidebar() {
           </li>
           <li className="mb-2">
             <a
-              href={AppPages.jobDashboard.route}
+              href={AppPages.adminJobDashboard.route}
               className="flex items-center p-2 hover:bg-gray-100 rounded"
             >
               <FiBriefcase className="mr-3" /> Jobs
@@ -294,7 +294,7 @@ export default function AdminSidebar() {
           </li>
           <li className="mb-2">
             <a
-              href={AppPages.internShipDashboard.route}
+              href={AppPages.adminInternShipDashboard.route}
               className="flex items-center p-2 hover:bg-gray-100 rounded"
             >
               <FiBriefcase className="mr-3" /> Internships

@@ -51,7 +51,7 @@ const JobTable = ({
 
   return (
     <div id="jobs-section" className="mt-4">
-      <div className="flex justify-between items-center mb-2 w-[95%]">
+      <div className="flex justify-between items-center mb-2 w-[113.5%]">
         <h2 className="text-lg font-semibold">Job Approvals</h2>
         <div className="flex items-center pt-5 space-x-2 mr-62">
           <button
@@ -78,7 +78,7 @@ const JobTable = ({
       {jobs.length === 0 ? (
         <p className="text-gray-600 text-sm">No jobs to review.</p>
       ) : (
-        <div className="overflow-x-auto bg-white shadow-md rounded-lg w-[80%]">
+        <div className="overflow-x-auto bg-white shadow-md rounded-lg w-[95%]">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
