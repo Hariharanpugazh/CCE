@@ -29,11 +29,31 @@ const AchievementTable = ({
     }
   };
 
+  const handleBulkDelete = async (type) => {
+    const ids =
+      type === "job"
+        ? selectedJobs
+        : type === "achievement"
+        ? selectedAchievements
+        : selectedInternships;
+
+    if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
+      try {
+        const promises = ids.map((id) => handleDelete(id, type));
+        await Promise.all(promises);
+        setMessage(`All selected ${type}s have been deleted.`);
+      } catch (err) {
+        console.error(`Error bulk deleting ${type}s:`, err);
+        setError(`Failed to bulk delete ${type}s.`);
+      }
+    }
+  };
+  
   return (
     <div id="achievements-section" className="mt-4">
-      <div className="flex justify-between items-center mb-2 w-[88%]">
+      <div className="flex justify-between items-center mb-2 w-[79%]">
         <h2 className="text-lg font-semibold">Achievement Approvals</h2>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center pt-4 space-x-2">
           <button
             className="px-2 py-1 bg-green-500 text-white rounded text-sm"
             onClick={() => handleBulkApprove("achievement")}
@@ -58,7 +78,7 @@ const AchievementTable = ({
       {achievements.length === 0 ? (
         <p className="text-gray-600 text-sm">No achievements to review.</p>
       ) : (
-        <div className="overflow-x-auto bg-white shadow-md rounded-lg w-[88%]">
+        <div className="overflow-x-auto bg-white shadow-md rounded-lg w-[80%]">
           <table className="min-w-full text-sm">
             <thead className="bg-gray-50">
               <tr>

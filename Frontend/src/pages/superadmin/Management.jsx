@@ -327,7 +327,7 @@ export default function MailPage() {
   return (
     <div className="container mx-auto p-2 ml-60">
       <SuperAdminPageNavbar />
-      <h1 className="text-1xl font-semibold text-gray-800 mb-4">Manage Jobs</h1>
+      <h1 className="text-1xl font-semibold pt-4 text-gray-800 mb-4">Manage Jobs</h1>
 
       <div className="mb-4 flex items-center space-x-1">
         {/* Navigation Buttons */}
@@ -351,7 +351,7 @@ export default function MailPage() {
         </button>
 
         {/* Auto-Approval Toggle */}
-        <div className="flex items-center space-x-1 ml-222">
+        <div className="flex items-center space-x-1 ml-185">
           <span className="text-gray-700">Auto-Approval</span>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
