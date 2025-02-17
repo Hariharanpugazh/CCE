@@ -249,38 +249,38 @@ export default function SuperAdminSidebar() {
   return (
     <div className="bg-white shadow-lg h-screen w-57 fixed left-0 top-0 flex flex-col">
       <div className="p-4 border-b">
-        <img src="/sns (1).ico" alt="Logo" className="h-14 w-17 mx-auto" />
+        <img src="src/assets/images/snslogo.png" alt="Logo" className="h-14 w-35 mx-auto" />
       </div>
 
-      <div className="flex items-center p-4 border-b">
-        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-700 text-lg font-semibold mr-3">
+      <div className="flex items-center bg-[#111933] p-4 border-b">
+        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-white-900 text-lg font-semibold mr-3">
           {userInitials}
         </div>
         <div>
-          <p className="font-semibold">{username || "SuperAdmin"}</p>
-          <p className="text-sm text-gray-500">Super Administrator</p>
+          <p className="font-semibold text-gray-200">{username || "SuperAdmin"}</p>
+          <p className="text-sm text-gray-200">Super Administrator</p>
         </div>
       </div>
 
       <nav className="flex-1 overflow-y-auto">
         <ul className="p-2">
           <li className="mb-2">
-            <a href="/superadmin-dashboard" className="flex items-center p-2 hover:bg-gray-100 rounded">
+            <a href="/superadmin-dashboard" className="flex items-center p-2 hover:bg-yellow-200 rounded">
               <FiHome className="mr-3" /> Home
             </a>
           </li>
           <li className="mb-2">
-            <a href="/jobs" className="flex items-center p-2 hover:bg-gray-100 rounded">
+            <a href="/jobs" className="flex items-center p-2 hover:bg-yellow-200 rounded">
               <FiBriefcase className="mr-3" /> Jobs
             </a>
           </li>
           <li className="mb-2">
-            <a href="/internships" className="flex items-center p-2 hover:bg-gray-100 rounded">
+            <a href="/internships" className="flex items-center p-2 hover:bg-yellow-200 rounded">
               <FiBriefcase className="mr-3" /> Internships
             </a>
           </li>
           <li className="mb-2">
-            <a href="/superadmin/achievements" className="flex items-center p-2 hover:bg-gray-100 rounded">
+            <a href="/superadmin/achievements" className="flex items-center p-2 hover:bg-yellow-200 rounded">
               <FiAward className="mr-3" /> Achievements
             </a>
           </li>
@@ -291,39 +291,39 @@ export default function SuperAdminSidebar() {
                 setProfileMenuOpen(false)
                 setMailPopupOpen(false)
               }}
-              className="flex items-center p-2 hover:bg-gray-100 rounded w-full text-left"
+              className="flex items-center p-2 hover:bg-yellow-200 rounded w-full text-left"
             >
               <FiPlus className="mr-3" /> Create New
             </button>
             {isCreateMenuOpen && (
               <ul className="ml-6 mt-2">
                 <li>
-                  <a href="/internpost" className="block p-2 hover:bg-gray-100 rounded">
+                  <a href="/internpost" className="block p-2 hover:bg-yellow-200 rounded">
                     Internship
                   </a>
                 </li>
                 <li>
-                  <a href="/jobpost" className="block p-2 hover:bg-gray-100 rounded">
+                  <a href="/jobpost" className="block p-2 hover:bg-yellow-200 rounded">
                     Job Post
                   </a>
                 </li>
                 <li>
-                  <a href="/studymaterial-post" className="block p-2 hover:bg-gray-100 rounded">
+                  <a href="/studymaterial-post" className="block p-2 hover:bg-yellow-200 rounded">
                     Study Material Post
                   </a>
                 </li>
                 <li>
-                  <a href="/achievementpost" className="block p-2 hover:bg-gray-100 rounded">
+                  <a href="/achievementpost" className="block p-2 hover:bg-yellow-200 rounded">
                     Achievement Post
                   </a>
                 </li>
                 <li>
-                  <a href="/Admin-Management" className="block p-2 hover:bg-gray-100 rounded">
+                  <a href="/Admin-Management" className="block p-2 hover:bg-yellow-200 rounded">
                     Admin Management
                   </a>
                 </li>
                 <li>
-                  <a href="/manage-student" className="block p-2 hover:bg-gray-100 rounded">
+                  <a href="/manage-student" className="block p-2 hover:bg-yellow-200 rounded">
                     Student Management
                   </a>
                 </li>
@@ -337,19 +337,19 @@ export default function SuperAdminSidebar() {
                 setProfileMenuOpen(false)
                 setCreateMenuOpen(false)
               }}
-              className="flex items-center p-2 hover:bg-gray-100 rounded w-full text-left"
+              className="flex items-center p-2 hover:bg-yellow-200 rounded w-full text-left"
             >
               <IoMdNotifications className="mr-3" /> Notifications
             </button>
             {isMailPopupOpen && (
               <ul className="ml-6 mt-2">
                 <li>
-                  <a href="/contact-inbox" className="flex items-center p-2 hover:bg-gray-100 rounded">
+                  <a href="/contact-inbox" className="flex items-center p-2 hover:bg-yellow-200 rounded">
                     <FiMail className="mr-2" /> Inbox
                   </a>
                 </li>
                 <li>
-                  <a href="/superadmin-manage-jobs" className="flex items-center p-2 hover:bg-gray-100 rounded">
+                  <a href="/superadmin-manage-jobs" className="flex items-center p-2 hover:bg-yellow-200 rounded">
                     <MdWork className="mr-2" /> Manage Jobs
                   </a>
                 </li>
@@ -363,19 +363,19 @@ export default function SuperAdminSidebar() {
         <div className="relative">
           <button
             onClick={() => setProfileMenuOpen(!isProfileMenuOpen)}
-            className="flex items-center p-2 hover:bg-gray-100 rounded w-full"
+            className="flex items-center p-2 hover:bg-yellow-200 rounded w-full"
           >
             <FiUser className="mr-3" /> Profile
           </button>
           {isProfileMenuOpen && (
             <ul className="absolute bottom-full left-0 mb-2 bg-white shadow-lg rounded-lg w-full">
               <li>
-                <a href="/profile" className="block px-4 py-2 hover:bg-gray-100">
+                <a href="/profile" className="block px-4 py-2 hover:bg-yellow-200">
                   View Profile
                 </a>
               </li>
               <li>
-                <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-gray-100">
+                <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-yellow-200">
                   Logout
                 </button>
               </li>
