@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { Mail, Bell, Briefcase, GraduationCap, BookOpen, Trophy, Search, X } from "lucide-react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { FaCheckDouble } from "react-icons/fa";
+import { FaCheckDouble, FaCheck } from "react-icons/fa";
 
 const InboxPage = () => {
   const [students, setStudents] = useState([]);
@@ -107,6 +107,28 @@ const InboxPage = () => {
       setMessages(data.messages || []);
     } catch (error) {
       console.error("Error fetching messages:", error);
+    }
+  };
+
+  const markMessagesAsSeen = async (student_id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/mark_messages_as_seen/${student_id}/`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${Cookies.get("jwt")}`, // Pass JWT token
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        console.log("Messages marked as seen.");
+        fetchMessages(student_id); // Refresh messages to reflect the status change
+      } else {
+        console.error("Failed to mark messages as seen.");
+      }
+    } catch (error) {
+      console.error("Error marking messages as seen:", error);
     }
   };
 
@@ -242,6 +264,7 @@ const InboxPage = () => {
                 onClick={async () => {
                   if (selectedCategory === "contactMessages") {
                     setSelectedStudent(item.student_id);
+                    await markMessagesAsSeen(item.student_id); // Mark messages as seen
                     await fetchMessages(item.student_id);
                     const response = await fetch(`http://localhost:8000/api/profile/${item.student_id}/`);
                     const data = await response.json();
@@ -267,8 +290,9 @@ const InboxPage = () => {
               <button
                 key={number + 1}
                 onClick={() => paginate(number + 1)}
-                className={`px-3 py-1 mx-1 border rounded ${currentPage === number + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
-                  }`}
+                className={`px-3 py-1 mx-1 border rounded ${
+                  currentPage === number + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
+                }`}
               >
                 {number + 1}
               </button>
@@ -307,40 +331,46 @@ const InboxPage = () => {
                   )}
                   <div className="flex items-start mb-4">
                     <div
-                      className={`flex flex-col ${message.sender === "student" ? "items-end ml-auto" : "items-start mr-auto"
-                        }`}
+                      className={`flex flex-col ${
+                        message.sender === "admin" ? "items-end ml-auto" : "items-start mr-auto"
+                      }`}
                     >
                       <div
-                        className={`flex items-start ${message.sender === "student" ? "justify-end" : "justify-start"
-                          }`}
+                        className={`flex items-start ${
+                          message.sender === "admin" ? "justify-end" : "justify-start"
+                        }`}
                       >
-                        {message.sender !== "student" && <div
-                          className={`w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg text-gray-700 mr-2`}
-                        >
-                          A
-                        </div>}
+                        
+                        {message.sender !== "admin" && (
+                          <div
+                            className={`w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg mr-2`}
+                          >
+                            S
+                          </div>
+                        )}
                         <motion.div
                           initial={{ y: 20, opacity: 0 }}
                           animate={{ y: 0, opacity: 1 }}
                           transition={{ delay: index * 0.1 }}
-                          className={`p-3 rounded-lg w-xs ${message.sender === "student" ? "bg-blue-500 text-white" : "bg-gray-200"
-                            }`}
+                          className={`p-3 rounded-lg w-xs ${
+                            message.sender === "admin" ? "bg-gray-200" : "bg-blue-500 text-white"
+                          }`}
                         >
                           <p className="text-sm">{message.content}</p>
                           <div className="flex justify-end items-center mt-1 text-xs">
-                            {message.sender === "student" && (
+                            {message.sender === "admin" && (
                               <>
-                                <span className="mr-1 text-white">
+                                <span className="mr-1 text-gray-500">
                                   {new Date(message.timestamp).toLocaleTimeString([], {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                   })}
                                 </span>
-                                <FaCheckDouble />
+                                {message.status === "seen" ? <FaCheckDouble /> : <FaCheck />}
                               </>
                             )}
-                            {message.sender !== "student" && (
-                              <span className="text-gray-500">
+                            {message.sender !== "admin" && (
+                              <span className="text-white">
                                 {new Date(message.timestamp).toLocaleTimeString([], {
                                   hour: "2-digit",
                                   minute: "2-digit",
@@ -349,11 +379,14 @@ const InboxPage = () => {
                             )}
                           </div>
                         </motion.div>
-                        {message.sender === "student" && <div
-                          className={`w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg ml-2`}
-                        >
-                          S
-                        </div>}
+                        {message.sender === "admin" && (
+                          <div
+                            className={`w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg text-gray-700 ml-2`}
+                          >
+                            A
+                          </div>
+                        )}
+                        
                       </div>
                     </div>
                   </div>

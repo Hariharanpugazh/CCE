@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { motion } from "framer-motion";
-import { FaCheckDouble } from "react-icons/fa";
+import { FaCheckDouble, FaCheck } from "react-icons/fa";
 import { Inbox } from "lucide-react";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 
@@ -25,6 +25,7 @@ const StudentMail = () => {
       const extractedStudentId = decodedToken.student_user;
       setStudentId(extractedStudentId); // Extract and set student ID
       fetchMessages(extractedStudentId); // Fetch messages using student ID
+      markMessagesAsSeenByStudent(extractedStudentId); // Mark messages as seen
     } catch (error) {
       setError("Invalid token format.");
     }
@@ -46,6 +47,28 @@ const StudentMail = () => {
     } catch (error) {
       console.error("Error fetching messages:", error);
       setError("Failed to load messages.");
+    }
+  };
+
+  const markMessagesAsSeenByStudent = async (student_id) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/mark_messages_as_seen_by_student/${student_id}/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${Cookies.get("jwt")}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        console.log("Messages marked as seen by student.");
+        fetchMessages(student_id); // Refresh messages to reflect the status change
+      } else {
+        console.error("Failed to mark messages as seen by student.");
+      }
+    } catch (error) {
+      console.error("Error marking messages as seen by student:", error);
     }
   };
 
@@ -149,11 +172,13 @@ const StudentMail = () => {
                           message.sender === "student" ? "justify-end" : "justify-start"
                         }`}
                       >
-                        { message.sender !== "student" && <div
-                          className={`w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg text-gray-700 mr-2`}
-                        >
-                          A
-                        </div>}
+                        {message.sender !== "student" && (
+                          <div
+                            className={`w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg text-gray-700 mr-2`}
+                          >
+                            A
+                          </div>
+                        )}
                         <motion.div
                           initial={{ y: 20, opacity: 0 }}
                           animate={{ y: 0, opacity: 1 }}
@@ -172,7 +197,7 @@ const StudentMail = () => {
                                     minute: "2-digit",
                                   })}
                                 </span>
-                                <FaCheckDouble />
+                                {message.status === "seen" ? <FaCheckDouble /> : <FaCheck />}
                               </>
                             )}
                             {message.sender !== "student" && (
@@ -185,11 +210,13 @@ const StudentMail = () => {
                             )}
                           </div>
                         </motion.div>
-                        { message.sender === "student" && <div
-                          className={`w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg ml-2`}
-                        >
-                          S
-                        </div>}
+                        {message.sender === "student" && (
+                          <div
+                            className={`w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg ml-2`}
+                          >
+                            S
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
