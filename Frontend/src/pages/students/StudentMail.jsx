@@ -3,12 +3,15 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { motion } from "framer-motion";
 import { FaCheckDouble } from "react-icons/fa";
+import { Inbox } from "lucide-react";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 
 const StudentMail = () => {
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState(null);
   const [newMessage, setNewMessage] = useState("");
+  const [status, setStatus] = useState(null);
+  const [studentId, setStudentId] = useState(null);
 
   useEffect(() => {
     const token = Cookies.get("jwt");
@@ -19,69 +22,63 @@ const StudentMail = () => {
 
     try {
       const decodedToken = jwtDecode(token);
-      const studentId = decodedToken.student_user;
-
-      if (!studentId) {
-        setError("Invalid token. No student ID found.");
-        return;
-      }
-
-      fetch(`http://localhost:8000/api/get_student_messages/`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          const formattedMessages = data.messages.map(message => ({
-            contact: message.contact,
-            message: message.message,
-            timestamp: message.timestamp,
-            from: "student",
-            reply_message: message.reply_message,
-            reply_timestamp: message.reply_timestamp || new Date().toISOString(),
-          }));
-          setMessages(formattedMessages);
-        })
-        .catch((err) => {
-          console.error("Error fetching messages:", err);
-          setError("Failed to load messages.");
-        });
-    } catch (err) {
+      const extractedStudentId = decodedToken.student_user;
+      setStudentId(extractedStudentId); // Extract and set student ID
+      fetchMessages(extractedStudentId); // Fetch messages using student ID
+    } catch (error) {
       setError("Invalid token format.");
     }
   }, []);
 
-  const sendMessage = async () => {
-    const token = Cookies.get("jwt");
-    if (!token) {
-      setError("No token found. Please log in.");
-      return;
-    }
-
+  const fetchMessages = async (student_id) => {
     try {
-      const response = await fetch("http://localhost:8000/api/send_student_message/", {
-        method: "POST",
+      const response = await fetch(`http://localhost:8000/api/get_student_messages/${student_id}/`, {
+        method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${Cookies.get("jwt")}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: newMessage }),
+        credentials: "include",
       });
 
       const data = await response.json();
-      if (data.success) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { message: newMessage, from: "student", timestamp: new Date().toISOString() }
-        ]);
-        setNewMessage("");
+      setMessages(data.messages || []);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      setError("Failed to load messages.");
+    }
+  };
+
+  const sendMessage = async () => {
+    if (!studentId) {
+      setStatus("Student ID not found.");
+      return;
+    }
+
+    const messageData = {
+      student_id: studentId,
+      content: newMessage,
+    };
+
+    try {
+      const response = await fetch("http://localhost:8000/api/student_send_message/", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${Cookies.get("jwt")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(messageData),
+      });
+
+      if (response.ok) {
+        setStatus("Message sent successfully!");
+        setNewMessage(""); // Clear input field
+        fetchMessages(studentId); // Refresh chat
+      } else {
+        setStatus("Failed to send message.");
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+      setStatus("Error sending message.");
     }
   };
 
@@ -113,10 +110,8 @@ const StudentMail = () => {
           className="flex justify-between items-center mb-6"
         >
           <h2 className="text-3xl font-semibold text-gray-800 flex items-center">
-            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg text-gray-700 mr-3">
-              A
-            </div>
-            Admin
+            <Inbox className="mr-2" />
+            Inbox
           </h2>
         </motion.div>
 
@@ -133,7 +128,8 @@ const StudentMail = () => {
           ) : messages.length > 0 ? (
             messages.map((message, index) => {
               const dateLabel = formatDate(message.timestamp);
-              const shouldShowDate = index === 0 || formatDate(messages[index - 1].timestamp) !== dateLabel;
+              const shouldShowDate =
+                index === 0 || formatDate(messages[index - 1].timestamp) !== dateLabel;
 
               return (
                 <React.Fragment key={index}>
@@ -142,51 +138,61 @@ const StudentMail = () => {
                       {dateLabel}
                     </div>
                   )}
-
-                  
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                    className={`flex items-start ml-auto p-3 rounded-lg max-w-xs ${
-                      message.from === "student" ? "justify-end bg-blue-500 text-white" : "justify-start bg-gray-200"
-                    }`}
-                  >
-                    <div className={`flex flex-col ${message.from === "student" ? "items-end" : "items-start"}`}>
-                      <p className="text-sm">{message.message}</p>
-                      <div className="flex items-center mt-1 text-xs">
-                        {message.from === "student" && (
-                          <>
-                            <span className="mr-1 text-white">
-                              {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                            <FaCheckDouble />
-                          </>
-                        )}
-                        {message.from !== "student" && (
-                          <span className="text-gray-500">
-                            {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        )}
+                  <div className="flex items-start mb-4">
+                    <div
+                      className={`flex flex-col ${
+                        message.sender === "student" ? "items-end ml-auto" : "items-start mr-auto"
+                      }`}
+                    >
+                      <div
+                        className={`flex items-start ${
+                          message.sender === "student" ? "justify-end" : "justify-start"
+                        }`}
+                      >
+                        { message.sender !== "student" && <div
+                          className={`w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg text-gray-700 mr-2`}
+                        >
+                          A
+                        </div>}
+                        <motion.div
+                          initial={{ y: 20, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ delay: index * 0.1 }}
+                          className={`p-3 rounded-lg w-xs ${
+                            message.sender === "student" ? "bg-blue-500 text-white" : "bg-gray-200"
+                          }`}
+                        >
+                          <p className="text-sm">{message.content}</p>
+                          <div className="flex justify-end items-center mt-1 text-xs">
+                            {message.sender === "student" && (
+                              <>
+                                <span className="mr-1 text-white">
+                                  {new Date(message.timestamp).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </span>
+                                <FaCheckDouble />
+                              </>
+                            )}
+                            {message.sender !== "student" && (
+                              <span className="text-gray-500">
+                                {new Date(message.timestamp).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </span>
+                            )}
+                          </div>
+                        </motion.div>
+                        { message.sender === "student" && <div
+                          className={`w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg ml-2`}
+                        >
+                          S
+                        </div>}
                       </div>
                     </div>
-                  </motion.div>
-                  {message.reply_message && (
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex items-start p-3 rounded-lg max-w-xs justify-start bg-gray-200"
-                    >
-                      <div className="mr-auto">
-                        <p className="text-sm">{message.reply_message}</p>
-                        <div className="flex items-center mt-1 text-xs text-gray-500">
-                          {new Date(message.reply_timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                      </div>
-                      
-                    </motion.div>
-                  )}
+                  </div>
                 </React.Fragment>
               );
             })
@@ -217,6 +223,7 @@ const StudentMail = () => {
             Send
           </button>
         </div>
+        {/* {status && <p>{status}</p>} */}
       </section>
     </motion.div>
   );
