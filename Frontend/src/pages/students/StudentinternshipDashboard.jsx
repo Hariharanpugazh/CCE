@@ -1,22 +1,17 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
-import PageHeader from "../../components/Common/StudentPageHeader";
-import { AppPages } from "../../utils/constants";
-import ApplicationCard from "../../components/Students/ApplicationCard";
-import Cookies from "js-cookie";
-import AdminPageNavbar from "../../components/Admin/AdminNavBar";
-import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Filters from "../../components/Common/Filters";
 import SidePreview from "../../components/Common/SidePreview";
 import Pagination from "../../components/Admin/pagination";
+import ApplicationCard from "../../components/Students/ApplicationCard";
+import Cookies from "js-cookie";
 
-export default function InternshipDashboard() {
+export default function StudentInternshipDashboard() {
   const [internships, setInternships] = useState([]);
   const [error, setError] = useState("");
   const [filteredInterns, setFilteredInterns] = useState([]);
   const [searchPhrase, setSearchPhrase] = useState("");
-  const [userRole, setUserRole] = useState(null);
   const [selectedIntern, setSelectedIntern] = useState();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
@@ -85,22 +80,20 @@ export default function InternshipDashboard() {
     setIsSortOpen,
   };
 
-  // Fetch published internships from the backend
   useEffect(() => {
     const fetchPublishedInternships = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/published-internship/");
 
         const internshipsWithType = response.data.internships.map((internship) => ({
-          ...internship.internship_data, // Extract internship_data
-          id: internship._id, // Add id field
+          ...internship.internship_data,
+          id: internship._id,
           type: "internship",
           status: internship.status,
-          updated_at: internship.updated_at // Add type field
+          updated_at: internship.updated_at
         }));
-        // console.log("Internships with type:", internshipsWithType); // Debugging line
-        setInternships(internshipsWithType); // Set internships with type
-        setFilteredInterns(internshipsWithType); // Update filtered internships
+        setInternships(internshipsWithType);
+        setFilteredInterns(internshipsWithType);
       } catch (err) {
         console.error("Error fetching published internships:", err);
         setError("Failed to load internships.");
@@ -130,10 +123,8 @@ export default function InternshipDashboard() {
   useEffect(() => {
     const token = Cookies.get("jwt");
     if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-      const user = !payload.student_user ? payload.role : "student";
-      setUserRole(user);
-      user === "superadmin" || user === "admin" ? undefined : fetchSavedInternships(); // Assuming the payload has a 'role' field
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      fetchSavedInternships();
     }
   }, []);
 
@@ -144,15 +135,10 @@ export default function InternshipDashboard() {
       const response = await axios.get(`http://localhost:8000/api/saved-internships/${userId}/`);
       setSavedInterns(response.data.internships.map(internship => internship._id));
     } catch (err) {
-      console.error("Error fetching saved jobs:", err);
+      console.error("Error fetching saved internships:", err);
     }
   };
 
-  useEffect(() => {
-    console.log(savedInterns);
-  }, []);
-
-  // Pagination logic
   const indexOfLastIntern = currentPage * itemsPerPage;
   const indexOfFirstIntern = indexOfLastIntern - itemsPerPage;
   const currentInterns = filteredInterns.slice(indexOfFirstIntern, indexOfLastIntern);
@@ -162,11 +148,9 @@ export default function InternshipDashboard() {
   };
 
   return (
-    <div className="flex flex-col ml-50">
-      {userRole === "admin" && <AdminPageNavbar />}
-      {userRole === "superadmin" && <SuperAdminPageNavbar />}
-      {userRole === "student" && <StudentPageNavbar />}
-      <header className="flex flex-col items-center justify-center py-14 container self-center">
+    <div className="flex flex-col items-center w-full">
+      <StudentPageNavbar currentPage="jobs" />
+      <header className="flex flex-col items-center justify-center py-14 container self-center w-full">
         <p className="text-6xl tracking-[0.8px]">
           Internships
         </p>
@@ -176,19 +160,14 @@ export default function InternshipDashboard() {
         </p>
       </header>
 
-      <div className="flex px-10 space-x-5 items-start">
-        {/* filters */}
+      <div className="flex px-10 space-x-5 items-start w-full justify-center">
         {/* <Filters args={filterArgs} /> */}
-
-        {/* Job cards */}
         <div className="flex-1 max-w-[80%] flex flex-col space-y-3">
-          {/* search */}
           <div className="flex items-stretch">
-            <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())} placeholder={`Search Jobs`} className={`w-full text-lg p-2 px-4 rounded-tl rounded-bl bg-white border border-r-[0px] hover:border-gray-400 outline-none ${borderColor}`} />
+            <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())} placeholder={`Search Internships`} className={`w-full text-lg p-2 px-4 rounded-tl rounded-bl bg-white border border-r-[0px] hover:border-gray-400 outline-none ${borderColor}`} />
             <button className={`px-5 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}> Search </button>
           </div>
 
-          {/* jobs */}
           <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
             {error ? (
               <p className="text-red-600">{error}</p>
@@ -200,7 +179,7 @@ export default function InternshipDashboard() {
               </p>
             ) : (
               currentInterns.map((intern) => (
-                <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedIntern(intern); console.log(intern); }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(intern.id)} />
+                <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedIntern(intern); }} isSaved={savedInterns.includes(intern.id)} />
               ))
             )}
           </div>
@@ -212,10 +191,9 @@ export default function InternshipDashboard() {
           />
         </div>
 
-        {/* job preview */}
         <SidePreview selectedItem={selectedIntern}
           handleViewItem={() => { window.location.href = `/internship-preview/${selectedIntern.id}`; }}
-          isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(selectedIntern?.id)}
+          isSaved={savedInterns.includes(selectedIntern?.id)}
           fetchSavedJobs={fetchSavedInternships}
           setSelectedItem={setSelectedIntern} />
       </div>

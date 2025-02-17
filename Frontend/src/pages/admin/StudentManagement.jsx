@@ -101,7 +101,7 @@ const StudentManagement = () => {
   return (
     <div>
       <AdminPageNavbar />
-      <div className="p-8 bg-gray-100 min-h-screen">
+      <div className="p-8 bg-gray-100 min-h-screen ml-55">
         <h1 className="text-4xl font-bold text-center mb-8">Student Management</h1>
 
         <div className="flex flex-wrap items-center mb-6 gap-4">

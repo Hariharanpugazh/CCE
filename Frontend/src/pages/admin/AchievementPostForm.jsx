@@ -3,6 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 
 export default function AchievementPostForm() {
   const [formData, setFormData] = useState({
@@ -83,8 +84,15 @@ export default function AchievementPostForm() {
     }
 
     // Check if all fields are filled
-    if (!formData.name || !formData.achievement_description || !formData.achievement_type ||
-        !formData.company_name || !formData.date_of_achievement || !formData.batch || !formData.photo) {
+    if (
+      !formData.name ||
+      !formData.achievement_description ||
+      !formData.achievement_type ||
+      !formData.company_name ||
+      !formData.date_of_achievement ||
+      !formData.batch ||
+      !formData.photo
+    ) {
       setError("All fields are required.");
       setLoading(false);
       return;
@@ -101,7 +109,10 @@ export default function AchievementPostForm() {
 
       const formDataObj = new FormData();
       formDataObj.append("name", formData.name);
-      formDataObj.append("achievement_description", formData.achievement_description);
+      formDataObj.append(
+        "achievement_description",
+        formData.achievement_description
+      );
       formDataObj.append("achievement_type", formData.achievement_type);
       formDataObj.append("company_name", formData.company_name);
       formDataObj.append("date_of_achievement", formData.date_of_achievement);
@@ -139,15 +150,30 @@ export default function AchievementPostForm() {
 
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white shadow-2xl rounded-xl">
-      <h2 className="text-4xl font-extrabold mb-8 text-center text-gray-800">Post an Achievement</h2>
+      <div>
+        {" "}
+        <AdminPageNavbar />
+      </div>
 
-      {error && <p className="text-red-600 mb-6 text-center font-semibold">{error}</p>}
-      {message && <p className="text-green-600 mb-6 text-center font-semibold">{message}</p>}
+      <h2 className="text-4xl font-extrabold mb-8 text-center text-gray-800">
+        Post an Achievement
+      </h2>
+
+      {error && (
+        <p className="text-red-600 mb-6 text-center font-semibold">{error}</p>
+      )}
+      {message && (
+        <p className="text-green-600 mb-6 text-center font-semibold">
+          {message}
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Name
+            </label>
             <input
               type="text"
               name="name"
@@ -159,7 +185,9 @@ export default function AchievementPostForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Achievement Type</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Achievement Type
+            </label>
             <select
               name="achievement_type"
               value={formData.achievement_type}
@@ -177,7 +205,9 @@ export default function AchievementPostForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Achievement Description</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Achievement Description
+          </label>
           <textarea
             name="achievement_description"
             value={formData.achievement_description}
@@ -190,7 +220,9 @@ export default function AchievementPostForm() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Company/Organization Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Company/Organization Name
+            </label>
             <input
               type="text"
               name="company_name"
@@ -202,7 +234,9 @@ export default function AchievementPostForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Date of Achievement</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Date of Achievement
+            </label>
             <input
               type="date"
               name="date_of_achievement"
@@ -215,7 +249,9 @@ export default function AchievementPostForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Batch</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Batch
+          </label>
           <input
             type="text"
             name="batch"
