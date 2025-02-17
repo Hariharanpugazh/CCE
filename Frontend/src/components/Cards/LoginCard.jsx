@@ -61,7 +61,7 @@ export default function LoginCard({
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center relative overflow-hidden">
+    <div className="w-screen h-screen flex items-center justify-center relative ">
       {/* Background Image */}
       <div className="h-full w-full absolute top-0 left-0 z[-5]">
         <Squares
@@ -74,9 +74,9 @@ export default function LoginCard({
       </div>
 
       {/* Card Container */}
-      <div className="w-3/4 min-h-3/4 max-h-[85%] bg-white shadow-lg rounded-lg flex items-stretch p-2 relative">
+      <div className="w-3/4 min-h-3/4 max-h-[95%] bg-white shadow-lg rounded-lg flex items-stretch p-1 relative">
         {/* Image Slider Section */}
-        <div className="flex-1 flex justify-center rounded items-center p-2">
+        <div className="flex-1 flex justify-center rounded items-center p-1">
         <div className="relative w-full rounded h-full">
             {images.map((img, index) => (
               <img
