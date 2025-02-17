@@ -207,8 +207,6 @@
 //     </div>
 //   );
 // }
-
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -221,6 +219,7 @@ export default function SuperAdminSidebar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false)
   const [isCreateMenuOpen, setCreateMenuOpen] = useState(false)
   const [isMailPopupOpen, setMailPopupOpen] = useState(false)
+  const [isInboxOpen , setInboxOpen] = useState(false)
   const [username, setUsername] = useState("")
 
   useEffect(() => {
@@ -237,11 +236,6 @@ export default function SuperAdminSidebar() {
 
     // Redirect to the login page
     window.location.href = "/"
-  }
-
-  const handleStudyMaterialClick = (event) => {
-    event.preventDefault()
-    alert("Coming Soon!")
   }
 
   const userInitials = username ? username.charAt(0).toUpperCase() : "S"
@@ -284,12 +278,14 @@ export default function SuperAdminSidebar() {
               <FiAward className="mr-3" /> Achievements
             </a>
           </li>
+
           <li className="mb-2 relative">
             <button
               onClick={() => {
                 setCreateMenuOpen(!isCreateMenuOpen)
                 setProfileMenuOpen(false)
                 setMailPopupOpen(false)
+                setInboxOpen(false)
               }}
               className="flex items-center p-2 hover:bg-gray-100 rounded w-full text-left"
             >
@@ -298,18 +294,13 @@ export default function SuperAdminSidebar() {
             {isCreateMenuOpen && (
               <ul className="ml-6 mt-2">
                 <li>
-                  <a href="/internpost" className="block p-2 hover:bg-gray-100 rounded">
-                    Internship
-                  </a>
-                </li>
-                <li>
                   <a href="/jobpost" className="block p-2 hover:bg-gray-100 rounded">
                     Job Post
                   </a>
                 </li>
                 <li>
-                  <a href="/studymaterial-post" className="block p-2 hover:bg-gray-100 rounded">
-                    Study Material Post
+                  <a href="/internpost" className="block p-2 hover:bg-gray-100 rounded">
+                    Internship
                   </a>
                 </li>
                 <li>
@@ -318,39 +309,81 @@ export default function SuperAdminSidebar() {
                   </a>
                 </li>
                 <li>
-                  <a href="/Admin-Management" className="block p-2 hover:bg-gray-100 rounded">
-                    Admin Management
-                  </a>
-                </li>
-                <li>
-                  <a href="/manage-student" className="block p-2 hover:bg-gray-100 rounded">
-                    Student Management
+                  <a href="/studymaterial-post" className="block p-2 hover:bg-gray-100 rounded">
+                    Study Material Post
                   </a>
                 </li>
               </ul>
             )}
           </li>
+
+          <li className="mb-2">
+            <a href="/superadmin-manage-jobs" className="flex items-center p-2 hover:bg-gray-100 rounded">
+              <MdWork className="mr-3" /> Manage Jobs
+            </a>
+          </li>
+
           <li className="mb-2 relative">
             <button
               onClick={() => {
                 setMailPopupOpen(!isMailPopupOpen)
                 setProfileMenuOpen(false)
                 setCreateMenuOpen(false)
+                setInboxOpen(false)
               }}
               className="flex items-center p-2 hover:bg-gray-100 rounded w-full text-left"
             >
-              <IoMdNotifications className="mr-3" /> Notifications
+              <FiUser className="mr-3" /> Management
             </button>
             {isMailPopupOpen && (
               <ul className="ml-6 mt-2">
                 <li>
-                  <a href="/contact-inbox" className="flex items-center p-2 hover:bg-gray-100 rounded">
-                    <FiMail className="mr-2" /> Inbox
+                  <a href="/superadmin/manage-student" className="flex items-center p-2 hover:bg-gray-100 rounded">
+                    Student Management
                   </a>
                 </li>
                 <li>
-                  <a href="/superadmin-manage-jobs" className="flex items-center p-2 hover:bg-gray-100 rounded">
-                    <MdWork className="mr-2" /> Manage Jobs
+                  <a href="/Admin-Management" className="flex items-center p-2 hover:bg-gray-100 rounded">
+                    Admin Management
+                  </a>
+                </li>
+              </ul>
+            )}
+          </li>
+
+          <li className="mb-2 relative">
+            <button
+              onClick={() => {
+                setInboxOpen(!isInboxOpen)
+                setProfileMenuOpen(false)
+                setCreateMenuOpen(false)
+                setMailPopupOpen(false)
+                
+              }}
+              className="flex items-center p-2 hover:bg-gray-100 rounded w-full text-left"
+            >
+              <FiMail className="mr-3" /> Inbox
+            </button>
+            {isInboxOpen && (
+              <ul className="ml-6 mt-2">
+                <li>
+                  <a href="/contact-inbox" className="block p-2 hover:bg-gray-100 rounded">
+                    Job
+                  </a>
+                </li>
+                <li>
+                  <a href="/contact-inbox-internships" className="block p-2 hover:bg-gray-100 rounded">
+                    Internship
+                  </a>
+                </li>
+                <li>
+                  <a href="/contact-inbox-achievements" className="block p-2 hover:bg-gray-100 rounded">
+                    Achievement
+                  </a>
+                </li>
+                <li>
+                  <a href="/contact-inbox-studymaterial" className="block p-2 hover:bg-gray-100 rounded">
+                    Study Material
                   </a>
                 </li>
               </ul>
@@ -386,4 +419,3 @@ export default function SuperAdminSidebar() {
     </div>
   )
 }
-

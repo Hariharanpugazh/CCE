@@ -2,6 +2,8 @@ import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import { LoaderContext } from "../../components/Common/Loader";
+import SuperAdminNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+
 
 export default function AchievementDashboard() {
   const [achievements, setAchievements] = useState([]);
@@ -27,7 +29,7 @@ export default function AchievementDashboard() {
 
   return (
     <div className="flex flex-col ml-30">
-      <AdminPageNavbar />
+      <SuperAdminNavbar/>
 
       {/* Loader Display */}
       {isLoading ? (
