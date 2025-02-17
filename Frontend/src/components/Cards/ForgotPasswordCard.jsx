@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { motion, AnimatePresence } from "framer-motion";
-import {InputField} from "../Common/InputField";
+import { InputField } from "../Common/InputField";
 import login1 from "../../assets/images/LoginImg1.png";
 import login2 from "../../assets/images/LoginImg2.png";
 import login3 from "../../assets/images/LoginImg3.png";
@@ -19,28 +18,43 @@ export default function ForgotPasswordCard({
 }) {
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
-  const [index, setIndex] = useState(0); // ✅ Defined `index` state
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Image Slider Logic
+  const [direction, setDirection] = useState(1); // 1 for right, -1 for left
+
   const images = [login1, login2, login3];
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
-      if (!isTransitioning) {
-        setIsTransitioning(true);
-        setCurrentImageIndex((prevIndex) => 
-          prevIndex === images.length - 1 ? 0 : prevIndex + 1
-        );
-        setTimeout(() => {
-          setIsTransitioning(false);
-        }, 1000);
-      }
-    }, 4000);
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 5000);
 
     return () => clearInterval(slideInterval);
-  }, [isTransitioning, images.length]);
+  }, [images.length]);
+
+  const slideVariants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction) => ({
+      zIndex: 0,
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0,
+    }),
+  };
+
+  const slideTransition = {
+    duration: 0.8,
+    ease: [0.4, 0.0, 0.2, 1],
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -95,21 +109,21 @@ export default function ForgotPasswordCard({
       {/* Card container */}
       <div className="w-3/4 min-h-3/4 max-h-[85%] bg-white shadow-lg rounded-lg flex items-stretch p-2 relative">
         {/* Image Slider Section */}
-        <div className="flex-1 flex justify-center items-center p-2">
-        <div className="relative w-full rounded-lg h-full">
-            {images.map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt={`Slide ${index + 1}`}
-                className="absolute w-full h-full rounded-lg object-cover transition-all duration-1000 ease-in-out"
-                style={{
-                  opacity: currentImageIndex === index ? 1 : 0,
-                  transform: `scale(${currentImageIndex === index ? 1 : 0.95})`,
-                  zIndex: currentImageIndex === index ? 1 : 0
-                }}
+        <div className="flex-1 flex justify-center rounded items-center p-1 overflow-hidden">
+          <div className="relative w-full h-full rounded-lg">
+            <AnimatePresence initial={false} custom={direction}>
+              <motion.img
+                key={currentImageIndex}
+                src={images[currentImageIndex]}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={slideTransition}
+                className="absolute w-full h-full rounded-lg object-cover"
               />
-            ))}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -134,7 +148,8 @@ export default function ForgotPasswordCard({
                   placeholder: "Enter your Email",
                   required: true,
                   type: "email",
-                  className: "w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400",
+                  className:
+                    "w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400",
                   disabled: otpSent, // Disable email after OTP is sent
                 }}
                 value={formData.email}
@@ -148,7 +163,8 @@ export default function ForgotPasswordCard({
                     placeholder: "Enter OTP",
                     required: true,
                     title: "Please enter a 6-digit OTP",
-                    className: "w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400",
+                    className:
+                      "w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400",
                   }}
                   value={formData.token}
                   setter={(val) =>

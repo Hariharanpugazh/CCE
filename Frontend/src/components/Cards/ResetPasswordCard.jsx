@@ -1,47 +1,66 @@
-
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import "react-toastify/dist/ReactToastify.css";
-import {InputField} from "../Common/InputField";
+import { InputField } from "../Common/InputField";
 import login1 from "../../assets/images/LoginImg1.png";
 import login2 from "../../assets/images/LoginImg2.png";
 import login3 from "../../assets/images/LoginImg3.png";
 import Squares from "../../components/ui/GridLogin";
 
-export default function ResetPasswordCard({ formDataSetter, formData, onSubmit }) {
+export default function ResetPasswordCard({
+  formDataSetter,
+  formData,
+  onSubmit,
+}) {
   const [loading, setLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("Weak");
   const [passwordMatchError, setPasswordMatchError] = useState(false);
   const navigate = useNavigate();
-  const [index, setIndex] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  // Image Slider Logic
+  const [direction, setDirection] = useState(1); // 1 for right, -1 for left
+
   const images = [login1, login2, login3];
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
-      if (!isTransitioning) {
-        setIsTransitioning(true);
-        setCurrentImageIndex((prevIndex) => 
-          prevIndex === images.length - 1 ? 0 : prevIndex + 1
-        );
-        setTimeout(() => {
-          setIsTransitioning(false);
-        }, 1000);
-      }
-    }, 4000);
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 5000);
 
     return () => clearInterval(slideInterval);
-  }, [isTransitioning, images.length]);
+  }, [images.length]);
 
+  const slideVariants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0,
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction) => ({
+      zIndex: 0,
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0,
+    }),
+  };
+
+  const slideTransition = {
+    duration: 0.8,
+    ease: [0.4, 0.0, 0.2, 1],
+  };
 
   const evaluatePasswordStrength = (password) => {
     if (!password) return "Weak";
-    if (password.length >= 8 && /[A-Z]/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    if (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    ) {
       return "Strong";
     } else if (password.length >= 6 && /\d/.test(password)) {
       return "Medium";
@@ -83,8 +102,8 @@ export default function ResetPasswordCard({ formDataSetter, formData, onSubmit }
 
   return (
     <div className="w-screen h-screen flex items-center justify-center relative overflow-hidden">
-       {/* Background Image */}
-       <div className="h-full w-full absolute top-0 left-0 z[-5]">
+      {/* Background Image */}
+      <div className="h-full w-full absolute top-0 left-0 z[-5]">
         {/* <img src={wavyPattern} alt="Background Pattern" className="w-full" /> */}
         <Squares
           speed={0.1}
@@ -97,21 +116,21 @@ export default function ResetPasswordCard({ formDataSetter, formData, onSubmit }
       {/* Card container */}
       <div className="w-3/4 min-h-3/4 max-h-[85%] bg-white shadow-lg rounded-lg flex items-stretch p-2 relative">
         {/* Image Slider Section */}
-        <div className="flex-1 flex justify-center items-center p-2">
-        <div className="relative w-full rounded-lg h-full">
-            {images.map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt={`Slide ${index + 1}`}
-                className="absolute w-full h-full rounded-lg object-cover transition-all duration-1000 ease-in-out"
-                style={{
-                  opacity: currentImageIndex === index ? 1 : 0,
-                  transform: `scale(${currentImageIndex === index ? 1 : 0.95})`,
-                  zIndex: currentImageIndex === index ? 1 : 0
-                }}
+        <div className="flex-1 flex justify-center rounded items-center p-1 overflow-hidden">
+          <div className="relative w-full h-full rounded-lg">
+            <AnimatePresence initial={false} custom={direction}>
+              <motion.img
+                key={currentImageIndex}
+                src={images[currentImageIndex]}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={slideTransition}
+                className="absolute w-full h-full rounded-lg object-cover"
               />
-            ))}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -128,7 +147,11 @@ export default function ResetPasswordCard({ formDataSetter, formData, onSubmit }
             {/* New Password Field */}
             <div className="space-y-2">
               <InputField
-                args={{ placeholder: "Enter New Password", required: true, type: "password" }}
+                args={{
+                  placeholder: "Enter New Password",
+                  required: true,
+                  type: "password",
+                }}
                 value={formData.newPassword}
                 setter={handlePasswordChange}
               />
@@ -149,7 +172,11 @@ export default function ResetPasswordCard({ formDataSetter, formData, onSubmit }
             {/* Confirm Password Field */}
             <div className="space-y-2">
               <InputField
-                args={{ placeholder: "Confirm New Password", required: true, type: "password" }}
+                args={{
+                  placeholder: "Confirm New Password",
+                  required: true,
+                  type: "password",
+                }}
                 value={formData.confirmPassword}
                 setter={handleConfirmPasswordChange}
               />
@@ -165,7 +192,9 @@ export default function ResetPasswordCard({ formDataSetter, formData, onSubmit }
             <button
               type="submit"
               className={`p-3 rounded-2xl w-full font-semibold transition-colors ${
-                loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#FECC00] hover:bg-[#eebc00]"
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#FECC00] hover:bg-[#eebc00]"
               }`}
               disabled={loading}
             >
