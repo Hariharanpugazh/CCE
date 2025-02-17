@@ -629,6 +629,74 @@ def job_post(request):
         print(e)
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+@csrf_exempt
+@api_view(["POST"])
+def test_job_post(request):
+    try:
+        data = json.loads(request.body)
+
+        role = data.get('role')
+        print(role)
+        auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+        is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+
+        is_publish = None  # Default: Pending (null)
+        userid = data.get('userId')
+
+        if not userid:
+            return Response({"error": "Userid not found"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        if role == 'admin':
+            if is_auto_approval:
+                is_publish = True  # Auto-approve enabled, mark as approved
+
+        elif role == 'superadmin':
+            is_publish = True  # Superadmin posts are always approved
+
+        # Replace null values with 'N/A'
+        def replace_nulls(d):
+            for k, v in d.items():
+                if isinstance(v, dict):
+                    replace_nulls(v)
+                elif v is None:
+                    d[k] = 'N/A'
+                elif isinstance(v, list):
+                    for i in range(len(v)):
+                        if v[i] is None:
+                            v[i] = 'N/A'
+            return d
+
+        data = replace_nulls(data)
+        # Remove unnecessary fields
+        data.pop('role', None)
+        data.pop('userId', None)
+
+        # Prepare job data
+        job_post = {
+            "job_data": data,
+            "admin_id" if role == "admin" else "superadmin_id": userid,  # Save the admin_id from the token
+            "is_publish": is_publish,  # Auto-approve if enabled
+            "status": "active" if data.get('Application_Process_Timeline', {}).get('Application_Deadline', 'N/A') >= datetime.now().isoformat() else "expired",
+            "updated_at": datetime.now()
+        }
+
+        # Insert the job post into the database
+        test_job_collection = db['Testjob']
+        test_job_collection.insert_one(job_post)
+
+        return Response(
+            {
+                "message": "Job stored successfully",
+                "auto_approved": is_auto_approval
+            },
+            status=status.HTTP_201_CREATED
+        )
+    except Exception as e:
+        print(e)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+
         
 @csrf_exempt
 def get_jobs_for_mail(request):

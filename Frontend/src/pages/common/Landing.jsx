@@ -133,5 +133,4 @@ function EnhancedLandingPage() {
     </div>
   );
 }
-
 export default EnhancedLandingPage;

@@ -116,4 +116,7 @@ urlpatterns = [
     path('student_send_message/', student_send_message, name='student_send_message'),
     path('get_all_student_chats/', get_all_student_chats, name='get_all_student_chats'),
     path('admin_reply_message/', admin_reply_message, name='admin_reply_message'),
+
+    #test
+    path("test_job_post/", test_job_post, name="test_job_post"),
 ]
