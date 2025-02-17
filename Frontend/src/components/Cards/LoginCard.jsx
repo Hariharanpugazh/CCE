@@ -14,38 +14,50 @@ export default function LoginCard({
   isLocked,
   lockoutTime,
   onForgotPassword,
-  isLoading, // Add isLoading prop
+  isLoading,
 }) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [emailError, setEmailError] = useState("");
-  const [index, setIndex] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  // Image Slider Logic
+  const [direction, setDirection] = useState(1); // 1 for right, -1 for left
+  
   const images = [login1, login2, login3];
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
-      if (!isTransitioning) {
-        setIsTransitioning(true);
-        setCurrentImageIndex((prevIndex) => 
-          prevIndex === images.length - 1 ? 0 : prevIndex + 1
-        );
-        setTimeout(() => {
-          setIsTransitioning(false);
-        }, 1000);
-      }
-    }, 4000);
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }, 5000);
 
     return () => clearInterval(slideInterval);
-  }, [isTransitioning, images.length]);
+  }, [images.length]);
 
-  // Toggle Password Visibility
+  const slideVariants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1
+    },
+    exit: (direction) => ({
+      zIndex: 0,
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0
+    })
+  };
+
+  const slideTransition = {
+    duration: 0.8,
+    ease: [0.4, 0.0, 0.2, 1]
+  };
+
+  // Original functionality
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
-  // Validate Email
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -61,13 +73,13 @@ export default function LoginCard({
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center relative ">
+    <div className="w-screen h-screen flex items-center justify-center relative">
       {/* Background Image */}
       <div className="h-full w-full absolute top-0 left-0 z[-5]">
         <Squares
           speed={0.1}
           squareSize={40}
-          direction="diagonal" // up, down, left, right, diagonal
+          direction="diagonal"
           borderColor="#FCF55F"
           hoverFillColor="#ffcc00"
         />
@@ -76,21 +88,21 @@ export default function LoginCard({
       {/* Card Container */}
       <div className="w-3/4 min-h-3/4 max-h-[95%] bg-white shadow-lg rounded-lg flex items-stretch p-1 relative">
         {/* Image Slider Section */}
-        <div className="flex-1 flex justify-center rounded items-center p-1">
-        <div className="relative w-full rounded h-full">
-            {images.map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt={`Slide ${index + 1}`}
-                className="absolute w-full h-full rounded-lg object-cover transition-all duration-1000 ease-in-out"
-                style={{
-                  opacity: currentImageIndex === index ? 1 : 0,
-                  transform: `scale(${currentImageIndex === index ? 1 : 0.95})`,
-                  zIndex: currentImageIndex === index ? 1 : 0
-                }}
+        <div className="flex-1 flex justify-center rounded items-center p-1 overflow-hidden">
+          <div className="relative w-full h-full rounded-lg">
+            <AnimatePresence initial={false} custom={direction}>
+              <motion.img
+                key={currentImageIndex}
+                src={images[currentImageIndex]}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={slideTransition}
+                className="absolute w-full h-full rounded-lg object-cover"
               />
-            ))}
+            </AnimatePresence>
           </div>
         </div>
 
