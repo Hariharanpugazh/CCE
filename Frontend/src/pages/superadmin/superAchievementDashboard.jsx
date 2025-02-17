@@ -26,7 +26,7 @@ export default function AchievementDashboard() {
   }, [setIsLoading]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col ml-30">
       <AdminPageNavbar />
 
       {/* Loader Display */}

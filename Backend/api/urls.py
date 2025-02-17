@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import *
 from .admin_views import *
+from .message import * 
 
 urlpatterns = [
   
@@ -96,11 +97,11 @@ urlpatterns = [
     path('student-reset-password/', student_reset_password, name='student_reset_password'),
     path('published-jobs/', get_published_jobs, name='get_published_jobs'),
     path('published-internship/', get_published_internships, name='get_published_internships'),
-    path("contact-us/",contact_us,name="contact-us"),
+    # path("contact-us/",contact_us,name="contact-us"),
     path("save-job/<str:pk>/", save_job, name="save-job"),
     path("unsave-job/<str:pk>/", unsave_job, name="unsave-job"),
     path("saved-jobs/<str:user_id>/", get_saved_jobs, name="get-saved-jobs"),
-    path("get_student_messages/", get_student_messages, name="get_student_messages"),
+    # path("get_student_messages/", get_student_messages, name="get_student_messages"),
 
 
     #study_material
@@ -108,4 +109,11 @@ urlpatterns = [
     path("study-material-edit/<str:study_material_id>/", update_study_material, name="update_study_material"),
     path("study-material-delete/<str:study_material_id>/", delete_study_material, name="delete_study_material"),
     path("all-study-material/", get_all_study_material, name="get_all_study_material"),
+
+    #contact-us
+    path('contact-us/', contact_us, name='contact_us'),
+    path("get_student_messages/<student_id>/", get_student_messages, name="get_student_messages"),
+    path('student_send_message/', student_send_message, name='student_send_message'),
+    path('get_all_student_chats/', get_all_student_chats, name='get_all_student_chats'),
+    path('admin_reply_message/', admin_reply_message, name='admin_reply_message'),
 ]

@@ -31,7 +31,7 @@ function EnhancedLandingPage() {
           <Link to="/superadmin">
             
             <button className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-10 py-4 rounded-full shadow-lg hover:from-red-600 hover:to-pink-600 focus:ring-4 focus:ring-pink-300 transition-all text-lg font-semibold">
-              SuperAdmin Portal
+              SuperAdmin
             </button>
           </Link>
         </motion.div>
@@ -42,7 +42,7 @@ function EnhancedLandingPage() {
         >
           <Link to="/admin">
             <button className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-10 py-4 rounded-full shadow-lg hover:from-green-600 hover:to-teal-600 focus:ring-4 focus:ring-teal-300 transition-all text-lg font-semibold">
-              Admin Portal
+              Admin
             </button>
           </Link>
         </motion.div>
@@ -53,7 +53,7 @@ function EnhancedLandingPage() {
         >
           <Link to="/student">
           <button className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-10 py-4 rounded-full shadow-lg hover:from-blue-600 hover:to-indigo-600 focus:ring-4 focus:ring-indigo-300 transition-all text-lg font-semibold">
-              Student Portal
+              Student
             </button>
           </Link>
         </motion.div>

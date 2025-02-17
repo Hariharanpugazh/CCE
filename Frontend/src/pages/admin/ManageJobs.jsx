@@ -209,7 +209,7 @@ const ManageJobs = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50 ml-58">
       <AdminPageNavbar />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar

@@ -1,20 +1,17 @@
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie"; // Import js-cookie
+import Cookies from "js-cookie";
 import { AppPages } from "../../utils/constants";
 import { FiUser, FiMail } from "react-icons/fi";
 import { IoMdNotifications } from "react-icons/io";
 import { MdWork, MdOutlinePostAdd } from "react-icons/md";
 import { IoBookmarksSharp } from "react-icons/io5";
 
-
-
-export default function StudentPageNavbar() {
+export default function StudentPageNavbar({ currentPage }) {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMailPopupOpen, setMailPopupOpen] = useState(false);
   const [username, setUsername] = useState("");
 
   useEffect(() => {
-    // Retrieve the username from cookies when the component mounts
     const user = Cookies.get("username");
     if (user) {
       setUsername(user);
@@ -22,11 +19,8 @@ export default function StudentPageNavbar() {
   }, []);
 
   const handleLogout = () => {
-    // Clear the JWT cookie
     Cookies.remove("jwt");
     localStorage.clear();
-
-    // Redirect to the login page
     window.location.href = "/";
   };
 
@@ -37,8 +31,11 @@ export default function StudentPageNavbar() {
 
   const userInitials = username ? username.charAt(0).toUpperCase() : "A";
 
+  // Conditional class for Jobs and Internships pages
+  const navbarClasses = currentPage === "jobs" || currentPage === "internships" ? "custom-navbar-class" : "";
+
   return (
-    <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg">
+    <div className={`sticky top-0 bg-white shadow z-10 rounded-b-lg ${navbarClasses}`}>
       <nav className="flex justify-between p-4 items-stretch relative">
         <span className="flex-1 max-w-[25%]"></span>
 
@@ -61,7 +58,6 @@ export default function StudentPageNavbar() {
           </p>
         </div>
         <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative space-x-4">
-          {/* Mail & Options Button */}
           <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => {
             setMailPopupOpen(toggle => !toggle);
             setProfileMenuOpen(false);
@@ -86,7 +82,6 @@ export default function StudentPageNavbar() {
               </div>
             )}
           </div>
-          {/* Profile Button */}
           <div className="flex space-x-2 pr-2 items-center cursor-pointer relative" onClick={() => {
             setProfileMenuOpen(toggle => !toggle);
             setMailPopupOpen(false);
