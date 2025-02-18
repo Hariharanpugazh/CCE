@@ -5,7 +5,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import Squares from "../../components/ui/GridLogin";
+
 import { jwtDecode } from "jwt-decode";
+
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -36,6 +38,18 @@ const ContactForm = () => {
         console.error("Invalid token format.");
       }
     }
+  });
+  const [isSending, setIsSending] = useState(false); // Track sending state
+
+  useEffect(() => {
+    const storedEmail = localStorage.getItem("student.email");
+    const storedName = Cookies.get("username");
+
+    setFormData((prevData) => ({
+      ...prevData,
+      name: storedName || "",
+      contact: storedEmail || "",
+    }));
   }, []);
 
   const handleChange = (e) => {
@@ -110,16 +124,17 @@ const ContactForm = () => {
               readOnly
             />
             <textarea
-              name="content"
-              value={formData.content}
+              name="message"
+              value={formData.message}
               onChange={handleChange}
               placeholder="How can we help..."
               className="w-full p-3 border rounded-lg bg-yellow-100 h-32"
               required
             ></textarea>
             {/* Updated Button */}
-            <button
-              type="submit"
+
+            <button 
+              type="submit" 
               className="w-full bg-yellow-400 text-black font-bold p-3 rounded-lg"
               disabled={isSending} // Disable button while sending
             >
