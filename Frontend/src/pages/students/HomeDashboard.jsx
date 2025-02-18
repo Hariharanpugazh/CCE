@@ -497,7 +497,7 @@ export default function HomeDashboard() {
 
       {/* Confirmation Popup */}
       {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-[#1e2939a8] z-60">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h2 className="text-xl font-semibold mb-4">Confirm Your Job Application</h2>
             <p className="mb-4">Did you complete your job application for "{unconfirmedJob?.job_data?.title}"?</p>
