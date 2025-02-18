@@ -497,27 +497,29 @@ export default function HomeDashboard() {
 
       {/* Confirmation Popup */}
       {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg text-center w-11/12 max-w-md">
             <h2 className="text-xl font-semibold mb-4">Confirm Your Job Application</h2>
-            <p className="mb-4">Did you complete your job application for "{unconfirmedJob?.job_data?.title}"?</p>
+            <p className="mb-4">
+              Did you complete your job application for "{unconfirmedJob?.job_data?.title}"?
+            </p>
             <div className="flex justify-center space-x-4">
               <button
                 onClick={handleConfirm}
-                className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700"
+                className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition duration-300"
               >
                 Yes, Confirm
               </button>
               <button
                 onClick={handleCancel}
-                className="bg-gray-600 text-white px-4 py-2 rounded-full hover:bg-gray-700"
+                className="bg-gray-600 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition duration-300"
               >
                 No, Cancel
               </button>
             </div>
           </div>
         </div>
-      )}
+)}
     </div>
   );
 }
