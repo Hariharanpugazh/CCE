@@ -1,10 +1,11 @@
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import AdminPageNavbar from "../../components/Admin/AdminNavBar"; 
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import { LoaderContext } from "../../components/Common/Loader"; // Import Loader Context
 import bgimage from "../../assets/icons/Group 1.svg";
 import { FiSearch } from "react-icons/fi";
+import Pagination from "../../components/Admin/pagination"; // Assuming Pagination is in this path
 
 export default function AchievementDashboard() {
   const [achievements, setAchievements] = useState([]);
@@ -13,6 +14,8 @@ export default function AchievementDashboard() {
   const { isLoading, setIsLoading } = useContext(LoaderContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1); // Current page state
+  const [itemsPerPage] = useState(8); // Items per page (can adjust as needed)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,6 +56,12 @@ export default function AchievementDashboard() {
   const handleCardClick = (id) => {
     navigate(`/achievement-preview/${id}`);
   };
+
+  const indexOfLastAchievement = currentPage * itemsPerPage;
+  const indexOfFirstAchievement = indexOfLastAchievement - itemsPerPage;
+  const currentAchievements = filteredAchievements.slice(indexOfFirstAchievement, indexOfLastAchievement);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="flex flex-col ml-50">
@@ -98,17 +107,17 @@ export default function AchievementDashboard() {
       {/* Loader Display */}
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
-          <p className="text-lg font-semibold text-gray-700">Loading Achievements...</p>
+          {/* <p className="text-lg font-semibold text-gray-700">Loading Achievements...</p> */}
         </div>
       ) : (
         <>
           <div className="w-[70%] self-center mr-15 mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {error ? (
               <p className="text-red-600">{error}</p>
-            ) : filteredAchievements.length === 0 ? (
+            ) : currentAchievements.length === 0 ? (
               <p className="text-gray-600">No achievements available at the moment.</p>
             ) : (
-              filteredAchievements.map((achievement) => (
+              currentAchievements.map((achievement) => (
                 <div
                   key={achievement._id}
                   className="relative p-6 border-gray-300 rounded-xl shadow-lg bg-white flex flex-col items-center transition-transform duration-300 hover:scale-100 hover:shadow-xl"
@@ -116,14 +125,14 @@ export default function AchievementDashboard() {
                 >
                   {/* Background Image */}
                   <img
-                  src={bgimage}
-                  alt="Background" 
-                  className="absolute top-0 left-0 right-0 w-full h-full object-contain "
-                   />
-                  {/* Background Image */}
-                  <img 
                     src={bgimage}
-                    alt="Background" 
+                    alt="Background"
+                    className="absolute top-0 left-0 right-0 w-full h-full object-contain "
+                  />
+                  {/* Background Image */}
+                  <img
+                    src={bgimage}
+                    alt="Background"
                     className="absolute top-0 left-0 w-full h-full object-contain opacity-20"
                   />
                   {achievement.photo && (
@@ -142,6 +151,14 @@ export default function AchievementDashboard() {
               ))
             )}
           </div>
+
+          {/* Pagination Component */}
+          {achievements.length > 0 && <Pagination
+            currentPage={currentPage}
+            totalItems={filteredAchievements.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={paginate}
+          />}
         </>
       )}
     </div>
