@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import JobCard from "../../components/Admin/JobCard"; // Import the JobCard component
+import ApplicationCard from "../../components/Students/ApplicationCard"; // Import the new card component
 import Pagination from "../../components/Admin/pagination";
-import { toast, ToastContainer } from "react-toastify"; // Import toast and ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // Import toastify CSS
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function AdminDetailPage() {
     const { id } = useParams();
@@ -22,7 +22,7 @@ export default function AdminDetailPage() {
         department: "",
         college_name: "",
     });
-    const [currentPage, setCurrentPage] = useState(1); // Move this outside of the render logic
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         const fetchAdminDetails = async () => {
@@ -47,21 +47,21 @@ export default function AdminDetailPage() {
 
     const handleStatusChange = async (newStatus) => {
         if (!admin) return;
-    
+
         setLoading(true);
         setMessage("");
-    
+
         try {
             const response = await axios.post(`http://localhost:8000/api/admin-status/${id}/`, {
                 status: newStatus,
             });
-    
+
             if (response.status === 200) {
                 setAdmin((prevAdmin) => ({ ...prevAdmin, status: newStatus }));
                 toast.success(`The account is now ${newStatus}.`, {
-                    position: "top-right", // Position of the toast
-                    autoClose: 3000, // Duration to display the toast (in ms)
-                    hideProgressBar: true, // Hide progress bar
+                    position: "top-right",
+                    autoClose: 3000,
+                    hideProgressBar: true,
                 });
             }
         } catch (error) {
@@ -74,7 +74,6 @@ export default function AdminDetailPage() {
         }
         setLoading(false);
     };
-    
 
     const handleEdit = () => {
         setEditMode(true);
@@ -82,11 +81,11 @@ export default function AdminDetailPage() {
 
     const handleSave = async () => {
         setLoading(true);
-        setMessage(""); // Optional: You may no longer need to use this for setting messages.
-    
+        setMessage("");
+
         try {
             const response = await axios.put(`http://localhost:8000/api/admin/${id}/edit/`, formData);
-    
+
             if (response.status === 200) {
                 setAdmin((prevAdmin) => ({ ...prevAdmin, ...formData }));
                 toast.success("Admin details updated successfully.", {
@@ -106,7 +105,6 @@ export default function AdminDetailPage() {
         }
         setLoading(false);
     };
-    
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -120,9 +118,8 @@ export default function AdminDetailPage() {
         const csvRows = [];
 
         let last_login = admin.last_login ? new Date(admin.last_login).toLocaleString() : "Never"
-        last_login = last_login.replace(/,/g, " "); // Replace all commas with spaces
+        last_login = last_login.replace(/,/g, " ");
 
-        // Add admin details
         const adminHeaders = ["Name", "Email", "Department", "College Name", "Status", "Last Login", "Date Created"];
         const adminValues = [
             admin.name,
@@ -132,34 +129,28 @@ export default function AdminDetailPage() {
             admin.status,
             last_login,
             admin.created_at ? new Date(admin.created_at).toLocaleDateString() : "Unknown"
-
         ];
-
-        console.log(admin.last_login);
-        console.log(admin.created_at);
 
         csvRows.push(adminHeaders.join(","));
         csvRows.push(adminValues.join(","));
 
-        // Add job details
         if (jobs.length > 0) {
             const jobHeaders = ["Job Title", "Company", "Location", "Published Date"];
             csvRows.push("\n" + jobHeaders.join(","));
 
             jobs.forEach(job => {
                 let location = job.job_location;
-                location = location.replace(/,/g, " "); // Replace all commas with spaces
+                location = location.replace(/,/g, " ");
                 const jobValues = [
                     job.title,
                     job.company_name,
                     location,
-                    job.updated_at ? new Date(job.updated_at).toLocaleDateString() : "Unknown" // Use updated_at as published_at
+                    job.updated_at ? new Date(job.updated_at).toLocaleDateString() : "Unknown"
                 ];
                 csvRows.push(jobValues.join(","));
             });
         }
 
-        // Ensure no trailing comma or newline at the end
         return csvRows.join("\n").trim();
     };
 
@@ -179,7 +170,6 @@ export default function AdminDetailPage() {
         setCurrentPage(page);
     };
 
-    // Calculate jobs to display on the current page
     const indexOfLastJob = currentPage * ITEMS_PER_PAGE;
     const indexOfFirstJob = indexOfLastJob - ITEMS_PER_PAGE;
     const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
@@ -273,9 +263,7 @@ export default function AdminDetailPage() {
                     )}
                 </div>
 
-                {/* Buttons Section */}
                 <div className="mt-6 flex flex-wrap gap-4">
-                    {/* Inactive/Activate Button */}
                     {admin.status === "Active" ? (
                         <button
                             onClick={() => handleStatusChange("Inactive")}
@@ -319,7 +307,6 @@ export default function AdminDetailPage() {
                     </button>
                 </div>
 
-                {/* Job Post Section with Pagination */}
                 <h3 className="text-xl font-bold mt-6 mb-2">Jobs Posted</h3>
                 {jobs.length === 0 ? (
                     <p className="text-gray-600">No jobs posted by this admin.</p>
@@ -327,11 +314,15 @@ export default function AdminDetailPage() {
                     <>
                         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                             {currentJobs.map((job) => (
-                                <JobCard key={job._id} job={job} />
+                                <ApplicationCard
+                                    key={job._id}
+                                    application={job}
+                                    handleCardClick={() => {}}
+                                    isSaved={undefined}
+                                />
                             ))}
                         </div>
 
-                        {/* Pagination Component */}
                         <Pagination
                             currentPage={currentPage}
                             totalItems={jobs.length}

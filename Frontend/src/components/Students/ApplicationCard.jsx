@@ -27,11 +27,18 @@ function timeAgo(dateString) {
 }
 
 function formatViewCount(count) {
-  if (count >= 1000) {
-    return (count / 1000).toFixed(1) + 'k';
+  // Ensure count is a valid number, default to 0 if undefined/null
+  if (count === undefined || count === null) {
+    return "0"; // Default to "0" views if no data is available
   }
+
+  if (count >= 1000) {
+    return (count / 1000).toFixed(1) + "k";
+  }
+  
   return count.toString();
 }
+
 
 export default function ApplicationCard({ application, handleCardClick, isSaved }) {
   const navigate = useNavigate();

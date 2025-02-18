@@ -2258,18 +2258,6 @@ def achievement_detail(request, achievement_id):
         )
         return Response({"message": "Achievement updated successfully"}, status=status.HTTP_200_OK)
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from bson import ObjectId
-import json
-from datetime import datetime
-
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from bson import ObjectId
-import json
-from datetime import datetime
-
 @csrf_exempt
 def view_count(request, id):
     if request.method == "POST":
@@ -2327,6 +2315,3 @@ def view_count(request, id):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=405)
-
-
-
