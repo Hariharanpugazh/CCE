@@ -69,6 +69,20 @@ console.log("DEcoded Token:", decodedTok);
   return (
     <div>
       <StudentPageNavbar />
+      <div className="relative flex flex-col md:flex-row items-center justify-center min-h-screen bg-white p-6">
+        {/* Background Grid */}
+        <div className="absolute inset-0 z-0 opacity-40">
+          <Squares
+            speed={0.15}
+            squareSize={40}
+            direction="diagonal"
+            borderColor="#FECC00"
+            hoverFillColor="#FECC00"
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className="relative z-10 md:w-1/2 text-left p-6">
       <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-white p-6">
         <div className="md:w-1/2 text-left p-6">
           <h2 className="text-3xl font-bold mb-4">Get in touch with us today!</h2>
@@ -111,6 +125,7 @@ console.log("DEcoded Token:", decodedTok);
               className="w-full p-3 border rounded-lg bg-yellow-100 h-32"
               required
             ></textarea>
+
             <button
               type="submit"
               className="w-full bg-yellow-400 text-black font-bold p-3 rounded-lg"

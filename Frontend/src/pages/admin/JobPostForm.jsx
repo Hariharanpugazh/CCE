@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import DatePicker from "react-datepicker";
@@ -65,6 +65,18 @@ export default function JobPostForm() {
     "Volunteer",
   ];
 
+  // Validate URL
+  const validateUrl = (url) => {
+    const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+    return urlPattern.test(url);
+  };
+
+  // Validate Application Deadline
+  const validateApplicationDeadline = (deadline) => {
+    const now = new Date();
+    return new Date(deadline) > now;
+  };
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -114,8 +126,23 @@ export default function JobPostForm() {
     setDisableSubmit(true);
     e.preventDefault();
 
+    // Validate mandatory fields
     if (!formData.title || !formData.company_name || !selectedCategory || !formData.job_link) {
       setError("Please fill in all mandatory fields.");
+      setDisableSubmit(false);
+      return;
+    }
+
+    // Validate Company Website URL
+    if (formData.company_website && !validateUrl(formData.company_website)) {
+      setError("Invalid URL for Company Website.");
+      setDisableSubmit(false);
+      return;
+    }
+
+    // Validate Application Deadline
+    if (formData.application_deadline && !validateApplicationDeadline(formData.application_deadline)) {
+      setError("Application Deadline must be a future date.");
       setDisableSubmit(false);
       return;
     }
@@ -157,101 +184,6 @@ export default function JobPostForm() {
       }
     }
   }, []);
-
-  const PreviewField = ({ label, value, multiline = false, url = false, email = false, phone = false }) => {
-    if (!value) value = "N/A";
-
-    let content = value;
-    if (url) content = <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{value}</a>;
-    if (email) content = <a href={`mailto:${value}`} className="text-blue-600 hover:underline">{value}</a>;
-    if (phone) content = <a href={`tel:${value}`} className="text-blue-600 hover:underline">{value}</a>;
-    if (label === "Application Deadline" && value !== "N/A") {
-      content = format(new Date(value), "MMMM dd, yyyy");
-    }
-
-    return (
-      <div className="border border-gray-400 rounded-xl flex flex-col mt-6">
-        <div className="p-3 py-2 border-b border-b-gray-400 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <FaCaretLeft className="cursor-pointer" onClick={prevStep}/>
-            <p> Job Requirements </p>
-          </div>
-          <FaCaretRight className="cursor-pointer" onClick={nextStep}/>
-        </div>
-
-        <div className="p-3 flex flex-col space-y-3">
-          <TextAreaField
-            value={formData.Job_Requirements.Roles_Responsibilities.join("\n")}
-            label="Roles & Responsibilities"
-            setter={(val) =>
-              setFormData((prevForm) => ({
-                ...prevForm,
-                Job_Requirements: {
-                  ...prevForm.Job_Requirements,
-                  Roles_Responsibilities: val.split("\n"),
-                },
-              }))
-            }
-          />
-          <InputField
-            value={formData.Job_Requirements.Educational_Qualification}
-            label="Educational Qualification"
-            setter={(val) =>
-              setFormData((prevForm) => ({
-                ...prevForm,
-                Job_Requirements: {
-                  ...prevForm.Job_Requirements,
-                  Educational_Qualification: val,
-                },
-              }))
-            }
-          />
-          <InputField
-            value={formData.Job_Requirements.Minimum_Marks_Requirement}
-            label="Minimum Marks Requirement"
-            setter={(val) =>
-              setFormData((prevForm) => ({
-                ...prevForm,
-                Job_Requirements: {
-                  ...prevForm.Job_Requirements,
-                  Minimum_Marks_Requirement: val,
-                },
-              }))
-            }
-          />
-          <InputField
-            value={formData.Job_Requirements.Work_Experience_Requirement}
-            label="Work Experience Requirement"
-            setter={(val) =>
-              setFormData((prevForm) => ({
-                ...prevForm,
-                Job_Requirements: {
-                  ...prevForm.Job_Requirements,
-                  Work_Experience_Requirement: val,
-                },
-              }))
-            }
-          />
-          <InputField
-            value={formData.Job_Requirements.Technical_Skills_Required}
-            label="Technical Skills Required"
-            setter={(val) =>
-              setFormData((prevForm) => ({
-                ...prevForm,
-                Job_Requirements: {
-                  ...prevForm.Job_Requirements,
-                  Technical_Skills_Required: val,
-                },
-              }))
-            }
-          />
-          <button className="rounded-lg bg-yellow-400 p-2 mt-2" onClick={nextStep}>
-            Next
-          </button>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <motion.div
