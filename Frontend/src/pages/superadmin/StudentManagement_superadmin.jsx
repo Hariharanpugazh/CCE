@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SuperAdminNavBar from "../../components/SuperAdmin/SuperAdminNavBar";
@@ -103,6 +104,24 @@ const StudentManagement_superadmin = () => {
 
   const buttonStyles = "px-4 py-3 w-32 text-white rounded-lg text-sm font-medium transition-colors duration-200";
 
+
+  const [sortOrder, setSortOrder] = useState("asc"); // "asc" for A-Z, "desc" for Z-A
+
+  const handleSort = () => {
+    setSortOrder((prevSortOrder) => (prevSortOrder === "asc" ? "desc" : "asc"));
+  };
+
+  // Sorting logic for "Name" column
+  const sortedStudents = useMemo(() => {
+    return [...paginatedStudents].sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.name.localeCompare(b.name); // A-Z sorting
+      } else {
+        return b.name.localeCompare(a.name); // Z-A sorting
+      }
+    });
+  }, [paginatedStudents, sortOrder]);
+
   return (
     <div>
       <SuperAdminNavBar />
@@ -135,41 +154,44 @@ const StudentManagement_superadmin = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow overflow-x-auto">
-          <table className="min-w-full table-auto">
-            <thead className="bg-gray-200">
-              <tr>
-                <th className="text-center p-4 ">Name</th>
-                <th className="text-center p-4 ">Department</th>
-                <th className="text-center p-4 ">Email</th>
-                <th className="text-center p-4 ">Status</th>
+        <table className="min-w-full table-auto">
+          <thead className="bg-gray-200">
+            <tr>
+                <th className="text-center p-4" onClick={handleSort}>
+              Name
+              <span className="ml-2">
+                {sortOrder === "asc" ? "↑" : "↓"} {/* Arrow indicators */}
+              </span>
+            </th>
+              <th className="text-center p-4">Department</th>
+              <th className="text-center p-4">Email</th>
+              <th className="text-center p-4">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedStudents.map((student) => (
+              <tr
+                key={student._id}
+                onClick={() => setSelectedStudent(student)}
+                className="cursor-pointer hover:bg-gray-100"
+              >
+                <td className="text-center p-4">{student.name}</td>
+                <td className="text-center p-4">{student.department}</td>
+                <td className="text-center p-4">{student.email}</td>
+                <td className="text-center p-4">
+                  <span
+                    className={`inline-block text-center w-24 px-3 py-1 rounded-full text-m font-semibold ${
+                      student.status === "active" ? "text-green-800" : "text-red-900"
+                    }`}
+                  >
+                    {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
+                  </span>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {paginatedStudents.map((student) => (
-                <tr
-                  key={student._id}
-                  onClick={() => setSelectedStudent(student)}
-                  className="cursor-pointer hover:bg-gray-100"
-                >
-                  <td className="text-center p-4">{student.name}</td>
-                  <td className="text-center p-4">{student.department}</td>
-                  <td className="text-center p-4">{student.email}</td>
-                  <td className="text-center p-4">
-                    <span
-                      className={`inline-block text-center w-24 px-3 py-1 rounded-full text-m font-semibold ${
-                        student.status === "active"
-                          ? "text-green-800"
-                          : "text-red-900"
-                      }`}
-                    >
-                      {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
         <div className="mt-4">
           <Pagination
