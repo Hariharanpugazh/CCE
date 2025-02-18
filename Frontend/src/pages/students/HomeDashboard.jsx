@@ -6,15 +6,12 @@ import PageHeader from "../../components/Common/StudentPageHeader";
 import Cookies from "js-cookie";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp } from "lucide-react";
-
-
-import bgHero from "../../assets/images/hero-bg.jpg"; // Make sure to update the path accordingly
-
-import gridImg from '../../assets/images/Grid.png'
-import HorizontalApplicationCard from "../../components/Students/HorizApplicationCard";
 import { LoaderContext } from "../../components/Common/Loader";
+import bgHero from "../../assets/images/hero-bg.jpg";
+import gridImg from '../../assets/images/Grid.png';
+import HorizontalApplicationCard from "../../components/Students/HorizApplicationCard";
 
-const themeButton = "px-7 py-[6px] rounded-lg w-fit text-sm bg-[#FFC800] cursor-pointer"
+const themeButton = "px-7 py-[6px] rounded-lg w-fit text-sm bg-[#FFC800] cursor-pointer";
 
 function HeroSection() {
   const phrases = [
@@ -29,24 +26,19 @@ function HeroSection() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFade(false); // Start fade-out
+      setFade(false);
       setTimeout(() => {
         setCurrentPhraseIndex((prevIndex) => (prevIndex + 1) % phrases.length);
-        setFade(true); // Start fade-in
-      }, 500); // Smooth transition delay
+        setFade(true);
+      }, 500);
     }, 3000);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <section className="w-full h-[600px] flex items-center justify-center text-center relative overflow-hidden">
-      {/* Background Image */}
       <img src={bgHero} alt="Hero Background" className="absolute w-full h-full object-cover" />
-
-      {/* Dark Overlay */}
       <div className="absolute inset-0 bg-[#00000087]"></div>
-
-      {/* Text Content */}
       <div className="relative z-10 w-full max-w-3xl">
         <div
           className={`text-5xl font-bold text-white transition-opacity duration-500 ${fade ? "opacity-100" : "opacity-0"
@@ -71,7 +63,7 @@ function AboutCCEHeader() {
         <p className="text-5xl"> Competitive Exams </p>
 
         <p className="my-3">
-          Turning Aspirants into Achievments
+          Turning Aspirants into Achievements
         </p>
         <button className={themeButton} onClick={() => window.location.href = "jobs"}> Explore Jobs </button>
       </div>
@@ -82,12 +74,8 @@ function AboutCCEHeader() {
 function AboutCCEContent() {
   return (
     <section className="flex flex-col items-center justify-self-center text-justify relative overflow-hidden w-[90%]">
-      {/* bottom left image */}
       <img src={gridImg} alt="" className="absolute translate-x-[-70%] object-contain w-[800px] aspect-video" />
-
-      {/* bottom right image */}
       <img src={gridImg} alt="" className="absolute translate-x-[70%] object-contain w-[800px] aspect-video" />
-
       <p className="text-4xl"> About CCE </p>
       <p className="my-5 text-sm w-[100%]">
         At SNS Institutions, we constantly endeavor to identify the potential
@@ -100,14 +88,14 @@ function AboutCCEContent() {
         get placed in Indian Armed Forces, Paramilitary Forces, Union & State
         Public Service Commission (UPSC & TNPSC), Defence Research & Development
         Organisation (DRDO) Labs, Council of Scientific & Industrial Research
-        (CSIR) Labs, Indian Space Research Organisation (ISRO), Department of
-        Science & Technology (DST), Indian Engineering Services, Defence Public
+        (CSIR) Labs, Indian Space Research Organisation (ISRO), Department
+        of Science & Technology (DST), Indian Engineering Services, Defence Public
         Sector Undertakings (DPSUs), Central Public Sector Undertakings (CPSUs)
         and State Public Sector Undertakings (SPSUs), in addition to various
         Micro Small & Medium Enterprise (MSME) clusters and Private companies
         associated with the aforesaid organisations. In addition, the center
         will also endeavor to identify opportunities for pursuing Internship &
-        Research in renowned Institutions and Organisations. To steer the
+        Research in renowned Institutions and Organizations. To steer the
         activities in the right direction, Commander (Dr.) D K Karthik (Retd.)
         has been hired and appointed as Professor & Head-Center for Competitive
         Exams, SNS Institutions.
@@ -194,13 +182,8 @@ const Footer = () => {
 function AchievementCard({ image, name, department }) {
   return (
     <div className="relative w-60 h-80 rounded-xl overflow-hidden shadow-lg">
-      {/* Background Image */}
       <img src={`data:image/jpeg;base64,${image}`} alt={name} className="w-full h-full object-cover" />
-
-      {/* Overlay for Text Visibility */}
       <div className="absolute inset-0 bg-[#00000087]"></div>
-
-      {/* Title */}
       <div className="absolute bottom-4 left-4 text-white">
         <p className="text-2xl"> {name} </p>
         <p className="text-xl"> {department} </p>
@@ -222,15 +205,12 @@ function AchievementSlider({ achievements }) {
 
   return (
     <div className="relative flex items-center justify-center w-full max-w-xl mx-auto">
-      {/* Previous Button */}
       <button
         onClick={() => setCurrentIndex((prevIndex) => (prevIndex - 1 + achievements.length) % achievements.length)}
         className="absolute left-0 bg-gray-800 text-white p-2 rounded-full z-10"
       >
         ❮
       </button>
-
-      {/* Slideshow */}
       <div className="w-60 h-80 overflow-hidden relative flex justify-center">
         <AnimatePresence mode="wait">
           <motion.div
@@ -249,8 +229,6 @@ function AchievementSlider({ achievements }) {
           </motion.div>
         </AnimatePresence>
       </div>
-
-      {/* Next Button */}
       <button
         onClick={() => setCurrentIndex((prevIndex) => (prevIndex + 1) % achievements.length)}
         className="absolute right-0 bg-gray-800 text-white p-2 rounded-full z-10"
@@ -373,7 +351,7 @@ export default function HomeDashboard() {
         const response = await axios.get(`http://localhost:8000/api/applied-jobs/${userId}/`);
         const appliedJobs = response.data.jobs;
 
-        const unconfirmed = appliedJobs.find(job => !job.confirmed);
+        const unconfirmed = appliedJobs.find(job => job.confirmed === null);
         if (unconfirmed) {
           // Fetch job details using the job ID
           const jobResponse = await axios.get(`http://localhost:8000/api/job/${unconfirmed.job_id}/`);
@@ -395,7 +373,8 @@ export default function HomeDashboard() {
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
       await axios.post('http://localhost:8000/api/confirm-job/', {
         studentId: userId,
-        jobId: unconfirmedJob.job_id
+        jobId: unconfirmedJob.job_id,
+        confirmed: true
       });
       setShowPopup(false);
     } catch (error) {
@@ -404,8 +383,20 @@ export default function HomeDashboard() {
     }
   };
 
-  const handleCancel = () => {
-    setShowPopup(false);
+  const handleCancel = async () => {
+    try {
+      const token = Cookies.get("jwt");
+      const userId = JSON.parse(atob(token.split(".")[1])).student_user;
+      await axios.post('http://localhost:8000/api/confirm-job/', {
+        studentId: userId,
+        jobId: unconfirmedJob.job_id,
+        confirmed: false
+      });
+      setShowPopup(false);
+    } catch (error) {
+      console.error("Error marking job application as not confirmed:", error);
+      alert("Unable to mark application as not confirmed. Please try again later.");
+    }
   };
 
   const mentors = [
@@ -425,7 +416,6 @@ export default function HomeDashboard() {
 
       <HeroSection />
 
-      {/* Jobs Section */}
       <section className="w-[80%] self-center mt-6 items-center flex flex-col mt-16">
         <p className="text-3xl">Job Opportunities</p>
         <p className="text mb-4 mb-12 text-center">Search all the open positions on the web. Get your own personalized salary estimate. <br />Read reviews on over 30000+ companies worldwide.</p>
@@ -438,7 +428,6 @@ export default function HomeDashboard() {
         <button className={themeButton} onClick={() => window.location.href = "jobs"}> Explore Jobs </button>
       </section>
 
-      {/* interns section */}
       <section className="w-[80%] self-center mt-6 items-center flex flex-col mt-14">
         <p className="text-3xl">Internship Opportunities</p>
         <p className="text mb-4 mb-12 text-center">Unlock your potential with an internship that fuels your growth! Gain hands-on experience <br /> work with industry experts, and take the first step toward an exciting career.</p>
@@ -454,7 +443,6 @@ export default function HomeDashboard() {
       <AboutCCEHeader />
       <AboutCCEContent />
 
-      {/* mentor Section */}
       <section className="w-[80%] self-center mt-6 items-center flex flex-col mt-18">
         <p className="text-3xl">Our Team and Mentors</p>
         <p className="text mb-4 mb-12 text-center">Our team of dedicated mentors and industry experts is here to guide you every step of the way. <br /> With years of experience and a passion for innovation, we are committed to helping you unlock your full potential.</p>
@@ -462,13 +450,8 @@ export default function HomeDashboard() {
           {mentors.length === 0 ? <p>No achievements available at the moment.</p> :
             mentors.map((mentor) => (
               <div className="relative w-60 h-80 rounded-xl overflow-hidden shadow-lg flex-1 min-w-[250px] max-w-[600px]">
-                {/* Background Image */}
                 <img src={mentor.photo} alt={mentor.photo} className="w-full h-full object-cover" />
-
-                {/* Overlay for Text Visibility */}
                 <div className="absolute inset-0 bg-[#00000087]"></div>
-
-                {/* Title */}
                 <div className="absolute bottom-4 left-4 text-white">
                   <p className="text-2xl"> {mentor.name} </p>
                   <p className="text"> {"SNS CCE"} </p>
@@ -478,7 +461,6 @@ export default function HomeDashboard() {
         </div>
       </section>
 
-      {/* Achievements Section */}
       <section className="w-[90%] self-center mt-6 items-center flex flex-col mt-20">
         <p className="text-3xl">Achievement and Milestones</p>
         <p className="text mb-4 mb-12 text-center">Achievements are not just milestones; they are reflections of dedication, passion, and perseverance. <br />Here, we celebrate those who dare to dream big, break barriers, and make a difference.</p>
@@ -495,9 +477,8 @@ export default function HomeDashboard() {
 
       <Footer />
 
-      {/* Confirmation Popup */}
       {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-[#1e2939a8] z-60">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h2 className="text-xl font-semibold mb-4">Confirm Your Job Application</h2>
             <p className="mb-4">Did you complete your job application for "{unconfirmedJob?.job_data?.title}"?</p>
