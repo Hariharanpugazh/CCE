@@ -71,12 +71,15 @@ export default function JobDashboard() {
             job.job_data.title.toLowerCase().includes(searchPhrase) ||
             job.job_data.company_name.toLowerCase().includes(searchPhrase) ||
             job.job_data.job_description.toLowerCase().includes(searchPhrase) ||
-            job.job_data.required_skills.filter((skill) => skill.toLowerCase().includes(searchPhrase)).length > 0 ||
+            job.job_data.required_skills.some((skill) => skill.toLowerCase().includes(searchPhrase)) ||
             job.job_data.work_type.toLowerCase().includes(searchPhrase)
         )
       );
     }
+    
+    setCurrentPage(1);
   }, [searchPhrase, jobs]);
+  
 
   const navigate = useNavigate(); // Initialize useNavigate for navigation
 
