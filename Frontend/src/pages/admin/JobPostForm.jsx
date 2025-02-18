@@ -130,6 +130,7 @@ export default function JobPostForm() {
     // Validate mandatory fields
     if (!formData.title || !formData.company_name || !selectedCategory || !formData.job_link) {
       setError("Please fill in all mandatory fields.");
+      setShowWarning(true);
       setDisableSubmit(false);
       return;
     }
@@ -493,7 +494,7 @@ export default function JobPostForm() {
               <PreviewField label="Title" value={formData.title} /><br />
               <PreviewField label="Company Name" value={formData.company_name} /><br />
               <PreviewField label="Company Overview" value={formData.company_overview} multiline /><br />
-              <PreviewField label="Company Website" value={formData.company_website} url /><br />
+              <PreviewField label="Company Website" value={formData.company_website || "N/A"} url /><br />
               <PreviewField label="Job Description" value={formData.job_description} multiline /><br />
               <PreviewField label="Key Responsibilities" value={formData.key_responsibilities} multiline /><br />
               <PreviewField
@@ -509,9 +510,9 @@ export default function JobPostForm() {
               <PreviewField label="Work Schedule" value={formData.work_schedule} /><br />
               <PreviewField label="Application Instructions" value={formData.application_instructions} multiline /><br />
               <PreviewField label="Application Deadline" value={formData.application_deadline} /><br />
-              <PreviewField label="Contact Email" value={formData.contact_email} email /><br />
-              <PreviewField label="Contact Phone" value={formData.contact_phone} phone /><br />
-              <PreviewField label="Job Link" value={formData.job_link} url /><br />
+              <PreviewField label="Contact Email" value={formData.contact_email || "N/A"} email /><br />
+              <PreviewField label="Contact Phone" value={formData.contact_phone || "N/A"} phone /><br />
+              <PreviewField label="Job Link" value={formData.job_link } url /><br />
             </div>
           </motion.div>
         )}
@@ -532,6 +533,13 @@ const PreviewField = ({ label, value, multiline = false, url = false, email = fa
     formattedValue = <a href={`mailto:${value}`}>{value}</a>;
   } else if (phone) {
     formattedValue = <a href={`tel:${value}`}>{value}</a>;
+  }
+
+  // Avoid showing "N/A" for specific fields
+  if (!formattedValue && (label === "Title" || label === "Company Name" || label === "Job Categories" || label === "Job Link")) {
+    formattedValue = "";
+  } else if (!formattedValue) {
+    formattedValue = "N/A";
   }
 
   return (

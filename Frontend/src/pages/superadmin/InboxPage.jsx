@@ -20,7 +20,14 @@ const InboxPage = () => {
   const [studentAchievements, setStudentAchievements] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("contactMessages");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState({
+    contactMessages: 1,
+    achievements: 1,
+    internships: 1,
+    studyMaterials: 1,
+    Jobs: 1,
+    studentAchievements: 1,
+  });
   const [replyText, setReplyText] = useState({});
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -28,16 +35,12 @@ const InboxPage = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const itemsPerPage = 6;
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentAchievements = achievements.slice(indexOfFirstItem, indexOfLastItem);
-  const currentJobs = jobs.slice(indexOfFirstItem, indexOfLastItem);
-  const currentInternships = internships.slice(indexOfFirstItem, indexOfLastItem);
-  const currentStudyMaterials = studyMaterials.slice(indexOfFirstItem, indexOfLastItem);
-  const currentStudentAchievements = studentAchievements.slice(indexOfFirstItem, indexOfLastItem);
-  const currentStudents = students.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (category, pageNumber) => {
+    setCurrentPage((prev) => ({
+      ...prev,
+      [category]: pageNumber,
+    }));
+  };
 
   useEffect(() => {
     const token = Cookies.get("jwt");
@@ -203,25 +206,26 @@ const InboxPage = () => {
 
   const renderContent = () => {
     let itemsToDisplay = [];
+    const currentPageNumber = currentPage[selectedCategory];
 
     switch (selectedCategory) {
       case "contactMessages":
-        itemsToDisplay = currentStudents;
+        itemsToDisplay = students.slice((currentPageNumber - 1) * itemsPerPage, currentPageNumber * itemsPerPage);
         break;
       case "achievements":
-        itemsToDisplay = currentAchievements;
+        itemsToDisplay = achievements.slice((currentPageNumber - 1) * itemsPerPage, currentPageNumber * itemsPerPage);
         break;
       case "internships":
-        itemsToDisplay = currentInternships;
+        itemsToDisplay = internships.slice((currentPageNumber - 1) * itemsPerPage, currentPageNumber * itemsPerPage);
         break;
       case "studyMaterials":
-        itemsToDisplay = currentStudyMaterials;
+        itemsToDisplay = studyMaterials.slice((currentPageNumber - 1) * itemsPerPage, currentPageNumber * itemsPerPage);
         break;
       case "Jobs":
-        itemsToDisplay = currentJobs;
+        itemsToDisplay = jobs.slice((currentPageNumber - 1) * itemsPerPage, currentPageNumber * itemsPerPage);
         break;
       case "studentAchievements":
-        itemsToDisplay = currentStudentAchievements;
+        itemsToDisplay = studentAchievements.slice((currentPageNumber - 1) * itemsPerPage, currentPageNumber * itemsPerPage);
         break;
       default:
         return null;
@@ -275,9 +279,9 @@ const InboxPage = () => {
             {[...Array(Math.ceil(filteredItems.length / itemsPerPage)).keys()].map((number) => (
               <button
                 key={number + 1}
-                onClick={() => paginate(number + 1)}
+                onClick={() => paginate(selectedCategory, number + 1)}
                 className={`px-3 py-1 mx-1 border rounded ${
-                  currentPage === number + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
+                  currentPage[selectedCategory] === number + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
                 }`}
               >
                 {number + 1}
