@@ -65,7 +65,7 @@ export default function ManagementHomePage() {
 
     // Calculate metrics
     const totalAdmins = admins.length;
-    const activeAdmins = admins.filter(admin => admin.status === "active").length;
+    const activeAdmins = admins.filter(admin => admin.status === "Active").length;
     const inactiveAdmins = admins.filter(admin => admin.status === "Inactive").length;
 
     // Handle admin card click
