@@ -192,7 +192,7 @@ export default function StudentInternshipDashboard() {
         </div>
 
         <SidePreview selectedItem={selectedIntern}
-          handleViewItem={() => { window.location.href = `/internship-preview/${selectedIntern.id}`; }}
+          handleViewItem={() => { window.location.href = `/student/internship-preview/${selectedIntern.id}`; }}
           isSaved={savedInterns.includes(selectedIntern?.id)}
           fetchSavedJobs={fetchSavedInternships}
           setSelectedItem={setSelectedIntern} />

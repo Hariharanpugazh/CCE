@@ -57,7 +57,7 @@ const InternshipPreview = () => {
             {userRole === "superadmin" && <SuperAdminPageNavbar />}
             {userRole === "student" && <StudentPageNavbar />}
 
-            <div className="flex-grow flex items-center justify-center ml-48 p-4 sm:p-6 lg:p-8">
+            <div className="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">
                 <div className="flex flex-col lg:flex-row w-full max-w-7xl bg-transparent rounded-lg overflow-hidden">
                     {/* Internship Overview */}
                     <div className="lg:w-1/3 p-4 border border-gray-300 lg:mr-8 rounded-lg">

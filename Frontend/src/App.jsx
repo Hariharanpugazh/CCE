@@ -21,6 +21,7 @@ import InternshipEdit from "./pages/admin/InternshipEdit";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InternshipPreview from "./pages/students/InternshipPreview";
+import StudentInternshipPreview from "./pages/students/StudentInternshipPreview";
 import AdminAchievementDashboard from "./pages/admin/adminAchievementDashboard";
 import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashboard";
 import ManageJobs from "./pages/admin/ManageJobs";
@@ -97,6 +98,7 @@ function App() {
         <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
         <Route path="/internship-preview/:id" element={<InternshipPreview />} />
+        <Route path="/student/internship-preview/:id" element={<StudentInternshipPreview />} />
         <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
         <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />
         <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />        
