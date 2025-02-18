@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import { LoaderContext } from "../../components/Common/Loader";
+import SuperAdminNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import bgimage from "../../assets/icons/Group 1.svg";
 import { FiSearch } from "react-icons/fi";
 
@@ -50,7 +51,7 @@ export default function AchievementDashboard() {
 
   return (
     <div className="flex flex-col ml-30">
-      <AdminPageNavbar />
+      <SuperAdminNavbar/>
 
       {/* Header Section */}
       <div className="text-center my-5 py-4">   
@@ -92,7 +93,7 @@ export default function AchievementDashboard() {
       {/* Loader Display */}
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
-          <p className="text-lg font-semibold text-gray-700">Loading Achievements...</p>
+          {/* <p className="text-lg font-semibold text-gray-700">Loading Achievements...</p> */}
         </div>
       ) : (
         <>

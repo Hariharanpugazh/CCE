@@ -1,19 +1,26 @@
-// import { useState, useEffect } from "react";
-// import Cookies from "js-cookie"; // Import js-cookie
-// import { AppPages } from "../../utils/constants";
-// import { FiPlus, FiUser, FiMail, FiSettings } from "react-icons/fi";
-// import { IoMdNotifications } from "react-icons/io";
-// import { MdInbox, MdWork } from "react-icons/md"; // Icons for pop-up box
-// import { RiAdminFill } from "react-icons/ri";
 
-// export default function AdminPageNavbar() {
-//   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
+
+// import { useState, useEffect } from "react";
+// import Cookies from "js-cookie";
+// import { AppPages } from "../../utils/constants";
+// import {
+//   FiPlus,
+//   FiMail,
+//   FiHome,
+//   FiBriefcase,
+//   FiAward,
+//   FiLogOut,
+// } from "react-icons/fi";
+// import { IoMdNotifications } from "react-icons/io";
+// import { MdWork } from "react-icons/md";
+// import snslogo from "../../assets/images/snslogo.png"
+
+// export default function AdminSidebar() {
 //   const [isCreateMenuOpen, setCreateMenuOpen] = useState(false);
 //   const [isMailPopupOpen, setMailPopupOpen] = useState(false);
 //   const [username, setUsername] = useState("");
 
 //   useEffect(() => {
-//     // Retrieve the username from cookies when the component mounts
 //     const user = Cookies.get("username");
 //     if (user) {
 //       setUsername(user);
@@ -21,10 +28,7 @@
 //   }, []);
 
 //   const handleLogout = () => {
-//     // Clear the JWT cookie
 //     Cookies.remove("jwt");
-
-//     // Redirect to the login page
 //     window.location.href = "/";
 //   };
 
@@ -36,228 +40,195 @@
 //   const userInitials = username ? username.charAt(0).toUpperCase() : "A";
 
 //   return (
-//     <div className="sticky top-0 bg-white shadow z-10 rounded-b-lg mx-0">
-//       <nav className="flex justify-between p-2 items-stretch pt-6 relative">
-//         {/* Logo */}
-//         <div className="flex items-center">
-//           <img
-//             src="/sns (1).ico"
-//             alt="Logo"
-//             className="ml-1 pl-3 h-14 w-17"
-//           />
+//     <div className="bg-white shadow-lg h-screen w-57 fixed left-0 top-0 flex flex-col">
+//       <div className="p-4 border-b">
+//         <img src={snslogo} alt="Logo" className="h-14 w-35 mx-auto" />
+//       </div>
+
+//       <div className="flex items-center bg-[#111933] p-4 border-b">
+//         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-white-900 text-lg font-semibold mr-3">
+//           {userInitials}
 //         </div>
-
-//         <span className="flex-1 max-w-[25%]"></span>
-
-//         <div className="flex flex-1 justify-evenly space-x-5 items-center text-lg">
-//           <p
-//             className="cursor-pointer hover:underline hover:text-blue-400"
-//             onClick={() => (window.location.href = "/admin/home")}
-//           >
-//             Home
-//           </p>
-//           <p
-//             className="cursor-pointer hover:underline hover:text-blue-400"
-//             onClick={() => (window.location.href = AppPages.jobDashboard.route)}
-//           >
-//             Jobs
-//           </p>
-//           <p
-//             className="cursor-pointer hover:underline hover:text-blue-400"
-//             onClick={() =>
-//               (window.location.href = AppPages.internShipDashboard.route)
-//             }
-//           >
-//             Internships
-//           </p>
-//           {/* <p
-//             className="cursor-pointer hover:underline hover:text-blue-400"
-//             onClick={handleStudyMaterialClick}
-//           >
-//             Study Material
-//           </p> */}
-//           <p
-//             className="cursor-pointer hover:underline hover:text-blue-400"
-//             onClick={() => (window.location.href = "/admin/achievements")}
-//           >
-//             Achievements
-//           </p>
-//           {/* <p className="cursor-pointer hover:underline hover:text-blue-400">
-//             Contact
-//           </p> */}
+//         <div>
+//           <p className="font-semibold text-gray-200">{username || "Admin"}</p>
+//           <p className="text-sm text-gray-200">Administrator</p>
 //         </div>
+//       </div>
 
-//         <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm space-x-4">
-//           <div
-//             className="flex space-x-2 items-center relative cursor-pointer"
-//             onClick={() => {
-//               setCreateMenuOpen((toggle) => !toggle);
-//               setProfileMenuOpen(false);
-//               setMailPopupOpen(false);
-//             }}
-//           >
-//             <p>Create New</p>
-//             <FiPlus
-//               className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
-//               style={{ width: "2rem" }}
-//               title="Create"
-//             />
-
-//             {/* Create Menu */}
+//       <nav className="flex-1 overflow-y-auto">
+//         <ul className="p-2">
+//           <li className="mb-2">
+//             <a
+//               href="/admin/home"
+//               className="flex items-center p-2 hover:bg-yellow-200 rounded"
+//             >
+//               <FiHome className="mr-3" /> Home
+//             </a>
+//           </li>
+//           <li className="mb-2">
+//             <a
+//               href={AppPages.adminJobDashboard.route}
+//               className="flex items-center p-2 hover:bg-yellow-200 rounded"
+//             >
+//               <FiBriefcase className="mr-3" /> Jobs
+//             </a>
+//           </li>
+//           <li className="mb-2">
+//             <a
+//               href={AppPages.adminInternShipDashboard.route}
+//               className="flex items-center p-2 hover:bg-yellow-200 rounded"
+//             >
+//               <FiBriefcase className="mr-3" /> Internships
+//             </a>
+//           </li>
+//           <li className="mb-2">
+//             <a
+//               href="/admin/achievements"
+//               className="flex items-center p-2 hover:bg-yellow-200 rounded"
+//             >
+//               <FiAward className="mr-3" /> Achievements
+//             </a>
+//           </li>
+//           <li className="mb-2 relative">
+//             <button
+//               onClick={() => setCreateMenuOpen(!isCreateMenuOpen)}
+//               className="flex items-center p-2 hover:bg-yellow-200 rounded w-full text-left"
+//             >
+//               <FiPlus className="mr-3" /> Create New
+//             </button>
 //             {isCreateMenuOpen && (
-//               <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50 absolute p-2">
-//                 <ul className="flex flex-col">
-//                   <li
-//                     className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-//                     onClick={() => (window.location.href = "/internpost")}
+//               <ul className="ml-6 mt-2">
+//                 <li>
+//                   <a
+//                     href="/internpost"
+//                     className="block p-2 hover:bg-yellow-200 rounded"
 //                   >
 //                     Internship
-//                   </li>
-//                   <li
-//                     className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-//                     onClick={() => (window.location.href = "/jobpost")}
+//                   </a>
+//                 </li>
+//                 <li>
+//                   <a
+//                     href="/jobpost"
+//                     className="block p-2 hover:bg-yellow-200 rounded"
 //                   >
 //                     Job Post
-//                   </li>
-//                   <li
-//                     className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-//                     onClick={() =>
-//                       (window.location.href = "/studymaterial-post")
-//                     }
+//                   </a>
+//                 </li>
+//                 <li>
+//                   <a
+//                     href="/studymaterial-post"
+//                     className="block p-2 hover:bg-yellow-200 rounded"
 //                   >
 //                     Study Material Post
-//                   </li>
-//                   <li
-//                     className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-//                     onClick={() => (window.location.href = "/achievementpost")}
+//                   </a>
+//                 </li>
+//                 <li>
+//                   <a
+//                     href="/achievementpost"
+//                     className="block p-2 hover:bg-yellow-200 rounded"
 //                   >
 //                     Achievement Post
-//                   </li>
-//                   <li
-//                     className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-//                     onClick={() => (window.location.href = "/manage-student")}
+//                   </a>
+//                 </li>
+//                 <li>
+//                   <a
+//                     href="/manage-student"
+//                     className="block p-2 hover:bg-yellow-200 rounded"
 //                   >
 //                     Student Management
-//                   </li>
-//                 </ul>
-//               </div>
-
+//                   </a>
+//                 </li>
+//               </ul>
 //             )}
-//           </div>
-
-//           {/* Mail Button */}
-//           <div
-//             className="flex space-x-2 items-center cursor-pointer relative"
-//             onClick={() => {
-//               setMailPopupOpen((toggle) => !toggle);
-//               setProfileMenuOpen(false);
-//               setCreateMenuOpen(false);
-//             }}
-//           >
-//             <IoMdNotifications
-//               className="text-2xl text-gray-700 cursor-pointer hover:text-blue-500 hover:cursor-pointer"
-//               style={{ width: "2rem" }}
-//               title="Options"
-//             />
-
-//             {/* Mail Popup */}
+//           </li>
+//           <li className="mb-2 relative">
+//             <button
+//               onClick={() => setMailPopupOpen(!isMailPopupOpen)}
+//               className="flex items-center p-2 hover:bg-yellow-200 rounded w-full text-left"
+//             >
+//               <IoMdNotifications className="mr-3" /> Notifications
+//             </button>
 //             {isMailPopupOpen && (
-//               <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-60 z-50 absolute p-2">
-//                 <ul className="flex flex-col">
-//                   <li
-//                     className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
-//                     onClick={() => (window.location.href = "/admin/mail")}
+//               <ul className="ml-6 mt-2">
+//                 <li>
+//                   <a
+//                     href="/admin/mail"
+//                     className="flex items-center p-2 hover:bg-yellow-200 rounded"
 //                   >
-//                     <FiMail className="text-xl mr-2" /> Inbox
-//                   </li>
-//                   <li
-//                     className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100"
-//                     onClick={() => (window.location.href = "/manage-jobs")}
+//                     <FiMail className="mr-2" /> Inbox
+//                   </a>
+//                 </li>
+//                 <li>
+//                   <a
+//                     href="/manage-jobs"
+//                     className="flex items-center p-2 hover:bg-yellow-200 rounded"
 //                   >
-//                     <MdWork className="text-xl mr-2" /> Manage Jobs
-//                   </li>
-//                 </ul>
-//               </div>
+//                     <MdWork className="mr-2" /> Manage Jobs
+//                   </a>
+//                 </li>
+//               </ul>
 //             )}
-//           </div>
-//           <div
-//             className="flex space-x-2 items-center cursor-pointer relative"
-//             onClick={() => {
-//               setProfileMenuOpen((toggle) => !toggle);
-//               setCreateMenuOpen(false);
-//               setMailPopupOpen(false);
-//             }}
-//           >
-//             <p>{username || "Admin"}</p>
-//             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-300 text-gray-700 text-lg font-semibold">
-//               {userInitials}
-//             </div>
-
-//             {/* Profile Menu */}
-//             {isProfileMenuOpen && (
-//               <div className="top-[100%] right-0 mt-2 bg-white shadow-lg rounded-lg w-40 z-50 absolute p-2">
-//                 <ul className="flex flex-col">
-//                   <li
-//                     className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-//                     onClick={() => (window.location.href = "/profile")}
-//                   >
-//                     Profile
-//                   </li>
-//                   <li
-//                     className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-//                     onClick={handleLogout}
-//                   >
-//                     Logout
-//                   </li>
-//                 </ul>
-//               </div>
-//             )}
-//           </div>
-//         </div>
+//           </li>
+//         </ul>
 //       </nav>
+
+//       <div className="p-4 border-t">
+//         <button
+//           onClick={handleLogout}
+//           className="flex items-center p-2 hover:bg-yellow-200 rounded w-full"
+//         >
+//           <FiLogOut className="mr-3" /> Logout
+//         </button>
+//       </div>
 //     </div>
 //   );
 // }
 
 
-import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
-import { AppPages } from "../../utils/constants";
-import {
-  FiPlus,
-  FiMail,
-  FiHome,
-  FiBriefcase,
-  FiAward,
-  FiLogOut,
-} from "react-icons/fi";
-import { IoMdNotifications } from "react-icons/io";
-import { MdWork } from "react-icons/md";
+
+
+
+
+
+
+
+
+
+
+
+
+"use client"
+
+import { useState, useEffect } from "react"
+import Cookies from "js-cookie"
+import { FiMail, FiPlus, FiUser, FiHome, FiBriefcase, FiAward } from "react-icons/fi"
+import { IoMdNotifications } from "react-icons/io"
+import { MdWork } from "react-icons/md"
 import snslogo from "../../assets/images/snslogo.png"
 
 export default function AdminSidebar() {
-  const [isCreateMenuOpen, setCreateMenuOpen] = useState(false);
-  const [isMailPopupOpen, setMailPopupOpen] = useState(false);
-  const [username, setUsername] = useState("");
+  const [isProfileMenuOpen, setProfileMenuOpen] = useState(false)
+  const [isCreateMenuOpen, setCreateMenuOpen] = useState(false)
+  const [isMailPopupOpen, setMailPopupOpen] = useState(false)
+  const [username, setUsername] = useState("")
 
   useEffect(() => {
-    const user = Cookies.get("username");
+    // Retrieve the username from cookies when the component mounts
+    const user = Cookies.get("username")
     if (user) {
-      setUsername(user);
+      setUsername(user)
     }
-  }, []);
+  }, [])
 
   const handleLogout = () => {
-    Cookies.remove("jwt");
-    window.location.href = "/";
-  };
+    // Clear the JWT cookie
+    Cookies.remove("jwt")
 
-  const handleStudyMaterialClick = (event) => {
-    event.preventDefault();
-    alert("Coming Soon!");
-  };
+    // Redirect to the login page
+    window.location.href = "/"
+  }
 
-  const userInitials = username ? username.charAt(0).toUpperCase() : "A";
+  const userInitials = username ? username.charAt(0).toUpperCase() : "S"
 
   return (
     <div className="bg-white shadow-lg h-screen w-57 fixed left-0 top-0 flex flex-col">
@@ -270,48 +241,42 @@ export default function AdminSidebar() {
           {userInitials}
         </div>
         <div>
-          <p className="font-semibold text-gray-200">{username || "Admin"}</p>
-          <p className="text-sm text-gray-200">Administrator</p>
+          <p className="font-semibold text-gray-200">{username || "SuperAdmin"}</p>
+          <p className="text-sm text-gray-200"> Administrator</p>
         </div>
       </div>
 
       <nav className="flex-1 overflow-y-auto">
         <ul className="p-2">
           <li className="mb-2">
-            <a
-              href="/admin/home"
-              className="flex items-center p-2 hover:bg-yellow-200 rounded"
-            >
+            <a href="/admin/home" className="flex items-center p-2 hover:bg-yellow-200 rounded">
               <FiHome className="mr-3" /> Home
             </a>
           </li>
           <li className="mb-2">
-            <a
-              href={AppPages.adminJobDashboard.route}
-              className="flex items-center p-2 hover:bg-yellow-200 rounded"
-            >
+            <a href="/jobs" className="flex items-center p-2 hover:bg-yellow-200 rounded">
               <FiBriefcase className="mr-3" /> Jobs
             </a>
           </li>
           <li className="mb-2">
-            <a
-              href={AppPages.adminInternShipDashboard.route}
-              className="flex items-center p-2 hover:bg-yellow-200 rounded"
-            >
+            <a href="/internships" className="flex items-center p-2 hover:bg-yellow-200 rounded">
               <FiBriefcase className="mr-3" /> Internships
             </a>
           </li>
           <li className="mb-2">
-            <a
-              href="/admin/achievements"
-              className="flex items-center p-2 hover:bg-yellow-200 rounded"
-            >
+            <a href="/admin/achievements" className="flex items-center p-2 hover:bg-yellow-200 rounded">
               <FiAward className="mr-3" /> Achievements
             </a>
           </li>
+
           <li className="mb-2 relative">
             <button
-              onClick={() => setCreateMenuOpen(!isCreateMenuOpen)}
+              onClick={() => {
+                setCreateMenuOpen(!isCreateMenuOpen)
+                setProfileMenuOpen(false)
+                setMailPopupOpen(false)
+               
+              }}
               className="flex items-center p-2 hover:bg-yellow-200 rounded w-full text-left"
             >
               <FiPlus className="mr-3" /> Create New
@@ -319,87 +284,95 @@ export default function AdminSidebar() {
             {isCreateMenuOpen && (
               <ul className="ml-6 mt-2">
                 <li>
-                  <a
-                    href="/internpost"
-                    className="block p-2 hover:bg-yellow-200 rounded"
-                  >
-                    Internship
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/jobpost"
-                    className="block p-2 hover:bg-yellow-200 rounded"
-                  >
+                  <a href="/jobpost" className="block p-2 hover:bg-yellow-200 rounded">
                     Job Post
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="/studymaterial-post"
-                    className="block p-2 hover:bg-yellow-200 rounded"
-                  >
-                    Study Material Post
+                  <a href="/internpost" className="block p-2 hover:bg-yellow-200 rounded">
+                    Internship
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="/achievementpost"
-                    className="block p-2 hover:bg-yellow-200 rounded"
-                  >
+                  <a href="/achievementpost" className="block p-2 hover:bg-yellow-200 rounded">
                     Achievement Post
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="/manage-student"
-                    className="block p-2 hover:bg-yellow-200 rounded"
-                  >
-                    Student Management
+                  <a href="/studymaterial-post" className="block p-2 hover:bg-yellow-200 rounded">
+                    Study Material Post
                   </a>
                 </li>
               </ul>
             )}
           </li>
+
+          <li className="mb-2">
+            <a href="/manage-jobs" className="flex items-center p-2 hover:bg-yellow-200 rounded">
+              <MdWork className="mr-3" /> Manage Jobs
+            </a>
+          </li>
+
           <li className="mb-2 relative">
             <button
-              onClick={() => setMailPopupOpen(!isMailPopupOpen)}
+              onClick={() => {
+                setMailPopupOpen(!isMailPopupOpen)
+                setProfileMenuOpen(false)
+                setCreateMenuOpen(false)
+              }}
               className="flex items-center p-2 hover:bg-yellow-200 rounded w-full text-left"
             >
-              <IoMdNotifications className="mr-3" /> Notifications
+              <FiUser className="mr-3" /> Management
             </button>
             {isMailPopupOpen && (
               <ul className="ml-6 mt-2">
                 <li>
-                  <a
-                    href="/admin/mail"
-                    className="flex items-center p-2 hover:bg-yellow-200 rounded"
-                  >
-                    <FiMail className="mr-2" /> Inbox
+                  <a href="/manage-student" className="flex items-center p-2 hover:bg-yellow-200 rounded">
+                    Student Management
                   </a>
                 </li>
-                <li>
-                  <a
-                    href="/manage-jobs"
-                    className="flex items-center p-2 hover:bg-yellow-200 rounded"
-                  >
-                    <MdWork className="mr-2" /> Manage Jobs
+                {/* <li>
+                  <a href="/Admin-Management" className="flex items-center p-2 hover:bg-yellow-200 rounded">
+                    Admin Management
                   </a>
-                </li>
+                </li> */}
               </ul>
             )}
           </li>
+
+          <li className="mb-2">
+            <a href="/admin/mail" className="flex items-center p-2 hover:bg-yellow-200 rounded">
+              <FiMail className="mr-3" /> Inbox
+            </a>
+          </li>
         </ul>
+
       </nav>
 
       <div className="p-4 border-t">
-        <button
-          onClick={handleLogout}
-          className="flex items-center p-2 hover:bg-yellow-200 rounded w-full"
-        >
-          <FiLogOut className="mr-3" /> Logout
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setProfileMenuOpen(!isProfileMenuOpen)}
+            className="flex items-center p-2 hover:bg-yellow-200 rounded w-full"
+          >
+            <FiUser className="mr-3" /> Profile
+          </button>
+          {isProfileMenuOpen && (
+            <ul className="absolute bottom-full left-0 mb-2 bg-white shadow-lg rounded-lg w-full">
+              <li>
+                <a href="/profile" className="block px-4 py-2 hover:bg-yellow-200">
+                  View Profile
+                </a>
+              </li>
+              <li>
+                <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-yellow-200">
+                  Logout
+                </button>
+              </li>
+            </ul>
+          )}
+        </div>
       </div>
     </div>
-  );
+  )
 }
