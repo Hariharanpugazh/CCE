@@ -281,7 +281,7 @@ const StudentManagement_superadmin = () => {
           </div>
         )}
 
-        <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       </div>
     </div>
   );

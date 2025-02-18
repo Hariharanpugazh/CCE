@@ -136,7 +136,7 @@ export default function ManagementHomePage() {
                             className="border p-2 rounded"
                         >
                             <option value="">All Status</option>
-                            <option value="active">Active</option>
+                            <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
                         </select>
                         <button
@@ -198,7 +198,7 @@ export default function ManagementHomePage() {
                                             <td className="py-2 px-4 border-b border-gray-300">
                                                 <span
                                                     className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
-                                                        admin.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                                                        admin.status === "Active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                                                     }`}
                                                 >
                                                     {admin.status || 'N/A'}
