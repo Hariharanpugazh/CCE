@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { IoMdCheckmark } from "react-icons/io";
 import { FaXmark } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
@@ -12,62 +12,74 @@ const InternshipTable = ({
   handleAction,
   handleDelete,
   handleView,
+  handleBulkApprove, // Ensure this prop is received
+  handleBulkDelete, // Ensure this prop is received
   currentPage,
   itemsPerPage,
   handlePageChange,
 }) => {
-  const getCurrentItems = (items) => {
+  const [sortOrder, setSortOrder] = useState(null); // 'asc' or 'desc'
+
+  const getCurrentItems = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return items.slice(startIndex, startIndex + itemsPerPage);
+    return sortedInternships().slice(startIndex, startIndex + itemsPerPage);
   };
 
   const handleSelectAll = () => {
-    if (selectedInternships.length === internships.length) {
+    if (selectedInternships.length === getCurrentItems().length) {
       setSelectedInternships([]);
     } else {
-      setSelectedInternships(internships.map((internship) => internship._id));
+      setSelectedInternships(
+        getCurrentItems().map((internship) => internship._id)
+      );
     }
   };
 
-  const handleBulkDelete = async (type) => {
-    const ids =
-      type === "job"
-        ? selectedJobs
-        : type === "achievement"
-        ? selectedAchievements
-        : selectedInternships;
-    if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
-      try {
-        const promises = ids.map((id) => handleDelete(id, type));
-        await Promise.all(promises);
-        setMessage(`All selected ${type}s have been deleted.`);
-      } catch (err) {
-        console.error(`Error bulk deleting ${type}s:`, err);
-        setError(`Failed to bulk delete ${type}s.`);
+  const sortedInternships = () => {
+    if (!sortOrder) return internships;
+    return [...internships].sort((a, b) => {
+      const dateA = new Date(a.internship_data.application_deadline);
+      const dateB = new Date(b.internship_data.application_deadline);
+      if (sortOrder === "asc") {
+        return dateA - dateB;
+      } else {
+        return dateB - dateA;
       }
-    }
+    });
   };
-  
+
+  const toggleSortOrder = () => {
+    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
+  };
+
+  useEffect(() => {
+    setSelectedInternships((prevSelected) =>
+      prevSelected.filter((id) =>
+        getCurrentItems().some((internship) => internship._id === id)
+      )
+    );
+  }, [currentPage, internships]);
+
   return (
     <div id="internships-section" className="mt-4">
-      <div className="flex justify-between items-center mb-2 w-[79%]">
+      <div className="flex justify-between items-center mb-2 w-[95%]">
         <h2 className="text-lg font-semibold">Internship Approvals</h2>
-        <div className="flex items-center pt-4 space-x-2">
+        <div className="flex items-center pt-4 space-x-2 mr-62">
           <button
             className="px-2 py-1 bg-green-500 text-white rounded text-sm"
-            onClick={() => handleBulkApprove("internship")}
+            onClick={() => handleBulkApprove("internship")} // Use the prop here
           >
             Approve all
           </button>
           <button
             className="px-2 py-1 bg-red-500 text-white rounded text-sm"
-            onClick={() => handleBulkDelete("internship")}
+            onClick={() => handleBulkDelete("internship")} // Use the prop here
           >
             Delete all
           </button>
           <input
             type="checkbox"
-            checked={selectedInternships.length === internships.length}
+            checked={selectedInternships.length === getCurrentItems().length}
             onChange={handleSelectAll}
             className="form-checkbox h-4 w-4 text-blue-600"
           />
@@ -84,18 +96,31 @@ const InternshipTable = ({
                 <th className="px-2 py-1 border-b border-gray-200">Select</th>
                 <th className="px-2 py-1 border-b border-gray-200">Title</th>
                 <th className="px-2 py-1 border-b border-gray-200">Company</th>
-                <th className="px-2 py-1 border-b border-gray-200">Staff Name</th>
-                <th className="px-2 py-1 border-b border-gray-200">Deadline</th>
+                <th className="px-2 py-1 border-b border-gray-200">
+                  Staff Name
+                </th>
+                <th
+                  className="px-2 py-1 border-b border-gray-200 cursor-pointer"
+                  onClick={toggleSortOrder}
+                >
+                  Deadline
+                  <span className="ml-2 text-xs">
+                    {sortOrder === "desc" ? "↓" : "↑"}
+                  </span>
+                </th>
                 <th className="px-2 py-1 border-b border-gray-200">Duration</th>
                 <th className="px-2 py-1 border-b border-gray-200">Status</th>
                 <th className="px-2 py-1 border-b border-gray-200">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {getCurrentItems(internships).map((internship) => {
+              {getCurrentItems().map((internship) => {
                 const data = internship.internship_data || {};
                 return (
-                  <tr key={internship._id} className="border-b border-gray-200 hover:bg-gray-50">
+                  <tr
+                    key={internship._id}
+                    className="border-b border-gray-200 hover:bg-gray-50"
+                  >
                     <td className="text-center px-2 py-1">
                       <input
                         type="checkbox"
@@ -110,11 +135,21 @@ const InternshipTable = ({
                         className="form-checkbox h-4 w-4 text-blue-600"
                       />
                     </td>
-                    <td className="text-center px-2 py-1">{data.title || "N/A"}</td>
-                    <td className="text-center px-2 py-1">{data.company_name || "N/A"}</td>
-                    <td className="text-center px-2 py-1">{internship.admin_name || "N/A"}</td>
-                    <td className="text-center px-2 py-1">{data.application_deadline || "N/A"}</td>
-                    <td className="text-center px-2 py-1">{data.duration || "N/A"}</td>
+                    <td className="text-center px-2 py-1">
+                      {data.title || "N/A"}
+                    </td>
+                    <td className="text-center px-2 py-1">
+                      {data.company_name || "N/A"}
+                    </td>
+                    <td className="text-center px-2 py-1">
+                      {internship.admin_name || "N/A"}
+                    </td>
+                    <td className="text-center px-2 py-1">
+                      {data.application_deadline || "N/A"}
+                    </td>
+                    <td className="text-center px-2 py-1">
+                      {data.duration || "N/A"}
+                    </td>
                     <td className="text-center px-2 py-1 font-semibold">
                       {internship.is_publish === true ? (
                         <span className="text-green-800 px-1 py-0.5 rounded-full text-xs">
@@ -137,24 +172,40 @@ const InternshipTable = ({
                             <IoMdCheckmark
                               className="text-green-500 cursor-pointer"
                               size={16}
-                              onClick={() => handleAction(internship._id, "approve", "internship")}
+                              onClick={() =>
+                                handleAction(
+                                  internship._id,
+                                  "approve",
+                                  "internship"
+                                )
+                              }
                             />
                             <FaXmark
                               className="text-red-500 cursor-pointer"
                               size={16}
-                              onClick={() => handleAction(internship._id, "reject", "internship")}
+                              onClick={() =>
+                                handleAction(
+                                  internship._id,
+                                  "reject",
+                                  "internship"
+                                )
+                              }
                             />
                           </>
                         )}
                         <FaEye
                           className="text-blue-500 cursor-pointer"
                           size={16}
-                          onClick={() => handleView(internship._id, "internship")}
+                          onClick={() =>
+                            handleView(internship._id, "internship")
+                          }
                         />
                         <FaTrashAlt
                           className="text-red-500 cursor-pointer"
                           size={16}
-                          onClick={() => handleDelete(internship._id, "internship")}
+                          onClick={() =>
+                            handleDelete(internship._id, "internship")
+                          }
                         />
                       </div>
                     </td>
