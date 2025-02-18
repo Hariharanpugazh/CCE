@@ -81,12 +81,12 @@ export default function AdminMail() {
             },
           }
         );
-    
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch review");
         }
-    
+
         const data = await response.json();
         let reviewsData = data.reviews || [];
         if (Array.isArray(reviewsData)) {
@@ -176,24 +176,25 @@ export default function AdminMail() {
                   </span>
                   {item.study_material_data ? null : (
                     <div className="flex space-x-2">
-                      <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">
-                        {item.status}
-                      </span>
-                      <span
-                        className={`text-xs px-2 py-1 rounded ${
-                          item.is_publish === true
+                      {activeTab !== "notifications" && <>
+                        <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">
+                          {item.status}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${item.is_publish === true
                             ? "bg-green-200 text-green-800"
                             : item.is_publish === false
-                            ? "bg-red-200 text-red-800"
-                            : "bg-yellow-200 text-yellow-800"
-                        }`}
-                      >
-                        {item.is_publish === true
-                          ? "Approved"
-                          : item.is_publish === false
-                          ? "Rejected"
-                          : "Pending"}
-                      </span>
+                              ? "bg-red-200 text-red-800"
+                              : "bg-yellow-200 text-yellow-800"
+                            }`}
+                        >
+                          {item.is_publish === true
+                            ? "Approved"
+                            : item.is_publish === false
+                              ? "Rejected"
+                              : "Pending"}
+                        </span>
+                      </>}
                     </div>
                   )}
                 </div>
@@ -222,7 +223,7 @@ export default function AdminMail() {
 
   const renderPreview = () => {
     if (!selectedItem) return null;
-  
+
     const {
       job_data,
       internship_data,
@@ -233,7 +234,7 @@ export default function AdminMail() {
       item_id,
       feedback, // Added feedback field
     } = selectedItem;
-  
+
     return (
       <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl">
         <button
@@ -257,18 +258,20 @@ export default function AdminMail() {
                   "Notification"}
               </h2>
               <div className="flex justify-between items-center text-sm text-gray-500">
-                <span>
-                  {job_data?.company_name ||
-                    internship_data?.company_name ||
-                    "Company Name"}
-                </span>
-                <span>
-                  {is_publish === true
-                    ? "Approved"
-                    : is_publish === false
-                    ? "Rejected"
-                    : "Pending"}
-                </span>
+                {activeTab !== "notifications" && <>
+                  <span>
+                    {job_data?.company_name ||
+                      internship_data?.company_name ||
+                      "Company Name"}
+                  </span>
+                  <span>
+                    {is_publish === true
+                      ? "Approved"
+                      : is_publish === false
+                        ? "Rejected"
+                        : "Pending"}
+                  </span>
+                </>}
               </div>
               {/* Feedback Section */}
               {feedback && (
@@ -279,96 +282,96 @@ export default function AdminMail() {
             </div>
           </div>
         </div>
-          <div className="border-t my-4" />
-          <div className="whitespace-pre-wrap text-sm text-gray-700">
-              {job_data?.job_description ||
-                internship_data?.job_description ||
-                achievement_description ||
-                study_material_data?.description} 
+        <div className="border-t my-4" />
+        <div className="whitespace-pre-wrap text-sm text-gray-700">
+          {job_data?.job_description ||
+            internship_data?.job_description ||
+            achievement_description ||
+            study_material_data?.description}
+        </div>
+        {job_data && (
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <p className="text-gray-600 font-semibold">Experience:</p>
+              <p className="text-sm">{job_data.experience_level}</p>
             </div>
-          {job_data && (
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <p className="text-gray-600 font-semibold">Experience:</p>
-                <p className="text-sm">{job_data.experience_level}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Salary:</p>
-                <p className="text-sm">{job_data.salary_range}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Location:</p>
-                <p className="text-sm">{job_data.job_location}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Work Type:</p>
-                <p className="text-sm">{job_data.selectedWorkType}</p>
-              </div>
+            <div>
+              <p className="text-gray-600 font-semibold">Salary:</p>
+              <p className="text-sm">{job_data.salary_range}</p>
             </div>
-          )}
-          {internship_data && (
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <p className="text-gray-600 font-semibold">Duration:</p>
-                <p className="text-sm">{internship_data.duration}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Stipend:</p>
-                <p className="text-sm">{internship_data.stipend}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Location:</p>
-                <p className="text-sm">{internship_data.location}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Type:</p>
-                <p className="text-sm">{internship_data.internship_type}</p>
-              </div>
+            <div>
+              <p className="text-gray-600 font-semibold">Location:</p>
+              <p className="text-sm">{job_data.job_location}</p>
             </div>
-          )}
-          {study_material_data && (
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <p className="text-gray-600 font-semibold">Category:</p>
-                <p className="text-sm">{study_material_data.category}</p>
-              </div>
-              <div>
-                <p className="text-gray-600 font-semibold">Content:</p>
-                <p className="text-sm">{study_material_data.text_content}</p>
-              </div>
+            <div>
+              <p className="text-gray-600 font-semibold">Work Type:</p>
+              <p className="text-sm">{job_data.selectedWorkType}</p>
             </div>
-          )}
-          {item_type && (
-            <div className="mt-4 text-center">
-              <Link
-                to={
-                  item_type === "internship"
-                    ? `/internship-edit/${item_id}`
-                    : `/job-edit/${item_id}`
-                }
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md inline-block"
-              >
-                Edit
-              </Link>
+          </div>
+        )}
+        {internship_data && (
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <p className="text-gray-600 font-semibold">Duration:</p>
+              <p className="text-sm">{internship_data.duration}</p>
             </div>
-          )}
-          {!item_type && (
-            <div className="mt-4">
-              <a
-                href={job_data?.job_link || internship_data?.job_link || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-center inline-block"
-              >
-                {job_data
-                  ? "Apply Now"
-                  : internship_data
+            <div>
+              <p className="text-gray-600 font-semibold">Stipend:</p>
+              <p className="text-sm">{internship_data.stipend}</p>
+            </div>
+            <div>
+              <p className="text-gray-600 font-semibold">Location:</p>
+              <p className="text-sm">{internship_data.location}</p>
+            </div>
+            <div>
+              <p className="text-gray-600 font-semibold">Type:</p>
+              <p className="text-sm">{internship_data.internship_type}</p>
+            </div>
+          </div>
+        )}
+        {study_material_data && (
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <p className="text-gray-600 font-semibold">Category:</p>
+              <p className="text-sm">{study_material_data.category}</p>
+            </div>
+            <div>
+              <p className="text-gray-600 font-semibold">Content:</p>
+              <p className="text-sm">{study_material_data.text_content}</p>
+            </div>
+          </div>
+        )}
+        {item_type && (
+          <div className="mt-4 text-center">
+            <Link
+              to={
+                item_type === "internship"
+                  ? `/internship-edit/${item_id}`
+                  : `/job-edit/${item_id}`
+              }
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md inline-block"
+            >
+              Edit
+            </Link>
+          </div>
+        )}
+        {!item_type && (
+          <div className="mt-4">
+            <a
+              href={job_data?.job_link || internship_data?.job_link || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-center inline-block"
+            >
+              {job_data
+                ? "Apply Now"
+                : internship_data
                   ? "Apply Now"
                   : "View More"}
-              </a>
-            </div>
-          )}
-        </div>
+            </a>
+          </div>
+        )}
+      </div>
 
     );
   };
@@ -386,55 +389,50 @@ export default function AdminMail() {
 
           <nav className="space-y-2">
             <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
-                activeTab === "jobs"
-                  ? "bg-yellow-50 text-yellow-600"
-                  : "hover:bg-gray-200"
-              }`}
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === "jobs"
+                ? "bg-yellow-50 text-yellow-600"
+                : "hover:bg-gray-200"
+                }`}
               onClick={() => setActiveTab("jobs")}
             >
               <Briefcase className="h-4 w-4" />
               Jobs
             </button>
             <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
-                activeTab === "internships"
-                  ? "bg-yellow-50 text-yellow-600"
-                  : "hover:bg-gray-200"
-              }`}
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === "internships"
+                ? "bg-yellow-50 text-yellow-600"
+                : "hover:bg-gray-200"
+                }`}
               onClick={() => setActiveTab("internships")}
             >
               <GraduationCap className="h-4 w-4" />
               Internships
             </button>
             <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
-                activeTab === "study_materials"
-                  ? "bg-yellow-50 text-yellow-600"
-                  : "hover:bg-gray-200"
-              }`}
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === "study_materials"
+                ? "bg-yellow-50 text-yellow-600"
+                : "hover:bg-gray-200"
+                }`}
               onClick={() => setActiveTab("study_materials")}
             >
               <BookOpen className="h-4 w-4" />
               Study Materials
             </button>
             <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
-                activeTab === "achievements"
-                  ? "bg-yellow-50 text-yellow-600"
-                  : "hover:bg-gray-200"
-              }`}
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === "achievements"
+                ? "bg-yellow-50 text-yellow-600"
+                : "hover:bg-gray-200"
+                }`}
               onClick={() => setActiveTab("achievements")}
             >
               <Trophy className="h-4 w-4" />
               Achievements
             </button>
             <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
-                activeTab === "notifications"
-                  ? "bg-yellow-50 text-yellow-600"
-                  : "hover:bg-gray-200"
-              }`}
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === "notifications"
+                ? "bg-yellow-50 text-yellow-600"
+                : "hover:bg-gray-200"
+                }`}
               onClick={() => setActiveTab("notifications")}
             >
               <Bell className="h-4 w-4" />
