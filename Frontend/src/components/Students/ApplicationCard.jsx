@@ -237,7 +237,7 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
           </button>
           {isSaved !== undefined && (
             <FiBookmark
-              className={`text-xl cursor-pointer p-2 hover:bg-gray-100 rounded-lg ${
+              className={`text-4xl cursor-pointer p-2 hover:bg-gray-100 rounded-lg ${
                 isSaved ? "text-blue-600 fill-current" : "text-gray-400"
               }`}
             />
