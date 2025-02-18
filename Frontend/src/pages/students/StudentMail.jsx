@@ -124,7 +124,7 @@ const StudentMail = () => {
       className="flex flex-col h-screen"
     >
       <StudentPageNavbar />
-      <section className="flex-1 flex flex-col p-6 w-4/5 mx-auto mt-4 rounded-lg shadow-lg">
+      <section className="flex-1 flex flex-col p-6 w-4/5 mx-auto mt-4 rounded-lg shadow-lg overflow-y-auto custom-scrollbar">
         {/* Header Section */}
         <motion.div
           initial={{ y: -50, opacity: 0 }}
@@ -250,7 +250,6 @@ const StudentMail = () => {
             Send
           </button>
         </div>
-        {/* {status && <p>{status}</p>} */}
       </section>
     </motion.div>
   );

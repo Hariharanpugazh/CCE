@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import { Mail, Bell, Briefcase, GraduationCap, BookOpen, Trophy, Search, X } from "lucide-react";
+import { Mail, Briefcase, GraduationCap, BookOpen, Trophy, Search, X } from "lucide-react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { FaCheckDouble, FaCheck } from "react-icons/fa";
@@ -20,14 +20,13 @@ const InboxPage = () => {
   const [studentAchievements, setStudentAchievements] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("contactMessages");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [expandedIndex, setExpandedIndex] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [replyText, setReplyText] = useState({});
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [toastMessage, setToastMessage] = useState("");
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -36,7 +35,7 @@ const InboxPage = () => {
   const currentInternships = internships.slice(indexOfFirstItem, indexOfLastItem);
   const currentStudyMaterials = studyMaterials.slice(indexOfFirstItem, indexOfLastItem);
   const currentStudentAchievements = studentAchievements.slice(indexOfFirstItem, indexOfLastItem);
-  const currentMessages = messages.slice(indexOfFirstItem, indexOfLastItem);
+  const currentStudents = students.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -72,19 +71,12 @@ const InboxPage = () => {
 
   const fetchAllStudents = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/get_all_student_chats/", {
-        method: "GET",
+      const response = await axios.get("http://127.0.0.1:8000/api/get_all_student_chats/", {
         headers: {
-          "Authorization": `Bearer ${Cookies.get("jwt")}`, // Pass JWT token
-          "Content-Type": "application/json"
+          Authorization: `Bearer ${Cookies.get("jwt")}`,
         },
-        credentials: "include",
       });
-
-      const data = await response.json();
-      console.log("Fetched students data:", data.chats); // Debugging line
-      setStudents(data.chats || []);
-      // setSelectedStudent(data.chats[0].student_id);
+      setStudents(response.data.chats || []);
     } catch (error) {
       console.error("Error fetching students:", error);
     }
@@ -93,18 +85,12 @@ const InboxPage = () => {
   const fetchMessages = async (student_id) => {
     setSelectedStudent(student_id);
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/get_student_messages/${student_id}/`, {
-        method: "GET",
+      const response = await axios.get(`http://127.0.0.1:8000/api/get_student_messages/${student_id}/`, {
         headers: {
-          "Authorization": `Bearer ${Cookies.get("jwt")}`, // Pass JWT token
-          "Content-Type": "application/json"
+          Authorization: `Bearer ${Cookies.get("jwt")}`,
         },
-        credentials: "include",
       });
-
-      const data = await response.json();
-      console.log("Fetched messages data:", data); // Debugging line
-      setMessages(data.messages || []);
+      setMessages(response.data.messages || []);
     } catch (error) {
       console.error("Error fetching messages:", error);
     }
@@ -112,20 +98,13 @@ const InboxPage = () => {
 
   const markMessagesAsSeen = async (student_id) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/mark_messages_as_seen/${student_id}/`, {
-        method: "POST",
+      const response = await axios.post(`http://127.0.0.1:8000/api/mark_messages_as_seen/${student_id}/`, {}, {
         headers: {
-          "Authorization": `Bearer ${Cookies.get("jwt")}`, // Pass JWT token
-          "Content-Type": "application/json"
+          Authorization: `Bearer ${Cookies.get("jwt")}`,
         },
-        credentials: "include",
       });
-
-      if (response.ok) {
-        console.log("Messages marked as seen.");
+      if (response.status === 200) {
         fetchMessages(student_id); // Refresh messages to reflect the status change
-      } else {
-        console.error("Failed to mark messages as seen.");
       }
     } catch (error) {
       console.error("Error marking messages as seen:", error);
@@ -144,16 +123,12 @@ const InboxPage = () => {
     };
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/admin_reply_message/", {
-        method: "POST",
+      const response = await axios.post("http://127.0.0.1:8000/api/admin_reply_message/", replyData, {
         headers: {
-          "Authorization": `Bearer ${Cookies.get("jwt")}`, // Pass JWT token
-          "Content-Type": "application/json"
+          Authorization: `Bearer ${Cookies.get("jwt")}`,
         },
-        body: JSON.stringify(replyData),
       });
-
-      if (response.ok) {
+      if (response.status === 200) {
         setReply(""); // Clear input field
         fetchMessages(selectedStudent); // Refresh chat
       }
@@ -176,7 +151,6 @@ const InboxPage = () => {
       const response = await axios.get("http://localhost:8000/api/get_jobs_with_admin/");
       let jobsData = response.data.jobs || [];
       if (Array.isArray(jobsData)) {
-        // Sort jobs by timestamp in descending order
         jobsData = jobsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         setJobs(jobsData);
       } else {
@@ -186,13 +160,12 @@ const InboxPage = () => {
       console.error("Error fetching jobs:", err);
     }
   };
-  
+
   const fetchInternships = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/get_internships_with_admin/");
       let internshipsData = response.data.internships || [];
       if (Array.isArray(internshipsData)) {
-        // Sort internships by timestamp in descending order
         internshipsData = internshipsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         setInternships(internshipsData);
       } else {
@@ -228,43 +201,39 @@ const InboxPage = () => {
     }));
   };
 
-  const toggleExpand = (index) => {
-    setExpandedIndex(prevIndex => prevIndex === index ? null : index);
-  };
-
   const renderContent = () => {
     let itemsToDisplay = [];
 
     switch (selectedCategory) {
       case "contactMessages":
-        itemsToDisplay = students; // Display students for contact messages
+        itemsToDisplay = currentStudents;
         break;
       case "achievements":
-        itemsToDisplay = achievements;
+        itemsToDisplay = currentAchievements;
         break;
       case "internships":
-        itemsToDisplay = internships;
+        itemsToDisplay = currentInternships;
         break;
       case "studyMaterials":
-        itemsToDisplay = studyMaterials;
+        itemsToDisplay = currentStudyMaterials;
         break;
       case "Jobs":
-        itemsToDisplay = jobs;
+        itemsToDisplay = currentJobs;
         break;
       case "studentAchievements":
-        itemsToDisplay = studentAchievements;
+        itemsToDisplay = currentStudentAchievements;
         break;
       default:
         return null;
     }
-    console.log("Items to display:", students); // Debugging line
+
     const filteredItems = itemsToDisplay.filter(item =>
       item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.message?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.admin_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.company_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.student_email?.toLowerCase().includes(searchQuery.toLowerCase()) // Filter by student email
+      item.student_email?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -278,20 +247,23 @@ const InboxPage = () => {
                 onClick={async () => {
                   if (selectedCategory === "contactMessages") {
                     setSelectedStudent(item.student_id);
-                    await markMessagesAsSeen(item.student_id); // Mark messages as seen
+                    await markMessagesAsSeen(item.student_id);
                     await fetchMessages(item.student_id);
-                    const response = await fetch(`http://localhost:8000/api/profile/${item.student_id}/`);
-                    const data = await response.json();
-                    item.name = data.data.name; // Add student name to the student object
-                    setIsChatOpen(true); // Open chat interface
+                    const response = await axios.get(`http://localhost:8000/api/profile/${item.student_id}/`);
+                    const data = response.data;
+                    item.name = data.data.name;
+                    setIsChatOpen(true);
                   } else {
                     setSelectedItem(item);
                   }
                 }}
               >
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-lg">{item.name || item.student_email}</span>
+                  <span className="font-semibold text-lg">{item.name || item.student_email || item.title || item.company_name || item.admin_name}</span>
                 </div>
+                <p className="text-gray-700 mt-2">
+                  {item.message || item.description || item.job_description || "No Description"}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -329,7 +301,7 @@ const InboxPage = () => {
           </button>
           <h2 className="text-xl font-semibold ml-2">Chat with {selectedStudent && students.find(student => student.student_id === selectedStudent)?.name}</h2>
         </div>
-        <div className="flex-1 overflow-y-auto space-y-4">
+        <div className="flex-1 overflow-y-auto max-h-[calc(100vh-200px)] p-4 bg-gray-100 rounded-lg shadow-inner">
           {messages.length > 0 ? (
             messages.map((message, index) => {
               const dateLabel = formatDate(message.timestamp);
@@ -354,7 +326,6 @@ const InboxPage = () => {
                           message.sender === "admin" ? "justify-end" : "justify-start"
                         }`}
                       >
-                        
                         {message.sender !== "admin" && (
                           <div
                             className={`w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg mr-2`}
@@ -400,7 +371,6 @@ const InboxPage = () => {
                             A
                           </div>
                         )}
-                        
                       </div>
                     </div>
                   </div>
@@ -425,6 +395,116 @@ const InboxPage = () => {
           >
             Send
           </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPreview = () => {
+    if (!selectedItem) return null;
+
+    const { job_data, internship_data, achievement_description, study_material_data, item_type, item_id } = selectedItem;
+
+    return (
+      <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl">
+        <button
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition duration-300"
+          onClick={() => setSelectedItem(null)}
+        >
+          <X className="h-5 w-5" />
+        </button>
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <div className="flex items-start gap-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-300 text-gray-700 text-lg">
+              {selectedItem.name ? selectedItem.name[0] : 'A'}
+            </div>
+            <div className="flex-1">
+              <h2 className="text-xl font-semibold">
+                {job_data?.title || internship_data?.title || selectedItem.name || study_material_data?.title || 'Notification'}
+              </h2>
+              <div className="flex justify-between items-center text-sm text-gray-500">
+                <span>{job_data?.company_name || internship_data?.company_name || 'Company Name'}</span>
+              </div>
+            </div>
+          </div>
+          <div className="border-t my-4" />
+          <div className="whitespace-pre-wrap text-sm text-gray-700">
+            {job_data?.job_description || internship_data?.job_description || achievement_description || study_material_data?.description || `Feedback: ${selectedItem.feedback}`}
+          </div>
+          {job_data && (
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <p className="text-gray-600 font-semibold">Experience:</p>
+                <p className="text-sm">{job_data.experience_level}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-semibold">Salary:</p>
+                <p className="text-sm">{job_data.salary_range}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-semibold">Location:</p>
+                <p className="text-sm">{job_data.job_location}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-semibold">Work Type:</p>
+                <p className="text-sm">{job_data.selectedWorkType}</p>
+              </div>
+            </div>
+          )}
+          {internship_data && (
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <p className="text-gray-600 font-semibold">Duration:</p>
+                <p className="text-sm">{internship_data.duration}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-semibold">Stipend:</p>
+                <p className="text-sm">{internship_data.stipend}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-semibold">Deadline:</p>
+                <p className="text-sm">{new Date(internship_data.deadline).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-semibold">Location:</p>
+                <p className="text-sm">{internship_data.location}</p>
+              </div>
+            </div>
+          )}
+          {study_material_data && (
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <p className="text-gray-600 font-semibold">Category:</p>
+                <p className="text-sm">{study_material_data.category}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-semibold">Content:</p>
+                <p className="text-sm">{study_material_data.text_content}</p>
+              </div>
+            </div>
+          )}
+          {item_type && (
+            <div className="mt-4 text-center">
+              <a
+                href={item_type === 'internship' ? `/internship-edit/${item_id}` : `/job-edit/${item_id}`}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md inline-block"
+              >
+                Edit
+              </a>
+            </div>
+          )}
+          {!item_type && (
+            <div className="mt-4">
+              <a
+                href={job_data?.job_link || internship_data?.job_link || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-center inline-block"
+              >
+                {job_data ? 'Apply Now' : internship_data ? 'Apply Now' : 'View More'}
+              </a>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -511,6 +591,11 @@ const InboxPage = () => {
             {isChatOpen ? renderChatInterface() : renderContent()}
           </div>
         </div>
+        {selectedItem && selectedCategory !== "contactMessages" && (
+          <div className="w-2/3 p-4">
+            {renderPreview()}
+          </div>
+        )}
       </div>
     </div>
   );

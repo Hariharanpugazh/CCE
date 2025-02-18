@@ -56,12 +56,12 @@ const JobPreview = () => {
           studentId: userId,
           jobId: id
         });
-        window.open(job.job_data.company_website, "_blank", "noopener noreferrer");
+        window.open(job.job_data.job_link, "_blank", "noopener noreferrer");
       } catch (error) {
         console.error("Error applying for job:", error);
       }
     } else {
-      window.open(job.job_data.company_website, "_blank", "noopener noreferrer");
+      window.open(job.job_data.job_link, "_blank", "noopener noreferrer");
     }
   };
 
