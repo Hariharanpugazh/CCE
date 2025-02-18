@@ -9,7 +9,8 @@ from pymongo import MongoClient
 # MongoDB Connection
 client = MongoClient("mongodb+srv://ihub:ihub@cce.ksniz.mongodb.net/")  # Replace with your actual MongoDB connection
 db = client["CCE"]
-contactus_collection = db["message"]
+message_collection = db["message"]
+
 
 # JWT Secret Key
 JWT_SECRET = "secret"
@@ -27,7 +28,7 @@ def contact_us(request):
             if not all([student_id, student_email, content]):
                 return JsonResponse({"error": "All fields are required"}, status=400)
 
-            chat = contactus_collection.find_one({"student_id": student_id})
+            chat = message_collection.find_one({"student_id": student_id})
 
             message_entry = {
                 "sender": "student",
@@ -37,7 +38,7 @@ def contact_us(request):
             }
 
             if chat:
-                contactus_collection.update_one(
+                message_collection.update_one(
                     {"student_id": student_id},
                     {"$push": {"messages": message_entry}}
                 )
@@ -47,7 +48,7 @@ def contact_us(request):
                     "student_email": student_email,
                     "messages": [message_entry]
                 }
-                contactus_collection.insert_one(new_chat)
+                message_collection.insert_one(new_chat)
 
             return JsonResponse({"message": "Message sent successfully!"}, status=200)
 
@@ -86,7 +87,7 @@ def get_student_messages(request, student_id):
                 return JsonResponse({"error": "Invalid token"}, status=401)
 
             # 🔹 Fetch messages
-            chat = contactus_collection.find_one({"student_id": str(student_id)}, {"_id": 0, "messages": 1})
+            chat = message_collection.find_one({"student_id": str(student_id)}, {"_id": 0, "messages": 1})
 
             if not chat:
                 return JsonResponse({"messages": []}, status=200)
@@ -116,7 +117,7 @@ def student_send_message(request):
                 "status": "sent"
             }
 
-            result = contactus_collection.update_one(
+            result = message_collection.update_one(
                 {"student_id": student_id},
                 {"$push": {"messages": message_entry}}
             )
@@ -137,7 +138,7 @@ def student_send_message(request):
 def get_all_student_chats(request):
     if request.method == "GET":
         try:
-            chats = list(contactus_collection.find({}, {"_id": 1, "student_id": 1, "student_email": 1}))
+            chats = list(message_collection.find({}, {"_id": 1, "student_id": 1, "student_email": 1}))
 
             for chat in chats:
                 chat["_id"] = str(chat["_id"])
@@ -167,7 +168,7 @@ def admin_reply_message(request):
                 "status": "sent"
             }
 
-            result = contactus_collection.update_one(
+            result = message_collection.update_one(
                 {"student_id": student_id},
                 {"$push": {"messages": message_entry}}
             )
@@ -183,3 +184,58 @@ def admin_reply_message(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+@csrf_exempt
+def mark_messages_as_seen_by_admin(request, student_id):
+    if request.method == 'POST':
+        try:
+            # Find the student's chat document
+            student_chat = message_collection.find_one({"student_id": student_id})
+
+            if student_chat:
+                # Update the status of all messages to "seen"
+                for message in student_chat.get("messages", []):
+                    if message["sender"] == "student" and message["status"] == "sent":
+                        message["status"] = "seen"
+
+                # Update the document in the database
+                message_collection.update_one(
+                    {"_id": ObjectId(student_chat["_id"])},
+                    {"$set": {"messages": student_chat["messages"]}}
+                )
+
+                return JsonResponse({"message": "Messages marked as seen."}, status=200)
+            else:
+                return JsonResponse({"error": "Student chat not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+    
+@csrf_exempt
+def mark_messages_as_seen_by_student(request, student_id):
+    if request.method == 'POST':
+        try:
+            # Find the student's chat document
+            student_chat = message_collection.find_one({"student_id": student_id})
+
+            if student_chat:
+                # Update the status of all messages from admin to "seen"
+                for message in student_chat.get("messages", []):
+                    if message["sender"] == "admin" and message["status"] == "sent":
+                        message["status"] = "seen"
+
+                # Update the document in the database
+                message_collection.update_one(
+                    {"_id": ObjectId(student_chat["_id"])},
+                    {"$set": {"messages": student_chat["messages"]}}
+                )
+
+                return JsonResponse({"message": "Messages marked as seen."}, status=200)
+            else:
+                return JsonResponse({"error": "Student chat not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)

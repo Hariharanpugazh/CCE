@@ -38,6 +38,7 @@ urlpatterns = [
     path("get_internships_with_admin/", get_internships_with_admin, name="get_internships_with_admin"),
     path("get_study_materials_with_admin/", get_study_materials_with_admin, name="get_study_materials_with_admin"),
     path("get_student_achievements_with_students/", get_student_achievements, name="get_student_achievements_with_students"),
+    path('all-jobs-internships/', get_all_jobs_and_internships, name='all_jobs_internships'),
     path('mark_messages_as_seen/<str:student_id>/', mark_messages_as_seen_by_admin, name='mark_messages_as_seen'),
 
     
