@@ -162,62 +162,65 @@ export default function InternshipDashboard() {
   };
 
   return (
-    <div className="flex flex-col ml-50">
+    <div className="flex">
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
-      {userRole === "student" && <StudentPageNavbar />}
-      <header className="flex flex-col items-center justify-center py-14 container self-center">
-        <p className="text-6xl tracking-[0.8px]">
-          Internships
-        </p>
-        <p className="text-lg mt-2 text-center">
-          Explore all the internship opportunities
-          in all the existing fields <br />around the globe.
-        </p>
-      </header>
+      <div className="flex flex-col flex-1">
 
-      <div className="flex px-10 space-x-5 items-start">
-        {/* filters */}
-        {/* <Filters args={filterArgs} /> */}
+        {userRole === "student" && <StudentPageNavbar />}
+        <header className="flex flex-col items-center justify-center py-14 container self-center">
+          <p className="text-6xl tracking-[0.8px]">
+            Internships
+          </p>
+          <p className="text-lg mt-2 text-center">
+            Explore all the internship opportunities
+            in all the existing fields <br />around the globe.
+          </p>
+        </header>
 
-        {/* Job cards */}
-        <div className="flex-1 max-w-[80%] flex flex-col space-y-3">
-          {/* search */}
-          <div className="flex items-stretch">
-            <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())} placeholder={`Search Jobs`} className={`w-full text-lg p-2 px-4 rounded-tl rounded-bl bg-white border border-r-[0px] hover:border-gray-400 outline-none ${borderColor}`} />
-            <button className={`px-5 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}> Search </button>
+        <div className="flex px-10 space-x-5 items-start">
+          {/* filters */}
+          {/* <Filters args={filterArgs} /> */}
+
+          {/* Job cards */}
+          <div className="flex-1 flex flex-col space-y-3">
+            {/* search */}
+            <div className="flex items-stretch">
+              <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())} placeholder={`Search Jobs`} className={`w-full text-lg p-2 px-4 rounded-tl rounded-bl bg-white border border-r-[0px] hover:border-gray-400 outline-none ${borderColor}`} />
+              <button className={`px-5 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}> Search </button>
+            </div>
+
+            {/* jobs */}
+            <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
+              {error ? (
+                <p className="text-red-600">{error}</p>
+              ) : internships.length === 0 ? (
+                <p className="text-gray-600">No internships available at the moment.</p>
+              ) : currentInterns.length === 0 ? (
+                <p className="alert alert-danger w-full col-span-full text-center">
+                  !! No Internships Found !!
+                </p>
+              ) : (
+                currentInterns.map((intern) => (
+                  <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedIntern(intern); console.log(intern); }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(intern.id)} />
+                ))
+              )}
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalItems={filteredInterns.length}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+            />
           </div>
 
-          {/* jobs */}
-          <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
-            {error ? (
-              <p className="text-red-600">{error}</p>
-            ) : internships.length === 0 ? (
-              <p className="text-gray-600">No internships available at the moment.</p>
-            ) : currentInterns.length === 0 ? (
-              <p className="alert alert-danger w-full col-span-full text-center">
-                !! No Internships Found !!
-              </p>
-            ) : (
-              currentInterns.map((intern) => (
-                <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedIntern(intern); console.log(intern); }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(intern.id)} />
-              ))
-            )}
-          </div>
-          <Pagination
-            currentPage={currentPage}
-            totalItems={filteredInterns.length}
-            itemsPerPage={itemsPerPage}
-            onPageChange={handlePageChange}
-          />
+          {/* job preview */}
+          <SidePreview selectedItem={selectedIntern}
+            handleViewItem={() => { window.location.href = `/internship-preview/${selectedIntern.id}`; }}
+            isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(selectedIntern?.id)}
+            fetchSavedJobs={fetchSavedInternships}
+            setSelectedItem={setSelectedIntern} />
         </div>
-
-        {/* job preview */}
-        <SidePreview selectedItem={selectedIntern}
-          handleViewItem={() => { window.location.href = `/internship-preview/${selectedIntern.id}`; }}
-          isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(selectedIntern?.id)}
-          fetchSavedJobs={fetchSavedInternships}
-          setSelectedItem={setSelectedIntern} />
       </div>
     </div>
   );

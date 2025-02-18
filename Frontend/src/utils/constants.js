@@ -20,13 +20,13 @@ const AppPages = {
   },
 
   internShipDashboard: {
-    route: "/student/internships",
+    route: "/internships",
     name: "internDashboard",
     displayName: "Internships",
   },
 
   jobDashboard: {
-    route: "/student/jobs",
+    route: "/jobs",
     name: "StudentJobDashboard",
     displayName: "Jobs",
   },
