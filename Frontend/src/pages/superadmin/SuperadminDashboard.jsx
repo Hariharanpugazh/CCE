@@ -9,7 +9,6 @@ const SuperAdminHome = () => {
   const [internships, setInternships] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [filter, setFilter] = useState("All");
-  const [deptFilter, setDeptFilter] = useState("All");
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   const [showFilterOptions, setShowFilterOptions] = useState(false);
@@ -23,80 +22,134 @@ const SuperAdminHome = () => {
     { title: "OverAll", count: jobs.length + internships.length, icon: <FaListAlt /> },
     { title: "Total Job Listings", count: jobs.length, icon: <FaCheck /> },
     { title: "Total Internship Listings", count: internships.length, icon: <FaBook /> },
-    { title: "Rejected Jobs", count: 2, icon: <FaTrophy /> },
-    { title: "Pending Approvals", count: 0, icon: <FaUserPlus /> },
+    { title: "Rejected Jobs", count: jobs.filter(job => job.is_publish === false).length, icon: <FaTrophy /> },
+    { title: "Pending Approvals", count: jobs.filter(job => job.is_publish === null).length, icon: <FaUserPlus /> },
   ];
 
   useEffect(() => {
-    const fetchPublishedInternships = async () => {
+    const fetchAllJobsAndInternships = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/published-internship/");
-        const internshipsWithType = response.data.internships.map((internship) => ({
-          ...internship.internship_data, // Extract internship_data
-          id: internship._id, // Add id field
-          status: internship.status, // Add status field
-          type: "internship", // Add type field
-          updated_at: internship.updated_at // Add type field
+        const response = await axios.get("http://localhost:8000/api/all-jobs-internships/");
+        const { jobs, internships } = response.data;
+
+        // Map jobs data to the expected structure
+        const mappedJobs = jobs.map((job) => ({
+          ...job.job_data,
+          id: job._id,
+          status: job.status,
+          is_publish: job.is_publish,
+          type: "job",
+          updated_at: job.updated_at
         }));
-        setInternships(internshipsWithType); // Set internships with type
-        setFilteredInterns(internshipsWithType); // Update filtered internships
+
+        // Map internships data to the expected structure
+        const mappedInternships = internships.map((internship) => ({
+          ...internship.internship_data,
+          id: internship._id,
+          status: internship.status,
+          is_publish: internship.is_publish,
+          type: "internship",
+          updated_at: internship.updated_at
+        }));
+
+        setJobs(mappedJobs);
+        setInternships(mappedInternships);
+        setFilteredJobs(mappedJobs);
+        setFilteredInterns(mappedInternships);
       } catch (err) {
-        console.error("Error fetching published internships:", err);
-        setError("Failed to load internships.");
+        console.error("Error fetching jobs and internships:", err);
+        setError("Failed to load data.");
       }
     };
 
-    const fetchPublishedJobs = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/api/published-jobs/");
-        const jobsWithType = response.data.jobs.map((job) => ({
-          ...job.job_data, // Extract job_data
-          id: job._id, // Add id field
-          status: job.status, // Add status field
-          type: "job", // Add type field
-          updated_at: job.updated_at // Add updated_at field// Add type field
-        }));
-        setJobs(jobsWithType); // Set jobs with type
-        setFilteredJobs(jobsWithType); // Update filtered jobs
-      } catch (err) {
-        console.error("Error fetching published jobs:", err);
-        setError("Failed to load jobs.");
-      }
-    };
-
-    fetchPublishedInternships();
-    fetchPublishedJobs();
+    fetchAllJobsAndInternships();
   }, []);
 
   useEffect(() => {
-    if (searchPhrase === "") {
+    // Filter jobs and internships based on the selected filter
+    if (filter === "All") {
       setFilteredJobs(jobs);
       setFilteredInterns(internships);
-    } else {
-      setFilteredJobs(jobs.filter((job) => job.title.toLocaleLowerCase().includes(searchPhrase)
-        ||
-        job.company_name.toLocaleLowerCase().includes(searchPhrase)
-        ||
-        job.job_description.toLocaleLowerCase().includes(searchPhrase)
-        ||
-        job.required_skills.map(skill => skill.toLowerCase()).includes(searchPhrase.toLowerCase())
-        ||
-        job.selectedWorkType.toLocaleLowerCase().includes(searchPhrase)
-      ))
-
-      setFilteredInterns(internships.filter((interns) => interns.title.toLocaleLowerCase().includes(searchPhrase)
-        ||
-        interns.company_name.toLocaleLowerCase().includes(searchPhrase)
-        ||
-        interns.job_description.toLocaleLowerCase().includes(searchPhrase)
-        ||
-        interns.required_skills.map(skill => skill.toLowerCase()).includes(searchPhrase.toLowerCase())
-      ))
+    } else if (filter === "Approved") {
+      setFilteredJobs(jobs.filter((job) => job.is_publish === true));
+      setFilteredInterns(internships.filter((internship) => internship.is_publish === true));
+    } else if (filter === "Rejected") {
+      setFilteredJobs(jobs.filter((job) => job.is_publish === false));
+      setFilteredInterns(internships.filter((internship) => internship.is_publish === false));
+    } else if (filter === "Pending Approvals") {
+      setFilteredJobs(jobs.filter((job) => job.is_publish === null));
+      setFilteredInterns(internships.filter((internship) => internship.is_publish === null));
+    } else if (filter === "Active Jobs") {
+      setFilteredJobs(jobs.filter((job) => job.status === "Active" ));
+      setFilteredInterns(internships.filter((internship) => internship.status === "Active" ));
+    } else if (filter === "Expired Jobs") {
+      setFilteredJobs(jobs.filter((job) => job.status === "expired"));
+      setFilteredInterns(internships.filter((internship) => internship.status === "expired" ));
     }
-  }, [searchPhrase, jobs, internships])
+  }, [filter, jobs, internships]);
+
+  useEffect(() => {
+    if (searchPhrase === "") {
+      if (filter === "All") {
+        setFilteredJobs(jobs);
+        setFilteredInterns(internships);
+      } else if (filter === "Approved") {
+        setFilteredJobs(jobs.filter((job) => job.is_publish === true));
+        setFilteredInterns(internships.filter((internship) => internship.is_publish === true));
+      } else if (filter === "Rejected") {
+        setFilteredJobs(jobs.filter((job) => job.is_publish === false));
+        setFilteredInterns(internships.filter((internship) => internship.is_publish === false));
+      } else if (filter === "Pending Approvals") {
+        setFilteredJobs(jobs.filter((job) => job.is_publish === null));
+        setFilteredInterns(internships.filter((internship) => internship.is_publish === null));
+      } else if (filter === "Active Jobs") {
+        setFilteredJobs(jobs.filter((job) => job.status === "Active"));
+      } else if (filter === "Expired Jobs") {
+        setFilteredJobs(jobs.filter((job) => job.status === "expired"));
+      }
+    } else {
+      const filteredJobsBySearch = jobs.filter((job) =>
+        job.title.toLocaleLowerCase().includes(searchPhrase) ||
+        job.company_name.toLocaleLowerCase().includes(searchPhrase) ||
+        job.job_description.toLocaleLowerCase().includes(searchPhrase) ||
+        job.required_skills.map(skill => skill.toLowerCase()).includes(searchPhrase.toLowerCase()) ||
+        job.selectedWorkType.toLocaleLowerCase().includes(searchPhrase)
+      );
+
+      const filteredInternsBySearch = internships.filter((internship) =>
+        internship.title.toLocaleLowerCase().includes(searchPhrase) ||
+        internship.company_name.toLocaleLowerCase().includes(searchPhrase) ||
+        internship.job_description.toLocaleLowerCase().includes(searchPhrase) ||
+        internship.required_skills.map(skill => skill.toLowerCase()).includes(searchPhrase.toLowerCase())
+      );
+
+      if (filter === "All") {
+        setFilteredJobs(filteredJobsBySearch);
+        setFilteredInterns(filteredInternsBySearch);
+      } else if (filter === "Approved") {
+        setFilteredJobs(filteredJobsBySearch.filter((job) => job.is_publish === true));
+        setFilteredInterns(filteredInternsBySearch.filter((internship) => internship.is_publish === true));
+      } else if (filter === "Rejected") {
+        setFilteredJobs(filteredJobsBySearch.filter((job) => job.is_publish === false));
+        setFilteredInterns(filteredInternsBySearch.filter((internship) => internship.is_publish === false));
+      } else if (filter === "Pending Approvals") {
+        setFilteredJobs(filteredJobsBySearch.filter((job) => job.is_publish === null));
+        setFilteredInterns(filteredInternsBySearch.filter((internship) => internship.is_publish === null));
+      } else if (filter === "Active Jobs") {
+        setFilteredJobs(filteredJobsBySearch.filter((job) => job.status === "Active"));
+      } else if (filter === "Expired Jobs") {
+        setFilteredJobs(filteredJobsBySearch.filter((job) => job.status === "expired"));
+      }
+    }
+  }, [searchPhrase, filter, jobs, internships]);
 
   const handleButtonClick = (status) => {
-    setFilter(status === "All" ? "All" : status);
+    setFilter(status);
+  };
+
+  const handleFilterClick = (status) => {
+    setFilter(status);
+    setShowFilterOptions(false); // Close the filter options after selecting
   };
 
   // Pagination logic for jobs
@@ -174,7 +227,7 @@ const SuperAdminHome = () => {
                     <button
                       key={option}
                       className={`w-full px-4 py-2 cursor-pointer hover:bg-gray-100 ${filter === option ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:text-gray-900"}`}
-                      onClick={() => handleButtonClick(option)}
+                      onClick={() => handleFilterClick(option)}
                     >
                       {option}
                     </button>

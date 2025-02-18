@@ -406,7 +406,7 @@ const InboxPage = () => {
     const { job_data, internship_data, achievement_description, study_material_data, item_type, item_id } = selectedItem;
 
     return (
-      <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl">
+      <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl mt-10">
         <button
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition duration-300"
           onClick={() => setSelectedItem(null)}

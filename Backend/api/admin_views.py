@@ -940,6 +940,26 @@ def delete_job(request, job_id):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
+    
+@csrf_exempt
+def get_all_jobs_and_internships(request):
+    """
+    Fetch all jobs and internships regardless of their publish status.
+    """
+    try:
+        # Fetch all jobs
+        jobs = list(job_collection.find())
+        for job in jobs:
+            job["_id"] = str(job["_id"])  # Convert ObjectId to string
+
+        # Fetch all internships
+        internships = list(internship_collection.find())
+        for internship in internships:
+            internship["_id"] = str(internship["_id"])  # Convert ObjectId to string
+
+        return JsonResponse({"jobs": jobs, "internships": internships}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 
@@ -2070,32 +2090,7 @@ def get_student_achievements(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
     
-@csrf_exempt
-def mark_messages_as_seen_by_admin(request, student_id):
-    if request.method == 'POST':
-        try:
-            # Find the student's chat document
-            student_chat = message_collection.find_one({"student_id": student_id})
 
-            if student_chat:
-                # Update the status of all messages to "seen"
-                for message in student_chat.get("messages", []):
-                    if message["sender"] == "student" and message["status"] == "sent":
-                        message["status"] = "seen"
-
-                # Update the document in the database
-                message_collection.update_one(
-                    {"_id": ObjectId(student_chat["_id"])},
-                    {"$set": {"messages": student_chat["messages"]}}
-                )
-
-                return JsonResponse({"message": "Messages marked as seen."}, status=200)
-            else:
-                return JsonResponse({"error": "Student chat not found."}, status=404)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method."}, status=405)
       
 #================================================================Profile=======================================================================================
 
