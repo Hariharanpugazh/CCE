@@ -211,60 +211,74 @@ export default function MailPage() {
     }
   };
 
-  // Handle Select All action
-  const handleSelectAll = (type) => {
-    if (type === "job") {
-      setSelectedJobs((prev) => (prev.length === jobs.length ? [] : jobs.map((job) => job._id)));
-    } else if (type === "achievement") {
-      setSelectedAchievements((prev) =>
-        prev.length === achievements.length ? [] : achievements.map((achievement) => achievement._id)
-      );
-    } else {
-      setSelectedInternships((prev) =>
-        prev.length === internships.length ? [] : internships.map((internship) => internship._id)
-      );
-    }
-  };
+  // Handle Select All action with debugging logs
+const handleSelectAll = (type) => {
+  console.log(`Select all clicked for ${type}`);
+  if (type === "job") {
+    setSelectedJobs((prev) => {
+      const newSelected = prev.length === jobs.length ? [] : jobs.map((job) => job._id);
+      console.log(`Selected jobs: ${newSelected}`);
+      return newSelected;
+    });
+  } else if (type === "achievement") {
+    setSelectedAchievements((prev) => {
+      const newSelected = prev.length === achievements.length ? [] : achievements.map((achievement) => achievement._id);
+      console.log(`Selected achievements: ${newSelected}`);
+      return newSelected;
+    });
+  } else {
+    setSelectedInternships((prev) => {
+      const newSelected = prev.length === internships.length ? [] : internships.map((internship) => internship._id);
+      console.log(`Selected internships: ${newSelected}`);
+      return newSelected;
+    });
+  }
+};
 
-  // Handle Bulk Approve action
-  const handleBulkApprove = async (type) => {
-    const ids =
-      type === "job"
-        ? selectedJobs
-        : type === "achievement"
-        ? selectedAchievements
-        : selectedInternships;
+// Handle Bulk Approve action with debugging logs
+const handleBulkApprove = async (type) => {
+  const ids =
+    type === "job"
+      ? selectedJobs
+      : type === "achievement"
+      ? selectedAchievements
+      : selectedInternships;
 
+  console.log(`Bulk approve clicked for ${type} with IDs:`, ids);
+
+  try {
+    const promises = ids.map((id) => handleAction(id, "approve", type));
+    await Promise.all(promises);
+    setMessage(`All selected ${type}s have been approved.`);
+  } catch (err) {
+    console.error(`Error bulk approving ${type}s:`, err);
+    setError(`Failed to bulk approve ${type}s.`);
+  }
+};
+
+// Handle Bulk Delete action with debugging logs
+const handleBulkDelete = async (type) => {
+  const ids =
+    type === "job"
+      ? selectedJobs
+      : type === "achievement"
+      ? selectedAchievements
+      : selectedInternships;
+
+  console.log(`Bulk delete clicked for ${type} with IDs:`, ids);
+
+  if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
     try {
-      const promises = ids.map((id) => handleAction(id, "approve", type));
+      const promises = ids.map((id) => handleDelete(id, type));
       await Promise.all(promises);
-      setMessage(`All selected ${type}s have been approved.`);
+      setMessage(`All selected ${type}s have been deleted.`);
     } catch (err) {
-      console.error(`Error bulk approving ${type}s:`, err);
-      setError(`Failed to bulk approve ${type}s.`);
+      console.error(`Error bulk deleting ${type}s:`, err);
+      setError(`Failed to bulk delete ${type}s.`);
     }
-  };
+  }
+};
 
-  // Handle Bulk Delete action
-  const handleBulkDelete = async (type) => {
-    const ids =
-      type === "job"
-        ? selectedJobs
-        : type === "achievement"
-        ? selectedAchievements
-        : selectedInternships;
-
-    if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
-      try {
-        const promises = ids.map((id) => handleDelete(id, type));
-        await Promise.all(promises);
-        setMessage(`All selected ${type}s have been deleted.`);
-      } catch (err) {
-        console.error(`Error bulk deleting ${type}s:`, err);
-        setError(`Failed to bulk delete ${type}s.`);
-      }
-    }
-  };
 
   // Handle Feedback Submission
   const handleFeedbackSubmit = async () => {
