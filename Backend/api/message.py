@@ -32,7 +32,7 @@ def contact_us(request):
             message_entry = {
                 "sender": "student",
                 "content": content,
-                "timestamp": datetime.now(timezone.utc),
+                "timestamp": datetime.now(),
                 "status": "sent"
             }
 
@@ -112,7 +112,7 @@ def student_send_message(request):
             message_entry = {
                 "sender": "student",
                 "content": content,
-                "timestamp": datetime.now(timezone.utc),
+                "timestamp": datetime.now(),
                 "status": "sent"
             }
 
@@ -163,7 +163,7 @@ def admin_reply_message(request):
             message_entry = {
                 "sender": "admin",
                 "content": content,
-                "timestamp": datetime.now(timezone.utc),
+                "timestamp": datetime.now(),
                 "status": "sent"
             }
 
