@@ -1184,7 +1184,7 @@ def post_internship(request):
                 "admin_id" if role == "admin" else "superadmin_id": userid,
                 "is_publish": is_publish,
                 "status": current_status,
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now()
             }
 
             # Insert into MongoDB

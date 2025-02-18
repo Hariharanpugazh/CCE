@@ -12,6 +12,8 @@ const AchievementTable = ({
   handleAction,
   handleDelete,
   handleView,
+  handleBulkApprove, // Ensure this prop is received
+  handleBulkDelete, // Ensure this prop is received
   currentPage,
   itemsPerPage,
   handlePageChange,
@@ -29,25 +31,6 @@ const AchievementTable = ({
     }
   };
 
-  const handleBulkDelete = async (type) => {
-    const ids =
-      type === "job"
-        ? selectedJobs
-        : type === "achievement"
-        ? selectedAchievements
-        : selectedInternships;
-    if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
-      try {
-        const promises = ids.map((id) => handleDelete(id, type));
-        await Promise.all(promises);
-        setMessage(`All selected ${type}s have been deleted.`);
-      } catch (err) {
-        console.error(`Error bulk deleting ${type}s:`, err);
-        setError(`Failed to bulk delete ${type}s.`);
-      }
-    }
-  };
-  
   return (
     <div id="achievements-section" className="mt-4">
       <div className="flex justify-between items-center mb-2 w-[79%]">
@@ -55,13 +38,13 @@ const AchievementTable = ({
         <div className="flex items-center pt-4 space-x-2">
           <button
             className="px-2 py-1 bg-green-500 text-white rounded text-sm"
-            onClick={() => handleBulkApprove("achievement")}
+            onClick={() => handleBulkApprove("achievement")} // Use the prop here
           >
             Approve all
           </button>
           <button
             className="px-2 py-1 bg-red-500 text-white rounded text-sm"
-            onClick={() => handleBulkDelete("achievement")}
+            onClick={() => handleBulkDelete("achievement")} // Use the prop here
           >
             Delete all
           </button>
