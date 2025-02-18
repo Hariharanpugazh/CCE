@@ -45,9 +45,6 @@ import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
 import StudentJobDashboard from "./pages/students/StudentJobDashboard";
 import StudentInternshipDashboard from "./pages/students/StudentinternshipDashboard";
-import Contacty from "./pages/contact/Contacty";
-import InboxPagey from "./pages/contact/InboxPagey";
-import StudentMaily from "./pages/contact/StudentMaily";
 import Student_Management_superadmin from "./pages/superadmin/StudentManagement_superadmin"
 
 
@@ -84,9 +81,7 @@ function App() {
         <LoaderLayout />
         <Routes>
           <Route path={"/"} element={<LandingPage />} />
-          <Route path={"/contacty"} element={<Contacty />} />
-          <Route path={"/inboxpagey"} element={<InboxPagey />} />
-          <Route path={"/studentmaily"} element={<StudentMaily />} />
+          
 
           {/* Student Routes */}
           <Route path="/student" element={<StudentLogin />} />
