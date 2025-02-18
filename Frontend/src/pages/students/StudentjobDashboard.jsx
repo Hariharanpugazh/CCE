@@ -19,6 +19,10 @@ export default function StudentJobDashboard() {
   const [isEmployTypeOpen, setIsEmployTypeOpen] = useState(false);
   const [isWorkModeOpen, setIsWorkModeOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
+  const [isLocationOpen, setIsLocationOpen] = useState(false);
+  const [isDepartmentOpen, setIsDepartmentOpen] = useState(false);
+  const [isStipendOpen, setIsStipendOpen] = useState(false);
+  const [isEducationOpen, setIsEducationOpen] = useState(false);
   const [savedJobs, setSavedJobs] = useState([]);
   const [userRole, setUserRole] = useState(null);
   const [salaryRangeIndex, setSalaryRangeIndex] = useState(0);
@@ -35,6 +39,10 @@ export default function StudentJobDashboard() {
       offline: false,
       hybrid: false
     },
+    location: "",
+    department: "",
+    stipend: "",
+    education: "",
     sortBy: "Relevance",
   });
   const [currentPage, setCurrentPage] = useState(1);
@@ -86,6 +94,34 @@ export default function StudentJobDashboard() {
       });
     }
 
+    // Filter by location
+    if (filters.location) {
+      filtered = filtered.filter((job) =>
+        job.job_data.location.toLowerCase().includes(filters.location.toLowerCase())
+      );
+    }
+
+    // Filter by department
+    if (filters.department) {
+      filtered = filtered.filter((job) =>
+        job.job_data.department.toLowerCase().includes(filters.department.toLowerCase())
+      );
+    }
+
+    // Filter by stipend
+    if (filters.stipend) {
+      filtered = filtered.filter((job) =>
+        job.job_data.stipend.toLowerCase().includes(filters.stipend.toLowerCase())
+      );
+    }
+
+    // Filter by education
+    if (filters.education) {
+      filtered = filtered.filter((job) =>
+        job.job_data.education.toLowerCase().includes(filters.education.toLowerCase())
+      );
+    }
+
     // Sorting logic
     if (filters.sortBy === "Experience") {
       filtered.sort((a, b) => parseInt(a.job_data.experience_level, 10) - parseInt(b.job_data.experience_level, 10));
@@ -96,7 +132,7 @@ export default function StudentJobDashboard() {
     }
 
     setFilteredJobs(filtered);
-  }, [filters]);
+  }, [filters, jobs]);
 
   useEffect(() => {
     if (searchPhrase === "") {
@@ -106,6 +142,7 @@ export default function StudentJobDashboard() {
       setFilteredJobs(jobs.filter((job) =>
         job.job_data.title.toLowerCase().includes(searchPhrase) ||
         job.job_data.company_name.toLowerCase().includes(searchPhrase) ||
+        job.job_data.location.toLowerCase().includes(searchPhrase) ||
         job.job_data.job_description.toLowerCase().includes(searchPhrase) ||
         job.job_data.required_skills.filter((skill) => skill.toLowerCase().includes(searchPhrase)).length > 0 ||
         job.job_data.work_type.toLowerCase().includes(searchPhrase)
@@ -173,6 +210,10 @@ export default function StudentJobDashboard() {
         offline: false,
         hybrid: false
       },
+      location: "",
+      department: "",
+      stipend: "",
+      education: "",
       sortBy: "Relevance",
     });
   };
@@ -194,6 +235,14 @@ export default function StudentJobDashboard() {
     setIsWorkModeOpen,
     isSortOpen,
     setIsSortOpen,
+    isLocationOpen,
+    setIsLocationOpen,
+    isDepartmentOpen,
+    setIsDepartmentOpen,
+    isStipendOpen,
+    setIsStipendOpen,
+    isEducationOpen,
+    setIsEducationOpen,
   };
 
   const borderColor = "border-gray-300";
@@ -220,7 +269,7 @@ export default function StudentJobDashboard() {
       </header>
 
       <div className="flex px-10 space-x-5 items-start w-full justify-center">
-        {/* <Filters args={filterArgs} /> */}
+        <Filters args={filterArgs} />
         <div className="flex-1 max-w-[80%] flex flex-col space-y-3">
           <div className="flex items-stretch">
             <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())} placeholder={`Search Jobs`} className={`w-full text-lg p-2 px-4 rounded-tl rounded-bl bg-white border border-r-[0px] hover:border-gray-400 outline-none ${borderColor}`} />

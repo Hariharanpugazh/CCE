@@ -185,7 +185,7 @@ export default function ManagementHomePage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredAdmins.map((admin) => (
+                                    {currentItems.map((admin) => (
                                         <tr
                                             key={admin._id}
                                             onClick={() => handleAdminClick(admin._id)}
@@ -211,12 +211,14 @@ export default function ManagementHomePage() {
                         </div>
                     )}
 
-                    <Pagination
-                        currentPage={currentPage}
-                        totalItems={filteredAdmins.length}
-                        itemsPerPage={itemsPerPage}
-                        onPageChange={handlePageChange}
-                    />
+                    {filteredAdmins.length > itemsPerPage && (
+                        <Pagination
+                            currentPage={currentPage}
+                            totalItems={filteredAdmins.length}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={handlePageChange}
+                        />
+                    )}
                 </div>
             </main>
         </div>
