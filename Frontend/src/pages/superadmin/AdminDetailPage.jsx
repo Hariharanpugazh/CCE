@@ -59,7 +59,7 @@ export default function AdminDetailPage() {
             if (response.status === 200) {
                 setAdmin((prevAdmin) => ({ ...prevAdmin, status: newStatus }));
                 toast.success(`The account is now ${newStatus}.`, {
-                    position: "bottom-right", // Position of the toast
+                    position: "top-right", // Position of the toast
                     autoClose: 3000, // Duration to display the toast (in ms)
                     hideProgressBar: true, // Hide progress bar
                 });
@@ -67,7 +67,7 @@ export default function AdminDetailPage() {
         } catch (error) {
             console.error("Error updating status:", error);
             toast.error("Failed to update admin status.", {
-                position: "bottom-right",
+                position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: true,
             });
@@ -90,7 +90,7 @@ export default function AdminDetailPage() {
             if (response.status === 200) {
                 setAdmin((prevAdmin) => ({ ...prevAdmin, ...formData }));
                 toast.success("Admin details updated successfully.", {
-                    position: "bottom-right",
+                    position: "top-right",
                     autoClose: 3000,
                     hideProgressBar: true,
                 });
@@ -99,7 +99,7 @@ export default function AdminDetailPage() {
         } catch (error) {
             console.error("Error updating admin details:", error);
             toast.error("Failed to update admin details.", {
-                position: "bottom-right",
+                position: "top-right",
                 autoClose: 3000,
                 hideProgressBar: true,
             });
