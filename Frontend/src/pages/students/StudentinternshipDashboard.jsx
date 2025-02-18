@@ -85,7 +85,10 @@ export default function StudentInternshipDashboard() {
       try {
         const response = await axios.get("http://localhost:8000/api/published-internship/");
 
-        const internshipsWithType = response.data.internships.map((internship) => ({
+        // Filter out expired internships
+        const activeInternships = response.data.internships.filter(internship => internship.status !== "expired");
+
+        const internshipsWithType = activeInternships.map((internship) => ({
           ...internship.internship_data,
           id: internship._id,
           type: "internship",
