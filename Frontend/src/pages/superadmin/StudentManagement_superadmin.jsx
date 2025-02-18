@@ -3,7 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SuperAdminNavBar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Pagination from "../../components/Admin/pagination";
-import Notification from "../../components/Admin/Notification"; // Import the Notification component
+import { toast, ToastContainer } from "react-toastify"; // Import toast and ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // Import toastify CSS
 
 const StudentManagement_superadmin = () => {
   const [students, setStudents] = useState([]);
@@ -14,7 +15,6 @@ const StudentManagement_superadmin = () => {
   const [editableStudent, setEditableStudent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [notification, setNotification] = useState("");
   const itemsPerPage = 10;
 
   const navigate = useNavigate();
@@ -51,7 +51,7 @@ const StudentManagement_superadmin = () => {
     setStudents(students.filter((student) => student._id !== id));
     setSelectedStudent(null);
     setShowDeleteConfirm(false);
-    setNotification("Student deleted successfully!");
+    toast.success("Student deleted successfully!"); // Show toast notification
   };
 
   const handleToggleStatus = (student) => {
@@ -62,7 +62,7 @@ const StudentManagement_superadmin = () => {
       )
     );
     setSelectedStudent(null);
-    setNotification(`Student ${updatedStatus}d successfully!`);
+    toast.success(`Student ${updatedStatus}d successfully!`); // Show toast notification
   };
 
   const handleEditProfile = () => {
@@ -78,7 +78,7 @@ const StudentManagement_superadmin = () => {
     );
     setEditMode(false);
     setSelectedStudent(editableStudent);
-    setNotification("Student profile updated successfully!");
+    toast.success("Student profile updated successfully!"); // Show toast notification
   };
 
   const handleCancelEdit = () => {
@@ -281,9 +281,7 @@ const StudentManagement_superadmin = () => {
           </div>
         )}
 
-        {notification && (
-          <Notification message={notification} onClose={() => setNotification("")} />
-        )}
+        <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
       </div>
     </div>
   );
