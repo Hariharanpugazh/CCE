@@ -81,14 +81,21 @@ export default function AdminMail() {
             },
           }
         );
-
+    
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch review");
         }
-
+    
         const data = await response.json();
-        setReviews(data.reviews);
+        let reviewsData = data.reviews || [];
+        if (Array.isArray(reviewsData)) {
+          // Sort reviews by timestamp in descending order
+          reviewsData = reviewsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          setReviews(reviewsData);
+        } else {
+          console.error("Unexpected data format:", reviewsData);
+        }
       } catch (error) {
         setError(error.message);
       }
