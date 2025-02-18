@@ -448,13 +448,8 @@ def update_profile(request, userId):
             # Prevent email from being changed
             data.pop("email", None)
 
-            # Ensure only valid predefined images are used
-            allowed_images = ["boy-1.png", "boy-2.png", "boy-3.png", "boy-4.png", "boy-5.png", "boy-6.png", "Girl-1.png", "Girl-2.png", "Girl-3.png", "Girl-4.png", "Girl-5.png"]
-            if "profile_image" in data and data["profile_image"] not in allowed_images:
-                return JsonResponse({"error": "Invalid image selection"}, status=400)
-
-            # Update only name and profile image
-            updated_fields = {key: value for key, value in data.items() if key in ["name", "profile_image"]}
+            # Update only the name
+            updated_fields = {key: value for key, value in data.items() if key == "name"}
             if updated_fields:
                 student_collection.update_one(
                     {"_id": ObjectId(userId)}, {"$set": updated_fields}
@@ -480,21 +475,15 @@ def update_superadmin_profile(request, userId):
                 return JsonResponse({"error": "SuperAdmin not found"}, status=404)
 
             # Validate request payload
-            if "name" not in data or "profile_image" not in data:
+            if "name" not in data:
                 return JsonResponse({"error": "Missing required fields"}, status=400)
 
             # Prevent email from being changed
             data.pop("email", None)
 
-            # Ensure only valid predefined images are used
-            allowed_images = ["boy-1.png", "boy-2.png", "boy-3.png", "boy-4.png", "boy-5.png", "boy-6.png", "Girl-1.png", "Girl-2.png", "Girl-3.png", "Girl-4.png", "Girl-5.png"]
-            if data["profile_image"] not in allowed_images:
-                return JsonResponse({"error": "Invalid image selection"}, status=400)
-
-            # Update only name and profile image
+            # Update only the name
             updated_fields = {
-                "name": data["name"],
-                "profile_image": data["profile_image"]
+                "name": data["name"]
             }
 
             superadmin_collection.update_one({"_id": ObjectId(userId)}, {"$set": updated_fields})
