@@ -21,6 +21,7 @@ import InternshipEdit from "./pages/admin/InternshipEdit";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InternshipPreview from "./pages/students/InternshipPreview";
+import StudentInternshipPreview from "./pages/students/StudentInternshipPreview";
 import AdminAchievementDashboard from "./pages/admin/adminAchievementDashboard";
 import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashboard";
 import ManageJobs from "./pages/admin/ManageJobs";
@@ -45,9 +46,6 @@ import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
 import StudentJobDashboard from "./pages/students/StudentJobDashboard";
 import StudentInternshipDashboard from "./pages/students/StudentinternshipDashboard";
-import Contacty from "./pages/contact/Contacty";
-import InboxPagey from "./pages/contact/InboxPagey";
-import StudentMaily from "./pages/contact/StudentMaily";
 import Student_Management_superadmin from "./pages/superadmin/StudentManagement_superadmin"
 
 
@@ -84,9 +82,7 @@ function App() {
         <LoaderLayout />
         <Routes>
           <Route path={"/"} element={<LandingPage />} />
-          <Route path={"/contacty"} element={<Contacty />} />
-          <Route path={"/inboxpagey"} element={<InboxPagey />} />
-          <Route path={"/studentmaily"} element={<StudentMaily />} />
+          
 
           {/* Student Routes */}
           <Route path="/student" element={<StudentLogin />} />
@@ -102,6 +98,7 @@ function App() {
         <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
         <Route path="/internship-preview/:id" element={<InternshipPreview />} />
+        <Route path="/student/internship-preview/:id" element={<StudentInternshipPreview />} />
         <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
         <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />
         <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />        

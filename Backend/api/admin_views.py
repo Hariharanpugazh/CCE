@@ -156,7 +156,7 @@ def admin_signup(request):
                 'password': hashed_password,
                 'department': department,  # Store department
                 'college_name': college_name,  # Store college name
-                'status': 'active',  # Default status is active
+                'status': 'Active',  # Default status is Active
                 'created_at': datetime.now(),  # Store account creation date
                 'last_login': None  # Initially, no last login
             }
@@ -203,8 +203,8 @@ def admin_login(request):
             if admin_user is None:
                 return JsonResponse({'error': 'Account not found with this email id'}, status=404)
 
-            # Check if the account is active
-            if not admin_user.get('status', 'active') == 'active':
+            # Check if the account is Active
+            if not admin_user.get('status', 'Active') == 'Active':
                 return JsonResponse({'error': 'Admin account is deactivated. Please contact support.'}, status=403)
 
             if check_password(password, admin_user['password']):
@@ -375,7 +375,7 @@ def admin_details(request, id):
                 '_id': admin['_id'],
                 'name': admin.get('name', 'N/A'),
                 'email': admin.get('email', 'N/A'),
-                'status': admin.get('status', 'active'),
+                'status': admin.get('status', 'Active'),
                 'department': admin.get('department', 'N/A'),
                 'college_name': admin.get('college_name', 'N/A'),
                 'created_at': datetime.now(),
@@ -436,7 +436,7 @@ def admin_status_update(request, id):
             data = json.loads(request.body)
             new_status = data.get("status")
 
-            if new_status not in ["active", "Inactive"]:
+            if new_status not in ["Active", "Inactive"]:
                 return JsonResponse({'error': 'Invalid status value'}, status=400)
 
             update_result = admin_collection.update_one({'_id': ObjectId(id)}, {'$set': {'status': new_status}})
@@ -583,7 +583,7 @@ def job_post(request):
         application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
         now = datetime.now(timezone.utc)
 
-        current_status = "active" if application_deadline >= now else "expired"
+        current_status = "Active" if application_deadline >= now else "expired"
 
         # Prepare job data
         job_post = {
@@ -677,7 +677,7 @@ def test_job_post(request):
             "job_data": data,
             "admin_id" if role == "admin" else "superadmin_id": userid,  # Save the admin_id from the token
             "is_publish": is_publish,  # Auto-approve if enabled
-            "status": "active" if data.get('Application_Process_Timeline', {}).get('Application_Deadline', 'N/A') >= datetime.now().isoformat() else "expired",
+            "status": "Active" if data.get('Application_Process_Timeline', {}).get('Application_Deadline', 'N/A') >= datetime.now().isoformat() else "expired",
             "updated_at": datetime.now()
         }
 
@@ -1153,7 +1153,7 @@ def post_internship(request):
                 return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
 
             now = datetime.now(timezone.utc)
-            current_status = "active" if application_deadline >= now else "expired"
+            current_status = "Active" if application_deadline >= now else "expired"
 
             # Ensure required fields are present
             required_fields = [

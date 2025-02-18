@@ -341,7 +341,7 @@ export default function HomeDashboard() {
 
   const { setIsLoading } = useContext(LoaderContext)
 
-  useEffect(() => {
+  useEffect(() => {0
     setIsLoading(true)
     const fetchData = async () => {
       try {
