@@ -35,11 +35,11 @@ function EnhancedLandingPage() {
           >
             <span className="text-yellow-700 font-semibold">Welcome to iHub Platform</span>
           </motion.div>
-
+          
           <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
             Welcome to Our Platform
           </h1>
-
+          
           <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Explore a world of opportunities designed to empower students, staff,
             and administrators. Join us to access cutting-edge resources,
