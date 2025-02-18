@@ -1,103 +1,7 @@
-// import { FiBookmark, FiCircle, FiMapPin, FiEye } from "react-icons/fi";
-// import { useNavigate } from "react-router-dom";
-
-// function timeAgo(dateString) {
-//   const givenDate = new Date(dateString);
-//   const now = new Date();
-//   const secondsDiff = Math.floor((now - givenDate) / 1000);
-
-//   const years = Math.floor(secondsDiff / 31536000);
-//   if (years >= 1) return `${years} year${years > 1 ? "s" : ""} ago`;
-
-//   const months = Math.floor(secondsDiff / 2592000);
-//   if (months >= 1) return `${months} month${months > 1 ? "s" : ""} ago`;
-
-//   const days = Math.floor(secondsDiff / 86400);
-//   if (days >= 1) return `${days} day${days > 1 ? "s" : ""} ago`;
-
-//   const hours = Math.floor(secondsDiff / 3600);
-//   if (hours >= 1) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
-
-//   const minutes = Math.floor(secondsDiff / 60);
-//   if (minutes >= 1) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-
-//   return "Just now";
-// }
-
-// export default function ApplicationCard({ application, handleCardClick, isSaved }) {
-//   const navigate = useNavigate();
-
-//   const handleViewDetails = (event) => {
-//     event.stopPropagation();
-//     const previewPage = application.type === "internship" ? "internship-preview" : "job-preview";
-//     navigate(`/${previewPage}/${application._id || application.id}`);
-//   };
-
-//   const viewCount = application.applied ? application.applied.length : 0;
-
-//   return (
-//     <div
-//       className="flex flex-col p-3 border border-gray-200 rounded-lg hover:scale-[1.03] cursor-pointer"
-//       onClick={handleCardClick}
-//     >
-//       {/* Title Section */}
-//       <div className="flex justify-between items-start">
-//         <div className="flex flex-col">
-//           <p className="text-xl font-semibold">{application.title}</p>
-//           <div className="flex items-center space-x-3 text-xs text-gray-600 mt-1">
-//             <p className="flex items-center">
-//               <i className="bi bi-building w-[15px] mr-[5px]"></i> {application.company_name}
-//             </p>
-//             <FiCircle className="w-1 h-1 text-gray-600" />
-//             <p className="flex items-center">
-//               <FiMapPin className="w-4 h-4 mr-1" /> {application.location}
-//             </p>
-//           </div>
-//         </div>
-//         {isSaved !== undefined && (
-//           <FiBookmark className={`text-2xl cursor-pointer ${isSaved ? "text-blue-500 fill-current" : ""}`} />
-//         )}
-//       </div>
-
-//       {/* Description Section */}
-//       <p className="text-xs text-gray-700 my-4 line-clamp-2">{application.job_description}</p>
-
-//       {/* Tags Section */}
-//       <div className="flex flex-wrap gap-2 text-xs text-gray-800">
-//         {application.selectedWorkType && <span className="bg-gray-200 px-2 py-1 rounded-full">{application.selectedWorkType}</span>}
-//         {application.work_type && <span className="bg-gray-200 px-2 py-1 rounded-full">{application.work_type}</span>}
-//         {application.experience_level && <span className="bg-gray-200 px-2 py-1 rounded-full">{application.experience_level}</span>}
-//       </div>
-
-//       {/* Meta Info Section */}
-//       <div className="flex items-center text-gray-500 text-xs mt-3 space-x-2">
-//         <span>{timeAgo(application.updated_at)}</span>
-//         <span>|</span>
-//         <span className="flex items-center">
-//           <FiEye className="mr-1" /> {viewCount} views
-//         </span>
-//       </div>
-
-//       {/* Footer Section */}
-//       <div className="flex justify-between items-center mt-4">
-//         <span className={`text-sm font-bold ${application.status === "active" ? "text-green-500" : "text-red-500"}`}>
-//           {application.status === "active" ? "ON GOING" : "EXPIRED"}
-//         </span>
-//         <button
-//           className="bg-yellow-400 text-black px-4 py-2 rounded font-medium text-sm hover:bg-yellow-500 transition-all duration-300 transform hover:scale-105"
-//           onClick={handleViewDetails}
-//         >
-//           View Details
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-// New Card Design by @ajay_chaki
-import { FiBookmark, FiMapPin, FiEye, FiClock } from "react-icons/fi";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FiBookmark, FiMapPin, FiEye, FiClock } from "react-icons/fi";
+import Cookies from "js-cookie";
 
 function timeAgo(dateString) {
   const givenDate = new Date(dateString);
@@ -122,16 +26,68 @@ function timeAgo(dateString) {
   return "Just now";
 }
 
+function formatViewCount(count) {
+  if (count >= 1000) {
+    return (count / 1000).toFixed(1) + 'k';
+  }
+  return count.toString();
+}
+
 export default function ApplicationCard({ application, handleCardClick, isSaved }) {
   const navigate = useNavigate();
+  const [userId, setUserId] = useState(null);
+  const Viewscount = formatViewCount(application.total_views);
 
-  const handleViewDetails = (event) => {
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        if (payload.role === "admin") {
+          setUserId(payload.admin_user);
+        } else if (payload.role === "superadmin") {
+          setUserId(payload.superadmin_user);
+        } else if (payload.student_user) {
+          setUserId(payload.student_user);
+        }
+      } catch (error) {
+        console.error("Invalid JWT token:", error);
+      }
+    }
+  }, []);
+
+  const handleViewDetails = async (event) => {
     event.stopPropagation();
     const previewPage = application.type === "internship" ? "internship-preview" : "job-preview";
-    navigate(`/${previewPage}/${application._id || application.id}`);
-  };
+    const pageType = application.type === "internship" ? "internship" : "job";
 
-  const viewCount = application.applied ? application.applied.length : 0;
+    if (!userId) {
+      console.error("User ID is not available");
+      navigate(`/${previewPage}/${application._id || application.id}`);
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/viewcount/${application._id || application.id}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, count: 1, pageType, applicationId: application._id || application.id }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to update view count');
+      } else {
+        const data = await response.json();
+        setViewCount(data.total_views);
+      }
+    } catch (error) {
+      console.error('Error updating view count:', error);
+    } finally {
+      navigate(`/${previewPage}/${application._id || application.id}`);
+    }
+  };
 
   return (
     <div
@@ -155,11 +111,11 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
             </span>
           </div>
         </div>
-        
+
         {/* Status Badge */}
         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-          application.status === "active" 
-            ? "bg-green-100 text-green-800" 
+          application.status === "active"
+            ? "bg-green-100 text-green-800"
             : "bg-red-100 text-red-800"
         }`}>
           {application.status === "active" ? "Active" : "Closed"}
@@ -199,7 +155,7 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
           </div>
           <div className="flex items-center">
             <FiEye className="mr-2 opacity-75" />
-            {viewCount} views
+            {Viewscount} views
           </div>
         </div>
 

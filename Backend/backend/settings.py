@@ -157,3 +157,5 @@ EMAIL_HOST_USER = "lochana.t.ihub@snsgroups.com"
 EMAIL_HOST_PASSWORD = "mkke ccek jcog pjci"
 ADMIN_EMAIL = "lochanavishagan14@gmail.com"  # Change to your admin email
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER 
+
+

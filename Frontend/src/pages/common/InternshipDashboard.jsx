@@ -96,7 +96,8 @@ export default function InternshipDashboard() {
           id: internship._id, // Add id field
           type: "internship",
           status: internship.status,
-          updated_at: internship.updated_at // Add type field
+          updated_at: internship.updated_at, // Add type field
+          total_views: internship.total_views // Include total_views
         }));
         // console.log("Internships with type:", internshipsWithType); // Debugging line
         setInternships(internshipsWithType); // Set internships with type
@@ -202,7 +203,12 @@ export default function InternshipDashboard() {
                 </p>
               ) : (
                 currentInterns.map((intern) => (
-                  <ApplicationCard key={intern.id} application={{ ...intern }} handleCardClick={() => { setSelectedIntern(intern); console.log(intern); }} isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(intern.id)} />
+                  <ApplicationCard
+                    key={intern.id}
+                    application={{ ...intern, total_views: intern.total_views }} // Include total_views
+                    handleCardClick={() => { setSelectedIntern(intern); console.log(intern); }}
+                    isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(intern.id)}
+                  />
                 ))
               )}
             </div>
@@ -215,11 +221,13 @@ export default function InternshipDashboard() {
           </div>
 
           {/* job preview */}
-          <SidePreview selectedItem={selectedIntern}
+          <SidePreview
+            selectedItem={selectedIntern}
             handleViewItem={() => { window.location.href = `/internship-preview/${selectedIntern.id}`; }}
             isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedInterns.includes(selectedIntern?.id)}
             fetchSavedJobs={fetchSavedInternships}
-            setSelectedItem={setSelectedIntern} />
+            setSelectedItem={setSelectedIntern}
+          />
         </div>
       </div>
     </div>
