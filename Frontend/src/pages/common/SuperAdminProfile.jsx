@@ -47,7 +47,7 @@ const SuperAdminProfile = () => {
       await axios.put(`http://localhost:8000/api/update-superadmin/${userId}/`, updatedData);
       
       setEditMode(false);
-      alert("Profile updated successfully!");
+      window.location.reload();
     } catch (error) {
       console.error("Error updating profile:", error);
       alert("Failed to update profile.");
