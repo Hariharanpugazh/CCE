@@ -832,22 +832,32 @@ def review_job(request, job_id):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
     
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 @csrf_exempt
 def get_published_jobs(request):
     """
     Fetch all jobs with is_publish set to True (Approved).
     """
     try:
-        published_jobs = job_collection.find({"is_publish": True})  # Ensures only approved jobs are fetched
         job_list = []
+        published_jobs = job_collection.find({"is_publish": True})  # Ensures only approved jobs are fetched
         for job in published_jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
+            # Rename 'job_location' to 'location' if it exists
             if "job_data" in job and "job_location" in job["job_data"]:
                 job["job_data"]["location"] = job["job_data"].pop("job_location")
+            # Calculate total views
+            total_views = sum(view["count"] for view in job.get("views", []))
+            # Remove views field and add total_views
+            job.pop("views", None)
+            job["total_views"] = total_views
             job_list.append(job)
         return JsonResponse({"jobs": job_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
     
 @csrf_exempt
 def get_job_by_id(request, job_id):
@@ -1255,6 +1265,9 @@ def manage_internships(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 @csrf_exempt
 def get_published_internships(request):
     try:
@@ -1262,10 +1275,16 @@ def get_published_internships(request):
         published_internships = internship_collection.find({"is_publish": True})
         for internship in published_internships:
             internship["_id"] = str(internship["_id"])
+            # Calculate total views
+            total_views = sum(view["count"] for view in internship.get("views", []))
+            # Remove views field and add total_views
+            internship.pop("views", None)
+            internship["total_views"] = total_views
             internship_list.append(internship)
         return JsonResponse({"internships": internship_list}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
 
 @csrf_exempt
 def review_internship(request, internship_id):
@@ -2238,5 +2257,76 @@ def achievement_detail(request, achievement_id):
             {"$set": updated_data}
         )
         return Response({"message": "Achievement updated successfully"}, status=status.HTTP_200_OK)
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from bson import ObjectId
+import json
+from datetime import datetime
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from bson import ObjectId
+import json
+from datetime import datetime
+
+@csrf_exempt
+def view_count(request, id):
+    if request.method == "POST":
+        try:
+            # Parse the request body
+            data = json.loads(request.body)
+            userId = data.get("userId")
+            count = data.get("count", 1)
+            pageType = data.get("pageType")
+            applicationId = data.get("applicationId")
+
+            print(f"Received data - userId: {userId}, count: {count}, pageType: {pageType}, applicationId: {applicationId}")
+
+            if not userId or not pageType or not applicationId:
+                return JsonResponse({"error": "Missing required fields"}, status=400)
+
+            # Determine the collection based on pageType
+            if pageType == "job":
+                collection = job_collection
+            elif pageType == "internship":
+                collection = internship_collection
+            else:
+                return JsonResponse({"error": "Invalid pageType"}, status=400)
+
+            print(f"Using collection: {collection.name}")
+
+            # Find the document by applicationId
+            document = collection.find_one({"_id": ObjectId(applicationId)})
+            if not document:
+                return JsonResponse({"error": "Application not found"}, status=404)
+
+            print(f"Found document: {document}")
+
+            # Initialize or update the views array
+            views = document.get("views", [])
+            user_view = next((view for view in views if view["userId"] == userId), None)
+
+            if user_view:
+                user_view["count"] += count
+            else:
+                views.append({"userId": userId, "count": count})
+
+            print(f"Updated views: {views}")
+
+            # Update the document with the new views array
+            collection.update_one(
+                {"_id": ObjectId(applicationId)},
+                {"$set": {"views": views, "updated_at": datetime.now()}}
+            )
+
+            return JsonResponse({"message": "View count updated successfully"}, status=200)
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 

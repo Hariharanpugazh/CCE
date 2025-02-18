@@ -123,4 +123,7 @@ urlpatterns = [
 
     #test
     path("test_job_post/", test_job_post, name="test_job_post"),
+
+    #view count
+     path('viewcount/<str:id>/', view_count, name='view_count'),
 ]
