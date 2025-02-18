@@ -81,12 +81,12 @@ export default function AdminMail() {
             },
           }
         );
-    
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch review");
         }
-    
+
         const data = await response.json();
         let reviewsData = data.reviews || [];
         if (Array.isArray(reviewsData)) {
@@ -159,37 +159,42 @@ export default function AdminMail() {
       <section>
         {currentItems.length > 0 ? (
           <div className="space-y-4">
-            {currentItems.map((item) => (
-              <motion.div
-                key={item._id || item.review_id}
-                className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition duration-300 cursor-pointer border border-gray-200"
-                onClick={() => setSelectedItem(item)}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-semibold text-lg">
-                    {item.job_data?.title ||
-                      item.internship_data?.title ||
-                      item.name ||
-                      item.study_material_data?.title ||
-                      item.item_name ||
-                      "Notification"}
-                  </span>
-                  {item.study_material_data ? null : (
-                    <div className="flex space-x-2">
-                      <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">
-                        {item.status}
-                      </span>
-                      <span
-                        className={`text-xs px-2 py-1 rounded ${
-                          item.is_publish === true
-                            ? "bg-green-200 text-green-800"
-                            : item.is_publish === false
-                            ? "bg-red-200 text-red-800"
-                            : "bg-yellow-200 text-yellow-800"
-                        }`}
-                      >
-                        {item.is_publish === true
-                          ? "Approved"
+            {currentItems.map((item) => {
+              // Find the corresponding review for the item
+              const review = reviews.find((review) => review.item_id === item._id);
+              const feedback = review ? review.feedback : 'No feedback available';
+
+              return (
+                <motion.div
+                  key={item._id || item.review_id}
+                  className="p-4 bg-white shadow-md rounded-lg hover:shadow-lg transition duration-300 cursor-pointer border border-gray-200"
+                  onClick={() => setSelectedItem({ ...item, feedback })} // Include feedback in selectedItem
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-lg">
+                      {item.job_data?.title ||
+                        item.internship_data?.title ||
+                        item.name ||
+                        item.study_material_data?.title ||
+                        item.item_name ||
+                        "Notification"}
+                    </span>
+                    {item.study_material_data ? null : (
+                      <div className="flex space-x-2">
+                        <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">
+                          {item.status}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${
+                            item.is_publish === true
+                              ? "bg-green-200 text-green-800"
+                              : item.is_publish === false
+                              ? "bg-red-200 text-red-800"
+                              : "bg-yellow-200 text-yellow-800"
+                          }`}
+                        >
+                          {item.is_publish === true
+                            ? "Approved"
                           : item.is_publish === false
                           ? "Rejected"
                           : "Pending"}
@@ -222,7 +227,6 @@ export default function AdminMail() {
 
   const renderPreview = () => {
     if (!selectedItem) return null;
-
     const {
       job_data,
       internship_data,
