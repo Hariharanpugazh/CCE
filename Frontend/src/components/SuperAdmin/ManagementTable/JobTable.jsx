@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { IoMdCheckmark } from "react-icons/io";
 import { FaXmark } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
@@ -16,6 +16,8 @@ const JobTable = ({
   itemsPerPage,
   handlePageChange,
 }) => {
+
+  const [sortOrder, setSortOrder] = useState("desc"); 
   const getCurrentItems = (items) => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return items.slice(startIndex, startIndex + itemsPerPage);
@@ -47,6 +49,20 @@ const JobTable = ({
       }
     }
   };
+
+    // Sorting logic for the deadline column
+    const sortJobsByDeadline = (jobs) => {
+      return jobs.sort((a, b) => {
+        const deadlineA = new Date(a.job_data.application_deadline);
+        const deadlineB = new Date(b.job_data.application_deadline);
+        return sortOrder === "desc" ? deadlineB - deadlineA : deadlineA - deadlineB;
+      });
+    };
+  
+    const toggleSortOrder = () => {
+      setSortOrder((prevOrder) => (prevOrder === "desc" ? "asc" : "desc"));
+    };
+  
   return (
     <div id="jobs-section" className="mt-4">
       <div className="flex justify-between items-center mb-2 w-[95%]">
@@ -84,13 +100,21 @@ const JobTable = ({
                 <th className="px-2 py-1 border-b border-gray-200">Title</th>
                 <th className="px-2 py-1 border-b border-gray-200">Company</th>
                 <th className="px-2 py-1 border-b border-gray-200">Staff Name</th>
-                <th className="px-2 py-1 border-b border-gray-200">Deadline</th>
+                <th
+                  className="px-2 py-1 border-b border-gray-200 cursor-pointer"
+                  onClick={toggleSortOrder} // Toggle sort on click
+                >
+                  Deadline
+                  <span className="ml-2 text-xs">
+                    {sortOrder === "desc" ? "↓" : "↑"}
+                  </span>
+                </th>
                 <th className="px-2 py-1 border-b border-gray-200">Status</th>
                 <th className="px-2 py-1 border-b border-gray-200">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {getCurrentItems(jobs).map((job) => (
+            {getCurrentItems(sortJobsByDeadline(jobs)).map((job) => (
                 <tr key={job._id} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="text-center px-2 py-1">
                     <input
