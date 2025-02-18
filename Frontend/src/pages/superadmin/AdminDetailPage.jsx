@@ -259,7 +259,7 @@ export default function AdminDetailPage() {
                             </p>
                             <p className="text-lg">
                                 <strong className="text-gray-800">Account Status:</strong>{" "}
-                                <span className={`font-bold ${admin.status === "active" ? "text-green-600" : "text-red-600"}`}>
+                                <span className={`font-bold ${admin.status === "Active" ? "text-green-600" : "text-red-600"}`}>
                                     {admin.status}
                                 </span>
                             </p>
@@ -276,7 +276,7 @@ export default function AdminDetailPage() {
                 {/* Buttons Section */}
                 <div className="mt-6 flex flex-wrap gap-4">
                     {/* Inactive/Activate Button */}
-                    {admin.status === "active" ? (
+                    {admin.status === "Active" ? (
                         <button
                             onClick={() => handleStatusChange("Inactive")}
                             disabled={loading}
@@ -286,7 +286,7 @@ export default function AdminDetailPage() {
                         </button>
                     ) : (
                         <button
-                            onClick={() => handleStatusChange("active")}
+                            onClick={() => handleStatusChange("Active")}
                             disabled={loading}
                             className="px-4 py-2 bg-green-500 text-white rounded-md shadow hover:bg-green-600 transition-all duration-200"
                         >
