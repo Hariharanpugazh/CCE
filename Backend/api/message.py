@@ -21,8 +21,8 @@ def contact_us(request):
         try:
             data = json.loads(request.body)
             student_id = data.get("student_id")
-            student_email = data.get("email")  
-            content = data.get("message")
+            student_email = data.get("student_email")  
+            content = data.get("content")
 
             if not all([student_id, student_email, content]):
                 return JsonResponse({"error": "All fields are required"}, status=400)
