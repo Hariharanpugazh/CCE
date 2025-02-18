@@ -216,6 +216,7 @@ import Cookies from "js-cookie"
 import { FiMail, FiPlus, FiUser, FiHome, FiBriefcase, FiAward } from "react-icons/fi"
 import { IoMdNotifications } from "react-icons/io"
 import { MdWork } from "react-icons/md"
+import snslogo from "../../assets/images/snslogo.png"
 
 export default function SuperAdminSidebar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false)
@@ -249,7 +250,7 @@ export default function SuperAdminSidebar() {
   return (
     <div className="bg-white shadow-lg h-screen w-57 fixed left-0 top-0 flex flex-col">
       <div className="p-4 border-b">
-        <img src="src/assets/images/snslogo.png" alt="Logo" className="h-14 w-35 mx-auto" />
+        <img src={snslogo} alt="Logo" className="h-14 w-35 mx-auto" />
       </div>
 
       <div className="flex items-center bg-[#111933] p-4 border-b">
