@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 export default function AchievementPostForm() {
   const [formData, setFormData] = useState({
@@ -150,10 +151,8 @@ export default function AchievementPostForm() {
 
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white shadow-2xl rounded-xl">
-      <div>
-        {" "}
-        <AdminPageNavbar />
-      </div>
+      {userRole === "admin" && <AdminPageNavbar />}
+      {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
       <h2 className="text-4xl font-extrabold mb-8 text-center text-gray-800">
         Post an Achievement
