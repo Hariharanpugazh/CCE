@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { IoMdCheckmark } from "react-icons/io";
 import { FaXmark } from "react-icons/fa6";
 import { FaEye } from "react-icons/fa";
@@ -12,57 +12,52 @@ const JobTable = ({
   handleAction,
   handleDelete,
   handleView,
+  handleBulkApprove, // Ensure this prop is received
+  handleBulkDelete, // Ensure this prop is received
   currentPage,
   itemsPerPage,
   handlePageChange,
 }) => {
+  const [sortOrder, setSortOrder] = useState(null); // 'asc' or 'desc'
 
-  const [sortOrder, setSortOrder] = useState("desc"); 
-  const getCurrentItems = (items) => {
+  const getCurrentItems = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return items.slice(startIndex, startIndex + itemsPerPage);
+    return sortedJobs().slice(startIndex, startIndex + itemsPerPage);
   };
 
   const handleSelectAll = () => {
-    if (selectedJobs.length === jobs.length) {
+    if (selectedJobs.length === getCurrentItems().length) {
       setSelectedJobs([]);
     } else {
-      setSelectedJobs(jobs.map((job) => job._id));
+      setSelectedJobs(getCurrentItems().map((job) => job._id));
     }
   };
 
-  const handleBulkDelete = async (type) => {
-    const ids =
-      type === "job"
-        ? selectedJobs
-        : type === "achievement"
-        ? selectedAchievements
-        : selectedInternships;
-    if (window.confirm(`Are you sure you want to delete all selected ${type}s?`)) {
-      try {
-        const promises = ids.map((id) => handleDelete(id, type));
-        await Promise.all(promises);
-        setMessage(`All selected ${type}s have been deleted.`);
-      } catch (err) {
-        console.error(`Error bulk deleting ${type}s:`, err);
-        setError(`Failed to bulk delete ${type}s.`);
+  const sortedJobs = () => {
+    if (!sortOrder) return jobs;
+    return [...jobs].sort((a, b) => {
+      const dateA = new Date(a.job_data.application_deadline);
+      const dateB = new Date(b.job_data.application_deadline);
+      if (sortOrder === "asc") {
+        return dateA - dateB;
+      } else {
+        return dateB - dateA;
       }
-    }
+    });
   };
 
-    // Sorting logic for the deadline column
-    const sortJobsByDeadline = (jobs) => {
-      return jobs.sort((a, b) => {
-        const deadlineA = new Date(a.job_data.application_deadline);
-        const deadlineB = new Date(b.job_data.application_deadline);
-        return sortOrder === "desc" ? deadlineB - deadlineA : deadlineA - deadlineB;
-      });
-    };
-  
-    const toggleSortOrder = () => {
-      setSortOrder((prevOrder) => (prevOrder === "desc" ? "asc" : "desc"));
-    };
-  
+  const toggleSortOrder = () => {
+    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
+  };
+
+  useEffect(() => {
+    setSelectedJobs((prevSelected) =>
+      prevSelected.filter((id) =>
+        getCurrentItems().some((job) => job._id === id)
+      )
+    );
+  }, [currentPage, jobs]);
+
   return (
     <div id="jobs-section" className="mt-4">
       <div className="flex justify-between items-center mb-2 w-[95%]">
@@ -70,19 +65,19 @@ const JobTable = ({
         <div className="flex items-center pt-5 space-x-2 mr-62">
           <button
             className="px-2 py-1 bg-green-500 text-white rounded text-sm"
-            onClick={() => handleBulkApprove("job")}
+            onClick={() => handleBulkApprove("job")} // Use the prop here
           >
             Approve all
           </button>
           <button
             className="px-2 py-1 bg-red-500 text-white rounded text-sm"
-            onClick={() => handleBulkDelete("job")}
+            onClick={() => handleBulkDelete("job")} // Use the prop here
           >
             Delete all
           </button>
           <input
             type="checkbox"
-            checked={selectedJobs.length === jobs.length}
+            checked={selectedJobs.length === getCurrentItems().length}
             onChange={handleSelectAll}
             className="form-checkbox h-4 w-4 text-blue-600"
           />
@@ -99,10 +94,12 @@ const JobTable = ({
                 <th className="px-2 py-1 border-b border-gray-200">Select</th>
                 <th className="px-2 py-1 border-b border-gray-200">Title</th>
                 <th className="px-2 py-1 border-b border-gray-200">Company</th>
-                <th className="px-2 py-1 border-b border-gray-200">Staff Name</th>
+                <th className="px-2 py-1 border-b border-gray-200">
+                  Staff Name
+                </th>
                 <th
                   className="px-2 py-1 border-b border-gray-200 cursor-pointer"
-                  onClick={toggleSortOrder} // Toggle sort on click
+                  onClick={toggleSortOrder}
                 >
                   Deadline
                   <span className="ml-2 text-xs">
@@ -114,8 +111,11 @@ const JobTable = ({
               </tr>
             </thead>
             <tbody>
-            {getCurrentItems(sortJobsByDeadline(jobs)).map((job) => (
-                <tr key={job._id} className="border-b border-gray-200 hover:bg-gray-50">
+              {getCurrentItems().map((job) => (
+                <tr
+                  key={job._id}
+                  className="border-b border-gray-200 hover:bg-gray-50"
+                >
                   <td className="text-center px-2 py-1">
                     <input
                       type="checkbox"
@@ -130,10 +130,16 @@ const JobTable = ({
                       className="form-checkbox h-4 w-4 text-blue-600"
                     />
                   </td>
-                  <td className="text-center px-2 py-1">{job.job_data.title}</td>
-                  <td className="text-center px-2 py-1">{job.job_data.company_name}</td>
+                  <td className="text-center px-2 py-1">
+                    {job.job_data.title}
+                  </td>
+                  <td className="text-center px-2 py-1">
+                    {job.job_data.company_name}
+                  </td>
                   <td className="text-center px-2 py-1">{job.admin_name}</td>
-                  <td className="text-center px-2 py-1">{job.job_data.application_deadline}</td>
+                  <td className="text-center px-2 py-1">
+                    {job.job_data.application_deadline}
+                  </td>
                   <td className="text-center px-2 py-1 font-semibold">
                     {job.is_publish === true ? (
                       <span className="text-green-800 px-1 py-0.5 rounded-full text-xs">
@@ -156,12 +162,16 @@ const JobTable = ({
                           <IoMdCheckmark
                             className="text-green-500 cursor-pointer"
                             size={16}
-                            onClick={() => handleAction(job._id, "approve", "job")}
+                            onClick={() =>
+                              handleAction(job._id, "approve", "job")
+                            }
                           />
                           <FaXmark
                             className="text-red-500 cursor-pointer"
                             size={16}
-                            onClick={() => handleAction(job._id, "reject", "job")}
+                            onClick={() =>
+                              handleAction(job._id, "reject", "job")
+                            }
                           />
                         </>
                       )}
