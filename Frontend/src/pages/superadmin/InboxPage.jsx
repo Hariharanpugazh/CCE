@@ -53,8 +53,10 @@ const InboxPage = () => {
   const fetchMessages = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/get-contact-messages/");
-      const messagesData = response.data.messages || [];
+      let messagesData = response.data.messages || [];
       if (Array.isArray(messagesData)) {
+        // Sort messages by timestamp in descending order
+        messagesData = messagesData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         setMessages(messagesData);
       } else {
         console.error("Unexpected data format:", messagesData);
@@ -77,18 +79,32 @@ const InboxPage = () => {
   const fetchJobs = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/get_jobs_with_admin/");
-      setJobs(response.data.jobs || []);
+      let jobsData = response.data.jobs || [];
+      if (Array.isArray(jobsData)) {
+        // Sort jobs by timestamp in descending order
+        jobsData = jobsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        setJobs(jobsData);
+      } else {
+        console.error("Unexpected data format:", jobsData);
+      }
     } catch (err) {
       console.error("Error fetching jobs:", err);
     }
   };
-
+  
   const fetchInternships = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/get_internships_with_admin/");
-      setInternships(response.data.internships || []);
+      let internshipsData = response.data.internships || [];
+      if (Array.isArray(internshipsData)) {
+        // Sort internships by timestamp in descending order
+        internshipsData = internshipsData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        setInternships(internshipsData);
+      } else {
+        console.error("Unexpected data format:", internshipsData);
+      }
     } catch (err) {
-      console.error("Failed to fetch internships.");
+      console.error("Failed to fetch internships.", err);
     }
   };
 

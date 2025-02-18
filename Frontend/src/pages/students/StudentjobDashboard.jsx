@@ -228,19 +228,24 @@ export default function StudentJobDashboard() {
           </div>
 
           <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
-            {error ?
+            {error ? (
               <p className="text-red-600">{error}</p>
-              : jobs.length === 0 ?
-                <p className="text-gray-600">No jobs available at the moment.</p>
-                :
-                currentJobs.length === 0 ? <p className="alert alert-danger w-full col-span-full text-center">
-                  !! No Jobs Found !!
-                </p>
-                  :
-                  currentJobs.map((job) => (
-                    <ApplicationCard application={{ ...job, ...job.job_data }} key={job._id} handleCardClick={() => { setSelectedJob(job); }} isSaved={savedJobs.includes(job._id)} />
-                  ))
-            }
+            ) : jobs.length === 0 ? (
+              <p className="text-gray-600">No jobs available at the moment.</p>
+            ) : currentJobs.length === 0 ? (
+              <p className="alert alert-danger w-full col-span-full text-center">
+                !! No Jobs Found !!
+              </p>
+            ) : (
+              currentJobs.map((job) => (
+                <ApplicationCard
+                  key={job._id}
+                  application={{ ...job, ...job.job_data }}
+                  handleCardClick={() => { setSelectedJob(job); }}
+                  isSaved={savedJobs.includes(job._id)}
+                />
+              ))
+            )}
           </div>
           <Pagination
             currentPage={currentPage}

@@ -18,22 +18,22 @@ import Pagination from "../../components/Admin/pagination"; // Import Pagination
 
 export default function JobDashboard() {
   const [jobs, setJobs] = useState([]);
-  const [filteredJobs, setFilteredJobs] = useState([])
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   const [userRole, setUserRole] = useState(null);
 
-  const [selectedJob, setSelectedJob] = useState()
+  const [selectedJob, setSelectedJob] = useState();
 
-  const [isSalaryOpen, setIsSalaryOpen] = useState(false)
-  const [isExperienceOpen, setIsExperienceOpen] = useState(false)
-  const [isEmployTypeOpen, setIsEmployTypeOpen] = useState(false)
-  const [isWorkModeOpen, setIsWorkModeOpen] = useState(false)
-  const [isSortOpen, setIsSortOpen] = useState(false)
+  const [isSalaryOpen, setIsSalaryOpen] = useState(false);
+  const [isExperienceOpen, setIsExperienceOpen] = useState(false);
+  const [isEmployTypeOpen, setIsEmployTypeOpen] = useState(false);
+  const [isWorkModeOpen, setIsWorkModeOpen] = useState(false);
+  const [isSortOpen, setIsSortOpen] = useState(false);
 
-  const [savedJobs, setSavedJobs] = useState([])
+  const [savedJobs, setSavedJobs] = useState([]);
 
-  const [salaryRangeIndex, setSalaryRangeIndex] = useState(0)
+  const [salaryRangeIndex, setSalaryRangeIndex] = useState(0);
 
   const [filters, setFilters] = useState({
     salaryRange: { min: 10000, max: 1000000 },
@@ -89,7 +89,7 @@ export default function JobDashboard() {
     }
 
     // Filter by working mode
-    const { online, offline, } = filters.workingMode;
+    const { online, offline } = filters.workingMode;
     if (online || offline) {
       filtered = filtered.filter((job) => {
         const workMode = job.job_data.work_type.toLowerCase();
@@ -114,19 +114,16 @@ export default function JobDashboard() {
 
   useEffect(() => {
     if (searchPhrase === "") {
-      clearFilters()
-      setFilteredJobs(jobs)
+      clearFilters();
+      setFilteredJobs(jobs);
     } else {
-      setFilteredJobs(jobs.filter((job) => job.job_data.title.toLowerCase().includes(searchPhrase)
-        ||
-        job.job_data.company_name.toLowerCase().includes(searchPhrase)
-        ||
-        job.job_data.job_description.toLowerCase().includes(searchPhrase)
-        ||
-        job.job_data.required_skills.filter((skill) => skill.toLowerCase().includes(searchPhrase)).length > 0
-        ||
+      setFilteredJobs(jobs.filter((job) =>
+        job.job_data.title.toLowerCase().includes(searchPhrase) ||
+        job.job_data.company_name.toLowerCase().includes(searchPhrase) ||
+        job.job_data.job_description.toLowerCase().includes(searchPhrase) ||
+        job.job_data.required_skills.filter((skill) => skill.toLowerCase().includes(searchPhrase)).length > 0 ||
         job.job_data.work_type.toLowerCase().includes(searchPhrase)
-      ))
+      ));
     }
   }, [searchPhrase, jobs]);
 
@@ -137,11 +134,15 @@ export default function JobDashboard() {
     const fetchPublishedJobs = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/published-jobs/");
-        const jobsWithType = response.data.jobs.map((job) => ({
+
+        // Filter out expired jobs
+        const activeJobs = response.data.jobs.filter(job => job.status !== "expired");
+
+        const jobsWithType = activeJobs.map((job) => ({
           ...job,
           type: "job",
           status: job.status, // Add status field
-          updated_at: job.updated_at // // Add type field
+          updated_at: job.updated_at // Add type field
         }));
         setJobs(jobsWithType); // Set jobs with type
         setFilteredJobs(jobsWithType); // Update filtered jobs
@@ -158,7 +159,6 @@ export default function JobDashboard() {
     const token = Cookies.get("jwt");
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-      console.log("Decoded JWT Payload:", payload); // Debugging line
       setUserRole(!payload.student_user ? payload.role : "student"); // Assuming the payload has a 'role' field
     }
   }, []);
@@ -169,7 +169,6 @@ export default function JobDashboard() {
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
       const response = await axios.get(`http://localhost:8000/api/saved-jobs/${userId}/`);
       setSavedJobs(response.data.jobs.map(job => job._id));
-      console.log(response.data.jobs.map(job => job._id))
     } catch (err) {
       console.error("Error fetching saved jobs:", err);
     }
@@ -194,8 +193,8 @@ export default function JobDashboard() {
         hybrid: false
       },
       sortBy: "Relevance",
-    })
-  }
+    });
+  };
 
   const filterArgs = {
     searchPhrase,
@@ -214,9 +213,9 @@ export default function JobDashboard() {
     setIsWorkModeOpen,
     isSortOpen,
     setIsSortOpen,
-  }
+  };
 
-  const borderColor = "border-gray-300"
+  const borderColor = "border-gray-300";
 
   // Pagination logic
   const indexOfLastJob = currentPage * itemsPerPage;

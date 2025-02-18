@@ -15,7 +15,6 @@ const InboxPagey = () => {
       console.error("No token found. Please log in.");
       return;
     }
-
     try {
       const decodedToken = jwtDecode(token);
       setAdminId(decodedToken.superadmin_user); // Extract SuperAdmin ID
