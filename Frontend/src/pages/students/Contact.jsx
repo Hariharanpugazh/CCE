@@ -6,11 +6,38 @@ import "react-toastify/dist/ReactToastify.css";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import Squares from "../../components/ui/GridLogin";
 
+import { jwtDecode } from "jwt-decode";
+
+
 const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: "",
-    contact: "",
-    message: "",
+    student_id: "",
+    student_email: "",
+    content: "",
+  });
+  console.log(formData);
+  const [isSending, setIsSending] = useState(false); // Track sending state
+
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        const studentId = decodedToken.student_user;
+        const storedEmail = localStorage.getItem("student.email");
+        const storedName = Cookies.get("username");
+
+        setFormData((prevData) => ({
+          ...prevData,
+          name: storedName || "",
+          student_email: storedEmail || "",
+          student_id: studentId,
+        }));
+      } catch (error) {
+        console.error("Invalid token format.");
+      }
+    }
   });
   const [isSending, setIsSending] = useState(false); // Track sending state
 
@@ -90,7 +117,7 @@ const ContactForm = () => {
             <input
               type="text"
               name="contact"
-              value={formData.contact}
+              value={formData.student_email}
               onChange={handleChange}
               placeholder="E-mail Id"
               className="w-full p-3 border rounded-lg bg-yellow-100"
@@ -105,6 +132,7 @@ const ContactForm = () => {
               required
             ></textarea>
             {/* Updated Button */}
+
             <button 
               type="submit" 
               className="w-full bg-yellow-400 text-black font-bold p-3 rounded-lg"
