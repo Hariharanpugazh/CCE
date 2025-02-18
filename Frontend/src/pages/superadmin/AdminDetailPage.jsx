@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import JobCard from "../../components/Admin/JobCard"; // Import the JobCard component
 import Pagination from "../../components/Admin/pagination";
+import { toast, ToastContainer } from "react-toastify"; // Import toast and ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // Import toastify CSS
 
 export default function AdminDetailPage() {
     const { id } = useParams();
@@ -45,25 +47,34 @@ export default function AdminDetailPage() {
 
     const handleStatusChange = async (newStatus) => {
         if (!admin) return;
-
+    
         setLoading(true);
         setMessage("");
-
+    
         try {
             const response = await axios.post(`http://localhost:8000/api/admin-status/${id}/`, {
                 status: newStatus,
             });
-
+    
             if (response.status === 200) {
                 setAdmin((prevAdmin) => ({ ...prevAdmin, status: newStatus }));
-                setMessage(`The account is now ${newStatus}.`);
+                toast.success(`The account is now ${newStatus}.`, {
+                    position: "bottom-right", // Position of the toast
+                    autoClose: 3000, // Duration to display the toast (in ms)
+                    hideProgressBar: true, // Hide progress bar
+                });
             }
         } catch (error) {
             console.error("Error updating status:", error);
-            setError("Failed to update admin status.");
+            toast.error("Failed to update admin status.", {
+                position: "bottom-right",
+                autoClose: 3000,
+                hideProgressBar: true,
+            });
         }
         setLoading(false);
     };
+    
 
     const handleEdit = () => {
         setEditMode(true);
