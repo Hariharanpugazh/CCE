@@ -17,7 +17,7 @@ const ContactForm = () => {
     content: "",
   });
   console.log(formData);
-  const [isSending, setIsSending] = useState(false); // Track sending state
+  
 
   useEffect(() => {
     const token = Cookies.get("jwt");
