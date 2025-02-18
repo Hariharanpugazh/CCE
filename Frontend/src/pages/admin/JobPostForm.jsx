@@ -3,8 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import DatePicker from "react-datepicker";
 import { motion } from "framer-motion";
-import { FaCalendarAlt, FaCaretLeft, FaCaretRight } from "react-icons/fa";
-import { format } from "date-fns";
+import { FaCalendarAlt } from "react-icons/fa";
 import "react-datepicker/dist/react-datepicker.css";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
@@ -78,6 +77,7 @@ export default function JobPostForm() {
   };
 
   const handleChange = (e) => {
+    console.log(`Field ${e.target.name} changed to ${e.target.value}`);
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -123,6 +123,7 @@ export default function JobPostForm() {
   };
 
   const handleSubmit = async (e) => {
+    console.log("Form submitted");
     setDisableSubmit(true);
     e.preventDefault();
 
@@ -184,6 +185,11 @@ export default function JobPostForm() {
       }
     }
   }, []);
+
+  const handlePreview = () => {
+    console.log("Preview button clicked");
+    setIsPreview(true);
+  };
 
   return (
     <motion.div
@@ -441,7 +447,7 @@ export default function JobPostForm() {
             type="button"
             className="w-1/4 justify-self-center col-span-2 bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-transform shadow-lg"
             whileHover={{ scale: 1.01 }}
-            onClick={() => setIsPreview(true)}
+            onClick={handlePreview}
           >
             Preview Job
           </motion.button>
@@ -513,3 +519,25 @@ export default function JobPostForm() {
     </motion.div>
   );
 }
+
+const PreviewField = ({ label, value, multiline = false, url = false, email = false, phone = false }) => {
+  let formattedValue = value;
+
+  // Check if the value is a Date object and format it
+  if (value instanceof Date) {
+    formattedValue = value.toLocaleDateString(); // Format the date as a string
+  } else if (url) {
+    formattedValue = <a href={value} target="_blank" rel="noopener noreferrer">{value}</a>;
+  } else if (email) {
+    formattedValue = <a href={`mailto:${value}`}>{value}</a>;
+  } else if (phone) {
+    formattedValue = <a href={`tel:${value}`}>{value}</a>;
+  }
+
+  return (
+    <div>
+      <strong>{label}:</strong>
+      {multiline ? <p>{formattedValue}</p> : <span>{formattedValue}</span>}
+    </div>
+  );
+};

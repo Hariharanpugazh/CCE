@@ -448,13 +448,8 @@ def update_profile(request, userId):
             # Prevent email from being changed
             data.pop("email", None)
 
-            # Ensure only valid predefined images are used
-            allowed_images = ["boy-1.png", "boy-2.png", "boy-3.png", "boy-4.png", "boy-5.png", "boy-6.png", "Girl-1.png", "Girl-2.png", "Girl-3.png", "Girl-4.png", "Girl-5.png"]
-            if "profile_image" in data and data["profile_image"] not in allowed_images:
-                return JsonResponse({"error": "Invalid image selection"}, status=400)
-
-            # Update only name and profile image
-            updated_fields = {key: value for key, value in data.items() if key in ["name", "profile_image"]}
+            # Update only the name
+            updated_fields = {key: value for key, value in data.items() if key == "name"}
             if updated_fields:
                 student_collection.update_one(
                     {"_id": ObjectId(userId)}, {"$set": updated_fields}
@@ -480,21 +475,15 @@ def update_superadmin_profile(request, userId):
                 return JsonResponse({"error": "SuperAdmin not found"}, status=404)
 
             # Validate request payload
-            if "name" not in data or "profile_image" not in data:
+            if "name" not in data:
                 return JsonResponse({"error": "Missing required fields"}, status=400)
 
             # Prevent email from being changed
             data.pop("email", None)
 
-            # Ensure only valid predefined images are used
-            allowed_images = ["boy-1.png", "boy-2.png", "boy-3.png", "boy-4.png", "boy-5.png", "boy-6.png", "Girl-1.png", "Girl-2.png", "Girl-3.png", "Girl-4.png", "Girl-5.png"]
-            if data["profile_image"] not in allowed_images:
-                return JsonResponse({"error": "Invalid image selection"}, status=400)
-
-            # Update only name and profile image
+            # Update only the name
             updated_fields = {
-                "name": data["name"],
-                "profile_image": data["profile_image"]
+                "name": data["name"]
             }
 
             superadmin_collection.update_one({"_id": ObjectId(userId)}, {"$set": updated_fields})
@@ -507,105 +496,7 @@ def update_superadmin_profile(request, userId):
         return JsonResponse({"error": "Invalid request method"}, status=400)
 
     
-# ================================================================ CONTACT US ================================================================
-
-# @csrf_exempt
-# def contact_us(request):
-#     if request.method == "POST":
-#         try:
-#             # Parse JSON request body
-#             data = json.loads(request.body)
-#             contact = data.get("contact")
-#             message = data.get("message")
-
-#             # Validate input fields
-#             if any(not field for field in [contact, message]):
-#                 return JsonResponse({"error": "All fields are required"}, status=400)
-
-#             # Check if both name and email exist in the students collection
-#             student_data = student_collection.find_one({"email": contact})
-
-#             if not student_data:
-#                 return JsonResponse({"error": "Email does not match any student records. Use your official email"}, status=404)
-
-#             student_id = str(student_data["_id"])  # Extract student_id
-
-#             # Save contact message in the contact_us collection
-#             contact_document = {
-#                 "name": student_data["name"],
-#                 "contact": contact,
-#                 "message": message,
-#                 "timestamp": datetime.now(timezone.utc),
-#                 "student_id": student_id  # Store student_id
-#             }
-#             contactus_collection.insert_one(contact_document)
-
-#             # # Send email notification to admin
-#             # subject = "Message From Student"
-#             # email_message = (
-#             #     f"New message from {name}\n\n"
-#             #     f"Contact: {contact}\n\n"
-#             #     f"Message:\n{message}\n\n"
-#             # )
-
-#             # send_mail(
-#             #     subject,
-#             #     email_message,
-#             #     settings.EMAIL_HOST_USER,  # Sender email
-#             #     [settings.ADMIN_EMAIL],  # Admin email recipient
-#             #     fail_silently=False,
-#             # )
-
-#             return JsonResponse({
-#                 "message": "Your message has been received and sent to Admin!",
-#                 "is_student": True
-#             }, status=200)
-
-#         except json.JSONDecodeError:
-#             return JsonResponse({"error": "Invalid JSON data"}, status=400)
-#         except Exception as e:
-#             return JsonResponse({"error": str(e)}, status=500)
-#     else:
-#         return JsonResponse({"error": "Invalid request method"}, status=405)
-    
-# @csrf_exempt
-# def get_student_messages(request):
-#     if request.method == "GET":
-#         try:
-#             # Extract JWT token from cookies
-#             token = request.COOKIES.get("jwt")
-#             if not token:
-#                 return JsonResponse({"error": "No token provided"}, status=401)
-
-#             # Decode the token
-#             try:
-#                 decoded_token = jwt.decode(token,JWT_SECRET, algorithms=["HS256"])
-#                 student_id = decoded_token.get("student_user")  # Extract student_id
-#             except jwt.ExpiredSignatureError:
-#                 return JsonResponse({"error": "Token has expired"}, status=401)
-#             except jwt.InvalidTokenError:
-#                 return JsonResponse({"error": "Invalid token"}, status=401)
-
-#             # Fetch messages related to the student_id
-#             messages = list(contactus_collection.find(
-#                 {"student_id": student_id},
-#                 {"_id": 0, "contact": 1, "message": 1, "timestamp": 1, "reply_message": 1}
-#             ))
-
-#             # Format timestamp
-#             for message in messages:
-#                 if "timestamp" in message and message["timestamp"]:
-#                     message["timestamp"] = message["timestamp"].strftime("%Y-%m-%d %H:%M:%S")
-#                 else:
-#                     message["timestamp"] = "N/A"
-
-#             return JsonResponse({"messages": messages}, status=200)
-
-#         except Exception as e:
-#             return JsonResponse({"error": str(e)}, status=500)
-
-#     return JsonResponse({"error": "Invalid request method"}, status=405)
-
+# ================================================================ VIEWS ======================================================================
 
 @csrf_exempt
 def mark_messages_as_seen_by_student(request, student_id):

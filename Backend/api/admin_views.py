@@ -1184,7 +1184,7 @@ def post_internship(request):
                 "admin_id" if role == "admin" else "superadmin_id": userid,
                 "is_publish": is_publish,
                 "status": current_status,
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now()
             }
 
             # Insert into MongoDB
@@ -2134,6 +2134,11 @@ def get_admin_details(request, userId):
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
     
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from bson import ObjectId
+import json
+
 @csrf_exempt
 def update_admin_profile(request, userId):
     if request.method == "PUT":
@@ -2147,21 +2152,15 @@ def update_admin_profile(request, userId):
                 return JsonResponse({"error": "Admin not found"}, status=404)
 
             # Validate request payload
-            if "name" not in data or "profile_image" not in data:
+            if "name" not in data:
                 return JsonResponse({"error": "Missing required fields"}, status=400)
 
             # Prevent email from being changed
             data.pop("email", None)
 
-            # Ensure only valid predefined images are used
-            allowed_images = ["boy-1.png", "boy-2.png", "boy-3.png", "boy-4.png", "boy-5.png", "boy-6.png", "Girl-1.png", "Girl-2.png", "Girl-3.png", "Girl-4.png", "Girl-5.png"]
-            if data["profile_image"] not in allowed_images:
-                return JsonResponse({"error": "Invalid image selection"}, status=400)
-
-            # Update only name and profile image
+            # Update only the name
             updated_fields = {
-                "name": data["name"],
-                "profile_image": data["profile_image"]
+                "name": data["name"]
             }
 
             admin_collection.update_one({"_id": ObjectId(userId)}, {"$set": updated_fields})
@@ -2172,6 +2171,7 @@ def update_admin_profile(request, userId):
             return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Invalid request method"}, status=400)
+
 
 @csrf_exempt
 def get_superadmin_details(request, userId):

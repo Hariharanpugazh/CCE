@@ -95,10 +95,9 @@
 // }
 
 
+// New Card Design by @ajay_chaki
 import { FiBookmark, FiMapPin, FiEye, FiClock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
 
 function timeAgo(dateString) {
   const givenDate = new Date(dateString);
@@ -125,34 +124,10 @@ function timeAgo(dateString) {
 
 export default function ApplicationCard({ application, handleCardClick, isSaved }) {
   const navigate = useNavigate();
-  const [userRole, setUserRole] = useState(null);
-
-  useEffect(() => {
-    const token = Cookies.get("jwt");
-    if (token) {
-      try {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        console.log("Decoded JWT Payload:", payload);
-
-        if (payload.role) {
-          setUserRole(payload.role);
-        } else if (payload.student_user) {
-          setUserRole("student");
-        }
-      } catch (error) {
-        console.error("Invalid JWT token:", error);
-      }
-    }
-  }, []);
 
   const handleViewDetails = (event) => {
     event.stopPropagation();
-    let previewPage = "";
-    if (userRole === "student") {
-      previewPage = "student/internship-preview";
-    } else if (userRole === "admin" || userRole === "superadmin") {
-      previewPage = "internship-preview";
-    }
+    const previewPage = application.type === "internship" ? "internship-preview" : "job-preview";
     navigate(`/${previewPage}/${application._id || application.id}`);
   };
 
@@ -180,11 +155,11 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
             </span>
           </div>
         </div>
-
+        
         {/* Status Badge */}
         <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-          application.status === "active"
-            ? "bg-green-100 text-green-800"
+          application.status === "active" 
+            ? "bg-green-100 text-green-800" 
             : "bg-red-100 text-red-800"
         }`}>
           {application.status === "active" ? "Active" : "Closed"}
@@ -237,7 +212,7 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
           </button>
           {isSaved !== undefined && (
             <FiBookmark
-              className={`text-4xl cursor-pointer p-2 hover:bg-gray-100 rounded-lg ${
+              className={`text-xl cursor-pointer p-2 hover:bg-gray-100 rounded-lg ${
                 isSaved ? "text-blue-600 fill-current" : "text-gray-400"
               }`}
             />

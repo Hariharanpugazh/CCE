@@ -44,8 +44,6 @@ import StudentMail from "./pages/students/StudentMail";
 import AchievementPreview from "./pages/students/AchievementPreview";
 import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
-import StudentJobDashboard from "./pages/students/StudentJobDashboard";
-import StudentInternshipDashboard from "./pages/students/StudentinternshipDashboard";
 import Student_Management_superadmin from "./pages/superadmin/StudentManagement_superadmin"
 
 
@@ -91,8 +89,6 @@ function App() {
         {/* Protected Student Routes */}
         <Route path="/home" element={<ProtectedRoute> <HomeDashboard /> </ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute> <Profile /> </ProtectedRoute>} />
-        <Route path="/student/internships" element={<ProtectedRoute> <StudentInternshipDashboard /></ProtectedRoute>} />
-        <Route path="/student/jobs" element={ <ProtectedRoute> <StudentJobDashboard /> </ProtectedRoute>} />
         <Route path="/achievements" element={ <ProtectedRoute> <AchievementDashboard /> </ProtectedRoute>} />
         <Route path="/contact" element= {<ProtectedRoute><ContactForm /> </ProtectedRoute>} />
         <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />

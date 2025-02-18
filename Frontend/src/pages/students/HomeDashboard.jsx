@@ -319,7 +319,7 @@ export default function HomeDashboard() {
 
   const { setIsLoading } = useContext(LoaderContext)
 
-  useEffect(() => {
+  useEffect(() => {0
     setIsLoading(true)
     const fetchData = async () => {
       try {
@@ -481,24 +481,26 @@ export default function HomeDashboard() {
         <div className="fixed inset-0 flex items-center justify-center bg-[#1e2939a8] z-60">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h2 className="text-xl font-semibold mb-4">Confirm Your Job Application</h2>
-            <p className="mb-4">Did you complete your job application for "{unconfirmedJob?.job_data?.title}"?</p>
+            <p className="mb-4">
+              Did you complete your job application for "{unconfirmedJob?.job_data?.title}"?
+            </p>
             <div className="flex justify-center space-x-4">
               <button
                 onClick={handleConfirm}
-                className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700"
+                className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition duration-300"
               >
                 Yes, Confirm
               </button>
               <button
                 onClick={handleCancel}
-                className="bg-gray-600 text-white px-4 py-2 rounded-full hover:bg-gray-700"
+                className="bg-gray-600 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition duration-300"
               >
                 No, Cancel
               </button>
             </div>
           </div>
         </div>
-      )}
+)}
     </div>
   );
 }
