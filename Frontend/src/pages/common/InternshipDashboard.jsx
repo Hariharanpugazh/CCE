@@ -125,7 +125,7 @@ export default function InternshipDashboard() {
             intern.internship_type.toLowerCase().includes(searchPhrase)
         )
       );
-    }
+    }  setCurrentPage(1);
   }, [searchPhrase, internships]);
 
   useEffect(() => {
