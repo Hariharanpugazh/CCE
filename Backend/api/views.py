@@ -50,6 +50,7 @@ contactus_collection = db["contact_us"]
 achievement_collection = db['student_achievement']
 study_material_collection = db['studyMaterial']
 superadmin_collection = db['superadmin']
+message_collection = db['message']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -604,6 +605,34 @@ def update_superadmin_profile(request, userId):
 #             return JsonResponse({"error": str(e)}, status=500)
 
 #     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+@csrf_exempt
+def mark_messages_as_seen_by_student(request, student_id):
+    if request.method == 'POST':
+        try:
+            # Find the student's chat document
+            student_chat = message_collection.find_one({"student_id": student_id})
+
+            if student_chat:
+                # Update the status of all messages from admin to "seen"
+                for message in student_chat.get("messages", []):
+                    if message["sender"] == "admin" and message["status"] == "sent":
+                        message["status"] = "seen"
+
+                # Update the document in the database
+                message_collection.update_one(
+                    {"_id": ObjectId(student_chat["_id"])},
+                    {"$set": {"messages": student_chat["messages"]}}
+                )
+
+                return JsonResponse({"message": "Messages marked as seen."}, status=200)
+            else:
+                return JsonResponse({"error": "Student chat not found."}, status=404)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)
    
 #================================================================Jobs================================================================================================
 @csrf_exempt
