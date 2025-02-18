@@ -82,22 +82,31 @@ export default function AdminDetailPage() {
 
     const handleSave = async () => {
         setLoading(true);
-        setMessage("");
-
+        setMessage(""); // Optional: You may no longer need to use this for setting messages.
+    
         try {
             const response = await axios.put(`http://localhost:8000/api/admin/${id}/edit/`, formData);
-
+    
             if (response.status === 200) {
                 setAdmin((prevAdmin) => ({ ...prevAdmin, ...formData }));
-                setMessage("Admin details updated successfully.");
+                toast.success("Admin details updated successfully.", {
+                    position: "bottom-right",
+                    autoClose: 3000,
+                    hideProgressBar: true,
+                });
                 setEditMode(false);
             }
         } catch (error) {
             console.error("Error updating admin details:", error);
-            setError("Failed to update admin details.");
+            toast.error("Failed to update admin details.", {
+                position: "bottom-right",
+                autoClose: 3000,
+                hideProgressBar: true,
+            });
         }
         setLoading(false);
     };
+    
 
     const handleChange = (e) => {
         const { name, value } = e.target;
