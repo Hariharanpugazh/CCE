@@ -550,7 +550,9 @@ export default function AdminMail() {
                       item.item_name ||
                       "Notification"}
                   </span>
-                  {item.study_material_data ? null : (
+                  {item.study_material_data ||
+                activeTab === "achievements" ||
+                activeTab === "notifications"  ? null : (
                     <div className="flex space-x-2">
                       <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">
                         {item.status}
