@@ -81,8 +81,14 @@ const ContactForm = () => {
       <StudentPageNavbar />
       <div className="relative flex flex-col md:flex-row items-center justify-center min-h-screen bg-white p-6">
         {/* Background Grid */}
-        <div className="absolute inset-0 z-0">
-          <Squares />
+        <div className="absolute inset-0 z-0 opacity-40">
+          <Squares
+            speed={0.15}
+            squareSize={40}
+            direction="diagonal"
+            borderColor="#FECC00"
+            hoverFillColor="#FECC00"
+          />
         </div>
 
         {/* Main Content */}
@@ -131,9 +137,8 @@ const ContactForm = () => {
               required
             ></textarea>
             {/* Updated Button */}
-
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="w-full bg-yellow-400 text-black font-bold p-3 rounded-lg"
               disabled={isSending} // Disable button while sending
             >
