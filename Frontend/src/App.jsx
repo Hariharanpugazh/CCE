@@ -48,6 +48,7 @@ import StudentInternshipDashboard from "./pages/students/StudentinternshipDashbo
 import Contacty from "./pages/contact/Contacty";
 import InboxPagey from "./pages/contact/InboxPagey";
 import StudentMaily from "./pages/contact/StudentMaily";
+import Student_Management_superadmin from "./pages/superadmin/StudentManagement_superadmin"
 
 
 // Protected Route Component
@@ -133,6 +134,7 @@ function App() {
           <Route path={"/student-signup"} element={<StudentSignup />} />
           <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
           <Route path={"/Admin-Management"} element={<ProtectedRoute> <AdminManagement /> </ProtectedRoute>} />
+          <Route path={"/superadmin/manage-student"} element={<ProtectedRoute> <Student_Management_superadmin/> </ProtectedRoute>} />
           <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
           <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
           <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
