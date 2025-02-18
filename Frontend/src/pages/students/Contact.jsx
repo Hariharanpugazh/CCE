@@ -14,9 +14,7 @@ const ContactForm = () => {
     name: "",
     student_id: "",
     student_email: "",
-    content: "",
   });
-  console.log(formData);
 
   useEffect(() => {
     const token = Cookies.get("jwt");
