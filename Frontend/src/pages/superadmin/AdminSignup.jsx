@@ -1,14 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { motion, AnimatePresence } from "framer-motion";
 import login1 from "../../assets/images/LoginImg1.png";
 import login2 from "../../assets/images/LoginImg2.png";
 import login3 from "../../assets/images/LoginImg3.png";
 import Squares from "../../components/ui/GridLogin";
 import "react-toastify/dist/ReactToastify.css";
-import wavyPattern from "../../assets/images/wavy-circles.png";
 
 export default function AdminSignup() {
   const [formData, setFormData] = useState({
@@ -24,12 +22,11 @@ export default function AdminSignup() {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const navigate = useNavigate();
-  const [index, setIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const images = [login1, login2, login3];
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
@@ -47,20 +44,34 @@ export default function AdminSignup() {
     return () => clearInterval(slideInterval);
   }, [isTransitioning, images.length]);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
-    };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
 
-    const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
-    const toggleConfirmPasswordVisibility = () => setConfirmPasswordVisible(!confirmPasswordVisible);
+    if (name === "password") {
+      setPasswordStrength(calculatePasswordStrength(value));
+    }
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const { name, email, password, confirmPassword, department, college_name } = formData;
+  const calculatePasswordStrength = (password) => {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    return strength;
+  };
+
+  const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
+  const toggleConfirmPasswordVisibility = () => setConfirmPasswordVisible(!confirmPasswordVisible);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { name, email, password, confirmPassword, department, college_name } = formData;
+    const newErrors = {};
 
     if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
@@ -156,7 +167,7 @@ export default function AdminSignup() {
       <div className="w-3/4 min-h-3/4 max-h-[90%] bg-white shadow-lg rounded-lg flex items-stretch p-2 relative">
         {/* Image Slider */}
         <div className="flex-1 flex justify-center items-center p-2">
-        <div className="relative w-full rounded-lg h-full">
+          <div className="relative w-full rounded-lg h-full">
             {images.map((img, index) => (
               <img
                 key={index}

@@ -1577,7 +1577,13 @@ def submit_feedback(request):
             }
             reviews_collection.insert_one(review_document)
 
-            return JsonResponse({'message': 'Feedback submitted successfully'}, status=200)
+            # Update the is_publish field in the respective collection to False
+            collection.update_one(
+                {'_id': ObjectId(item_id)},
+                {'$set': {'is_publish': False}}
+            )
+
+            return JsonResponse({'message': 'Feedback submitted successfully and item unpublished'}, status=200)
 
         except jwt.ExpiredSignatureError:
             return JsonResponse({"error": "Token has expired"}, status=401)

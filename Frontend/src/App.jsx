@@ -45,6 +45,7 @@ import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
 import StudentJobDashboard from "./pages/students/StudentJobDashboard";
 import StudentInternshipDashboard from "./pages/students/StudentinternshipDashboard";
+import Student_Management_superadmin from "./pages/superadmin/StudentManagement_superadmin"
 
 
 // Protected Route Component
@@ -128,6 +129,7 @@ function App() {
           <Route path={"/student-signup"} element={<StudentSignup />} />
           <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
           <Route path={"/Admin-Management"} element={<ProtectedRoute> <AdminManagement /> </ProtectedRoute>} />
+          <Route path={"/superadmin/manage-student"} element={<ProtectedRoute> <Student_Management_superadmin/> </ProtectedRoute>} />
           <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
           <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
           <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
