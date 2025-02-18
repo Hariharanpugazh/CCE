@@ -38,6 +38,8 @@ urlpatterns = [
     path("get_internships_with_admin/", get_internships_with_admin, name="get_internships_with_admin"),
     path("get_study_materials_with_admin/", get_study_materials_with_admin, name="get_study_materials_with_admin"),
     path("get_student_achievements_with_students/", get_student_achievements, name="get_student_achievements_with_students"),
+    path('mark_messages_as_seen/<str:student_id>/', mark_messages_as_seen_by_admin, name='mark_messages_as_seen'),
+
     
     #account management 
     path('students/', get_students, name='get_students'),
@@ -102,6 +104,7 @@ urlpatterns = [
     path("unsave-job/<str:pk>/", unsave_job, name="unsave-job"),
     path("saved-jobs/<str:user_id>/", get_saved_jobs, name="get-saved-jobs"),
     # path("get_student_messages/", get_student_messages, name="get_student_messages"),
+    path("mark_messages_as_seen_by_student/<str:student_id>/", mark_messages_as_seen_by_student, name="mark_messages_as_seen"),
 
 
     #study_material
@@ -116,4 +119,7 @@ urlpatterns = [
     path('student_send_message/', student_send_message, name='student_send_message'),
     path('get_all_student_chats/', get_all_student_chats, name='get_all_student_chats'),
     path('admin_reply_message/', admin_reply_message, name='admin_reply_message'),
+
+    #test
+    path("test_job_post/", test_job_post, name="test_job_post"),
 ]

@@ -233,6 +233,7 @@ import {
 } from "react-icons/fi";
 import { IoMdNotifications } from "react-icons/io";
 import { MdWork } from "react-icons/md";
+import snslogo from "../../assets/images/snslogo.png"
 
 export default function AdminSidebar() {
   const [isCreateMenuOpen, setCreateMenuOpen] = useState(false);
@@ -261,16 +262,16 @@ export default function AdminSidebar() {
   return (
     <div className="bg-white shadow-lg h-screen w-57 fixed left-0 top-0 flex flex-col">
       <div className="p-4 border-b">
-        <img src="/sns (1).ico" alt="Logo" className="h-14 w-17 mx-auto" />
+        <img src={snslogo} alt="Logo" className="h-14 w-35 mx-auto" />
       </div>
 
-      <div className="flex items-center p-4 border-b">
-        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-gray-700 text-lg font-semibold mr-3">
+      <div className="flex items-center bg-[#111933] p-4 border-b">
+        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-white-900 text-lg font-semibold mr-3">
           {userInitials}
         </div>
         <div>
-          <p className="font-semibold">{username || "Admin"}</p>
-          <p className="text-sm text-gray-500">Administrator</p>
+          <p className="font-semibold text-gray-200">{username || "Admin"}</p>
+          <p className="text-sm text-gray-200">Administrator</p>
         </div>
       </div>
 
@@ -279,7 +280,7 @@ export default function AdminSidebar() {
           <li className="mb-2">
             <a
               href="/admin/home"
-              className="flex items-center p-2 hover:bg-gray-100 rounded"
+              className="flex items-center p-2 hover:bg-yellow-200 rounded"
             >
               <FiHome className="mr-3" /> Home
             </a>
@@ -287,7 +288,7 @@ export default function AdminSidebar() {
           <li className="mb-2">
             <a
               href={AppPages.adminJobDashboard.route}
-              className="flex items-center p-2 hover:bg-gray-100 rounded"
+              className="flex items-center p-2 hover:bg-yellow-200 rounded"
             >
               <FiBriefcase className="mr-3" /> Jobs
             </a>
@@ -295,7 +296,7 @@ export default function AdminSidebar() {
           <li className="mb-2">
             <a
               href={AppPages.adminInternShipDashboard.route}
-              className="flex items-center p-2 hover:bg-gray-100 rounded"
+              className="flex items-center p-2 hover:bg-yellow-200 rounded"
             >
               <FiBriefcase className="mr-3" /> Internships
             </a>
@@ -303,7 +304,7 @@ export default function AdminSidebar() {
           <li className="mb-2">
             <a
               href="/admin/achievements"
-              className="flex items-center p-2 hover:bg-gray-100 rounded"
+              className="flex items-center p-2 hover:bg-yellow-200 rounded"
             >
               <FiAward className="mr-3" /> Achievements
             </a>
@@ -311,7 +312,7 @@ export default function AdminSidebar() {
           <li className="mb-2 relative">
             <button
               onClick={() => setCreateMenuOpen(!isCreateMenuOpen)}
-              className="flex items-center p-2 hover:bg-gray-100 rounded w-full text-left"
+              className="flex items-center p-2 hover:bg-yellow-200 rounded w-full text-left"
             >
               <FiPlus className="mr-3" /> Create New
             </button>
@@ -320,7 +321,7 @@ export default function AdminSidebar() {
                 <li>
                   <a
                     href="/internpost"
-                    className="block p-2 hover:bg-gray-100 rounded"
+                    className="block p-2 hover:bg-yellow-200 rounded"
                   >
                     Internship
                   </a>
@@ -328,7 +329,7 @@ export default function AdminSidebar() {
                 <li>
                   <a
                     href="/jobpost"
-                    className="block p-2 hover:bg-gray-100 rounded"
+                    className="block p-2 hover:bg-yellow-200 rounded"
                   >
                     Job Post
                   </a>
@@ -336,7 +337,7 @@ export default function AdminSidebar() {
                 <li>
                   <a
                     href="/studymaterial-post"
-                    className="block p-2 hover:bg-gray-100 rounded"
+                    className="block p-2 hover:bg-yellow-200 rounded"
                   >
                     Study Material Post
                   </a>
@@ -344,7 +345,7 @@ export default function AdminSidebar() {
                 <li>
                   <a
                     href="/achievementpost"
-                    className="block p-2 hover:bg-gray-100 rounded"
+                    className="block p-2 hover:bg-yellow-200 rounded"
                   >
                     Achievement Post
                   </a>
@@ -352,7 +353,7 @@ export default function AdminSidebar() {
                 <li>
                   <a
                     href="/manage-student"
-                    className="block p-2 hover:bg-gray-100 rounded"
+                    className="block p-2 hover:bg-yellow-200 rounded"
                   >
                     Student Management
                   </a>
@@ -363,7 +364,7 @@ export default function AdminSidebar() {
           <li className="mb-2 relative">
             <button
               onClick={() => setMailPopupOpen(!isMailPopupOpen)}
-              className="flex items-center p-2 hover:bg-gray-100 rounded w-full text-left"
+              className="flex items-center p-2 hover:bg-yellow-200 rounded w-full text-left"
             >
               <IoMdNotifications className="mr-3" /> Notifications
             </button>
@@ -372,7 +373,7 @@ export default function AdminSidebar() {
                 <li>
                   <a
                     href="/admin/mail"
-                    className="flex items-center p-2 hover:bg-gray-100 rounded"
+                    className="flex items-center p-2 hover:bg-yellow-200 rounded"
                   >
                     <FiMail className="mr-2" /> Inbox
                   </a>
@@ -380,7 +381,7 @@ export default function AdminSidebar() {
                 <li>
                   <a
                     href="/manage-jobs"
-                    className="flex items-center p-2 hover:bg-gray-100 rounded"
+                    className="flex items-center p-2 hover:bg-yellow-200 rounded"
                   >
                     <MdWork className="mr-2" /> Manage Jobs
                   </a>
@@ -394,7 +395,7 @@ export default function AdminSidebar() {
       <div className="p-4 border-t">
         <button
           onClick={handleLogout}
-          className="flex items-center p-2 hover:bg-gray-100 rounded w-full"
+          className="flex items-center p-2 hover:bg-yellow-200 rounded w-full"
         >
           <FiLogOut className="mr-3" /> Logout
         </button>

@@ -4,6 +4,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
+import Squares from "../../components/ui/GridLogin";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -52,8 +53,14 @@ const ContactForm = () => {
   return (
     <div>
       <StudentPageNavbar />
-      <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-white p-6">
-        <div className="md:w-1/2 text-left p-6">
+      <div className="relative flex flex-col md:flex-row items-center justify-center min-h-screen bg-white p-6">
+        {/* Background Grid */}
+        <div className="absolute inset-0 z-0">
+          <Squares />
+        </div>
+
+        {/* Main Content */}
+        <div className="relative z-10 md:w-1/2 text-left p-6">
           <h2 className="text-3xl font-bold mb-4">Get in touch with us today!</h2>
           <p className="text-gray-600 mb-6">
             Whatever you need, whenever you need, our team is here to help and support you every step of the way.
@@ -64,12 +71,12 @@ const ContactForm = () => {
           </div>
           <div>
             <p className="font-semibold">📞 Call Us</p>
-            <p className="text-gray-600">+91 98765 54321</p>
+            <p className="text-gray-600">+91 9384785767</p>
           </div>
         </div>
 
         {/* Right Section - Contact Form */}
-        <div className="md:w-1/2 bg-white shadow-lg rounded-lg p-6">
+        <div className="relative z-10 md:w-1/2 bg-white shadow-lg rounded-lg p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
