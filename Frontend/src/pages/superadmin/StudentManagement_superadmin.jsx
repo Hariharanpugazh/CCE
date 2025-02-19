@@ -71,17 +71,28 @@ const StudentManagement_superadmin = () => {
     setEditMode(true);
   };
 
-  const handleSaveChanges = () => {
-    setStudents(
-      students.map((student) =>
-        student._id === editableStudent._id ? editableStudent : student
-      )
-    );
-    setEditMode(false);
-    setSelectedStudent(editableStudent);
-    toast.success("Student profile updated successfully!"); // Show toast notification
+  const handleSaveChanges = async () => {
+    try {
+      // Send the updated student data to the backend
+      await axios.put(`http://localhost:8000/api/students/${editableStudent._id}/update/`, editableStudent);
+  
+      // Update the local state with the new student data
+      setStudents(
+        students.map((student) =>
+          student._id === editableStudent._id ? editableStudent : student
+        )
+      );
+      setEditMode(false);
+      setSelectedStudent(editableStudent);
+      
+      // Show toast notification
+      toast.success("Student profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating student:", error);
+      toast.error("Failed to update student profile. Please try again.");
+    }
   };
-
+  
   const handleCancelEdit = () => {
     setEditMode(false);
     setEditableStudent(null);
@@ -221,7 +232,7 @@ const StudentManagement_superadmin = () => {
                     <strong className="block text-sm font-semibold">
                       {field.replace("_", " ").toUpperCase()}:
                     </strong>
-                    {editMode ? (
+                    {editMode && field !== "email" ? ( // Make email non-editable
                       <input
                         type="text"
                         name={field}
@@ -230,11 +241,12 @@ const StudentManagement_superadmin = () => {
                         className="w-full p-2 border rounded"
                       />
                     ) : (
-                      <span>{selectedStudent[field]}</span>
+                      <span>{selectedStudent[field]}</span> // Email remains non-editable
                     )}
                   </div>
                 ))}
               </div>
+
 
               <div className="mt-8 flex justify-center gap-6">
                 {editMode ? (
