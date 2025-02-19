@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import AdminPageNavbar from '../../components/Admin/AdminNavBar';
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 export default function AchievementEdit() {
   const { id } = useParams();
@@ -14,6 +15,7 @@ export default function AchievementEdit() {
   const [newImage, setNewImage] = useState(null);
   const token = Cookies.get("jwt");
   const navigate = useNavigate();
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     const fetchAchievement = async () => {
@@ -78,6 +80,15 @@ export default function AchievementEdit() {
       photo: null, // Remove existing image from backend
     }));
   };
+
+      useEffect(() => {
+          const token = Cookies.get("jwt");
+          if (token) {
+              const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+              console.log("Decoded JWT Payload:", payload); // Debugging line
+              setUserRole(payload.role); // Assuming the payload has a 'role' field
+          }
+      }, []);
 
   const handleSave = async () => {
     try {
@@ -164,7 +175,8 @@ export default function AchievementEdit() {
   return (
     <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8 my-10 ml-114 border border-gray-200">
       {/* <div className="flex flex-col min-h-screen bg-gray-100"> */}
-        <AdminPageNavbar />
+      {userRole === "admin" && <AdminPageNavbar />}
+      {userRole === "superadmin" && <SuperAdminPageNavbar />}
         <div className="flex-1 p-6">
           <h2 className="text-2xl font-semibold mb-4 text-gray-700">Edit Achievement</h2>
           {achievement && (
