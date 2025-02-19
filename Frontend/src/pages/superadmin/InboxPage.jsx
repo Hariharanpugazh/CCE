@@ -18,7 +18,7 @@ const InboxPage = () => {
   const [internships, setInternships] = useState([]);
   const [studyMaterials, setStudyMaterials] = useState([]);
   const [studentAchievements, setStudentAchievements] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("contactMessages");
+  const [selectedCategory, setSelectedCategory] = useState("Jobs");
   const [selectedItem, setSelectedItem] = useState(null);
   const [currentPage, setCurrentPage] = useState({
     contactMessages: 1,
@@ -71,6 +71,11 @@ const InboxPage = () => {
       return () => clearTimeout(timer);
     }
   }, [toastMessage]);
+
+  useEffect(() => {
+    // Reset selectedItem when the category changes
+    setSelectedItem(null);
+  }, [selectedCategory]);
 
   const fetchAllStudents = async () => {
     try {
@@ -237,7 +242,8 @@ const InboxPage = () => {
       item.admin_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.company_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.student_email?.toLowerCase().includes(searchQuery.toLowerCase())
+      item.student_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.student_name?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
@@ -263,10 +269,14 @@ const InboxPage = () => {
                 }}
               >
                 <div className="flex justify-between items-center">
-                  <span className="font-semibold text-lg">{item.name || item.student_email || item.title || item.company_name || item.admin_name}</span>
+                  <span className="font-semibold text-lg">
+                    {item.name || item.student_email || item.title || item.company_name || item.admin_name || item.student_name}
+                  </span>
                 </div>
                 <p className="text-gray-700 mt-2">
-                  {item.message || item.description || item.job_description || "No Description"}
+                  {selectedCategory === "contactMessages"
+                    ? "View messages"
+                    : item.message || item.description || item.job_description || "No Description"}
                 </p>
               </motion.div>
             ))}
@@ -407,7 +417,42 @@ const InboxPage = () => {
   const renderPreview = () => {
     if (!selectedItem) return null;
 
-    const { job_data, internship_data, achievement_description, study_material_data, item_type, item_id } = selectedItem;
+    const { job_data, internship_data, study_material_data, item_type, item_id } = selectedItem;
+
+    if (selectedCategory === "studentAchievements" || selectedCategory === "achievements") {
+      const { student_name, achievement_data } = selectedItem;
+      return (
+        <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl mt-10">
+          <button
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition duration-300"
+            onClick={() => setSelectedItem(null)}
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <div className="bg-white p-4 rounded-lg shadow-md">
+            <div className="flex items-start gap-4">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-300 text-gray-700 text-lg">
+                {student_name ? student_name[0] : 'A'}
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold">{student_name}</h2>
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <span>{achievement_data.company}</span>
+                </div>
+              </div>
+            </div>
+            <div className="border-t my-4" />
+            <div className="whitespace-pre-wrap text-sm text-gray-700">
+              <p><strong>Description:</strong> {achievement_data.description}</p>
+              <p><strong>Type:</strong> {achievement_data.type}</p>
+              <p><strong>Date:</strong> {new Date(achievement_data.date).toLocaleDateString()}</p>
+              <p><strong>Batch:</strong> {achievement_data.batch}</p>
+              <p><strong>Approval Status:</strong> {achievement_data.is_approved ? "Approved" : "Not Approved"}</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="flex-1 relative p-4 bg-gray-100 rounded-lg shadow-xl mt-10">
@@ -433,7 +478,7 @@ const InboxPage = () => {
           </div>
           <div className="border-t my-4" />
           <div className="whitespace-pre-wrap text-sm text-gray-700">
-            {job_data?.job_description || internship_data?.job_description || achievement_description || study_material_data?.description || `Feedback: ${selectedItem.feedback}`}
+            {job_data?.job_description || internship_data?.job_description || study_material_data?.description || `Feedback: ${selectedItem.feedback}`}
           </div>
           {job_data && (
             <div className="grid grid-cols-2 gap-4 mt-4">
