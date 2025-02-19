@@ -157,12 +157,20 @@ export default function AchievementEdit() {
         }
   
         alert("Achievement deleted successfully!");
-        navigate('/superadmin-manage-jobs'); // Redirect after deletion
+  
+        // Navigate based on user role
+        if (userRole === "admin") {
+          navigate('/manage-jobs');
+        } else if (userRole === "superadmin") {
+          navigate('/superadmin-manage-jobs');
+        }
+        
       } catch (error) {
         setError(error.message);
       }
     }
-  };  
+  };
+    
 
   if (loading) {
     return <div className="text-center text-gray-500">Loading...</div>;
