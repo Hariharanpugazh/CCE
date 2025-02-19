@@ -84,6 +84,14 @@ export default function AchievementPostForm() {
       return;
     }
 
+    // Validate batch field for special characters
+    const batchPattern = /^[a-zA-Z0-9\s]+$/;
+    if (!batchPattern.test(formData.batch)) {
+      setError("Batch should not contain special characters.");
+      setLoading(false);
+      return;
+    }
+
     // Check if all fields are filled
     if (
       !formData.name ||
@@ -110,10 +118,7 @@ export default function AchievementPostForm() {
 
       const formDataObj = new FormData();
       formDataObj.append("name", formData.name);
-      formDataObj.append(
-        "achievement_description",
-        formData.achievement_description
-      );
+      formDataObj.append("achievement_description", formData.achievement_description);
       formDataObj.append("achievement_type", formData.achievement_type);
       formDataObj.append("company_name", formData.company_name);
       formDataObj.append("date_of_achievement", formData.date_of_achievement);
@@ -143,6 +148,7 @@ export default function AchievementPostForm() {
         navigate("/superadmin");
       }
     } catch (err) {
+      console.error("Error submitting achievement:", err);
       setError(err.response?.data?.error || "Something went wrong");
       setMessage("");
       setLoading(false);
@@ -274,7 +280,7 @@ export default function AchievementPostForm() {
             name="photo"
             accept="image/jpeg, image/png"
             onChange={handleImageChange}
-            className="hidden"
+            className="mt-2"
             required
           />
           {imagePreview && (
