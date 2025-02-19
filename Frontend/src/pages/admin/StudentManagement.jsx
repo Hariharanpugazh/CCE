@@ -66,14 +66,22 @@ const StudentManagement = () => {
     setEditMode(true);
   };
 
-  const handleSaveChanges = () => {
-    setStudents(
-      students.map((student) =>
-        student._id === editableStudent._id ? editableStudent : student
-      )
-    );
-    setEditMode(false);
-    setSelectedStudent(editableStudent);
+  const handleSaveChanges = async () => {
+    try {
+      // Send the updated student data to the backend with the correct URL
+      await axios.put(`http://localhost:8000/api/students/${editableStudent._id}/update/`, editableStudent);
+  
+      // Update the local state with the new student data
+      setStudents(
+        students.map((student) =>
+          student._id === editableStudent._id ? editableStudent : student
+        )
+      );
+      setEditMode(false);
+      setSelectedStudent(editableStudent);
+    } catch (error) {
+      console.error("Error updating student:", error);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -194,7 +202,7 @@ const StudentManagement = () => {
                     <strong className="block text-sm font-semibold">
                       {field.replace("_", " ").toUpperCase()}:
                     </strong>
-                    {editMode ? (
+                    {editMode && field !== "email" ? ( // Make email non-editable
                       <input
                         type="text"
                         name={field}

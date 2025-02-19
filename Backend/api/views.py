@@ -358,7 +358,7 @@ def update_student(request, student_id):
                 return JsonResponse({'error': 'Student not found'}, status=404)
 
             # ✅ Add "status" to allowed fields
-            allowed_fields = ['name', 'department', 'year', 'email', 'status']
+            allowed_fields = ['name', 'department', 'year', 'college_name', 'status']
 
             # Filter data to include only allowed fields
             update_data = {field: data[field] for field in allowed_fields if field in data}

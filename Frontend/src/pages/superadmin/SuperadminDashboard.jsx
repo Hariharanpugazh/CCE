@@ -22,7 +22,7 @@ const SuperAdminHome = () => {
     { title: "OverAll", count: jobs.length + internships.length, icon: <FaListAlt /> },
     { title: "Total Job Listings", count: jobs.length, icon: <FaCheck /> },
     { title: "Total Internship Listings", count: internships.length, icon: <FaBook /> },
-    { title: "Rejected Jobs", count: jobs.filter(job => job.is_publish === false).length, icon: <FaTrophy /> },
+    { title: "Rejected Approvals",  count: jobs.filter(job => job.is_publish === false).length + internships.filter(internship => internship.is_publish === false).length, icon: <FaTrophy /> },
     { title: "Pending Approvals", count: jobs.filter(job => job.is_publish === null).length, icon: <FaUserPlus /> },
   ];
 
