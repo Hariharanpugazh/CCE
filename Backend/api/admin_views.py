@@ -1835,7 +1835,6 @@ def delete_study_material(request, study_material_id):
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
 
-@csrf_exempt
 def fetch_review(request):
     """Extracts JWT, validates it, and fetches all review documents for the admin ID."""
     auth_header = request.headers.get("Authorization")
@@ -1870,10 +1869,8 @@ def fetch_review(request):
         }
         reviews_list.append(formatted_review)
 
-    if not reviews_list:
-        return JsonResponse({"error": "Reviews not found"}, status=404)
-
-    return JsonResponse({"reviews": reviews_list}, status=200, safe=False)  # Return as a list
+    # Return an empty list if no reviews are found
+    return JsonResponse({"reviews": reviews_list}, status=200, safe=False)
 
 #===============================================================Super-Admin-Mails====================================================================== 
 
@@ -2292,12 +2289,6 @@ def achievement_detail(request, achievement_id):
         )
         return Response({"message": "Achievement updated successfully"}, status=status.HTTP_200_OK)
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from bson import ObjectId
-from datetime import datetime
-import json
-
 @csrf_exempt
 def view_count(request, id):
     if request.method == "POST":
@@ -2329,8 +2320,6 @@ def view_count(request, id):
             if not document:
                 return JsonResponse({"error": "Application not found"}, status=404)
 
-            print(f"Found document: {document}")
-
             # Initialize or update the views array
             views = document.get("views", [])
             user_view = next((view for view in views if view["userId"] == userId), None)
@@ -2341,9 +2330,7 @@ def view_count(request, id):
             else:
                 views.append({"userId": userId, "count": 1})
 
-            print(f"Updated views: {views}")
-
-            # Update the document with the new views array and current time
+            # Update the document with the new views array
             collection.update_one(
                 {"_id": ObjectId(applicationId)},
                 {"$set": {"views": views, "updated_at": datetime.now()}}
