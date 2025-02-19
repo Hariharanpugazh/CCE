@@ -5,16 +5,17 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import Squares from "../../components/ui/GridLogin";
-
 import { jwtDecode } from "jwt-decode";
-
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     student_id: "",
     student_email: "",
+    message: "",
   });
+
+  const [isSending, setIsSending] = useState(false); // Track sending state
 
   useEffect(() => {
     const token = Cookies.get("jwt");
@@ -25,29 +26,20 @@ const ContactForm = () => {
         const storedEmail = localStorage.getItem("student.email");
         const storedName = Cookies.get("username");
 
-        setFormData((prevData) => ({
-          ...prevData,
-          name: storedName || "",
-          student_email: storedEmail || "",
-          student_id: studentId,
-        }));
+        // Only update state if the values are different
+        if (storedName && storedEmail && studentId) {
+          setFormData((prevData) => ({
+            ...prevData,
+            name: storedName,
+            student_email: storedEmail,
+            student_id: studentId,
+          }));
+        }
       } catch (error) {
         console.error("Invalid token format.");
       }
     }
-  });
-  const [isSending, setIsSending] = useState(false); // Track sending state
-
-  useEffect(() => {
-    const storedEmail = localStorage.getItem("student.email");
-    const storedName = Cookies.get("username");
-
-    setFormData((prevData) => ({
-      ...prevData,
-      name: storedName || "",
-      contact: storedEmail || "",
-    }));
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -119,7 +111,7 @@ const ContactForm = () => {
             />
             <input
               type="text"
-              name="contact"
+              name="student_email"
               value={formData.student_email}
               onChange={handleChange}
               placeholder="E-mail Id"

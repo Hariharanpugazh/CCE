@@ -103,9 +103,13 @@ export default function AppliedJobs() {
   };
 
   useEffect(() => {
-    const filtered = appliedJobs.filter(job =>
-      job.title.toLowerCase().includes(searchPhrase)
-    );
+    console.log("Filtering jobs with search phrase:", searchPhrase);
+    const filtered = appliedJobs.filter(job => {
+      const jobTitle = job.title || job.job_data?.title; // Check both job and job_data for title
+      console.log("Checking job:", jobTitle);
+      return jobTitle?.toLowerCase().includes(searchPhrase.toLowerCase());
+    });
+    console.log("Filtered Jobs:", filtered); // Log filtered jobs for debugging
     setFilteredJobs(filtered);
   }, [searchPhrase, appliedJobs]);
 
@@ -125,7 +129,7 @@ export default function AppliedJobs() {
         <input
           type="text"
           value={searchPhrase}
-          onChange={(e) => setSearchPhrase(e.target.value.toLowerCase())}
+          onChange={(e) => setSearchPhrase(e.target.value)}
           placeholder="Search Jobs"
           className="w-full text-lg p-2 px-4 rounded-tl rounded-bl bg-white border border-r-[0px] hover:border-gray-400 outline-none"
         />
