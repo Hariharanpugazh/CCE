@@ -2289,8 +2289,6 @@ def view_count(request, id):
             if not document:
                 return JsonResponse({"error": "Application not found"}, status=404)
 
-            print(f"Found document: {document}")
-
             # Initialize or update the views array
             views = document.get("views", [])
             user_view = next((view for view in views if view["userId"] == userId), None)
@@ -2299,8 +2297,6 @@ def view_count(request, id):
                 user_view["count"] += count
             else:
                 views.append({"userId": userId, "count": count})
-
-            print(f"Updated views: {views}")
 
             # Update the document with the new views array
             collection.update_one(
