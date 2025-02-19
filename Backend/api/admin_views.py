@@ -951,6 +951,9 @@ def delete_job(request, job_id):
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
     
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 @csrf_exempt
 def get_all_jobs_and_internships(request):
     """
@@ -961,15 +964,29 @@ def get_all_jobs_and_internships(request):
         jobs = list(job_collection.find())
         for job in jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
+            # Rename 'job_location' to 'location' if it exists
+            if "job_data" in job and "job_location" in job["job_data"]:
+                job["job_data"]["location"] = job["job_data"].pop("job_location")
+            # Calculate total views for jobs
+            total_views = sum(view["count"] for view in job.get("views", []))
+            # Remove views field and add total_views
+            job.pop("views", None)
+            job["total_views"] = total_views
 
         # Fetch all internships
         internships = list(internship_collection.find())
         for internship in internships:
             internship["_id"] = str(internship["_id"])  # Convert ObjectId to string
+            # Calculate total views for internships
+            total_views = sum(view["count"] for view in internship.get("views", []))
+            # Remove views field and add total_views
+            internship.pop("views", None)
+            internship["total_views"] = total_views
 
         return JsonResponse({"jobs": jobs, "internships": internships}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 
@@ -1475,6 +1492,8 @@ def manage_jobs(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
        
+
+
 @csrf_exempt
 def get_jobs(request):
     if request.method == 'GET':
@@ -1485,21 +1504,36 @@ def get_jobs(request):
         jwt_token = auth_header.split(" ")[1]
 
         try:
-            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])  
+            decoded_token = jwt.decode(jwt_token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
             admin_user = decoded_token.get('admin_user')
 
-            jobs = job_collection.find({'admin_id': admin_user})
             jobs_list = []
 
+            # Fetch jobs
+            jobs = job_collection.find({'admin_id': admin_user})
             for job in jobs:
                 job['_id'] = str(job['_id'])
-                job['type'] = 'job' 
+                job['type'] = 'job'
+                # Rename 'job_location' to 'location' if it exists
+                if "job_data" in job and "job_location" in job["job_data"]:
+                    job["job_data"]["location"] = job["job_data"].pop("job_location")
+                # Calculate total views for jobs
+                total_views = sum(view["count"] for view in job.get("views", []))
+                # Remove views field and add total_views
+                job.pop("views", None)
+                job["total_views"] = total_views
                 jobs_list.append(job)
 
+            # Fetch internships
             internships = internship_collection.find({'admin_id': admin_user})
             for internship in internships:
                 internship['_id'] = str(internship['_id'])
                 internship['type'] = 'internship'
+                # Calculate total views for internships
+                total_views = sum(view["count"] for view in internship.get("views", []))
+                # Remove views field and add total_views
+                internship.pop("views", None)
+                internship["total_views"] = total_views
                 jobs_list.append(internship)
 
             return JsonResponse({'jobs': jobs_list}, status=200)
@@ -2258,6 +2292,12 @@ def achievement_detail(request, achievement_id):
         )
         return Response({"message": "Achievement updated successfully"}, status=status.HTTP_200_OK)
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from bson import ObjectId
+from datetime import datetime
+import json
+
 @csrf_exempt
 def view_count(request, id):
     if request.method == "POST":
@@ -2296,13 +2336,14 @@ def view_count(request, id):
             user_view = next((view for view in views if view["userId"] == userId), None)
 
             if user_view:
-                user_view["count"] += count
+                # If userId exists, do not increment the count, just update the time
+                user_view["count"] = 1  # Ensure the count remains 1
             else:
-                views.append({"userId": userId, "count": count})
+                views.append({"userId": userId, "count": 1})
 
             print(f"Updated views: {views}")
 
-            # Update the document with the new views array
+            # Update the document with the new views array and current time
             collection.update_one(
                 {"_id": ObjectId(applicationId)},
                 {"$set": {"views": views, "updated_at": datetime.now()}}

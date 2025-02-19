@@ -59,8 +59,15 @@ const AdminHome = () => {
           withCredentials: true,
         });
 
-        const jobsData = response.data.jobs.filter((item) => item.type === "job");
-        const internshipsData = response.data.jobs.filter((item) => item.type === "internship");
+        const jobsData = response.data.jobs.filter((item) => item.type === "job").map((job) => ({
+          ...job,
+          total_views: job.total_views, // Ensure total_views is included
+        }));
+
+        const internshipsData = response.data.jobs.filter((item) => item.type === "internship").map((internship) => ({
+          ...internship,
+          total_views: internship.total_views, // Ensure total_views is included
+        }));
 
         setJobs(jobsData);
         setInternships(internshipsData);
@@ -196,7 +203,7 @@ const AdminHome = () => {
           {getPaginatedData(filteredJobs).map((job) => (
             <ApplicationCard
               key={job._id}
-              application={{ ...job, ...job.job_data }}
+              application={{ ...job, ...job.job_data, total_views: job.total_views }}
               handleCardClick={() => {}}
               isSaved={undefined}
             />
@@ -206,7 +213,7 @@ const AdminHome = () => {
           {getPaginatedData(filteredInterns).map((internship) => (
             <ApplicationCard
               key={internship._id}
-              application={{ ...internship, ...internship.internship_data }}
+              application={{ ...internship, ...internship.internship_data, total_views: internship.total_views }}
               handleCardClick={() => {}}
               isSaved={undefined}
             />
