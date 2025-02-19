@@ -39,7 +39,8 @@ const SuperAdminHome = () => {
           status: job.status,
           is_publish: job.is_publish,
           type: "job",
-          updated_at: job.updated_at
+          updated_at: job.updated_at,
+          total_views: job.total_views // Ensure total_views is included
         }));
 
         // Map internships data to the expected structure
@@ -49,7 +50,8 @@ const SuperAdminHome = () => {
           status: internship.status,
           is_publish: internship.is_publish,
           type: "internship",
-          updated_at: internship.updated_at
+          updated_at: internship.updated_at,
+          total_views: internship.total_views // Ensure total_views is included
         }));
 
         setJobs(mappedJobs);
@@ -250,7 +252,7 @@ const SuperAdminHome = () => {
               <p className="alert alert-danger w-full col-span-full text-center">!! No Jobs Found !!</p>
             ) : (
               currentJobs.map((job) => (
-                <ApplicationCard key={job.id} application={{ ...job }} />
+                <ApplicationCard key={job.id} application={{ ...job, total_views: job.total_views }} />
               ))
             )}
           </div>
@@ -274,7 +276,7 @@ const SuperAdminHome = () => {
               <p className="alert alert-danger w-full col-span-full text-center">!! No Internships Found !!</p>
             ) : (
               currentInterns.map((intern) => (
-                <ApplicationCard key={intern.id} application={{ ...intern }} />
+                <ApplicationCard key={intern.id} application={{ ...intern, total_views: intern.total_views }} />
               ))
             )}
           </div>
