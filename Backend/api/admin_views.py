@@ -557,7 +557,7 @@ def super_admin_login(request):
 def job_post(request):
     try:
         data = json.loads(request.body)
-    
+
         role = data.get('role')
         print(role)
         auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
@@ -569,20 +569,24 @@ def job_post(request):
         if not userid:
             return Response({"error": "Userid not found"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        if role == 'admin':            
+        if role == 'admin':
             if is_auto_approval:
                 is_publish = True  # Auto-approve enabled, mark as approved
 
         elif role == 'superadmin':
- 
             is_publish = True  # Superadmin posts are always approved
 
-        data = json.loads(request.body)
-
+        # Validate application_deadline
         application_deadline_str = data.get('application_deadline')
-        application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
-        now = datetime.now(timezone.utc)
+        if not application_deadline_str:
+            return Response({"error": "Please fill in the deadline field"}, status=status.HTTP_400_BAD_REQUEST)
 
+        try:
+            application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
+        except ValueError:
+            return Response({"error": "Invalid application deadline format"}, status=status.HTTP_400_BAD_REQUEST)
+
+        now = datetime.now(timezone.utc)
         current_status = "Active" if application_deadline >= now else "expired"
 
         # Prepare job data
@@ -610,8 +614,8 @@ def job_post(request):
                 "selectedCategory": data.get('selectedCategory'),
                 "selectedWorkType": data.get('selectedWorkType')
             },
-            "admin_id" if role == "admin" else "superadmin_id":  userid,#admin_id if role == "admin" else superadmin_id,  # Save the admin_id from the token
-            "is_publish": is_publish,  # Auto-approve if enabled
+            "admin_id" if role == "admin" else "superadmin_id": userid,
+            "is_publish": is_publish,
             "status": current_status,
             "updated_at": datetime.now()
         }
