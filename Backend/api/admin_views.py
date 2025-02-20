@@ -22,6 +22,11 @@ import string
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import pytesseract
+import cv2
+import numpy as np
+import google.generativeai as genai
+from PIL import Image, ImageEnhance, ImageFilter
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -551,7 +556,125 @@ def super_admin_login(request):
 
     
 # ============================================================== JOBS ======================================================================================
+#  Configure Gemini API
+genai.configure(api_key="AIzaSyCLDQgKnO55UQrnFsL2d79fxanIn_AL0WA")
+
+# Configure Tesseract (Ensure Tesseract is installed)
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+def preprocess_image(image):
+    """Enhances image quality for better OCR recognition."""
+    image = image.convert("L")  # Convert to grayscale
+    image = image.filter(ImageFilter.SHARPEN)  # Sharpen image
+    return image
+
+def extract_text_from_image(image):
+    """Extracts raw text from the uploaded job image using OCR."""
+    processed_image = preprocess_image(image)
+    extracted_text = pytesseract.image_to_string(processed_image, lang="eng")
+    return extracted_text.strip()
+
+def analyze_text_with_gemini_api(ocr_text):
+    """Sends extracted text to Gemini API and retrieves structured job data."""
     
+    prompt = f"""
+    Extract job posting details from the following text and return in JSON format.
+
+    **Extracted Text:**  
+    {ocr_text}
+
+    **Output Format (Ensure All Fields Exist & Fill Missing Ones)**:
+    {{
+        "title": "Extracted Job Title or 'No Data Available'",
+        "company_name": "Extracted Company Name or 'No Data Available'",
+        "company_overview": "Extracted or 'No Data Available'",
+        "company_website": "Extracted Website or 'No Data Available'",
+        "job_description": "Extracted Job Description or 'No Data Available'",
+        "key_responsibilities": [
+            "Responsibility 1",
+            "Responsibility 2",
+            "Infer if missing"
+        ],
+        "required_skills": [
+            "Skill 1",
+            "Skill 2",
+            "Infer if missing"
+        ],
+        "education_requirements": "Extracted Qualification or 'No Data Available'",
+        "experience_level": "Years of experience required or 'No Data Available'",
+        "salary_range": "Extracted salary or 'No Data Available'",
+        "benefits": [
+            "Benefit 1",
+            "Benefit 2",
+            "Infer if missing"
+        ],
+        "job_location": "Extracted location or 'No Data Available'",
+        "work_type": "Full-time/Part-time (Infer from job type)",
+        "application_instructions": "Extracted Application Process or 'No Data Available'",
+        "application_deadline": "YYYY-MM-DD or 'No Data Available'",
+        "contact_email": "Extracted email or 'No Data Available'",
+        "contact_phone": ["Extracted phone number or 'No Data Available'"],
+        "job_link": "Extracted job link or 'No Data Available'",
+        "selectedCategory": "Job Category (Infer from job type)",
+        "selectedWorkType": "On-site/Remote"
+    }}
+
+    **Ensure output is valid JSON with no additional text.**
+    """
+
+    # Call Gemini AI Model
+    model = genai.GenerativeModel("gemini-pro")
+    response = model.generate_content(prompt)
+
+    # Ensure response contains JSON
+    try:
+        # **Clean AI response (remove Markdown formatting)**
+        cleaned_response = re.sub(r"```json|```", "", response.text).strip()
+        json_output = json.loads(cleaned_response)  # Convert to JSON
+
+        # Ensure all required fields have values (fallback to "No Data Available")
+        required_fields = {
+            "title": "No Data Available",
+            "company_name": "No Data Available",
+            "job_link": "No Data Available",
+            "contact_email": "No Data Available",
+            "contact_phone": ["No Data Available"]
+        }
+
+        for key, default_value in required_fields.items():
+            if key not in json_output or not json_output[key]:
+                json_output[key] = default_value
+
+        return json_output
+
+    except json.JSONDecodeError as e:
+        return {"error": "AI processing failed. Please try again."}
+
+@csrf_exempt
+def upload_job_image(request):
+    """Handles job image uploads, extracts text using OCR, and refines it using AI."""
+    if request.method == "POST":
+        try:
+            job_image = request.FILES.get("image")
+            if not job_image:
+                return JsonResponse({"error": "No image provided"}, status=400)
+
+            # Step 1: Extract raw text
+            raw_text = extract_text_from_image(Image.open(job_image))
+
+            # Step 2: Process AI enhancement
+            job_data = analyze_text_with_gemini_api(raw_text)
+
+            if "error" in job_data:
+                return JsonResponse({"error": "AI processing failed. Please try again."}, status=500)
+
+            return JsonResponse({"message": "Text extracted successfully", "data": job_data}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
 @csrf_exempt
 @api_view(["POST"])
 def job_post(request):
@@ -1175,6 +1298,186 @@ def get_published_achievements(request):
         return JsonResponse({"error": str(e)}, status=500)
     
 # ============================================================== INTERNSHIP ======================================================================================
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+@csrf_exempt
+def upload_internship_image(request):
+    if request.method == "POST":
+        try:
+            # Get uploaded image
+            internship_image = request.FILES.get("image")
+            if not internship_image:
+                return JsonResponse({"error": "No image provided"}, status=400)
+
+            # Open and process image
+            image = Image.open(internship_image)
+            extracted_text = pytesseract.image_to_string(image, lang="eng")
+
+            # Preprocess text and map to fields
+            internship_data = parse_internship_details(extracted_text)
+
+            return JsonResponse({"message": "Text extracted successfully", "data": internship_data}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+# Function to parse text and map it to internship form fields
+def parse_internship_details(text):
+    # Remove unwanted characters and normalize text
+    text = re.sub(r"\n+", "\n", text).strip()
+
+    # Extract key information using regex or keyword matching
+    title = extract_field(text, ["Position", "Title"])
+    company_name = extract_field(text, ["Company Name", "Organization"])
+    location = extract_field(text, ["Location"], default="Remote")
+    duration = extract_field(text, ["Duration"], default="Not Mentioned")
+    stipend = extract_field(text, ["Stipend", "Salary"], default="Unpaid")
+    application_deadline = extract_field(text, ["Application Deadline", "Apply By"], default="2025-03-01")
+    required_skills = extract_list(text, ["Skills", "Required Skills"])
+    job_description = extract_field(text, ["Description", "Job Role"], default="Not Available")
+    company_website = extract_field(text, ["Website", "More Information"], default="Not Provided")
+    internship_type = extract_field(text, ["Internship Type"], default="Part-time")
+
+    # Construct structured internship data
+    return {
+        "title": title,
+        "company_name": company_name,
+        "location": location,
+        "duration": duration,
+        "stipend": stipend,
+        "application_deadline": application_deadline,
+        "required_skills": required_skills,
+        "job_description": job_description,
+        "company_website": company_website,
+        "internship_type": internship_type
+    }
+
+# Helper function to extract single field from text
+def extract_field(text, keywords, default=""):
+    for keyword in keywords:
+        match = re.search(rf"{keyword}[:\-]?\s*(.*)", text, re.IGNORECASE)
+        if match:
+            return match.group(1).strip()
+    return default
+
+# Helper function to extract list values
+def extract_list(text, keywords):
+    for keyword in keywords:
+        match = re.search(rf"{keyword}[:\-]?\s*(.*)", text, re.IGNORECASE)
+        if match:
+            return [skill.strip() for skill in match.group(1).split(",")]
+    return []
+
+import json
+import re
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from PIL import Image, ImageFilter
+import pytesseract
+import google.generativeai as genai
+
+genai.configure(api_key="AIzaSyCLDQgKnO55UQrnFsL2d79fxanIn_AL0WA")
+
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+def preprocess_image(image):
+    """Enhances image quality for better OCR recognition."""
+    image = image.convert("L")  # Convert to grayscale
+    image = image.filter(ImageFilter.SHARPEN)  # Sharpen image
+    return image
+
+def extract_text_from_image(image):
+    """Extracts raw text from the uploaded internship image using OCR."""
+    processed_image = preprocess_image(image)
+    extracted_text = pytesseract.image_to_string(processed_image, lang="eng")
+    return extracted_text.strip()
+
+def analyze_text_with_gemini_api(ocr_text):
+    """Sends extracted text to Gemini API and retrieves structured internship data."""
+    prompt = f"""
+    Extract internship posting details from the following text and return in JSON format.
+    **Extracted Text:**
+    {ocr_text}
+    **Output Format (Ensure All Fields Exist & Fill Missing Ones)**:
+    {{
+        "title": "Extracted Internship Title or 'No Data Available'",
+        "company_name": "Extracted Company Name or 'No Data Available'",
+        "location": "Extracted Location or 'No Data Available'",
+        "duration": "Extracted Duration or 'No Data Available'",
+        "stipend": "Extracted Stipend or 'No Data Available'",
+        "application_deadline": "YYYY-MM-DD or 'No Data Available'",
+        "required_skills": [
+            "Skill 1",
+            "Skill 2",
+            "Infer if missing"
+        ],
+        "education_requirements": "Extracted Qualification or 'No Data Available'",
+        "job_description": "Extracted Internship Description or 'No Data Available'",
+        "company_website": "Extracted Website or 'No Data Available'",
+        "job_link": "Extracted Internship Link or 'No Data Available'",
+        "internship_type": "Full-time/Part-time (Infer if missing)"
+    }}
+    **Ensure output is valid JSON with no additional text.**
+    """
+    # Call Gemini AI Model
+    model = genai.GenerativeModel("gemini-pro")
+    response = model.generate_content(prompt)
+
+    try:
+        # ✅ Clean AI response (remove Markdown formatting)
+        cleaned_response = re.sub(r"```json|```", "", response.text).strip()
+        json_output = json.loads(cleaned_response)  # Convert to JSON
+
+        # ✅ Ensure all required fields have values (fallback to "No Data Available")
+        required_fields = {
+            "title": "No Data Available",
+            "company_name": "No Data Available",
+            "location": "No Data Available",
+            "duration": "No Data Available",
+            "stipend": "No Data Available",
+            "application_deadline": "No Data Available",
+            "required_skills": [],
+            "education_requirements": "No Data Available",
+            "job_description": "No Data Available",
+            "company_website": "No Data Available",
+            "job_link": "No Data Available",
+            "internship_type": "No Data Available"
+        }
+        for key, default_value in required_fields.items():
+            if key not in json_output or not json_output[key]:
+                json_output[key] = default_value
+
+        return json_output
+    except json.JSONDecodeError as e:
+        print("\n❌ AI Response Error:", str(e))
+        return {"error": "AI processing failed. Please try again."}
+
+@csrf_exempt
+def upload_internship_image(request):
+    """Handles internship image uploads, extracts text using OCR, and refines it using AI."""
+    if request.method == "POST":
+        try:
+            internship_image = request.FILES.get("image")
+            if not internship_image:
+                return JsonResponse({"error": "No image provided"}, status=400)
+
+            # Step 1: Extract raw text
+            raw_text = extract_text_from_image(Image.open(internship_image))
+
+            # Step 2: Process AI enhancement
+            internship_data = analyze_text_with_gemini_api(raw_text)
+            if "error" in internship_data:
+                return JsonResponse({"error": "AI processing failed. Please try again."}, status=500)
+
+
+            return JsonResponse({"message": "Text extracted successfully", "data": internship_data}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
 
 @csrf_exempt
 def post_internship(request):
@@ -1688,7 +1991,6 @@ def post_study_material(request):
             # Decode JWT token
             try:
                 decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
-                print("Decoded Token:", decoded_token)  # Debugging: Check the decoded token
             except jwt.ExpiredSignatureError:
                 return JsonResponse({"error": "Token expired"}, status=401)
             except jwt.InvalidTokenError:
@@ -1699,11 +2001,11 @@ def post_study_material(request):
             is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
 
             if role == 'admin':
-                admin_id = decoded_token.get('admin_user')  
+                admin_id = decoded_token.get('admin_user')
                 if not admin_id:
                     return JsonResponse({"error": "Invalid token"}, status=401)
                 is_publish = True
-            
+
             elif role == 'superadmin':
                 superadmin_id = decoded_token.get('superadmin_user')
                 if not superadmin_id:
@@ -1714,19 +2016,18 @@ def post_study_material(request):
             data = json.loads(request.body)
 
             # Ensure required fields are present
-            required_fields = ['title', 'description', 'category', 'text_content']
+            required_fields = ['type', 'title', 'description', 'category', 'links']
             for field in required_fields:
                 if field not in data:
                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
 
+            # Prepare study material document
             study_material_post = {
-                "study_material_data": {
-                    "title": data['title'],
-                    "description": data['description'],
-                    "category": data['category'],
-                    "text_content": data['text_content'],
-                    "link":data['link']
-                },
+                "type": data['type'],  # Store the material type
+                "title": data['title'],
+                "description": data['description'],
+                "category": data['category'],
+                "links": data['links'],  # Assuming links are provided as an array
                 "admin_id" if role == "admin" else "superadmin_id": admin_id if role == "admin" else superadmin_id,
                 "is_publish": is_publish,
                 "updated_at": datetime.utcnow()
@@ -1743,6 +2044,24 @@ def post_study_material(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+@csrf_exempt
+def get_categories(request):
+    if request.method == 'GET':
+        try:
+            material_type = request.GET.get('type')
+            if not material_type:
+                return JsonResponse({"error": "Material type is required"}, status=400)
+
+            # Fetch categories based on material type
+            categories = study_material_collection.distinct("category", {"type": material_type})
+
+            return JsonResponse({"categories": categories}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Only GET is allowed."}, status=405)
 
 @csrf_exempt
 def manage_study_materials(request):
@@ -2101,7 +2420,6 @@ def get_study_materials_with_admin(request):
             })
 
         return JsonResponse({"study_materials": study_material_list}, status=200)
-        print("Fetched study materials:", study_material_list)
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
