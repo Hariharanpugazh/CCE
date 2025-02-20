@@ -59,6 +59,7 @@ urlpatterns = [
     
     #Jobs
     path('jobs', get_jobs_for_mail, name='get_jobs'),
+    path('upload_job_image/', upload_job_image, name='upload_job_image'),
     path("review-job/<str:job_id>/", review_job, name="approve_job"),
     path('job/<str:job_id>/', get_job_by_id, name='get_job_by_id'),
     path('job-edit/<str:job_id>/', update_job, name='update_job'),
@@ -83,6 +84,7 @@ urlpatterns = [
     
     #Internships
     path('internship/', get_internships, name='get_internship'),
+    path('upload_internship_image/', upload_internship_image, name='upload_internship_image'),
     path('review-internship/<str:internship_id>/', review_internship, name='review_internship'),
     path('internship/<str:internship_id>/', get_internship_id, name='get_internship'),
     path('internship-edit/<str:internship_id>/', update_internship, name='update_internship'),

@@ -9,30 +9,36 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 export default function JobPostForm() {
+  // Load AI-generated job data from sessionStorage
+  const storedJobData = sessionStorage.getItem("jobData");
+  const initialJobData = storedJobData ? JSON.parse(storedJobData) : {};
+
   const [formData, setFormData] = useState({
-    title: "",
-    company_name: "",
-    company_overview: "",
-    company_website: "",
-    job_description: "",
-    key_responsibilities: "",
-    required_skills: [],
-    education_requirements: "",
-    experience_level: "",
-    salary_range: "",
-    benefits: "",
-    job_location: "",
-    work_type: "",
-    work_schedule: "",
-    application_instructions: "",
-    application_deadline: "",
-    contact_email: "",
-    contact_phone: "",
-    job_link: "",
+    title: initialJobData.title || "",
+    company_name: initialJobData.company_name || "",
+    company_overview: initialJobData.company_overview || "",
+    company_website: initialJobData.company_website || "",
+    job_description: initialJobData.job_description || "",
+    key_responsibilities: initialJobData.key_responsibilities || [],
+    required_skills: initialJobData.required_skills || [],
+    education_requirements: initialJobData.education_requirements || "",
+    experience_level: initialJobData.experience_level || "",
+    salary_range: initialJobData.salary_range || "",
+    benefits: initialJobData.benefits || [],
+    job_location: initialJobData.job_location || "",
+    work_type: initialJobData.work_type || "",
+    work_schedule: initialJobData.work_schedule || "",
+    application_instructions: initialJobData.application_instructions || "",
+    application_deadline: initialJobData.application_deadline && !isNaN(Date.parse(initialJobData.application_deadline))
+    ? new Date(initialJobData.application_deadline)
+    : null,
+    contact_email: initialJobData.contact_email || "",
+    contact_phone: initialJobData.contact_phone || [],
+    job_link: initialJobData.job_link || "",
   });
 
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedWorkType, setSelectedWorkType] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(initialJobData.selectedCategory || "");
+  const [selectedWorkType, setSelectedWorkType] = useState(initialJobData.selectedWorkType || "");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -67,7 +73,7 @@ export default function JobPostForm() {
   // Validate URL
   const validateUrl = (url) => {
     const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-    return urlPattern.test(url);
+    return true;
   };
 
   // Validate Application Deadline
@@ -430,10 +436,11 @@ export default function JobPostForm() {
             <div className="relative">
               <DatePicker
                 selected={formData.application_deadline}
-                onChange={handleDateChange}
+                onChange={(date) => setFormData({ ...formData, application_deadline: date })}
                 dateFormat="MM/dd/yyyy"
                 className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow pl-10"
                 placeholderText="Select a date"
+                isClearable
               />
               <FaCalendarAlt
                 onClick={(e) => {
@@ -509,7 +516,7 @@ export default function JobPostForm() {
               <PreviewField label="Work Type" value={selectedWorkType} /><br />
               <PreviewField label="Work Schedule" value={formData.work_schedule} /><br />
               <PreviewField label="Application Instructions" value={formData.application_instructions} multiline /><br />
-              <PreviewField label="Application Deadline" value={formData.application_deadline} /><br />
+              <PreviewField label="Application Deadline" value={formData.application_deadline ? formData.application_deadline.toLocaleDateString() : "N/A"} /><br />
               <PreviewField label="Contact Email" value={formData.contact_email || "N/A"} email /><br />
               <PreviewField label="Contact Phone" value={formData.contact_phone || "N/A"} phone /><br />
               <PreviewField label="Job Link" value={formData.job_link } url /><br />
