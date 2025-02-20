@@ -52,7 +52,7 @@ export default function JobDashboard() {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 6;
 
   useEffect(() => {
     // Set filteredJobs to all jobs without any filtering
@@ -178,6 +178,14 @@ export default function JobDashboard() {
     setCurrentPage(pageNumber);
   };
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
   return (
     <div className="flex">
       {userRole === "admin" && <AdminPageNavbar />}
@@ -191,29 +199,43 @@ export default function JobDashboard() {
           </p>
         </header>
 
+        {/* search */}
+        <div className="sticky ml-10 top-0 z-10 bg-white flex border border-gray-300 mr-11 mb-5">
+          <input
+            type="text"
+            value={searchPhrase}
+            onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())}
+            placeholder={`Search Jobs`}
+            className={`w-full text-lg p-2 px-4 bg-white hover:border-gray-400 outline-none ${borderColor}`}
+          />
+          <div className="flex mr-5 justify-center items-center space-x-4">
+            <select name="salaryRange" onChange={handleFilterChange} className="p-2 border-l border-gray-300">
+              <option value="">Salary</option>
+              <option value="10000-50000">10k-50k</option>
+              <option value="50000-100000">50k-100k</option>
+            </select>
+            <select name="experience" onChange={handleFilterChange} className="p-2 border-l border-gray-300">
+              <option value="">Experience</option>
+              <option value="0year-2year">0-2 years</option>
+              <option value="2year-5year">2-5 years</option>
+            </select>
+            <select name="employmentType" onChange={handleFilterChange} className="p-2 border-l border-gray-300">
+              <option value="">Employment Type</option>
+              <option value="Full-time">Full-Time</option>
+              <option value="Part-time">Part-Time</option>
+            </select>
+          </div>
+          <button className={`px-13 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}> Search </button>
+        </div>
+
         <div className="flex px-10 space-x-5 items-start">
           {/* filters */}
           {/* <Filters args={filterArgs} /> */}
 
           {/* Job cards */}
           <div className="flex-1 flex flex-col space-y-3">
-            {/* search */}
-            <div className="flex items-stretch">
-              <input
-                type="text"
-                value={searchPhrase}
-                onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())}
-                placeholder={`Search Jobs`}
-                className={`w-full text-lg p-2 px-4 rounded-tl rounded-bl bg-white border border-r-[0px] hover:border-gray-400 outline-none ${borderColor}`}
-              />
-              <button className={`px-5 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}>
-                {" "}
-                Search{" "}
-              </button>
-            </div>
-
             {/* jobs */}
-            <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
+            <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {error ? (
                 <p className="text-red-600">{error}</p>
               ) : jobs.length === 0 ? (
