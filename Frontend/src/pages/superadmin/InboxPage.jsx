@@ -437,17 +437,17 @@ const InboxPage = () => {
               <div className="flex-1">
                 <h2 className="text-xl font-semibold">{student_name}</h2>
                 <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>{achievement_data.company}</span>
+                  <span>{achievement_data?.company}</span>
                 </div>
               </div>
             </div>
             <div className="border-t my-4" />
             <div className="whitespace-pre-wrap text-sm text-gray-700">
-              <p><strong>Description:</strong> {achievement_data.description}</p>
-              <p><strong>Type:</strong> {achievement_data.type}</p>
-              <p><strong>Date:</strong> {new Date(achievement_data.date).toLocaleDateString()}</p>
-              <p><strong>Batch:</strong> {achievement_data.batch}</p>
-              <p><strong>Approval Status:</strong> {achievement_data.is_approved ? "Approved" : "Not Approved"}</p>
+              <p><strong>Description:</strong> {achievement_data?.description}</p>
+              <p><strong>Type:</strong> {achievement_data?.type}</p>
+              <p><strong>Date:</strong> {new Date(achievement_data?.date).toLocaleDateString()}</p>
+              <p><strong>Batch:</strong> {achievement_data?.batch}</p>
+              <p><strong>Approval Status:</strong> {achievement_data?.is_approved ? "Approved" : "Not Approved"}</p>
             </div>
           </div>
         </div>
