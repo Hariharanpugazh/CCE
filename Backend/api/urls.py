@@ -127,4 +127,7 @@ urlpatterns = [
 
     #view count
      path('viewcount/<str:id>/', view_count, name='view_count'),
+
+
+     path("upload-internship-image/", upload_internship_image, name="upload_internship_image"),
 ]

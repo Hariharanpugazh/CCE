@@ -92,7 +92,7 @@ export default function SuperAdminSidebar() {
                     </a>
                   </li>
                   <li>
-                    <a href="/internpost" className="block p-2 hover:bg-yellow-200 rounded">
+                    <a href="/internshipselection" className="block p-2 hover:bg-yellow-200 rounded">
                       Internship
                     </a>
                   </li>

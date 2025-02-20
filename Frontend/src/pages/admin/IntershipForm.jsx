@@ -11,19 +11,25 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 const InternPostForm = () => {
+  // Load AI-generated internship data from sessionStorage
+  const storedInternshipData = sessionStorage.getItem("internshipData");
+  const initialInternshipData = storedInternshipData ? JSON.parse(storedInternshipData) : {};
+
   const [formData, setFormData] = useState({
-    title: '',
-    company_name: '',
-    location: '',
-    duration: '',
-    stipend: '',
-    application_deadline: null,
-    skills_required: [],
-    job_description: '',
-    company_website: '',
-    internship_type: '',
-    job_link: '',
-    education_requirements: '' // Added optional field
+    title: initialInternshipData.title || '',
+    company_name: initialInternshipData.company_name || '',
+    location: initialInternshipData.job_location || '',
+    duration: initialInternshipData.duration || '',
+    stipend: initialInternshipData.salary_range || '',
+    application_deadline: initialInternshipData.application_deadline && !isNaN(Date.parse(initialInternshipData.application_deadline))
+      ? new Date(initialInternshipData.application_deadline)
+      : null,
+    skills_required: initialInternshipData.required_skills || [],
+    job_description: initialInternshipData.job_description || '',
+    company_website: initialInternshipData.company_website || '',
+    internship_type: initialInternshipData.work_type || '',
+    job_link: initialInternshipData.job_link || '',
+    education_requirements: initialInternshipData.education_requirements || '' // Added optional field
   });
 
   const [message, setMessage] = useState('');
@@ -79,17 +85,12 @@ const InternPostForm = () => {
     }
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-      console.log("Decoded JWT Payload:", payload); // Debugging line
       setUserRole(payload.role); // Assuming the payload has a 'role' field
-      if (payload.role === "admin") 
-        {
-          setUserId(payload.admin_user); // Assuming the payload has an 'id' field
-        }
-      else if (payload.role === "superadmin")
-        {
-          setUserId(payload.superadmin_user); // Assuming the payload has an 'id' field
-        }
-
+      if (payload.role === "admin") {
+        setUserId(payload.admin_user); // Assuming the payload has an 'id' field
+      } else if (payload.role === "superadmin") {
+        setUserId(payload.superadmin_user); // Assuming the payload has an 'id' field
+      }
     }
   }, [navigate]);
 
@@ -178,7 +179,7 @@ const InternPostForm = () => {
 
       const response = await axios.post(
         'http://localhost:8000/api/post-internship/',
-        {...formattedData, userId , role : userRole },
+        { ...formattedData, userId, role: userRole },
       );
       setMessage(response.data.message);
       setError('');
@@ -194,14 +195,6 @@ const InternPostForm = () => {
   if (error) {
     return <div className="text-red-600">{error}</div>;
   }
-
-  useEffect(() => {
-    const token = Cookies.get("jwt");
-    if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-      setUserRole(payload.role); // Assuming the payload has a 'role' field
-    }
-  }, []);
 
   return (
     <motion.div
