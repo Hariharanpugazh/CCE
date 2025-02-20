@@ -18,7 +18,7 @@ const JobEdit = () => {
         const token = Cookies.get("jwt");
         if (token) {
             const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-            setUserRole(payload.role); // Assuming the payload has a 'role' field
+            setUserRole(payload.role);
         }
 
         fetch(`http://127.0.0.1:8000/api/job/${id}/`)
@@ -77,7 +77,14 @@ const JobEdit = () => {
             })
             .then(response => {
                 if (response.ok) {
-                    navigate('/jobs'); // Redirect to the jobs list page after deletion
+                    // Redirect based on the user role
+                    if (userRole === "admin") {
+                        navigate('/manage-jobs');
+                    } else if (userRole === "superadmin") {
+                        navigate('/superadmin-manage-jobs');
+                    } else {
+                        navigate('/jobs'); // Default fallback
+                    }
                 } else {
                     console.error("Error deleting job:", response.statusText);
                 }
@@ -85,6 +92,7 @@ const JobEdit = () => {
             .catch(error => console.error("Error deleting job:", error));
         }
     };
+    
 
     if (!job) return <p className="text-center text-lg font-semibold">Loading...</p>;
 

@@ -118,7 +118,7 @@ export default function AppliedJobs() {
       {userRole === "student" && <StudentPageNavbar />}
 
       <header className="flex flex-col items-center justify-center py-14 container self-center">
-        <p className="text-6xl tracking-[0.8px]">Jobs</p>
+        <p className="text-6xl tracking-[0.8px]">Applied Jobs</p>
         <p className="text-lg mt-2 text-center">
           Explore all the job opportunities in all the existing fields <br />around the globe.
         </p>

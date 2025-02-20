@@ -22,6 +22,7 @@ urlpatterns = [
     path('fetch-review/', fetch_review, name='fetch_review'),
     path('get-admin/<str:userId>/', get_admin_details, name='get_admin_details'),
     path('update-admin/<str:userId>/', update_admin_profile, name='update_admin_profile'),
+    path("get-categories/", get_categories, name="get_categories"),
     
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
@@ -128,4 +129,7 @@ urlpatterns = [
 
     #view count
      path('viewcount/<str:id>/', view_count, name='view_count'),
+
+
+     path("upload-internship-image/", upload_internship_image, name="upload_internship_image"),
 ]
