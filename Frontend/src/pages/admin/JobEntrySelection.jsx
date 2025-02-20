@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
@@ -21,10 +21,11 @@ const JobEntrySelection = () => {
       const payload = JSON.parse(atob(token.split(".")[1]));
       setUserRole(payload.role);
     }
-    sessionStorage.removeItem("jobData");
+    sessionStorage.removeItem("jobData"); // Clear session data on component mount
   }, []);
 
   const handleManualEntry = () => {
+    sessionStorage.removeItem("jobData"); // Ensure no conflicts when going back
     navigate("/jobpost");
   };
 
@@ -50,10 +51,6 @@ const JobEntrySelection = () => {
         setProgress(100);
         setJobData(response.data.data);
         sessionStorage.setItem("jobData", JSON.stringify(response.data.data));
-
-        setTimeout(() => {
-          document.getElementById("confetti").classList.add("animate-fadeIn");
-        }, 300);
       }
     } catch (err) {
       console.error("Error uploading image:", err);
@@ -75,14 +72,21 @@ const JobEntrySelection = () => {
     }
   }, []);
 
+  const removeFile = () => {
+    setSelectedFile(null);
+    setJobData(null);
+    setUploading(false);
+    setProgress(0);
+  };
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/jpeg': ['.jpeg', '.jpg'],
-      'image/png': ['.png'],
-      'image/gif': ['.gif'],
-      'image/bmp': ['.bmp'],
-      'image/webp': ['.webp'],
+      "image/jpeg": [".jpeg", ".jpg"],
+      "image/png": [".png"],
+      "image/gif": [".gif"],
+      "image/bmp": [".bmp"],
+      "image/webp": [".webp"],
     },
     multiple: false,
   });
@@ -92,36 +96,46 @@ const JobEntrySelection = () => {
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
-      <h1 className="text-2xl font-bold mb-6">How do you want to enter job details?</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">How do you want to enter job details?</h1>
 
-      <div
-        {...getRootProps()}
-        className={`w-full max-w-lg p-6 border-2 ${
-          isDragActive ? "border-green-500 bg-green-100" : "border-gray-300"
-        } border-dashed rounded-lg text-center cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-100`}
-      >
-        <input {...getInputProps()} />
-        {isDragActive ? (
-          <p className="text-green-600 font-semibold">Drop the file here...</p>
-        ) : (
-          <p className="text-gray-700">Drag & drop an image here, or click to select a file</p>
+      <div className="w-full max-w-md flex flex-col items-center space-y-6">
+        {/* Hide Manual Entry if uploading or AI processing is done */}
+        {!uploading && !jobData && (
+          <button
+            onClick={handleManualEntry}
+            className="w-full bg-blue-500 text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-blue-600 transition-all"
+          >
+            Manual Entry
+          </button>
         )}
-        {selectedFile && (
-          <p className="mt-2 text-sm text-gray-600">Selected File: {selectedFile.name}</p>
-        )}
-      </div>
 
-      <button
-        onClick={handleManualEntry}
-        className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition mt-6"
-      >
-        Manual Entry
-      </button>
+        {/* Drag & Drop Box */}
+        <div
+          {...getRootProps()}
+          className={`w-full border-2 ${
+            isDragActive ? "border-green-500 bg-green-100 shadow-md scale-105" : "border-gray-300"
+          } border-dashed rounded-lg p-6 text-center cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-100`}
+        >
+          <input {...getInputProps()} />
+          {selectedFile ? (
+            <div className="flex flex-col items-center">
+              <p className="text-gray-700 font-semibold">{selectedFile.name}</p>
+              <button onClick={removeFile} className="text-red-500 mt-2 text-sm hover:underline">
+                Remove File
+              </button>
+            </div>
+          ) : isDragActive ? (
+            <p className="text-green-600 font-semibold">Drop the file here...</p>
+          ) : (
+            <p className="text-gray-700">Drag & drop an image here, or click to select a file</p>
+          )}
+        </div>
 
-      {uploading && (
-        <div className="w-full max-w-lg mt-6 flex flex-col items-center">
+        {/* Progress Bar UI */}
+        {uploading && (
+        <div className="w-full max-w-md mt-8 flex flex-col items-center">
           <p className="text-lg text-gray-700 font-semibold mb-2">Processing Image...</p>
-          <div className="w-full bg-gray-300 rounded-full h-5 overflow-hidden relative">
+          <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative">
             <div
               className="bg-gradient-to-r from-blue-500 to-purple-500 h-full transition-all duration-500 ease-in-out"
               style={{ width: `${progress}%` }}
@@ -131,25 +145,26 @@ const JobEntrySelection = () => {
         </div>
       )}
 
-      {progress === 100 && (
-        <div id="confetti" className="hidden animate-fadeIn">
-          <p className="text-green-600 text-lg font-semibold mt-4">Processing Complete! 🎉</p>
-        </div>
-      )}
+        {/* AI Processing Complete Message */}
+        {progress === 100 && (
+          <div className="text-green-600 text-lg font-semibold text-center mt-4">
+                AI Processing Complete!
+          </div>
+        )}
 
-      {jobData && (
-        <div className="mt-6 w-full max-w-lg">
-          <p className="text-center text-gray-700">AI processing completed! Review and proceed.</p>
+        {/* Confirm & Proceed Button (Only Show When Processing is Done) */}
+        {jobData && (
           <button
             onClick={() => navigate("/jobpost")}
-            className="mt-4 bg-purple-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-purple-600 transition w-full"
+            className="w-full bg-purple-500 text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-purple-600 transition-all"
           >
             Confirm & Proceed
           </button>
-        </div>
-      )}
+        )}
 
-      {error && <p className="text-red-500 mt-4">{error}</p>}
+        {/* Error Message */}
+        {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+      </div>
     </div>
   );
 };

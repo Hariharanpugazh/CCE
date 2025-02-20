@@ -45,6 +45,7 @@ import AchievementPreview from "./pages/students/AchievementPreview";
 import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
 import Student_Management_superadmin from "./pages/superadmin/StudentManagement_superadmin"
+import JobEntrySelection from "./pages/admin/JobEntrySelection";
 
 
 // Protected Route Component
@@ -109,6 +110,7 @@ function App() {
           <Route path="/admin/achievements" element={<ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
           <Route path="/jobs" element={ <ProtectedRoute> <JobDashboard /> </ProtectedRoute>} />
           <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
+          <Route path="/jobselection" element={<ProtectedRoute> <JobEntrySelection /> </ProtectedRoute> } />
           <Route path="/jobpost" element={<ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
           <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
           <Route path="/internpost" element={<ProtectedRoute> <InternshipForm /> </ProtectedRoute>} />

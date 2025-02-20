@@ -285,7 +285,7 @@ export default function AdminSidebar() {
               {isCreateMenuOpen && (
                 <ul className="ml-6 mt-2">
                   <li>
-                    <a href="/jobpost" className="block p-2 hover:bg-yellow-200 rounded">
+                    <a href="/jobselection" className="block p-2 hover:bg-yellow-200 rounded">
                       Job Post
                     </a>
                   </li>
