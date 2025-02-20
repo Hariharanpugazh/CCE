@@ -1,157 +1,404 @@
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { useDropzone } from "react-dropzone";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
+import { RiMoneyRupeeCircleFill } from "react-icons/ri";
+import { FaBuilding, FaBriefcase, FaMapMarkerAlt, FaGraduationCap, FaUserTie } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
-const JobEntrySelection = () => {
-  const navigate = useNavigate();
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState("");
-  const [jobData, setJobData] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [userRole, setUserRole] = useState(null);
+const JobEdit = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [job, setJob] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedJob, setEditedJob] = useState(null);
+    const [userRole, setUserRole] = useState(null);
 
-  useEffect(() => {
-    const token = Cookies.get("jwt");
-    if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setUserRole(payload.role);
-    }
-    sessionStorage.removeItem("jobData");
-  }, []);
+    useEffect(() => {
+        const token = Cookies.get("jwt");
+        if (token) {
+            const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+            setUserRole(payload.role); // Assuming the payload has a 'role' field
+        }
 
-  const handleManualEntry = () => {
-    navigate("/jobpost");
-  };
+        fetch(`http://127.0.0.1:8000/api/job/${id}/`)
+            .then(response => response.json())
+            .then(data => {
+                setJob(data.job);
+                setEditedJob(data.job);
+            })
+            .catch(error => console.error("Error fetching job:", error));
+    }, [id]);
 
-  const handleFileUpload = async (file) => {
-    if (!file) return;
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setEditedJob(prevJob => ({
+            ...prevJob,
+            job_data: {
+                ...prevJob.job_data,
+                [name]: value
+            }
+        }));
+    };
 
-    setUploading(true);
-    setProgress(5);
+    const handleSave = () => {
+        const token = Cookies.get("jwt");
+        let role = null;
+        if (token) {
+            const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+            role = payload.role; // Extract the role from the payload
+        }
 
-    const formData = new FormData();
-    formData.append("image", file);
+        const updatedJobData = {
+            ...editedJob,
+            edited: role // Include the role in the request payload
+        };
+        console.log(updatedJobData);
 
-    try {
-      const response = await axios.post("http://127.0.0.1:8000/api/upload_job_image/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        onUploadProgress: (progressEvent) => {
-          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setProgress(percent);
-        },
-      });
+        fetch(`http://127.0.0.1:8000/api/job-edit/${id}/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedJobData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            setJob(data.job);
+            setIsEditing(false);
+        })
+        .catch(error => console.error("Error saving job:", error));
+    };
 
-      if (response.data && response.data.data) {
-        setProgress(100);
-        setJobData(response.data.data);
-        sessionStorage.setItem("jobData", JSON.stringify(response.data.data));
+    const handleDelete = () => {
+        if (window.confirm("Are you sure you want to delete this job?")) {
+            fetch(`http://127.0.0.1:8000/api/job-delete/${id}/`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    navigate('/jobs'); // Redirect to the jobs list page after deletion
+                } else {
+                    console.error("Error deleting job:", response.statusText);
+                }
+            })
+            .catch(error => console.error("Error deleting job:", error));
+        }
+    };
 
-        setTimeout(() => {
-          document.getElementById("confetti").classList.add("animate-fadeIn");
-        }, 300);
-      }
-    } catch (err) {
-      console.error("Error uploading image:", err);
-      setError("Failed to process image. Try again.");
-      setUploading(false);
-    }
-  };
+    if (!job) return <p className="text-center text-lg font-semibold">Loading...</p>;
 
-  const onDrop = useCallback((acceptedFiles) => {
-    if (acceptedFiles.length > 0) {
-      const file = acceptedFiles[0];
-      if (!file.type.startsWith("image/")) {
-        setError("Invalid file type. Please upload an image.");
-        return;
-      }
-      setError("");
-      setSelectedFile(file);
-      handleFileUpload(file);
-    }
-  }, []);
+    return (
+        <div className="flex flex-col min-h-screen">
+            {/* Render appropriate navbar based on user role */}
+            {userRole === "admin" && <AdminPageNavbar />}
+            {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'image/jpeg': ['.jpeg', '.jpg'],
-      'image/png': ['.png'],
-      'image/gif': ['.gif'],
-      'image/bmp': ['.bmp'],
-      'image/webp': ['.webp'],
-    },
-    multiple: false,
-  });
+            <div className="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">
+                <div className="flex flex-col lg:flex-row w-[70%] max-w-7xl bg-transparent rounded-lg overflow-hidden">
+                    {/* Job Overview */}
+                    <div className="lg:w-1/3 p-4 bg-white border border-gray-300 lg:mr-8 rounded-lg">
+                        <div className="mb-8">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Overview</h3>
+                            {isEditing ? (
+                                <>
+                                    <div className="mb-4">
+                                        <label className="block mb-2 text-gray-700">Company Name:</label>
+                                        <input
+                                            type="text"
+                                            name="company_name"
+                                            value={editedJob.job_data.company_name}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block mb-2 text-gray-700">Work Type:</label>
+                                        <input
+                                            type="text"
+                                            name="work_type"
+                                            value={editedJob.job_data.work_type}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block mb-2 text-gray-700">Location:</label>
+                                        <input
+                                            type="text"
+                                            name="job_location"
+                                            value={editedJob.job_data.job_location}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block mb-2 text-gray-700">Education:</label>
+                                        <input
+                                            type="text"
+                                            name="education_requirements"
+                                            value={editedJob.job_data.education_requirements}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block mb-2 text-gray-700">Experience:</label>
+                                        <input
+                                            type="text"
+                                            name="experience_level"
+                                            value={editedJob.job_data.experience_level}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block mb-2 text-gray-700">Salary:</label>
+                                        <input
+                                            type="text"
+                                            name="salary_range"
+                                            value={editedJob.job_data.salary_range}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-gray-700 mb-2 flex items-center">
+                                        <FaBuilding className="mr-2 text-gray-600" />
+                                        <div className="flex flex-col">
+                                        <h3 className="font-semibold">Company Name:</h3> 
+                                        <span className="text-sm">{job.job_data.company_name}</span>
+                                        </div>
+                                    </p>
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
-      {userRole === "admin" && <AdminPageNavbar />}
-      {userRole === "superadmin" && <SuperAdminPageNavbar />}
+                                    <p className="text-gray-700 mb-2 flex items-center">
+                                        <FaBriefcase className="mr-2 text-gray-600" />
+                                        <div className="flex flex-col">
+                                        <h3 className="font-semibold">Work Type:</h3> 
+                                        <span className="text-sm">{job.job_data.work_type}</span>
+                                        </div>
+                                    </p>
 
-      <h1 className="text-2xl font-bold mb-6">How do you want to enter job details?</h1>
+                                    <p className="text-gray-700 mb-2 flex items-center">
+                                        <FaMapMarkerAlt className="mr-2 text-gray-600" />
+                                        <div className="flex flex-col">
+                                        <h3 className="font-semibold">Location:</h3> 
+                                        <span className="text-sm">{job.job_data.job_location}</span>
+                                        </div>
+                                    </p>
 
-      <div
-        {...getRootProps()}
-        className={`w-full max-w-lg p-6 border-2 ${
-          isDragActive ? "border-green-500 bg-green-100" : "border-gray-300"
-        } border-dashed rounded-lg text-center cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-100`}
-      >
-        <input {...getInputProps()} />
-        {isDragActive ? (
-          <p className="text-green-600 font-semibold">Drop the file here...</p>
-        ) : (
-          <p className="text-gray-700">Drag & drop an image here, or click to select a file</p>
-        )}
-        {selectedFile && (
-          <p className="mt-2 text-sm text-gray-600">Selected File: {selectedFile.name}</p>
-        )}
-      </div>
+                                    <p className="text-gray-700 mb-2 flex items-center">
+                                        <FaGraduationCap className="mr-2 text-lg text-gray-600" />
+                                        <div className="flex flex-col">
+                                        <h3 className="font-semibold">Education:</h3> 
+                                        <span className="text-sm">{job.job_data.education_requirements}</span>
+                                        </div>
+                                    </p>
 
-      <button
-        onClick={handleManualEntry}
-        className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition mt-6"
-      >
-        Manual Entry
-      </button>
+                                    <p className="text-gray-700 mb-2 flex items-center">
+                                        <FaUserTie className="mr-2 text-gray-600" />
+                                        <div className="flex flex-col">
+                                        <h3 className="font-semibold">Experience:</h3> 
+                                        <span className="text-sm">{job.job_data.experience_level} years</span>
+                                        </div>
+                                    </p>
 
-      {uploading && (
-        <div className="w-full max-w-lg mt-6 flex flex-col items-center">
-          <p className="text-lg text-gray-700 font-semibold mb-2">Processing Image...</p>
-          <div className="w-full bg-gray-300 rounded-full h-5 overflow-hidden relative">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-purple-500 h-full transition-all duration-500 ease-in-out"
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-          <p className="text-sm text-gray-600 mt-2">{progress}% Completed</p>
+                                    <p className="text-gray-700 mb-2 flex items-center">
+                                        <RiMoneyRupeeCircleFill className="mr-2 text-gray-600" />
+                                        <div className="flex flex-col">
+                                        <h3 className="font-semibold">Salary:</h3> 
+                                        <span className="text-sm">₹ {job.job_data.salary_range} per annum</span>
+                                        </div>
+                                    </p>
+                                </>
+                            )}
+                        </div>
+                        <div className="flex justify-between items-center mb-2 mt-50">
+                            <button
+                                onClick={() => setIsEditing(!isEditing)}
+                                className="bg-blue-600 text-white px-4 py-2 rounded"
+                            >
+                                {isEditing ? "Cancel" : "Edit"}
+                            </button>
+                            {isEditing && (
+                                <button
+                                    onClick={handleSave}
+                                    className="bg-green-600 text-white px-4 py-2 rounded ml-2"
+                                >
+                                    Save
+                                </button>
+                            )}
+                            <button
+                                onClick={handleDelete}
+                                className="bg-red-600 text-white px-4 py-2 rounded ml-2"
+                            >
+                                Delete
+                            </button>
+                        </div>   
+                    </div>
+                    
+
+                    {/* Job Description and Other Details */}
+                    <div className="lg:w-2/3 p-4 overflow-y-auto" style={{ maxHeight: '600px' }}>
+                        {/* Job Description */}
+                        <div className="mb-8">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Description</h3>
+                            {isEditing ? (
+                                <textarea
+                                    name="job_description"
+                                    value={editedJob.job_data.job_description}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 border rounded"
+                                />
+                            ) : (
+                                <p className="text-gray-700">{job.job_data.job_description}</p>
+                            )}
+                        </div>
+
+                        {/* Key Responsibilities */}
+                        <div className="mb-8">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Key Responsibilities</h3>
+                            {isEditing ? (
+                                <textarea
+                                    name="key_responsibilities"
+                                    value={editedJob.job_data.key_responsibilities}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 border rounded"
+                                />
+                            ) : (
+                                <p className="text-gray-700">{job.job_data.key_responsibilities}</p>
+                            )}
+                        </div>
+
+                        {/* Skills & Education */}
+                        <div className="mb-8">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Required Skills</h3>
+                            {isEditing ? (
+                                <>
+                                
+                                </>
+                            ) : (
+                                <>
+                                    <div className="text-gray-700 mb-2">
+                                        <strong>Skills:</strong>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {Array.isArray(job.job_data.required_skills) ? (
+                                                job.job_data.required_skills.map((skill, index) => (
+                                                    <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+                                                        {skill}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
+                                                    No skills available
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Benefits */}
+                        <div className="mb-8">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Benefits</h3>
+                            {isEditing ? (
+                                <textarea
+                                    name="benefits"
+                                    value={editedJob.job_data.benefits}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 border rounded"
+                                />
+                            ) : (
+                                <p className="text-gray-700">{job.job_data.benefits}</p>
+                            )}
+                        </div>
+
+                        {/* Application Details */}
+                        <div className="mb-8">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Application Process</h3>
+                            {isEditing ? (
+                                <>
+                                    <div className="mb-4">
+                                        <label className="block mb-2 text-gray-700">Application Deadline:</label>
+                                        <input
+                                            type="text"
+                                            name="application_deadline"
+                                            value={editedJob.job_data.application_deadline}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block mb-2 text-gray-700">Application Instructions:</label>
+                                        <textarea
+                                            name="application_instructions"
+                                            value={editedJob.job_data.application_instructions}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-gray-700 mb-2"><strong>Deadline:</strong> {job.job_data.application_deadline}</p>
+                                    <p className="text-gray-700 mb-2"><strong>Instructions:</strong> {job.job_data.application_instructions}</p>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Contact Information */}
+                        <div className="mb-8">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Contact Information</h3>
+                            {isEditing ? (
+                                <>
+                                    <div className="mb-4">
+                                        <label className="block mb-2 text-gray-700">Contact Email:</label>
+                                        <input
+                                            type="text"
+                                            name="contact_email"
+                                            value={editedJob.job_data.contact_email}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block mb-2 text-gray-700">Contact Phone:</label>
+                                        <input
+                                            type="text"
+                                            name="contact_phone"
+                                            value={editedJob.job_data.contact_phone}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border rounded"
+                                        />
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <p className="text-gray-700 mb-2"><strong>Email:</strong> {job.job_data.contact_email}</p>
+                                    <p className="text-gray-700 mb-2"><strong>Phone:</strong> {job.job_data.contact_phone}</p>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Apply Button */}
+                        <div className="text-left mt-8">
+                            <a
+                                href={job.job_data.company_website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md"
+                            >
+                                Apply Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      )}
-
-      {progress === 100 && (
-        <div id="confetti" className="hidden animate-fadeIn">
-          <p className="text-green-600 text-lg font-semibold mt-4">Processing Complete! 🎉</p>
-        </div>
-      )}
-
-      {jobData && (
-        <div className="mt-6 w-full max-w-lg">
-          <p className="text-center text-gray-700">AI processing completed! Review and proceed.</p>
-          <button
-            onClick={() => navigate("/jobpost")}
-            className="mt-4 bg-purple-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-purple-600 transition w-full"
-          >
-            Confirm & Proceed
-          </button>
-        </div>
-      )}
-
-      {error && <p className="text-red-500 mt-4">{error}</p>}
-    </div>
-  );
+    );
 };
 
-export default JobEntrySelection;
+export default JobEdit;
