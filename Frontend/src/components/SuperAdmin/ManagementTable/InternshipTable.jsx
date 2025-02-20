@@ -1,10 +1,10 @@
 import React from "react";
 import { IoMdCheckmark } from "react-icons/io";
 import { FaEye, FaCheck, FaTrashAlt } from "react-icons/fa";
+import { FaXmark } from "react-icons/fa6";
 import Pagination from "../../../components/Admin/pagination";
 import backIcon from "../../../assets/icons/back-icon.svg";
 import nextIcon from "../../../assets/icons/next-icon.svg";
-import { FaXmark } from "react-icons/fa6";
 
 const InternshipTable = ({
   internships,
@@ -35,6 +35,14 @@ const InternshipTable = ({
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+  };
+
   return (
     <div id="internships-section" className="mt-4 w-full flex-col">
       {/* Header */}
@@ -57,8 +65,7 @@ const InternshipTable = ({
 
         {/* Bulk Actions */}
         <div className="flex items-stretch space-x-4">
-
-          {/* auto approve */}
+          {/* Auto Approve */}
           <div className="flex items-center space-x-2 p-2 rounded-md border border-gray-300">
             <span className="text-gray-700 px-2">Auto-Approval</span>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -141,7 +148,9 @@ const InternshipTable = ({
                     <td className="text-center py-3">{data.title || "N/A"}</td>
                     <td className="text-center py-3">{data.company_name || "N/A"}</td>
                     <td className="text-center py-3">{internship.admin_name || "N/A"}</td>
-                    <td className="text-center py-3">{data.application_deadline || "N/A"}</td>
+                    <td className="text-center py-3">
+                      {data.application_deadline ? formatDate(data.application_deadline) : "N/A"}
+                    </td>
                     <td className="text-center py-3">{data.duration || "N/A"}</td>
                     <td className="text-center py-3 font-semibold">
                       {internship.is_publish === true ? (
