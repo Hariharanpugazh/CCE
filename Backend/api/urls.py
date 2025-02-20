@@ -22,6 +22,7 @@ urlpatterns = [
     path('fetch-review/', fetch_review, name='fetch_review'),
     path('get-admin/<str:userId>/', get_admin_details, name='get_admin_details'),
     path('update-admin/<str:userId>/', update_admin_profile, name='update_admin_profile'),
+    path("get-categories/", get_categories, name="get_categories"),
     
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),

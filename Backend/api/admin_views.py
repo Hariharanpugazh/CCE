@@ -1688,7 +1688,6 @@ def post_study_material(request):
             # Decode JWT token
             try:
                 decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
-                print("Decoded Token:", decoded_token)  # Debugging: Check the decoded token
             except jwt.ExpiredSignatureError:
                 return JsonResponse({"error": "Token expired"}, status=401)
             except jwt.InvalidTokenError:
@@ -1699,11 +1698,11 @@ def post_study_material(request):
             is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
 
             if role == 'admin':
-                admin_id = decoded_token.get('admin_user')  
+                admin_id = decoded_token.get('admin_user')
                 if not admin_id:
                     return JsonResponse({"error": "Invalid token"}, status=401)
                 is_publish = True
-            
+
             elif role == 'superadmin':
                 superadmin_id = decoded_token.get('superadmin_user')
                 if not superadmin_id:
@@ -1714,19 +1713,18 @@ def post_study_material(request):
             data = json.loads(request.body)
 
             # Ensure required fields are present
-            required_fields = ['title', 'description', 'category', 'text_content']
+            required_fields = ['type', 'title', 'description', 'category', 'links']
             for field in required_fields:
                 if field not in data:
                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
 
+            # Prepare study material document
             study_material_post = {
-                "study_material_data": {
-                    "title": data['title'],
-                    "description": data['description'],
-                    "category": data['category'],
-                    "text_content": data['text_content'],
-                    "link":data['link']
-                },
+                "type": data['type'],  # Store the material type
+                "title": data['title'],
+                "description": data['description'],
+                "category": data['category'],
+                "links": data['links'],  # Assuming links are provided as an array
                 "admin_id" if role == "admin" else "superadmin_id": admin_id if role == "admin" else superadmin_id,
                 "is_publish": is_publish,
                 "updated_at": datetime.utcnow()
@@ -1743,6 +1741,24 @@ def post_study_material(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+@csrf_exempt
+def get_categories(request):
+    if request.method == 'GET':
+        try:
+            material_type = request.GET.get('type')
+            if not material_type:
+                return JsonResponse({"error": "Material type is required"}, status=400)
+
+            # Fetch categories based on material type
+            categories = study_material_collection.distinct("category", {"type": material_type})
+
+            return JsonResponse({"categories": categories}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Only GET is allowed."}, status=405)
 
 @csrf_exempt
 def manage_study_materials(request):
