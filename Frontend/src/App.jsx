@@ -45,6 +45,8 @@ import AchievementPreview from "./pages/students/AchievementPreview";
 import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
 import Student_Management_superadmin from "./pages/superadmin/StudentManagement_superadmin"
+import StudyMaterialCards from "./pages/students/StudyMaterialCards";
+import TopicsPage from "./pages/students/TopicsPage";
 
 
 // Protected Route Component
@@ -99,6 +101,8 @@ function App() {
         <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />
         <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />        
         <Route path="/applied-jobs" element={<ProtectedRoute> <AppliedJobs /> </ProtectedRoute>} />
+        <Route path="/study-material-cards" element={<ProtectedRoute> <StudyMaterialCards /> </ProtectedRoute>} />
+        <Route path="/topics/:type" element={<ProtectedRoute> <TopicsPage /> </ProtectedRoute>} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />

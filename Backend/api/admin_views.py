@@ -1760,6 +1760,7 @@ def get_categories(request):
 
     return JsonResponse({"error": "Invalid request method. Only GET is allowed."}, status=405)
 
+
 @csrf_exempt
 def manage_study_materials(request):
     if request.method == 'GET':
