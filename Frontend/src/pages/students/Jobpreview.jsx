@@ -68,80 +68,62 @@ const JobPreview = () => {
   if (!job) return <p className="text-center text-lg font-semibold">Loading...</p>;
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       {/* Render navbar dynamically based on user role */}
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
       {userRole === "student" && <StudentPageNavbar />}
 
       <div className="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="flex flex-col lg:flex-row w-[70%] max-w-7xl bg-transparent rounded-lg overflow-hidden">
+        <div className="flex flex-col lg:flex-row w-full max-w-7xl bg-white shadow-lg rounded-lg overflow-hidden">
           {/* Job Overview */}
-          <div className="lg:w-1/3 p-4 bg-white border border-gray-300 lg:mr-8 rounded-lg">
+          <div className="lg:w-1/3 p-6 border-r border-gray-300 bg-gray-50">
             <div className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">{job.job_data.title}</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-4">{job.job_data.title}</h2>
               <p className="text-gray-700 mb-2 flex items-center">
                 <FaBuilding className="mr-2 text-gray-600" />
-                <div className="ml-1 flex flex-col">
-                  <h3 className="font-semibold">Company Name:</h3>
-                  <span className="text-sm">{job.job_data.company_name}</span>
-                </div>
+                <span className="text-sm">{job.job_data.company_name}</span>
               </p>
               <p className="text-gray-700 mb-2 flex items-center">
                 <FaBriefcase className="mr-2 text-gray-600" />
-                <div className="ml-1 flex flex-col">
-                  <h3 className="font-semibold">Work Type:</h3>
-                  <span className="text-sm">{job.job_data.work_type}</span>
-                </div>
+                <span className="text-sm">{job.job_data.work_type}</span>
               </p>
               <p className="text-gray-700 mb-2 flex items-center">
                 <FaMapMarkerAlt className="mr-2 text-gray-600" />
-                <div className="ml-1 flex flex-col">
-                  <h3 className="font-semibold">Location:</h3>
-                  <span className="text-sm">{job.job_data.job_location}</span>
-                </div>
+                <span className="text-sm">{job.job_data.job_location}</span>
               </p>
               <p className="text-gray-700 mb-2 flex items-center">
                 <FaGraduationCap className="mr-2 text-lg text-gray-600" />
-                <div className="ml-1 flex flex-col">
-                  <h3 className="font-semibold">Education:</h3>
-                  <span className="text-sm">{job.job_data.education_requirements}</span>
-                </div>
+                <span className="text-sm">{job.job_data.education_requirements}</span>
               </p>
               <p className="text-gray-700 mb-2 flex items-center">
                 <FaUserTie className="mr-2 text-gray-600" />
-                <div className="ml-1 flex flex-col">
-                  <h3 className="font-semibold">Experience:</h3>
-                  <span className="text-sm">{job.job_data.experience_level} years</span>
-                </div>
+                <span className="text-sm">{job.job_data.experience_level} years</span>
               </p>
               <p className="text-gray-700 mb-2 flex items-center">
                 <RiMoneyRupeeCircleFill className="mr-2 text-gray-600" />
-                <div className="ml-1 flex flex-col">
-                  <h3 className="font-semibold">Salary:</h3>
-                  <span className="text-sm">₹ {job.job_data.salary_range} per annum</span>
-                </div>
+                <span className="text-sm">₹ {job.job_data.salary_range} per annum</span>
               </p>
             </div>
           </div>
 
           {/* Job Description and Other Details */}
-          <div className="lg:w-2/3 p-4 overflow-y-auto" style={{ maxHeight: '600px' }}>
+          <div className="lg:w-2/3 p-6 overflow-y-auto" style={{ maxHeight: '600px' }}>
             {/* Job Description */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Job Description</h3>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Job Description</h3>
               <p className="text-gray-700">{job.job_data.job_description}</p>
             </div>
 
             {/* Key Responsibilities */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Key Responsibilities</h3>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Key Responsibilities</h3>
               <p className="text-gray-700">{job.job_data.key_responsibilities}</p>
             </div>
 
             {/* Skills & Education */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Required Skills</h3>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Required Skills</h3>
               <div className="text-gray-700 mb-2">
                 <strong>Skills:</strong>
                 <div className="flex flex-wrap gap-2 mt-2">
@@ -162,26 +144,26 @@ const JobPreview = () => {
 
             {/* Benefits */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Benefits</h3>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Benefits</h3>
               <p className="text-gray-700">{job.job_data.benefits}</p>
             </div>
 
             {/* Application Details */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Application Process</h3>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Application Process</h3>
               <p className="text-gray-700 mb-2"><strong>Deadline:</strong> {job.job_data.application_deadline}</p>
               <p className="text-gray-700 mb-2"><strong>Instructions:</strong> {job.job_data.application_instructions}</p>
             </div>
 
             {/* Contact Information */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4">Contact Information</h3>
+              <h3 className="text-2xl font-semibold text-gray-800 mb-4">Contact Information</h3>
               <p className="text-gray-700 mb-2"><strong>Email:</strong> {job.job_data.contact_email}</p>
               <p className="text-gray-700 mb-2"><strong>Phone:</strong> {job.job_data.contact_phone}</p>
             </div>
 
             {/* Apply Button */}
-            <div className="text-left mt-8">
+            <div className="text-center mt-8">
               <button
                 onClick={handleApplyClick}
                 className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-md"
