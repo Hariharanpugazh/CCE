@@ -6,7 +6,7 @@ import { IoMdNotifications } from "react-icons/io";
 import { MdWork, MdOutlinePostAdd } from "react-icons/md";
 import { IoBookmarksSharp } from "react-icons/io5";
 
-export default function StudentPageNavbar({ currentPage }) {
+export default function StudentPageNavbar({ currentPage, transparent }) {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMailPopupOpen, setMailPopupOpen] = useState(false);
   const [username, setUsername] = useState("");
@@ -35,7 +35,7 @@ export default function StudentPageNavbar({ currentPage }) {
   const navbarClasses = currentPage === "jobs" || currentPage === "internships" ? "custom-navbar-class" : "";
 
   return (
-    <div className={`sticky top-0 bg-white shadow z-10 rounded-b-lg ${navbarClasses}`}>
+    <div className={`sticky top-0 ${!transparent ? "bg-white rounded-b-lg shadow" : "glass"}  z-10  ${navbarClasses}`}>
       <nav className="flex justify-between p-4 items-stretch relative">
         <span className="flex-1 max-w-[25%]"></span>
 
