@@ -8,7 +8,6 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { jwtDecode } from "jwt-decode";
 
-
 const CategoryInput = ({ value, onChange, selectedType }) => {
   const [inputValue, setInputValue] = useState(value);
   const [suggestions, setSuggestions] = useState([]);
@@ -165,7 +164,6 @@ export default function StudyMaterialForm() {
         description: "",
         category: "",
         links: [{ type: "", link: "", topic: "" }],
-
       });
       setSelectedType(null);
       setShowModal(true);
@@ -179,7 +177,6 @@ export default function StudyMaterialForm() {
     if (token && selectedType) {
       const payload = JSON.parse(atob(token.split(".")[1]));
       setUserRole(payload.role);
-
     }
   }, [selectedType]);
 
@@ -211,25 +208,6 @@ export default function StudyMaterialForm() {
     navigate(-1); // Navigate to the previous page
   };
 
-
-  const options = [
-    { type: "exam", title: "Exam", description: "Select this for exam-related materials.", icon: "📚" },
-    { type: "Subject", title: "Subject", description: "Select this for subject-related materials.", icon: "📓" },
-    { type: "topic", title: "Topic", description: "Select this for topic-specific materials.", icon: "📂" },
-  ];
-
-  const handleClose = () => {
-    setShowModal(false);
-    setSelectedType(null);
-    setFormData({
-      type: "",
-      title: "",
-      description: "",
-      category: "",
-      links: [{ type: "", link: "", topic: "" }],
-    });
-    navigate(-1); // Navigate to the previous page
-  };
   return (
     <div className="flex justify-stretch">
       <ToastContainer />
