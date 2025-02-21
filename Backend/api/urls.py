@@ -22,6 +22,9 @@ urlpatterns = [
     path('fetch-review/', fetch_review, name='fetch_review'),
     path('get-admin/<str:userId>/', get_admin_details, name='get_admin_details'),
     path('update-admin/<str:userId>/', update_admin_profile, name='update_admin_profile'),
+    path("get-categories/", get_categories, name="get_categories"),
+    path('topics-by-category/', get_topics_by_category, name='get_topics_by_category'),
+    path('materials-by-topic/', get_materials_by_topic, name='get_materials_by_topic'),
     
     #superadmin
     path("superadmin_signup/",super_admin_signup,name= "super_admin_signup"),
@@ -59,6 +62,7 @@ urlpatterns = [
     
     #Jobs
     path('jobs', get_jobs_for_mail, name='get_jobs'),
+    path('upload_job_image/', upload_job_image, name='upload_job_image'),
     path("review-job/<str:job_id>/", review_job, name="approve_job"),
     path('job/<str:job_id>/', get_job_by_id, name='get_job_by_id'),
     path('job-edit/<str:job_id>/', update_job, name='update_job'),
@@ -83,6 +87,7 @@ urlpatterns = [
     
     #Internships
     path('internship/', get_internships, name='get_internship'),
+    path('upload_internship_image/', upload_internship_image, name='upload_internship_image'),
     path('review-internship/<str:internship_id>/', review_internship, name='review_internship'),
     path('internship/<str:internship_id>/', get_internship_id, name='get_internship'),
     path('internship-edit/<str:internship_id>/', update_internship, name='update_internship'),
@@ -129,4 +134,7 @@ urlpatterns = [
 
     #view count
      path('viewcount/<str:id>/', view_count, name='view_count'),
+
+
+     path("upload-internship-image/", upload_internship_image, name="upload_internship_image"),
 ]

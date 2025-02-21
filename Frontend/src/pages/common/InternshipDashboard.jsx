@@ -19,7 +19,7 @@ export default function InternshipDashboard() {
   const [userRole, setUserRole] = useState(null);
   const [selectedIntern, setSelectedIntern] = useState();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 6;
 
   const borderColor = "border-gray-300";
 
@@ -47,6 +47,10 @@ export default function InternshipDashboard() {
     },
     sortBy: "Relevance",
   });
+
+  const [location, setLocation] = useState("");
+  const [duration, setDuration] = useState("");
+  const [stipendRange, setStipendRange] = useState("");
 
   const clearFilters = () => {
     setFilters({
@@ -85,6 +89,17 @@ export default function InternshipDashboard() {
     setIsSortOpen,
   };
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "location") {
+      setLocation(value);
+    } else if (name === "duration") {
+      setDuration(value);
+    } else if (name === "stipendRange") {
+      setStipendRange(value);
+    }
+  };
+
   // Fetch published internships from the backend
   useEffect(() => {
     const fetchPublishedInternships = async () => {
@@ -112,21 +127,32 @@ export default function InternshipDashboard() {
   }, []);
 
   useEffect(() => {
-    if (searchPhrase === "") {
+    if (
+      searchPhrase === "" &&
+      location === "" &&
+      duration === "" &&
+      stipendRange === ""
+    ) {
       setFilteredInterns(internships);
     } else {
       setFilteredInterns(
-        internships.filter(
-          (intern) =>
-            intern.title.toLowerCase().includes(searchPhrase) ||
-            intern.company_name.toLowerCase().includes(searchPhrase) ||
-            intern.job_description.toLowerCase().includes(searchPhrase) ||
-            intern.required_skills.includes(searchPhrase) ||
-            intern.internship_type.toLowerCase().includes(searchPhrase)
-        )
+        internships.filter((intern) => {
+          const [minStipend, maxStipend] = stipendRange.split("-").map(Number);
+          return (
+            (intern.title.toLowerCase().includes(searchPhrase) ||
+              intern.company_name.toLowerCase().includes(searchPhrase) ||
+              intern.job_description.toLowerCase().includes(searchPhrase) ||
+              intern.required_skills.includes(searchPhrase) ||
+              intern.internship_type.toLowerCase().includes(searchPhrase)) &&
+            (location === "" || intern.location.toLowerCase().includes(location)) &&
+            (duration === "" || intern.duration.toLowerCase().includes(duration)) &&
+            (stipendRange === "" || (intern.stipend >= minStipend && intern.stipend <= maxStipend))
+          );
+        })
       );
-    }  setCurrentPage(1);
-  }, [searchPhrase, internships]);
+    }
+    setCurrentPage(1);
+  }, [searchPhrase, location, duration, stipendRange, internships]);
 
   useEffect(() => {
     const token = Cookies.get("jwt");
@@ -177,7 +203,43 @@ export default function InternshipDashboard() {
             Explore all the internship opportunities
             in all the existing fields <br />around the globe.
           </p>
+          
         </header>
+
+         {/* search */}
+         <div className="sticky ml-10 top-10 z-10 bg-white flex border border-gray-300 mr-11 mb-5">
+          <input
+            type="text"
+            value={searchPhrase}
+            onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())}
+            placeholder={`Search Jobs`}
+            className={`w-full text-lg p-2 px-4 bg-white hover:border-gray-400 outline-none ${borderColor}`}
+          />
+          <div className="flex mr-5 justify-center items-center space-x-4">
+            <select name="location" onChange={handleFilterChange} className="p-2 border-l border-gray-300">
+              <option value="">All Locations</option>
+              <option value="Bangalore">Bangalore</option>
+              <option value="Kerala">Kerala</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Coimbatore">Coimbatore</option>
+              <option value="Mumbai">Mumbai</option>
+            </select>
+            <select name="duration" onChange={handleFilterChange} className="p-2 border-l border-gray-300">
+              <option value="">Duration</option>
+              <option value="1 month">1 Month</option>
+              <option value="3 months">3 Months</option>
+              <option value="6 months">6 Months</option>
+            </select>
+            <select name="stipendRange" onChange={handleFilterChange} className="p-2 border-l border-gray-300">
+              <option value="">Stipend Range</option>
+              <option value="3000-5000">3000-5000</option>
+              <option value="5000-8000">5000-8000</option>
+              <option value="8000-10000">8000-10000</option>
+              <option value="10000-15000">10000-15000</option>
+            </select>
+          </div>
+          <button className={`px-13 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}>Search</button>
+        </div>
 
         <div className="flex px-10 space-x-5 items-start">
           {/* filters */}
@@ -185,14 +247,10 @@ export default function InternshipDashboard() {
 
           {/* Job cards */}
           <div className="flex-1 flex flex-col space-y-3">
-            {/* search */}
-            <div className="flex items-stretch">
-              <input type="text" value={searchPhrase} onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())} placeholder={`Search Jobs`} className={`w-full text-lg p-2 px-4 rounded-tl rounded-bl bg-white border border-r-[0px] hover:border-gray-400 outline-none ${borderColor}`} />
-              <button className={`px-5 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}> Search </button>
-            </div>
+
 
             {/* jobs */}
-            <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
+            <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {error ? (
                 <p className="text-red-600">{error}</p>
               ) : internships.length === 0 ? (

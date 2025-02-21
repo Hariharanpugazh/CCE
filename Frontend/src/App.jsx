@@ -45,6 +45,12 @@ import AchievementPreview from "./pages/students/AchievementPreview";
 import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
 import Student_Management_superadmin from "./pages/superadmin/StudentManagement_superadmin"
+import JobEntrySelection from "./pages/admin/JobEntrySelection";
+import InternshipEntrySelection from "./pages/admin/InternshipEntrySelection";
+import StudyMaterialCards from "./pages/students/StudyMaterialCards";
+import TopicsPage from "./pages/students/TopicsPage";
+import StudyMaterialsByCategory from './pages/students/StudyMaterialsByCategory';
+import CategoryPage from "./pages/students/CategoryPage";
 
 
 // Protected Route Component
@@ -99,6 +105,10 @@ function App() {
         <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />
         <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />        
         <Route path="/applied-jobs" element={<ProtectedRoute> <AppliedJobs /> </ProtectedRoute>} />
+        <Route path="/study-material-cards" element={<ProtectedRoute> <StudyMaterialCards /> </ProtectedRoute>} />
+        <Route path="/topics/:type" element={<ProtectedRoute> <CategoryPage /> </ProtectedRoute>} />
+        <Route exact path="/topic/:category" element={<ProtectedRoute> <TopicsPage /> </ProtectedRoute>} />
+        <Route path="/category/:category" element={<ProtectedRoute> <StudyMaterialsByCategory /> </ProtectedRoute>} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />
@@ -109,6 +119,7 @@ function App() {
           <Route path="/admin/achievements" element={<ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
           <Route path="/jobs" element={ <ProtectedRoute> <JobDashboard /> </ProtectedRoute>} />
           <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
+          <Route path="/jobselection" element={<ProtectedRoute> <JobEntrySelection /> </ProtectedRoute> } />
           <Route path="/jobpost" element={<ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
           <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
           <Route path="/internpost" element={<ProtectedRoute> <InternshipForm /> </ProtectedRoute>} />
@@ -119,6 +130,7 @@ function App() {
           <Route path="/manage-jobs" element={<ProtectedRoute> <ManageJobs /> </ProtectedRoute>} />
           <Route path="/manage-student" element={<ProtectedRoute> <StudentManagement /> </ProtectedRoute>} />
           <Route path="/studymaterial-post" element={<ProtectedRoute> <StudyMaterialForm /> </ProtectedRoute>} />
+          <Route path="/internshipselection" element={<ProtectedRoute> <InternshipEntrySelection /> </ProtectedRoute>} />
 
 
           {/* Super Admin Login */}
