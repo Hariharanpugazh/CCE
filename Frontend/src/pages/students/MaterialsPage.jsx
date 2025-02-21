@@ -17,7 +17,8 @@ const MaterialsPage = () => {
         const token = Cookies.get("jwt");
         if (token) {
             const payload = JSON.parse(atob(token.split(".")[1]));
-            setUserRole(payload.role);
+            console.log("payload", payload);  
+            setUserRole(!payload.student_user ? payload.role : "student"); // Assuming the payload has a 'role' field
 
             // Fetch materials from backend based on selected topic
             axios.get(`http://localhost:8000/api/materials-by-topic/?topic=${topic}`, {

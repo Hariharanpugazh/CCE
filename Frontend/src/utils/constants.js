@@ -60,6 +60,7 @@ const AppPages = {
     name: "resetPassword",
     displayName: "Reset Password",
   },
+  
   studyMaterial :{
     route: "/study-material-cards",
     name: "studyMaterial",

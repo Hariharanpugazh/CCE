@@ -17,8 +17,8 @@ const TopicsPage = () => {
     useEffect(() => {
         const token = Cookies.get("jwt");
         if (token) {
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            setUserRole(payload.role);
+            const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+            setUserRole(!payload.student_user ? payload.role : "student"); // Assuming the payload has a 'role' field
 
             // Fetch topics from backend based on selected category
             axios.get(`http://localhost:8000/api/topics-by-category/?category=${category}`, {
