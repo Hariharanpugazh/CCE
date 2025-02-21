@@ -43,6 +43,7 @@ urlpatterns = [
     path("get_student_achievements_with_students/", get_student_achievements, name="get_student_achievements_with_students"),
     path('all-jobs-internships/', get_all_jobs_and_internships, name='all_jobs_internships'),
     path('mark_messages_as_seen/<str:student_id>/', mark_messages_as_seen_by_admin, name='mark_messages_as_seen'),
+    
 
     
     #account management 
@@ -118,6 +119,8 @@ urlpatterns = [
     path("study-material-edit/<str:study_material_id>/", update_study_material, name="update_study_material"),
     path("study-material-delete/<str:study_material_id>/", delete_study_material, name="delete_study_material"),
     path("all-study-material/", get_all_study_material, name="get_all_study_material"),
+    path("get-categories/", get_categories, name="get_categories"),
+    
 
     #contact-us
     path('contact-us/', contact_us, name='contact_us'),
