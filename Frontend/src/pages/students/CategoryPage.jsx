@@ -6,9 +6,9 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 
-const TopicsPage = () => {
-    const { category } = useParams();
-    const [topics, setTopics] = useState([]);
+const CategoryPage = () => {
+    const { type } = useParams();
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [userRole, setUserRole] = useState(null);
@@ -17,27 +17,28 @@ const TopicsPage = () => {
     useEffect(() => {
         const token = Cookies.get("jwt");
         if (token) {
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            setUserRole(payload.role);
+            const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+            setUserRole(!payload.student_user ? payload.role : "student"); // Assuming the payload has a 'role' field
 
-            // Fetch topics from backend based on selected category
-            axios.get(`http://localhost:8000/api/topics-by-category/?category=${category}`, {
+            // Fetch categories from backend based on selected material type
+            axios.get(`http://localhost:8000/api/get-categories/?type=${type}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             }).then((response) => {
-                setTopics(response.data.topics);
+                setCategories(response.data.categories);
             }).catch((err) => {
-                setError("Failed to fetch topics.");
-                console.error("Failed to fetch topics:", err);
+                setError("Failed to fetch categories.");
+                console.error("Failed to fetch categories:", err);
             }).finally(() => {
                 setLoading(false);
             });
         }
-    }, [category]);
+    }, [type]);
 
-    const handleTopicClick = (topic) => {
-        navigate(`/materials/${encodeURIComponent(topic)}`);
+    const handleCategoryClick = (category) => {
+        console.log("category",category);
+        navigate(`/topic/${encodeURIComponent(category)}`);
     };
 
     return (
@@ -47,17 +48,18 @@ const TopicsPage = () => {
             {userRole === "student" && <StudentPageNavbar />}
 
             <div className="w-full max-w-screen-lg mt-6 p-4 self-center">
-                <h1 className="text-3xl font-semibold text-gray-800 mb-6 text-center">Topics in {category}</h1>
-                {loading && <p className="text-center text-gray-600">Loading topics...</p>}
+                
+                <h1 className="text-3xl font-semibold text-gray-800 mb-6 text-center">{type.charAt(0).toUpperCase() + type.slice(1)} Categories</h1>
+                {loading && <p className="text-center text-gray-600">Loading categories...</p>}
                 {error && <p className="text-center text-red-500">{error}</p>}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {topics.map((topic, index) => (
+                    {categories.map((category, index) => (
                         <div
                             key={index}
                             className="border rounded-lg shadow-lg p-6 bg-white text-center cursor-pointer hover:shadow-xl transition-transform transform hover:scale-105"
-                            onClick={() => handleTopicClick(topic)}
+                            onClick={() => handleCategoryClick(category)}
                         >
-                            <h2 className="text-xl font-semibold text-gray-800 mb-2">{topic}</h2>
+                            <h2 className="text-xl font-semibold text-gray-800 mb-2">{category}</h2>
                         </div>
                     ))}
                 </div>
@@ -66,4 +68,4 @@ const TopicsPage = () => {
     );
 };
 
-export default TopicsPage;
+export default CategoryPage;

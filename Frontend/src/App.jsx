@@ -49,6 +49,8 @@ import JobEntrySelection from "./pages/admin/JobEntrySelection";
 import InternshipEntrySelection from "./pages/admin/InternshipEntrySelection";
 import StudyMaterialCards from "./pages/students/StudyMaterialCards";
 import TopicsPage from "./pages/students/TopicsPage";
+import StudyMaterialsByCategory from './pages/students/StudyMaterialsByCategory';
+import CategoryPage from "./pages/students/CategoryPage";
 
 
 // Protected Route Component
@@ -104,7 +106,9 @@ function App() {
         <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />        
         <Route path="/applied-jobs" element={<ProtectedRoute> <AppliedJobs /> </ProtectedRoute>} />
         <Route path="/study-material-cards" element={<ProtectedRoute> <StudyMaterialCards /> </ProtectedRoute>} />
-        <Route path="/topics/:type" element={<ProtectedRoute> <TopicsPage /> </ProtectedRoute>} />
+        <Route path="/topics/:type" element={<ProtectedRoute> <CategoryPage /> </ProtectedRoute>} />
+        <Route exact path="/topic/:category" element={<ProtectedRoute> <TopicsPage /> </ProtectedRoute>} />
+        <Route path="/category/:category" element={<ProtectedRoute> <StudyMaterialsByCategory /> </ProtectedRoute>} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />

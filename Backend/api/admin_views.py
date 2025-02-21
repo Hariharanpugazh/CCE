@@ -2063,6 +2063,47 @@ def get_categories(request):
 
     return JsonResponse({"error": "Invalid request method. Only GET is allowed."}, status=405)
 
+@csrf_exempt
+def get_topics_by_category(request):
+    if request.method == 'GET':
+        try:
+            category = request.GET.get('category')
+            if not category:
+                return JsonResponse({"error": "Category is required"}, status=400)
+
+            # Fetch topics based on category
+            topics = study_material_collection.distinct("topic", {"category": category})
+
+            return JsonResponse({"topics": topics}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Only GET is allowed."}, status=405)
+
+@csrf_exempt
+def get_materials_by_topic(request):
+    if request.method == 'GET':
+        try:
+            topic = request.GET.get('topic')
+            if not topic:
+                return JsonResponse({"error": "Topic is required"}, status=400)
+
+            # Fetch study materials based on topic
+            materials = list(study_material_collection.find({"topic": topic}))
+
+            # Convert ObjectId to string
+            for material in materials:
+                material['_id'] = str(material['_id'])
+
+            return JsonResponse({"materials": materials}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+    return JsonResponse({"error": "Invalid request method. Only GET is allowed."}, status=405)
+
+
 
 @csrf_exempt
 def manage_study_materials(request):
