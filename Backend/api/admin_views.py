@@ -1674,6 +1674,7 @@ def submit_feedback(request):
 
 # ============================================================== STUDY MATERIALS ======================================================================================
 #post study_material
+
 @csrf_exempt
 def post_study_material(request):
     if request.method == 'POST':
@@ -1720,11 +1721,11 @@ def post_study_material(request):
 
             # Prepare study material document
             study_material_post = {
-                "type": data['type'],  # Store the material type
+                "type": data['type'],
                 "title": data['title'],
                 "description": data['description'],
                 "category": data['category'],
-                "links": data['links'],  # Assuming links are provided as an array
+                "links": data['links'],  # Links now include the topic field
                 "admin_id" if role == "admin" else "superadmin_id": admin_id if role == "admin" else superadmin_id,
                 "is_publish": is_publish,
                 "updated_at": datetime.utcnow()
@@ -1742,17 +1743,40 @@ def post_study_material(request):
 
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
 
+
 @csrf_exempt
 def get_categories(request):
     if request.method == 'GET':
         try:
-            # Get the type from query parameters
+            import re
+
+            # Get query parameters
             material_type = request.GET.get('type')
+            query = request.GET.get('query', '')
+
             if not material_type:
                 return JsonResponse({"error": "Type parameter is required"}, status=400)
 
-            # Retrieve unique categories based on the material type
-            categories = study_material_collection.distinct("category", {"type": material_type})
+            # Create regex pattern for case-insensitive search
+            regex_pattern = re.compile(f".*{re.escape(query)}.*", re.IGNORECASE)
+
+            # Fetch distinct categories where:
+            # - 'type' matches the provided type
+            # - 'category' field exists
+            # - 'category' matches the query (if any)
+            categories = list(study_material_collection.distinct(
+                "category",
+                {
+                    "type": material_type,
+                    "category": {"$exists": True, "$regex": regex_pattern}
+                }
+            ))
+
+            # Debugging logs
+            if not categories:
+                print(f"No categories found for type '{material_type}'. Logging collection content:")
+                for doc in study_material_collection.find({"type": material_type, "category": {"$exists": True}}):
+                    print(doc)
 
             return JsonResponse({"categories": categories}, status=200)
 
@@ -1760,6 +1784,7 @@ def get_categories(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method. Only GET is allowed."}, status=405)
+
 
 # @csrf_exempt
 # @api_view(['POST'])

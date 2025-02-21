@@ -25,6 +25,12 @@ const AppPages = {
     displayName: "Internships",
   },
 
+  studymaterialPage:{
+    route: "/study-material",
+    name: "studyMaterial",
+    displayName: "Study Material",
+  },
+
   jobDashboard: {
     route: "/jobs",
     name: "StudentJobDashboard",
