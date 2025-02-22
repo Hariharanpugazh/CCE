@@ -263,12 +263,9 @@ export default function AchievementDashboard() {
                 No achievements available at the moment.
               </p>
             ) : (
-              filteredAchievements.map((achievement, index) => (
-                <div
-                  key={achievement._id}
-                  className="marquee-item relative flex-shrink-0 w-[280px] h-[400px] snap-center group"
-                >
-                  <div className="relative w-full h-full rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:-rotate-1 hover:scale-105">
+              filteredAchievements.map((achievement) => (
+                <div key={achievement._id} className="marquee-item">
+                  <div className="achievement-card relative rounded-xl shadow-md overflow-hidden">
                     <div className="w-full h-full">
                       {achievement.photo && (
                         <img
@@ -279,14 +276,12 @@ export default function AchievementDashboard() {
                       )}
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-1 text-black bg-white rounded-lg mb-2 ml-3 mr-3">
-                      <h2 className="text-lg font-semibold mb-1">
-                        {achievement.name}
-                      </h2>
-                      <p className="text-xs text-amber-400 mb-1">
+                    <div className="achievement-info absolute bottom-0 left-0 right-0 p-3 text-black bg-white rounded-lg mb-2 ml-3 mr-3">
+                      <h2 className="achievement-name">{achievement.name}</h2>
+                      <p className="achievement-batch text-amber-400">
                         {achievement.batch}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="achievement-description text-gray-500">
                         {achievement.achievement_description}
                       </p>
                     </div>
@@ -379,6 +374,7 @@ export default function AchievementDashboard() {
           currentPage={currentPage}
         />
 
+        {/* Footer (unchanged) */}
         <footer className="w-full flex justify-center items-center min-h-[30vh]  mt-20">
           <div className="container p-10">
             <div className="flex">
