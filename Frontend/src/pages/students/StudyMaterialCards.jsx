@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import AdminPageNavbar from "../../components/Admin/AdminNavBar";
-import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import AdminPageNavbar from "../../components/Admin/AdminNavbar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavbar";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import { FaBookOpen, FaGraduationCap, FaFolderOpen } from 'react-icons/fa';
 

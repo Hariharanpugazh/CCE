@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Cookies from "js-cookie";
-import AdminPageNavbar from "../../components/Admin/AdminNavBar";
-import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import AdminPageNavbar from "../../components/Admin/AdminNavbar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavbar";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 
 const MaterialsPage = () => {
