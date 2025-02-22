@@ -8,6 +8,14 @@ import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
 import { FaBuilding, FaBriefcase, FaMapMarkerAlt, FaGraduationCap, FaUserTie } from "react-icons/fa";
 
+export const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}-${day}-${year}`;
+};
+
 const JobPreview = () => {
   const { id } = useParams();
   const [job, setJob] = useState(null);
@@ -151,7 +159,7 @@ const JobPreview = () => {
             {/* Application Details */}
             <div className="mb-8">
               <h3 className="text-2xl font-semibold text-gray-800 mb-4">Application Process</h3>
-              <p className="text-gray-700 mb-2"><strong>Deadline:</strong> {job.job_data.application_deadline}</p>
+              <p className="text-gray-700 mb-2"><strong>Deadline:</strong> {formatDate(job.job_data.application_deadline)}</p>
               <p className="text-gray-700 mb-2"><strong>Instructions:</strong> {job.job_data.application_instructions}</p>
             </div>
 

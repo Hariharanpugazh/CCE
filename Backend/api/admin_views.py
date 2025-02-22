@@ -563,25 +563,78 @@ genai.configure(api_key="AIzaSyCLDQgKnO55UQrnFsL2d79fxanIn_AL0WA")
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 def preprocess_image(image):
-    """Enhances image quality for better OCR recognition."""
-    image = image.convert("L")  # Convert to grayscale
-    image = image.filter(ImageFilter.SHARPEN)  # Sharpen image
-    return image
+    """Preprocesses the image for better OCR accuracy."""
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
+    _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # Binarization
+    return thresh
 
-def extract_text_from_image(image):
-    """Extracts raw text from the uploaded job image using OCR."""
-    processed_image = preprocess_image(image)
-    extracted_text = pytesseract.image_to_string(processed_image, lang="eng")
-    return extracted_text.strip()
+def extract_text_from_image(image_path):
+    """Extracts text by splitting the image into 4 parts and merging results."""
+    image = cv2.imread(image_path)  # Load image
+    processed_image = preprocess_image(image)  # Preprocess
+
+    height, width = processed_image.shape
+    parts = [
+        processed_image[0:height//2, 0:width//2],  # Top Left
+        processed_image[0:height//2, width//2:width],  # Top Right
+        processed_image[height//2:height, 0:width//2],  # Bottom Left
+        processed_image[height//2:height, width//2:width],  # Bottom Right
+    ]
+
+    extracted_text = []
+    
+    for i, part in enumerate(parts):
+        text = pytesseract.image_to_string(part, lang="eng")  # OCR on each part
+        extracted_text.append(text.strip())
+
+    return "\n".join(extracted_text)  # Merge extracted texts
 
 def analyze_text_with_gemini_api(ocr_text):
-    """Sends extracted text to Gemini API and retrieves structured job data."""
-    
-    prompt = f"""
-    Extract job posting details from the following text and return in JSON format.
 
-    **Extracted Text:**  
+    """Processes extracted text into a structured paragraph before extracting job details in JSON format."""
+
+    # Step 1: Generate Structured Paragraph from OCR Text
+    initial_prompt = f"""
+    You are an AI assistant specializing in job data extraction.
+    Convert the following unstructured job posting text into a structured, well-formatted paragraph.
+    The paragraph should be organized into subtopics like **Job Title, Company, Description, Responsibilities, Skills, Education, Experience, Salary, Benefits, Work Type, and Application Process**.
+
+    **Unstructured Job Posting:**  
     {ocr_text}
+
+    **Example Output Format:**  
+    **Job Title:** [Extracted or 'No Data Available']  
+    **Company:** [Extracted or 'No Data Available']  
+    **Description:** [Extracted or 'No Data Available']  
+    **Responsibilities:**  
+    - Responsibility 1  
+    - Responsibility 2 (Infer if missing)  
+    **Required Skills:**  
+    - Skill 1  
+    - Skill 2 (Infer if missing)  
+    **Education:** [Extracted Qualification or 'No Data Available']  
+    **Experience:** [Years of experience required or 'No Data Available']  
+    **Salary:** [Extracted salary or 'No Data Available']  
+    **Benefits:**  
+    - Benefit 1  
+    - Benefit 2 (Infer if missing)  
+    **Work Type:** [Full-time/Part-time/Remote]  
+    **Application Process:** [Extracted Process or 'No Data Available']  
+
+    Ensure the output is well-structured and formatted properly.
+    """
+
+    # Call Gemini AI Model
+    model = genai.GenerativeModel("gemini-1.5-flash-8b")
+    structured_paragraph = model.generate_content(initial_prompt).text
+
+
+    main_prompt = f"""
+    Extract job posting details from the following structured text and return the output in a strict JSON format.
+
+    **Structured Job Posting:**  
+    {structured_paragraph}
+
 
     **Output Format (Ensure All Fields Exist & Fill Missing Ones)**:
     {{
@@ -620,11 +673,9 @@ def analyze_text_with_gemini_api(ocr_text):
     }}
 
     **Ensure output is valid JSON with no additional text.**
-    """
-
-    # Call Gemini AI Model
-    model = genai.GenerativeModel("gemini-pro")
-    response = model.generate_content(prompt)
+"""
+    # Generate structured job details JSON
+    response = model.generate_content(main_prompt).text
 
     # Ensure response contains JSON
     try:
@@ -660,7 +711,7 @@ def upload_job_image(request):
                 return JsonResponse({"error": "No image provided"}, status=400)
 
             # Step 1: Extract raw text
-            raw_text = extract_text_from_image(Image.open(job_image))
+            raw_text = extract_text_from_image(Image.open(job_image)) 
 
             # Step 2: Process AI enhancement
             job_data = analyze_text_with_gemini_api(raw_text)

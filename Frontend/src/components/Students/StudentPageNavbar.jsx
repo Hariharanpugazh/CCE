@@ -1,22 +1,36 @@
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { AppPages } from "../../utils/constants";
-import { FiUser, FiMail } from "react-icons/fi";
 import { IoMdNotifications } from "react-icons/io";
-import { MdWork, MdOutlinePostAdd } from "react-icons/md";
+import { FiMail } from "react-icons/fi";
+import { MdOutlinePostAdd, MdWork } from "react-icons/md";
 import { IoBookmarksSharp } from "react-icons/io5";
+import { AppPages } from "../../utils/constants";
 
-export default function StudentPageNavbar({ currentPage }) {
+export default function StudentPageNavbar({ currentPage, transparent, tag }) {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isMailPopupOpen, setMailPopupOpen] = useState(false);
   const [username, setUsername] = useState("");
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const user = Cookies.get("username");
     if (user) {
       setUsername(user);
     }
-  }, []);
+
+    if (transparent) {
+      const handleScroll = () => {
+        const heroSection = document.getElementById("hero");
+        if (heroSection) {
+          const heroBottom = heroSection.offsetHeight;
+          setIsScrolled(window.scrollY > heroBottom);
+        }
+      };
+
+      window.addEventListener("scroll", handleScroll);
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+  }, [transparent]);
 
   const handleLogout = () => {
     Cookies.remove("jwt");
@@ -35,7 +49,9 @@ export default function StudentPageNavbar({ currentPage }) {
   const navbarClasses = currentPage === "jobs" || currentPage === "internships" ? "custom-navbar-class" : "";
 
   return (
-    <div className={`sticky top-0 bg-white shadow z-10 rounded-b-lg ${navbarClasses}`}>
+    <div className={`w-screen top-0 
+      ${transparent ? (isScrolled ? "fixed bg-white shadow rounded-b-lg" : "fixed glass-lg") : "sticky bg-white shadow rounded-b-lg"}
+      z-10 ${navbarClasses} transition-all duration-300`}>
       <nav className="flex justify-between p-4 items-stretch relative">
         <span className="flex-1 max-w-[25%]"></span>
 
@@ -61,6 +77,7 @@ export default function StudentPageNavbar({ currentPage }) {
             Contact
           </p>
         </div>
+        
         <div className="flex flex-1 max-w-[25%] justify-end items-center text-sm relative space-x-4">
           <div className="flex space-x-2 items-center cursor-pointer relative" onClick={() => {
             setMailPopupOpen(toggle => !toggle);
@@ -74,7 +91,7 @@ export default function StudentPageNavbar({ currentPage }) {
                     <FiMail className="text-xl mr-2" /> Inbox
                   </li>
                   <li className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => (window.location.href = "/studentachievement")}>
-                    <MdOutlinePostAdd className="text-xl mr-2" />  Post Achievement
+                    <MdOutlinePostAdd className="text-xl mr-2" /> Post Achievement
                   </li>
                   <li className="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100" onClick={() => (window.location.href = "/saved-jobs")}>
                     <IoBookmarksSharp className="text-xl mr-2" /> Saved Items
@@ -86,6 +103,7 @@ export default function StudentPageNavbar({ currentPage }) {
               </div>
             )}
           </div>
+
           <div className="flex space-x-2 pr-2 items-center cursor-pointer relative" onClick={() => {
             setProfileMenuOpen(toggle => !toggle);
             setMailPopupOpen(false);

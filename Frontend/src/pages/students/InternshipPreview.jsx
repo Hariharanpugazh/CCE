@@ -6,6 +6,7 @@ import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import { FaBuilding, FaBriefcase, FaMapMarkerAlt, FaGraduationCap, FaUserTie } from "react-icons/fa";
 import { RiMoneyRupeeCircleFill } from "react-icons/ri";
+import { formatDate } from "date-fns";
 
 const InternshipPreview = () => {
     const { id } = useParams();
@@ -134,7 +135,7 @@ const InternshipPreview = () => {
                         {/* Application Details */}
                         <div className="mb-8">
                             <h3 className="text-2xl font-semibold text-gray-800 mb-4">Application Process</h3>
-                            <p className="text-gray-700 mb-2"><strong>Deadline:</strong> {internship.internship_data.application_deadline}</p>
+                            <p className="text-gray-700 mb-2"><strong>Deadline:</strong> {formatDate(internship.internship_data.application_deadline)}</p>
                             <p className="text-gray-700 mb-2"><strong>Instructions:</strong> {internship.internship_data.application_instructions}</p>
                         </div>
 
