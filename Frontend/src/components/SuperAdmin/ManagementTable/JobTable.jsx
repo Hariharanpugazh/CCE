@@ -6,6 +6,7 @@ import { FaTrashAlt } from "react-icons/fa";
 import Pagination from "../../../components/Admin/pagination";
 import backIcon from '../../../assets/icons/back-icon.svg';
 import nextIcon from '../../../assets/icons/next-icon.svg';
+import { formatDate } from "date-fns";
 
 const JobTable = ({
   jobs,
@@ -121,7 +122,7 @@ const JobTable = ({
                   <td className="text-center py-3 py-1">{job.job_data.title}</td>
                   <td className="text-center py-3 py-1">{job.job_data.company_name}</td>
                   <td className="text-center py-3 py-1">{job.admin_name}</td>
-                  <td className="text-center py-3 py-1">{job.job_data.application_deadline}</td>
+                  <td className="text-center py-3 py-1">{formatDate(job.job_data.application_deadline)}</td>
                   <td className="text-center py-3 py-1 font-semibold">
                     {job.is_publish === true ? (
                       <span className="text-green-800 px-1 py-0.5 rounded-full text-xs">

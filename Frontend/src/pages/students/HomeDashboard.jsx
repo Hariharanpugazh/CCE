@@ -375,7 +375,7 @@ const ThatOnePainInTheA__ = ({ avatars }) => {
   </section>
 }
 
-const AboutCCE = ({ mentors }) => {
+const AboutCCE = () => {
   return <section className="flex flex-col w-[90%] space-y-20 items-center">
     <div className="flex flex-col items-center space-y-5">
       <p className="text-5xl"> About CCE </p>
@@ -394,7 +394,7 @@ const AboutCCE = ({ mentors }) => {
             name: "Dr.Karthick",
             post: "Commander Chief",
             title: "Head of CCE",
-            photo: "https://static9.depositphotos.com/1005893/1105/i/950/depositphotos_11050974-stock-photo-indian-businessman.jpg"
+            photo: mentor3
           },
           {
             name: "Sindhuja",
