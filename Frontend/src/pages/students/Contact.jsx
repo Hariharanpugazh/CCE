@@ -50,9 +50,13 @@ const ContactForm = () => {
     setIsSending(true); // Set button to "Sending..."
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/contact-us/", formData, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/contact-us/",
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       toast.success(response.data.message || "Message sent successfully!");
 
@@ -83,9 +87,12 @@ const ContactForm = () => {
 
         {/* Main Content */}
         <div className="relative z-10 md:w-1/2 text-left p-6">
-          <h2 className="text-3xl font-bold mb-4">Get in touch with us today!</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            Get in touch with us today!
+          </h2>
           <p className="text-gray-600 mb-6">
-            Whatever you need, whenever you need, our team is here to help and support you every step of the way.
+            Whatever you need, whenever you need, our team is here to help and
+            support you every step of the way.
           </p>
           <div className="mb-4">
             <p className="font-semibold">📧 Message Us</p>
@@ -107,7 +114,7 @@ const ContactForm = () => {
               onChange={handleChange}
               placeholder="Name"
               className="w-full p-3 border rounded-lg bg-yellow-100"
-              readOnly
+              
             />
             <input
               type="text"
@@ -116,7 +123,7 @@ const ContactForm = () => {
               onChange={handleChange}
               placeholder="E-mail Id"
               className="w-full p-3 border rounded-lg bg-yellow-100"
-              readOnly
+              
             />
             <textarea
               name="message"

@@ -97,5 +97,124 @@ body {
   border-radius: 10px; /* Rounded corners for the track */
 }
 
+/* .marquee-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.marquee-content {
+  display: flex;
+  animation: marquee 60s linear infinite;
+}
+
+.marquee-item {
+  flex: 0 0 auto;
+  width: 280px;
+  margin-right: 20px;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.achievement-card {
+  width: 280px;
+  height: 400px;
+}
+
+.achievement-info {
+  height: 100px;
+  overflow: hidden;
+}
+
+.achievement-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.achievement-batch {
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.achievement-description {
+  font-size: 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+} */
 
 
+
+.marquee-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.marquee-content {
+  display: flex;
+  animation: marquee 60s linear infinite;
+}
+
+.marquee-item {
+  flex: 0 0 auto;
+  width: 280px;
+  margin-right: 20px;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-230%);
+  }
+}
+
+.achievement-card {
+  width: 280px;
+  height: 400px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.achievement-card:hover {
+  transform: scale(1.03);
+  z-index: 10;
+}
+
+.achievement-info {
+  height: 100px;
+  overflow: hidden;
+}
+
+.achievement-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.achievement-batch {
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.achievement-description {
+  font-size: 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
