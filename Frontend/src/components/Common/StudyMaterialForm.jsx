@@ -194,9 +194,9 @@ export default function StudyMaterialForm() {
 
 
   const options = [
-    { type: "exam", title: "Exam", description: "Select this for exam-related materials.", icon: "📚" },
+    { type: "Exam", title: "Exam", description: "Select this for exam-related materials.", icon: "📚" },
     { type: "Subject", title: "Subject", description: "Select this for subject-related materials.", icon: "📓" },
-    { type: "topic", title: "Topic", description: "Select this for topic-specific materials.", icon: "📂" },
+    { type: "Topic", title: "Topic", description: "Select this for topic-specific materials.", icon: "📂" },
   ];
 
   const handleClose = () => {

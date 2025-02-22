@@ -26,7 +26,7 @@ const AppPages = {
   },
 
   studymaterialPage:{
-    route: "/study-material",
+    route: "/study-material-cards",
     name: "studyMaterial",
     displayName: "Study Material",
   },

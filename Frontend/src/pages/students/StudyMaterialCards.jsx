@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
-import { FaBook, FaGraduationCap, FaFolderOpen } from 'react-icons/fa';
+import { FaBookOpen, FaGraduationCap, FaFolderOpen } from 'react-icons/fa';
 
 const StudyMaterialCards = () => {
     const [userRole, setUserRole] = useState(null);
@@ -23,26 +23,26 @@ const StudyMaterialCards = () => {
     };
 
     const cardData = [
-        { type: "Exam", icon: FaBook },
-        { type: "Subject", icon: FaGraduationCap },
-        { type: "Topic", icon: FaFolderOpen },
+        { type: "Exam", icon: FaBookOpen, emoji: "📚" },
+        { type: "Subject", icon: FaGraduationCap, emoji: "📓" },
+        { type: "Topic", icon: FaFolderOpen, emoji: "📂" },
     ];
 
     return (
-        <div className="flex flex-col  min-h-screen">
+        <div className="flex flex-col min-h-screen bg-gray-100">
             {userRole === "admin" && <AdminPageNavbar />}
             {userRole === "superadmin" && <SuperAdminPageNavbar />}
             {userRole === "student" && <StudentPageNavbar />}
 
             {/* Study Material Cards Grid with 3 cards */}
-            <div className="w-full max-w-screen-lg mt-50 grid grid-cols-1 md:grid-cols-3 gap-8 p-4 self-center">    
-                {cardData.map(({ type, icon: Icon }) => (
+            <div className="w-full max-w-screen-lg mt-40 grid grid-cols-1 md:grid-cols-3 gap-8 p-4 self-center">
+                {cardData.map(({ type, icon: Icon, emoji }) => (
                     <div
                         key={type}
-                        className="border rounded-lg shadow-lg p-6 bg-white flex flex-col items-center text-center w-full cursor-pointer hover:shadow-xl transition-transform transform hover:scale-105"
+                        className="border rounded-lg shadow-lg p-6 bg-white flex flex-col items-center text-center w-full cursor-pointer transition-transform transform hover:scale-105 hover:bg-yellow-200 hover:shadow-2xl"
                         onClick={() => handleCardClick(type)}
                     >
-                        <Icon className="text-4xl text-blue-500 mb-4" />
+                        <div className="text-5xl text-yellow-500 mb-4">{emoji}</div>
                         <h2 className="text-2xl font-semibold text-gray-800 mb-4">{type}</h2>
                     </div>
                 ))}
