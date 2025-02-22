@@ -247,10 +247,10 @@ const Header = ({ jobs }) => {
       </div>
     </div>}
 
-    <div className="w-full flex flex-col items-center text-center py-34 space-y-5 z-10">
+    <div className="w-full flex flex-col items-center text-center py-34 space-y-5 z-20">
       <p className="text-7xl font-semibold"> One Step Closer To <br /> Your <span className="text-[#FFCC00]"> Dream Job </span> </p>
       <p> let us help you find a job that suits you the best! </p>
-      <button className={themeButton} onClick={() => window.location.href = "jobs"}> Explore </button>
+      <button className={themeButton + " z-20"} onClick={() => window.location.href = "jobs"}> Explore </button>
     </div>
 
     <div className="relative w-full">
