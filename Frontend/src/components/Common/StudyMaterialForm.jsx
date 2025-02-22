@@ -228,7 +228,7 @@ export default function StudyMaterialForm() {
                 key={type}
                 onClick={() => handleTypeSelect(type)}
                 className={`relative border mb-2 border-gray-300 rounded-lg p-4 bg-white shadow-sm cursor-pointer transition-colors ${
-                  selectedType === type ? "border-l-4 border-yellow-500" : ""
+                  selectedType === type ? "border-l-4 border-yellow-500" : "border-l-8 border-gray-500"
                 }`}
               >
                 <div
