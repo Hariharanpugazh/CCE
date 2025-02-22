@@ -192,25 +192,6 @@ export default function StudyMaterialForm() {
     setShowModal(false);
   };
 
-  const options = [
-    { type: "exam", title: "Exam", description: "Select this for exam-related materials.", icon: "📚" },
-    { type: "Subject", title: "Subject", description: "Select this for subject-related materials.", icon: "📓" },
-    { type: "topic", title: "Topic", description: "Select this for topic-specific materials.", icon: "📂" },
-  ];
-
-  const handleClose = () => {
-    setShowModal(false);
-    setSelectedType(null);
-    setFormData({
-      type: "",
-      title: "",
-      description: "",
-      category: "",
-      links: [{ type: "", link: "", topic: "" }],
-    });
-    navigate(-1); // Navigate to the previous page
-  };
-
 
   const options = [
     { type: "exam", title: "Exam", description: "Select this for exam-related materials.", icon: "📚" },
