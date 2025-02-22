@@ -39,8 +39,7 @@ function formatViewCount(count) {
   return count.toString();
 }
 
-
-export default function ApplicationCard({ application, handleCardClick, isSaved }) {
+export default function ApplicationCard({ application, handleCardClick, isSaved, small }) {
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
   const Viewscount = formatViewCount(application.total_views);
@@ -65,111 +64,80 @@ export default function ApplicationCard({ application, handleCardClick, isSaved 
 
   const handleViewDetails = async (event) => {
     event.stopPropagation();
-    const previewPage = application.type === "internship" ? "internship-preview" : "job-preview";
-    const pageType = application.type === "internship" ? "internship" : "job";
-
-    if (!userId) {
-      console.error("User ID is not available");
-      navigate(`/${previewPage}/${application._id || application.id}`);
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://localhost:8000/api/viewcount/${application._id || application.id}/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId, count: 1, pageType, applicationId: application._id || application.id }),
-      });
-
-      if (!response.ok) {
-        console.error('Failed to update view count');
-      } else {
-        const data = await response.json();
-        setViewCount(data.total_views);
-      }
-    } catch (error) {
-      console.error('Error updating view count:', error);
-    } finally {
-      navigate(`/${previewPage}/${application._id || application.id}`);
-    }
+    navigate(`/${application.type === "internship" ? "internship-preview" : "job-preview"}/${application._id || application.id}`);
   };
 
   return (
     <div
-      className="relative bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 group flex flex-col justify-between "
+      className={`flex-1 relative bg-white rounded-md shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-300 flex flex-col justify-between
+        ${small ? "p-2 text-[10px]" : "p-5 text-base"}`}
       onClick={handleCardClick}
     >
-
-
       <div className="flex flex-col">
         {/* Header Section */}
         <div className="flex justify-between items-start mb-1">
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-1">
+            <h3 className={`font-semibold text-gray-900 mb-0.5 ${small ? "text-sm" : "text-xl"}`}>
               {application.title}
             </h3>
-            <div className="flex items-center space-x-3 text-sm text-gray-600">
+            <div className={`flex items-center space-x-1 ${small ? "text-[9px]" : "text-sm"} text-gray-600`}>
               <span className="flex items-center">
-                <i className="bi bi-building text-sm mr-2 opacity-75"></i>
+                <i className="bi bi-building mr-1 opacity-75 text-[12px]"></i>
                 {application.company_name}
               </span>
               <span className="flex items-center">
-                <FiMapPin className="mr-2 opacity-75" />
+                <FiMapPin className="mr-1 opacity-75 text-[12px]" />
                 {application.location}
               </span>
             </div>
           </div>
           {isSaved !== undefined && (
             <FiBookmark
-              className={`text-4xl cursor-pointer p-2 hover:bg-gray-100 rounded-lg ${isSaved ? "text-blue-600 fill-current" : "text-gray-400"
-                }`}
+              className={`cursor-pointer p-1 hover:bg-gray-100 rounded-md 
+                ${small ? "text-lg" : "text-4xl"} 
+                ${isSaved ? "text-blue-600 fill-current" : "text-gray-400"}`}
             />
           )}
         </div>
 
         {/* Description Section */}
-        <p className="text-gray-600 mb-5 line-clamp-3 leading-relaxed text-sm">
+        <p className={`text-gray-600 mb-2 line-clamp-2 leading-snug ${small ? "text-[10px]" : "text-sm"}`}>
           {application.job_description}
         </p>
-        <div className="flex items-center space-x-4 text-sm text-gray-500">
+        <div className={`flex items-center space-x-2 text-gray-500 ${small ? "text-[9px]" : "text-sm"}`}>
           <div className="flex items-center">
-            <FiClock className="mr-2 opacity-75" />
+            <FiClock className="mr-1 opacity-75 text-[12px]" />
             {timeAgo(application.updated_at)}
           </div>
           <div className="flex items-center">
-            <FiEye className="mr-2 opacity-75" />
+            <FiEye className="mr-1 opacity-75 text-[12px]" />
             {Viewscount} views
           </div>
         </div>
       </div>
 
-
-
-
       {/* Footer Section */}
-      <div className="flex flex-col  sm:flex-row justify-between my-2 items-start sm:items-center  pt-1">
-
+      <div className="flex flex-col sm:flex-row justify-between mt-1 items-start sm:items-center pt-1">
         {/* Status Badge */}
-        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${application.status === "Active"
-            ? " text-green-800"
-            : " text-red-800"
-          }`}>
-          <span className="mr-2 inline-block w-2 h-2 rounded-full" style={{ backgroundColor: application.status === "Active" ? "green" : "red" }}></span>
+        <span className={`inline-flex items-center rounded-full font-medium 
+          ${small ? "text-[9px] py-0.5" : "text-xs py-1"} 
+          ${application.status === "Active" ? "text-green-800" : "text-red-800"}`}>
+          <span className="mr-1 inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: application.status === "Active" ? "green" : "red" }}></span>
           {application.status === "Active" ? "ON GOING" : "CLOSED"}
         </span>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
+        <div className="flex items-center gap-1 w-full sm:w-auto">
           <button
-            className="w-full sm:w-auto px-4 py-2.5 text-sm font-medium border border-gray-300 rounded-lg hover:border-gray-400 transition-colors duration-200"
+            className={`w-full sm:w-auto border border-gray-300 rounded-md hover:border-gray-400 transition-colors duration-200
+              ${small ? "text-[9px] py-1 px-2" : "text-sm py-2.5 px-4"}`}
             onClick={handleViewDetails}
           >
             View Details
           </button>
-
         </div>
       </div>
     </div>
   );
 }
+
+
