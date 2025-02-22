@@ -394,7 +394,7 @@ const AboutCCE = () => {
             name: "Dr.Karthick",
             post: "Commander Chief",
             title: "Head of CCE",
-            photo: mentor3
+            photo: "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg"
           },
           {
             name: "Sindhuja",
