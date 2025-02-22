@@ -3,47 +3,48 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import DatePicker from "react-datepicker";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { FaCalendarAlt } from "react-icons/fa";
 import "react-datepicker/dist/react-datepicker.css";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 
 export default function JobPostForm() {
+  const navigate = useNavigate();
+
   // Load AI-generated job data from sessionStorage
   const storedJobData = sessionStorage.getItem("jobData");
   const initialJobData = storedJobData ? JSON.parse(storedJobData) : {};
 
+  const [activeSection, setActiveSection] = useState('jobDetails');
   const [formData, setFormData] = useState({
-    title: initialJobData.title || "",
-    company_name: initialJobData.company_name || "",
-    company_overview: initialJobData.company_overview || "",
-    company_website: initialJobData.company_website || "",
-    job_description: initialJobData.job_description || "",
-    key_responsibilities: initialJobData.key_responsibilities || [],
-    required_skills: initialJobData.required_skills || [],
-    education_requirements: initialJobData.education_requirements || "",
-    experience_level: initialJobData.experience_level || "",
-    salary_range: initialJobData.salary_range || "",
-    benefits: initialJobData.benefits || [],
-    job_location: initialJobData.job_location || "",
-    work_type: initialJobData.work_type || "",
-    work_schedule: initialJobData.work_schedule || "",
-    application_instructions: initialJobData.application_instructions || "",
-    application_deadline: initialJobData.application_deadline && !isNaN(Date.parse(initialJobData.application_deadline))
-    ? new Date(initialJobData.application_deadline)
-    : null,
-    contact_email: initialJobData.contact_email || "",
-    contact_phone: initialJobData.contact_phone || [],
-    job_link: initialJobData.job_link || "",
+    jobTitle: initialJobData.title || "",
+    jobLink: initialJobData.job_link || "",
+    jobDescription: initialJobData.job_description || "",
+    workType: initialJobData.work_type || "",
+    salaryRange: initialJobData.salary_range || "",
+    companyName: initialJobData.company_name || "",
+    companyWebsite: initialJobData.company_website || "",
+    companyLocation: initialJobData.job_location || "",
+    companyOverview: initialJobData.company_overview || "",
+    benefits: initialJobData.benefits || "",
+    requiredSkills: initialJobData.required_skills?.join(", ") || "",
+    keyResponsibilities: initialJobData.key_responsibilities?.join(", ") || "",
+    educationRequirement: initialJobData.education_requirements || "",
+    deadline: initialJobData.application_deadline && !isNaN(Date.parse(initialJobData.application_deadline))
+      ? new Date(initialJobData.application_deadline)
+      : null,
+    contactEmail: initialJobData.contact_email || "",
+    contactPhone: initialJobData.contact_phone?.join(", ") || "",
+    experienceLevel: initialJobData.experience_level || "",
+    workSchedule: initialJobData.work_schedule || "",
+    applicationInstructions: initialJobData.application_instructions || "",
   });
 
   const [selectedCategory, setSelectedCategory] = useState(initialJobData.selectedCategory || "");
-  const [selectedWorkType, setSelectedWorkType] = useState(initialJobData.selectedWorkType || "");
+  const [isWorkTypeOpen, setIsWorkTypeOpen] = useState(false); // State for work type dropdown
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isWorkTypeOpen, setIsWorkTypeOpen] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -73,7 +74,7 @@ export default function JobPostForm() {
   // Validate URL
   const validateUrl = (url) => {
     const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-    return true;
+    return urlPattern.test(url);
   };
 
   // Validate Application Deadline
@@ -83,7 +84,6 @@ export default function JobPostForm() {
   };
 
   const handleChange = (e) => {
-    console.log(`Field ${e.target.name} changed to ${e.target.value}`);
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -92,64 +92,137 @@ export default function JobPostForm() {
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
-    setIsCategoryOpen(false);
-  };
-
-  const handleWorkTypeChange = (workType) => {
-    setSelectedWorkType(workType);
-    setIsWorkTypeOpen(false);
   };
 
   const handleDateChange = (date) => {
     setFormData({
       ...formData,
-      application_deadline: date,
+      deadline: date,
     });
   };
 
   const handleRequiredSkillsChange = (e) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
-      const skill = e.target.value.trim();
-      if (skill && !formData.required_skills.includes(skill)) {
-        setFormData({
-          ...formData,
-          required_skills: [...formData.required_skills, skill],
-        });
-        e.target.value = "";
-      }
+      const skills = e.target.value.trim().split(/[,]+/).map(skill => skill.trim()).filter(skill => skill);
+      const newSkills = [...new Set([...formData.requiredSkills.split(",").map(s => s.trim()), ...skills])].filter(skill => skill);
+      setFormData({
+        ...formData,
+        requiredSkills: newSkills.join(", "),
+      });
+      e.target.value = "";
     }
   };
 
+  const handleclosed = () => {
+    setIsPreview(false);
+  };
+
   const handleRemoveSkill = (skillToRemove) => {
+    const skills = formData.requiredSkills.split(",").map(s => s.trim()).filter(skill => skill !== skillToRemove);
     setFormData({
       ...formData,
-      required_skills: formData.required_skills.filter(skill => skill !== skillToRemove),
+      requiredSkills: skills.join(", "),
     });
   };
 
-  const handleSubmit = async (e) => {
-    console.log("Form submitted");
-    setDisableSubmit(true);
+  const handleNext = (e) => {
     e.preventDefault();
+    switch (activeSection) {
+      case 'jobDetails':
+        if (!formData.jobTitle || !formData.jobLink || !formData.workType) {
+          setError("Please fill in all mandatory fields in Job Details.");
+          return;
+        }
+        setActiveSection('companyDetails');
+        break;
+      case 'companyDetails':
+        if (!formData.companyName || !formData.companyWebsite || !formData.companyLocation) {
+          setError("Please fill in all mandatory fields in Company Details.");
+          return;
+        }
+        setActiveSection('requirements');
+        break;
+      case 'requirements':
+        if (!formData.benefits || !formData.requiredSkills || !formData.keyResponsibilities || !formData.educationRequirement || !formData.experienceLevel) {
+          setError("Please fill in all mandatory fields in Requirements.");
+          return;
+        }
+        setActiveSection('deadline');
+        break;
+      case 'deadline':
+        if (!formData.deadline || !validateApplicationDeadline(formData.deadline) || !formData.workSchedule || !formData.applicationInstructions) {
+          setError("Please fill in all mandatory fields in Deadline and Application Details.");
+          return;
+        }
+        setActiveSection('summary');
+        break;
+      case 'summary':
+        if (!formData.contactEmail || !formData.contactPhone) {
+          setError("Please fill in all mandatory fields in Summary (Contact Information).");
+          return;
+        }
+        break;
+      default:
+        break;
+    }
+    setError("");
+  };
 
-    // Validate mandatory fields
-    if (!formData.title || !formData.company_name || !selectedCategory || !formData.job_link) {
+  const handlePrevious = () => {
+    switch (activeSection) {
+      case 'companyDetails':
+        setActiveSection('jobDetails');
+        break;
+      case 'requirements':
+        setActiveSection('companyDetails');
+        break;
+      case 'deadline':
+        setActiveSection('requirements');
+        break;
+      case 'summary':
+        setActiveSection('deadline');
+        break;
+      default:
+        break;
+    }
+    setError("");
+  };
+
+  const isSectionCompleted = (section) => {
+    switch (section) {
+      case 'jobDetails':
+        return formData.jobTitle && formData.jobLink && formData.jobDescription && formData.workType && formData.salaryRange;
+      case 'companyDetails':
+        return formData.companyName && formData.companyWebsite && formData.companyLocation && formData.companyOverview;
+      case 'requirements':
+        return formData.benefits && formData.requiredSkills && formData.keyResponsibilities && formData.educationRequirement && formData.experienceLevel;
+      case 'deadline':
+        return formData.deadline && formData.workSchedule && formData.applicationInstructions;
+      case 'summary':
+        return formData.contactEmail && formData.contactPhone;
+      default:
+        return false;
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setDisableSubmit(true);
+
+    if (!formData.jobTitle || !formData.companyName || !selectedCategory || !formData.jobLink) {
       setError("Please fill in all mandatory fields.");
-      setShowWarning(true);
       setDisableSubmit(false);
       return;
     }
 
-    // Validate Company Website URL
-    if (formData.company_website && !validateUrl(formData.company_website)) {
+    if (formData.companyWebsite && !validateUrl(formData.companyWebsite)) {
       setError("Invalid URL for Company Website.");
       setDisableSubmit(false);
       return;
     }
 
-    // Validate Application Deadline
-    if (formData.application_deadline && !validateApplicationDeadline(formData.application_deadline)) {
+    if (formData.deadline && !validateApplicationDeadline(formData.deadline)) {
       setError("Application Deadline must be a future date.");
       setDisableSubmit(false);
       return;
@@ -164,7 +237,31 @@ export default function JobPostForm() {
       }
       const response = await axios.post(
         "http://localhost:8000/api/job_post/",
-        { ...formData, selectedCategory, selectedWorkType, userId, role: userRole },
+        {
+          title: formData.jobTitle,
+          company_name: formData.companyName,
+          company_overview: formData.companyOverview,
+          company_website: formData.companyWebsite,
+          job_description: formData.jobDescription,
+          key_responsibilities: formData.keyResponsibilities.split(",").map(s => s.trim()),
+          required_skills: formData.requiredSkills.split(",").map(s => s.trim()),
+          education_requirements: formData.educationRequirement,
+          experience_level: formData.experienceLevel,
+          salary_range: formData.salaryRange,
+          benefits: formData.benefits.split(",").map(s => s.trim()),
+          job_location: formData.companyLocation,
+          work_type: formData.workType,
+          work_schedule: formData.workSchedule,
+          application_instructions: formData.applicationInstructions,
+          application_deadline: formData.deadline,
+          contact_email: formData.contactEmail,
+          contact_phone: formData.contactPhone.split(",").map(s => s.trim()),
+          job_link: formData.jobLink,
+          selectedWorktype: formData.workType,
+          selectedCategory,
+          userId,
+          role: userRole
+        }
       );
 
       setMessage(response.data.message);
@@ -180,6 +277,37 @@ export default function JobPostForm() {
     }
   };
 
+  const handlePreview = () => {
+    setIsPreview(true);
+  };
+
+  const handleClose = () => {
+    setIsPreview(false); // Close the preview modal
+    setSelectedCategory(""); // Reset category
+    setFormData({
+      jobTitle: "",
+      jobLink: "",
+      jobDescription: "",
+      workType: "",
+      salaryRange: "",
+      companyName: "",
+      companyWebsite: "",
+      companyLocation: "",
+      companyOverview: "",
+      benefits: "",
+      requiredSkills: "",
+      keyResponsibilities: "",
+      educationRequirement: "",
+      deadline: null,
+      contactEmail: "",
+      contactPhone: "",
+      experienceLevel: "",
+      workSchedule: "",
+      applicationInstructions: "",
+    });
+    navigate(-1); // Navigate to the previous page
+  };
+
   useEffect(() => {
     const token = Cookies.get("jwt");
     if (token) {
@@ -193,337 +321,526 @@ export default function JobPostForm() {
     }
   }, []);
 
-  const handlePreview = () => {
-    console.log("Preview button clicked");
-    setIsPreview(true);
+  const renderSection = () => {
+    switch (activeSection) {
+      case 'jobDetails':
+        return (
+          <>
+            <div className="flex gap-5 mb-3.75">
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2 capitalize">
+                  Job Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="jobTitle"
+                  placeholder="Enter the job title here"
+                  value={formData.jobTitle}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2">
+                  Job Link <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  name="jobLink"
+                  placeholder="Enter the job link here"
+                  value={formData.jobLink}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+            </div>
+            <div className="mb-3.75">
+              <label className="block text-sm font-semibold mb-2 capitalize">
+                Job Description
+              </label>
+              <textarea
+                name="jobDescription"
+                placeholder="Enter the job description here"
+                value={formData.jobDescription}
+                onChange={handleChange}
+                className="w-full p-2.5 border border-gray-300 rounded-lg text-sm h-24 resize-y focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+              />
+            </div>
+            <div className="flex gap-5">
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2">
+                  Work Type <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <motion.div
+                    className="w-full border border-gray-300 p-2.5 rounded-lg flex justify-between items-center cursor-pointer transition-all duration-300"
+                    onClick={() => setIsWorkTypeOpen(!isWorkTypeOpen)}
+                    whileHover={{
+                      backgroundColor: "#D1E7FF",
+                      borderColor: "#3B82F6",
+                    }}
+                    style={{
+                      borderColor: isWorkTypeOpen ? "#3B82F6" : "#D1D5DB",
+                      backgroundColor: isWorkTypeOpen ? "#D1E7FF" : "white",
+                    }}
+                  >
+                    <span className="text-sm text-gray-700">
+                      {formData.workType || "Enter the work type here"}
+                    </span>
+                    <motion.span
+                      whileHover={{ scale: 1.2 }}
+                      className="text-sm text-gray-700"
+                    >
+                      {isWorkTypeOpen ? "▲" : "▼"}
+                    </motion.span>
+                  </motion.div>
+                  {isWorkTypeOpen && (
+                    <div className="absolute z-10 mt-2 space-y-2 p-3 border border-gray-300 rounded-lg w-full bg-white shadow-lg">
+                      {workTypes.map((workType) => (
+                        <div key={workType} className="flex items-center">
+                          <input
+                            type="radio"
+                            name="workType"
+                            value={workType}
+                            checked={formData.workType === workType}
+                            onChange={(e) => setFormData({ ...formData, workType: e.target.value })}
+                            className="mr-2"
+                          />
+                          <span>{workType}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2">
+                  Salary Range
+                </label>
+                <input
+                  type="text"
+                  name="salaryRange"
+                  placeholder="Enter the salary range here"
+                  value={formData.salaryRange}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+            </div>
+          </>
+        );
+      case 'companyDetails':
+        return (
+          <>
+            <div className="flex gap-5 mb-3.75">
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2 capitalize">
+                  Company Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="companyName"
+                  placeholder="Enter the job title here"
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2">
+                  Company Website <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  name="companyWebsite"
+                  placeholder="Enter the job link here"
+                  value={formData.companyWebsite}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+            </div>
+            <div className="mb-3.75">
+              <label className="block text-sm font-semibold mb-2 capitalize">
+                Company Overview
+              </label>
+              <textarea
+                name="companyOverview"
+                placeholder="Enter the job description here"
+                value={formData.companyOverview}
+                onChange={handleChange}
+                className="w-full p-2.5 border border-gray-300 rounded-lg text-sm h-24 resize-y focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+              />
+            </div>
+            <div className="flex gap-5 mb-3.75">
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2">
+                  Conatct Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="contactEmail"
+                  placeholder="Enter the contact Email here"
+                  value={formData.contactEmail}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2">
+                  Conatct Phone <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  name="contactPhone"
+                  placeholder="Enter the Phone Number here"
+                  value={formData.contactPhone}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+            </div>
+            <div className="flex gap-5">
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2">
+                  Company Location <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="companyLocation"
+                  placeholder="Enter the work type here"
+                  value={formData.companyLocation}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+            </div>
+          </>
+        );
+      case 'requirements':
+        return (
+          <>
+            <div className="flex gap-5 mb-3.75">
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2 capitalize">
+                  Benefits
+                </label>
+                <input
+                  type="text"
+                  name="benefits"
+                  placeholder="Enter the salary range here"
+                  value={formData.benefits}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2 capitalize">
+                  Required Skills
+                </label>
+                <input
+                  type="text"
+                  name="requiredSkills"
+                  onKeyDown={handleRequiredSkillsChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                  placeholder="Enter required skills and press Enter or comma"
+                />
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {formData.requiredSkills.split(",").map((skill, index) => (
+                    skill.trim() && (
+                      <div key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center gap-2">
+                        <span>{skill.trim()}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSkill(skill.trim())}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          x
+                        </button>
+                      </div>
+                    )
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="mb-3.75">
+              <label className="block text-sm font-semibold mb-2 capitalize">
+                Key Responsibilities
+              </label>
+              <textarea
+                name="keyResponsibilities"
+                placeholder="Enter the job description here"
+                value={formData.keyResponsibilities}
+                onChange={handleChange}
+                className="w-full p-2.5 border border-gray-300 rounded-lg text-sm h-24 resize-y focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+              />
+            </div>
+            <div className="flex gap-5 mb-3.75">
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2 capitalize">
+                  Education Requirement
+                </label>
+                <input
+                  type="text"
+                  name="educationRequirement"
+                  placeholder="Enter the work type here"
+                  value={formData.educationRequirement}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2 capitalize">
+                  Experience Level
+                </label>
+                <input
+                  type="text"
+                  name="experienceLevel"
+                  placeholder="Enter experience level here"
+                  value={formData.experienceLevel}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+            </div>
+          </>
+        );
+      case 'deadline':
+        return (
+          <>
+            <div className="flex gap-5 mb-3.75">
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2 capitalize">
+                  Application Deadline <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <DatePicker
+                    selected={formData.deadline}
+                    onChange={handleDateChange}
+                    dateFormat="MM/dd/yyyy"
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow pl-10"
+                    placeholderText="Select a date"
+                    isClearable
+                  />
+                  <FaCalendarAlt
+                    onClick={(e) => {
+                      e.target.previousSibling.focus();
+                    }}
+                    className="absolute left-3 top-3 text-gray-500 cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-5 mb-3.75">
+              <div className="w-1/2">
+                <label className="block text-sm font-semibold mb-2 capitalize">
+                  Work Schedule <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="workSchedule"
+                  placeholder="Enter work schedule here"
+                  value={formData.workSchedule}
+                  onChange={handleChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+                />
+              </div>
+            </div>
+            <div className="mb-3.75">
+              <label className="block text-sm font-semibold mb-2 capitalize">
+                Application Instructions <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                name="applicationInstructions"
+                placeholder="Enter application instructions here"
+                value={formData.applicationInstructions}
+                onChange={handleChange}
+                className="w-full p-2.5 border border-gray-300 rounded-lg text-sm h-24 resize-y focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
+              />
+            </div>
+          </>
+        );
+      case 'summary':
+        return (
+          <div className="p-2.5 text-sm overflow-y-auto h-60">
+            <p className="font-medium text-gray-800">Job Title: {formData.jobTitle || 'Not provided'}</p>
+            <p className="text-gray-700">Job Link: {formData.jobLink || 'Not provided'}</p>
+            <p className="text-gray-700">Job Description: {formData.jobDescription || 'Not provided'}</p>
+            <p className="text-gray-700">Work Type: {formData.workType || 'Not provided'}</p>
+            <p className="text-gray-700">Salary Range: {formData.salaryRange || 'Not provided'}</p>
+            <p className="font-medium text-gray-800">Company Name: {formData.companyName || 'Not provided'}</p>
+            <p className="text-gray-700">Company Website: {formData.companyWebsite || 'Not provided'}</p>
+            <p className="text-gray-700">Company Location: {formData.companyLocation || 'Not provided'}</p>
+            <p className="text-gray-700">Company Overview: {formData.companyOverview || 'Not provided'}</p>
+            <p className="font-medium text-gray-800">Benefits: {formData.benefits || 'Not provided'}</p>
+            <p className="text-gray-700">Required Skills: {formData.requiredSkills || 'Not provided'}</p>
+            <p className="text-gray-700">Key Responsibilities: {formData.keyResponsibilities || 'Not provided'}</p>
+            <p className="text-gray-700">Education Requirement: {formData.educationRequirement || 'Not provided'}</p>
+            <p className="text-gray-700">Experience Level: {formData.experienceLevel || 'N/A'}</p>
+            <p className="font-medium text-gray-800">Deadline: {formData.deadline?.toLocaleDateString() || 'Not provided'}</p>
+            <p className="text-gray-700">Work Schedule: {formData.workSchedule || 'N/A'}</p>
+            <p className="text-gray-700">Application Instructions: {formData.applicationInstructions || 'N/A'}</p>
+            <p className="font-medium text-gray-800">Contact Email: {formData.contactEmail || 'N/A'}</p>
+            <p className="text-gray-700">Contact Phone: {formData.contactPhone || 'N/A'}</p>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   return (
     <motion.div
-      className={`max-w mx-auto bg-white shadow-xl rounded-2xl relative ml-55 ${isPreview ? "overflow-hidden" : "overflow-auto"}`}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
+      className="flex-1 mx-auto bg-white-100 h-screen flex items-center justify-center px-14"
     >
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
-      <div className={`p-8`}>
-        <h2 className="text-3xl pt-4 font-bold mb-4 text-gray-800 text-center">Post a Job</h2>
-
-        {showWarning && (
-          <div className="absolute top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-              <h3 className="text-lg font-semibold text-red-600">Warning</h3>
-              <p className="text-sm text-gray-700">The Job Link field is required. Please enter a valid URL.</p>
-              <button
-                onClick={() => setShowWarning(false)}
-                className="mt-4 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="col-span-1">
-            <label className="block text-sm font-semibold mb-2 capitalize">
-              Title <span className="text-red-500">*</span>
-            </label>
-            <motion.input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              whileHover={{ backgroundColor: "#e0f2ff" }}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-              placeholder="Enter title"
-            />
-          </div>
-
-          <div className="col-span-1">
-            <label className="block text-sm font-semibold mb-2 capitalize">
-              Company Name <span className="text-red-500">*</span>
-            </label>
-            <motion.input
-              type="text"
-              name="company_name"
-              value={formData.company_name}
-              onChange={handleChange}
-              whileHover={{ backgroundColor: "#e0f2ff" }}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-              placeholder="Enter company name"
-            />
-          </div>
-
-          <div className="col-span-1 relative">
-            <label className="block text-sm font-semibold mb-2">
-              Job Categories <span className="text-red-500">*</span>
-            </label>
-            <motion.div
-              className="cursor-pointer w-full border border-gray-300 p-2.5 rounded-lg flex justify-between items-center transition-all duration-300"
-              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-              whileHover={{
-                backgroundColor: "#D1E7FF",
-                borderColor: "#3B82F6",
-              }}
-              style={{
-                borderColor: isCategoryOpen ? "#3B82F6" : "#D1D5DB",
-                backgroundColor: isCategoryOpen ? "#D1E7FF" : "white",
-              }}
-            >
-              <span className="text-sm text-gray-700">
-                {selectedCategory || "Select Job Category"}
-              </span>
-              <motion.span
-                whileHover={{
-                  scale: 1.2,
-                }}
-                className="text-sm text-gray-700"
-              >
-                {isCategoryOpen ? "▲" : "▼"}
-              </motion.span>
-            </motion.div>
-
-            {isCategoryOpen && (
-              <div className="absolute z-10 mt-2 space-y-2 p-3 border border-gray-300 rounded-lg w-full bg-white shadow-lg">
-                {categories.map((category) => (
-                  <div key={category} className="flex items-center">
-                    <input
-                      type="radio"
-                      name="job_category"
-                      value={category}
-                      checked={selectedCategory === category}
-                      onChange={() => handleCategoryChange(category)}
-                      className="mr-2"
-                    />
-                    <span>{category}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="col-span-1">
-            <label className="block text-sm font-semibold mb-2">
-              Job Link <span className="text-red-500">*</span>
-            </label>
-            <motion.input
-              type="url"
-              name="job_link"
-              value={formData.job_link}
-              onChange={handleChange}
-              whileHover={{ backgroundColor: "#e0f2ff" }}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-              placeholder="Enter job link"
-            />
-          </div>
-        </div>
-
-        {message && <p className="text-green-600 mb-4 text-center">{message}</p>}
-        {error && <p className="text-red-600 mb-4 text-center">{error}</p>}
-
-        <form onSubmit={!disableSubmit ? handleSubmit : undefined} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="col-span-1">
-            <label className="block text-sm font-semibold mb-2 capitalize">
-              Required Skills
-            </label>
-            <motion.input
-              type="text"
-              name="required_skills"
-              onKeyDown={handleRequiredSkillsChange}
-              whileHover={{ backgroundColor: "#e0f2ff" }}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-              placeholder="Enter required skills and press Enter"
-            />
-            <div className="mt-2 flex flex-wrap gap-2">
-              {formData.required_skills.map((skill, index) => (
-                <div key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center gap-2">
-                  <span>{skill}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSkill(skill)}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    x
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="col-span-1 relative">
-            <label className="block text-sm font-semibold mb-2">
-              Work Type
-            </label>
-            <motion.div
-              className="cursor-pointer w-full border border-gray-300 p-2.5 rounded-lg flex justify-between items-center transition-all duration-300"
-              onClick={() => setIsWorkTypeOpen(!isWorkTypeOpen)}
-              whileHover={{
-                backgroundColor: "#D1E7FF",
-                borderColor: "#3B82F6",
-              }}
-              style={{
-                borderColor: isWorkTypeOpen ? "#3B82F6" : "#D1D5DB",
-                backgroundColor: isWorkTypeOpen ? "#D1E7FF" : "white",
-              }}
-            >
-              <span className="text-sm text-gray-700">
-                {selectedWorkType || "Select Work Type"}
-              </span>
-              <motion.span
-                whileHover={{
-                  scale: 1.2,
-                }}
-                className="text-sm text-gray-700"
-              >
-                {isWorkTypeOpen ? "▲" : "▼"}
-              </motion.span>
-            </motion.div>
-
-            {isWorkTypeOpen && (
-              <div className="absolute z-20 mt-2 space-y-2 p-3 border border-gray-300 rounded-lg w-full bg-white shadow-lg">
-                {workTypes.map((workType) => (
-                  <div key={workType} className="flex items-center">
-                    <input
-                      type="radio"
-                      name="work_type"
-                      value={workType}
-                      checked={selectedWorkType === workType}
-                      onChange={() => handleWorkTypeChange(workType)}
-                      className="mr-2"
-                    />
-                    <span>{workType}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {Object.keys(formData).map((field) => {
-            if (field === "title" || field === "company_name" || field === "job_link" || field === "work_type") {
-              return null;
-            }
-            if (field !== "application_deadline" && field !== "required_skills") {
-              return (
-                <div key={field} className="col-span-1">
-                  <label className="block text-sm font-semibold mb-2 capitalize">
-                    {field.replace(/_/g, " ")}
-                  </label>
-                  <motion.input
-                    type={field.includes("email")
-                      ? "email"
-                      : field.includes("phone")
-                        ? "tel"
-                        : "text"}
-                    name={field}
-                    value={formData[field]}
-                    onChange={handleChange}
-                    whileHover={{ backgroundColor: "#e0f2ff" }}
-                    className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-                    placeholder={`Enter ${field.replace(/_/g, " ")}`}
-                  />
-                </div>
-              );
-            }
-            return null;
-          })}
-
-          <div className="col-span-1">
-            <label className="block text-sm font-semibold mb-2 capitalize">
-              Application Deadline
-            </label>
-            <div className="relative">
-              <DatePicker
-                selected={formData.application_deadline}
-                onChange={(date) => setFormData({ ...formData, application_deadline: date })}
-                dateFormat="MM/dd/yyyy"
-                className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow pl-10"
-                placeholderText="Select a date"
-                isClearable
-              />
-              <FaCalendarAlt
-                onClick={(e) => {
-                  e.target.previousSibling.focus();
-                }}
-                className="absolute left-3 top-3 text-gray-500 cursor-pointer"
-              />
-            </div>
-          </div>
-
-          <motion.button
+      {/* <div className="p-8 w-900"> */}
+      <div className="flex-1 bg-white p-13 rounded-xl shadow-lg ">
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="text-2xl font-bold text-gray-800">Post a Job</h2>
+          <button
             type="button"
-            className="w-1/4 justify-self-center col-span-2 bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-transform shadow-lg"
-            whileHover={{ scale: 1.01 }}
+            onClick={handleClose}
+            className="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-100 font-medium"
+          >
+            Cancel
+          </button>
+        </div>
+        <hr className="border-gray-300 mb-8" />
+        <div className="flex gap-10 items-stretch">
+          <div className="w-1/4  border border-gray-300 rounded-lg shadow-sm flex flex-col p-0 m-0">
+
+            <p className={`p-3 flex-1 bg-white cursor-pointer rounded-lg font-medium relative pl-6 border-b border-gray-200 ${activeSection === 'jobDetails' ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-yellow-500' : isSectionCompleted('jobDetails') ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-green-500' : 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-gray-300'}`}
+              onClick={() => setActiveSection('jobDetails')}
+            >
+              Job Details
+            </p>
+
+            <p
+              className={`p-3 flex-1 bg-white cursor-pointer rounded-lg font-medium relative pl-6 border-b border-gray-200 ${activeSection === 'companyDetails' ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-yellow-500' : isSectionCompleted('companyDetails') ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-green-500' : 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-gray-300'}`}
+              onClick={() => setActiveSection('companyDetails')}
+            >
+              Company Details
+            </p>
+            <p
+              className={`p-3   flex-1 bg-white cursor-pointer rounded-lg font-medium relative pl-6 border-b border-gray-200 ${activeSection === 'requirements' ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-yellow-500' : isSectionCompleted('requirements') ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-green-500' : 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-gray-300'}`}
+              onClick={() => setActiveSection('requirements')}
+            >
+              Requirements
+            </p>
+            <p
+              className={`p-3 flex-1 bg-white cursor-pointer rounded-lg font-medium relative pl-6 border-b border-gray-200 ${activeSection === 'deadline' ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-yellow-500' : isSectionCompleted('deadline') ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-green-500' : 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-gray-300'}`}
+              onClick={() => setActiveSection('deadline')}
+            >
+              Deadline
+            </p>
+            <p
+              className={`p-3 flex-1 bg-white cursor-pointer rounded-lg font-medium relative pl-6 border-b border-gray-200 ${activeSection === 'summary' ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-yellow-500' : isSectionCompleted('summary   ') ? 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-green-500' : 'before:absolute before:left-0 before:top-0 before:bottom-0 before:w-1 before:bg-gray-300'}`}
+              onClick={() => setActiveSection('summary')}
+            >
+              Summary
+            </p>
+
+          </div>
+          <form onSubmit={handleNext} className="flex-1 flex flex-col justify-center gap-5 min-h-[500px] rounded-lg border border-gray-300 p-5">
+            {renderSection()}
+
+          </form>
+        </div>
+        <div className="mt-5 flex gap-2.5">
+          {activeSection !== 'jobDetails' && (
+            <button
+              type="button"
+              onClick={handlePrevious}
+              className="px-5 py-2.5 rounded-lg text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium"
+            >
+              Previous
+            </button>
+          )}
+          {activeSection !== 'summary' ? (
+            <button
+              type="submit"
+              onClick={handleNext}
+              className="px-5 py-2.5 bg-yellow-500 text-black rounded-lg text-sm hover:bg-yellow-600 font-medium"
+            >
+              Next
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={disableSubmit}
+              className={`px-5 py-2.5 rounded-lg text-sm ${disableSubmit ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'} font-medium`}
+            >
+              Submit
+            </button>
+          )}
+          <button
+            type="button"
             onClick={handlePreview}
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 font-medium"
+            whileHover={{ scale: 1.01 }}
           >
             Preview Job
-          </motion.button>
-
-          <motion.button
-            type="submit"
-            className={` ${disableSubmit ? "cursor-disabled bg-blue-300" : "cursor-pointer bg-blue-600"} w-1/4 justify-self-center col-span-2 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-transform shadow-lg`}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Submit Job
-          </motion.button>
-        </form>
-
-        {isPreview && (
-          <motion.div
-            className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto relative">
-              <button
-                onClick={() => setIsPreview(false)}
-                className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-              <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">Job Preview</h2>
-              <PreviewField label="Title" value={formData.title} /><br />
-              <PreviewField label="Company Name" value={formData.company_name} /><br />
-              <PreviewField label="Company Overview" value={formData.company_overview} multiline /><br />
-              <PreviewField label="Company Website" value={formData.company_website || "N/A"} url /><br />
-              <PreviewField label="Job Description" value={formData.job_description} multiline /><br />
-              <PreviewField label="Key Responsibilities" value={formData.key_responsibilities} multiline /><br />
-              <PreviewField
-                label="Required Skills"
-                value={formData.required_skills.join(", ")}
-              /><br />
-              <PreviewField label="Education Requirements" value={formData.education_requirements} /><br />
-              <PreviewField label="Experience Level" value={formData.experience_level} /><br />
-              <PreviewField label="Salary Range" value={formData.salary_range} /><br />
-              <PreviewField label="Benefits" value={formData.benefits} multiline /><br />
-              <PreviewField label="Job Location" value={formData.job_location} /><br />
-              <PreviewField label="Work Type" value={selectedWorkType} /><br />
-              <PreviewField label="Work Schedule" value={formData.work_schedule} /><br />
-              <PreviewField label="Application Instructions" value={formData.application_instructions} multiline /><br />
-              <PreviewField label="Application Deadline" value={formData.application_deadline ? formData.application_deadline.toLocaleDateString() : "N/A"} /><br />
-              <PreviewField label="Contact Email" value={formData.contact_email || "N/A"} email /><br />
-              <PreviewField label="Contact Phone" value={formData.contact_phone || "N/A"} phone /><br />
-              <PreviewField label="Job Link" value={formData.job_link } url /><br />
-            </div>
-          </motion.div>
-        )}
+          </button>
+        </div>
       </div>
+
+      {message && <p className="text-green-600 mb-4 text-center">{message}</p>}
+      {error && <p className="text-red-600 mb-4 text-center">{error}</p>}
+
+      {isPreview && (
+        <motion.div
+          className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50"
+        // initial={{ opacity: 0 }}
+        // animate={{ opacity: 1 }}
+        // transition={{ duration: 0.3 }}
+        >
+          <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto relative">
+            <button
+              onClick={handleclosed}
+              className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">Job Preview</h2>
+            <PreviewField label="Title" value={formData.jobTitle} /><br />
+            <PreviewField label="Company Name" value={formData.companyName} /><br />
+            <PreviewField label="Company Overview" value={formData.companyOverview} multiline /><br />
+            <PreviewField label="Company Website" value={formData.companyWebsite || "N/A"} url /><br />
+            <PreviewField label="Job Description" value={formData.jobDescription} multiline /><br />
+            <PreviewField label="Key Responsibilities" value={formData.keyResponsibilities} multiline /><br />
+            <PreviewField label="Required Skills" value={formData.requiredSkills} /><br />
+            <PreviewField label="Education Requirements" value={formData.educationRequirement} /><br />
+            <PreviewField label="Experience Level" value={formData.experienceLevel} /><br />
+            <PreviewField label="Salary Range" value={formData.salaryRange} /><br />
+            <PreviewField label="Benefits" value={formData.benefits} multiline /><br />
+            <PreviewField label="Job Location" value={formData.companyLocation} /><br />
+            <PreviewField label="Work Type" value={formData.workType} /><br />
+            <PreviewField label="Work Schedule" value={formData.workSchedule} /><br />
+            <PreviewField label="Application Instructions" value={formData.applicationInstructions} multiline /><br />
+            <PreviewField label="Application Deadline" value={formData.deadline ? formData.deadline.toLocaleDateString() : "N/A"} /><br />
+            <PreviewField label="Contact Email" value={formData.contactEmail || "N/A"} email /><br />
+            <PreviewField label="Contact Phone" value={formData.contactPhone || "N/A"} phone /><br />
+            <PreviewField label="Job Link" value={formData.jobLink} url /><br />
+          </div>
+        </motion.div>
+      )}
+      {/* </div> */}
     </motion.div>
   );
 }
@@ -531,19 +848,17 @@ export default function JobPostForm() {
 const PreviewField = ({ label, value, multiline = false, url = false, email = false, phone = false }) => {
   let formattedValue = value;
 
-  // Check if the value is a Date object and format it
   if (value instanceof Date) {
-    formattedValue = value.toLocaleDateString(); // Format the date as a string
+    formattedValue = value.toLocaleDateString();
   } else if (url) {
-    formattedValue = <a href={value} target="_blank" rel="noopener noreferrer">{value}</a>;
+    formattedValue = <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{value}</a>;
   } else if (email) {
-    formattedValue = <a href={`mailto:${value}`}>{value}</a>;
+    formattedValue = <a href={`mailto:${value}`} className="text-blue-600 hover:underline">{value}</a>;
   } else if (phone) {
-    formattedValue = <a href={`tel:${value}`}>{value}</a>;
+    formattedValue = <a href={`tel:${value}`} className="text-blue-600 hover:underline">{value}</a>;
   }
 
-  // Avoid showing "N/A" for specific fields
-  if (!formattedValue && (label === "Title" || label === "Company Name" || label === "Job Categories" || label === "Job Link")) {
+  if (!formattedValue && (label === "Title" || label === "Company Name" || label === "Job Link" || label === "Work Type")) {
     formattedValue = "";
   } else if (!formattedValue) {
     formattedValue = "N/A";
@@ -551,8 +866,8 @@ const PreviewField = ({ label, value, multiline = false, url = false, email = fa
 
   return (
     <div>
-      <strong>{label}:</strong>
-      {multiline ? <p>{formattedValue}</p> : <span>{formattedValue}</span>}
+      <strong className="text-gray-800">{label}:</strong>
+      {multiline ? <p className="text-gray-700">{formattedValue}</p> : <span className="text-gray-700 ml-2">{formattedValue}</span>}
     </div>
   );
 };
