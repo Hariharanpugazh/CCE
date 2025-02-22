@@ -100,6 +100,7 @@ const JobEntrySelection = () => {
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
+      <div className="border-2 border-dashed border-gray-500 rounded-lg ml-20 p-10 bg-white shadow-lg flex flex-col items-center space-y-6">
       <h1 className="text-2xl font-bold mb-6 text-center">How do you want to enter job details?</h1>
 
       <div className="w-full max-w-md flex flex-col items-center space-y-6">
@@ -107,7 +108,7 @@ const JobEntrySelection = () => {
         {!uploading && !jobData && (
           <button
             onClick={handleManualEntry}
-            className="w-full bg-[#ffcc00] text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-[#e6b800] transition-all"
+            className="w-full bg-[#111933] text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-[#111933] transition-all"
           >
             Manual Entry
           </button>
@@ -116,7 +117,7 @@ const JobEntrySelection = () => {
         {/* Button to Open Modal */}
         <button
           onClick={openModal}
-          className="w-full bg-[#ffcc00] text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-[#e6b800] transition-all"
+          className="w-full bg-[#ffcc00] text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-[#ffcc00] transition-all"
         >
           Upload File
         </button>
@@ -190,6 +191,7 @@ const JobEntrySelection = () => {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };
