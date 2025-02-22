@@ -49,8 +49,8 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
   const navbarClasses = currentPage === "jobs" || currentPage === "internships" ? "custom-navbar-class" : "";
 
   return (
-    <div className={`fixed w-screen top-0 
-      ${transparent ? (isScrolled ? "bg-white shadow rounded-b-lg" : "glass-lg") : "bg-white shadow rounded-b-lg"}
+    <div className={`w-screen top-0 
+      ${transparent ? (isScrolled ? "fixed bg-white shadow rounded-b-lg" : "fixed glass-lg") : "sticky bg-white shadow rounded-b-lg"}
       z-10 ${navbarClasses} transition-all duration-300`}>
       <nav className="flex justify-between p-4 items-stretch relative">
         <span className="flex-1 max-w-[25%]"></span>

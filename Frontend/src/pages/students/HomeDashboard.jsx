@@ -347,8 +347,8 @@ const ThatOnePainInTheA__ = ({ avatars }) => {
 
   return <section className="flex w-[85%] py-30 items-center">
     <div className="space-y-3 flex-1">
-      <p className=" text-5xl font-semibold"> So Many People are engaged all over the Institution </p>
-      <p className="text-gray-600"> Engage yourself and grab your opportunity with the resources available here. </p>
+      <p className=" text-5xl font-semibold"> Our Distinguished Achievers </p>
+      <p className="text-gray-600"> Celebrating the inspiring journeys of individuals who exemplify excellence, innovation and leadership </p>
       <button className={themeButton} onClick={!isLoggedIn ? () => window.location.href = "/" : () => window.location.href = "/achievements"}> {!isLoggedIn ? "Log In" : "Visit Achievements"} </button>
     </div>
 
