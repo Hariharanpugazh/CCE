@@ -31,7 +31,7 @@ export default function AdminSidebar() {
   const userInitials = username ? username.charAt(0).toUpperCase() : "S"
 
   return (
-    <div className="relative w-57">
+    <div className="relative w-57 z-[9999]">
       <div className="fixed md:flex">
         {/* Hamburger Menu Button */}
         <button
