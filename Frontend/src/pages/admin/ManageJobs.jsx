@@ -169,55 +169,79 @@ const ManageJobs = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 ml-58">
+    <div className="flex min-h-screen bg-gray-50">
       <AdminPageNavbar />
-      <section className="flex flex-col">
-        <div className="flex rounded-lg border border-gray-300 items-center  my-10 mx-6 max-w-55">
-          <button className="p-2 border-r border-gray-300  rounded-l-lg cursor-pointer"
-            onClick={() => {
-              switch (selectedCategory) {
-                case "Jobs": {
-                  return;
+      <div className="flex-1 flex flex-col items-stretch">
+        <section className="flex flex-col">
+          <div className="flex rounded-lg border border-gray-300 items-center  my-10 mx-6 max-w-55">
+            <button className={`p-2 border-r border-gray-300  rounded-l-lg ${selectedCategory === "Jobs" ? "opacity-50" : "cursor-pointer"}`}
+              onClick={() => {
+                switch (selectedCategory) {
+                  case "Jobs": {
+                    return;
+                  }
+                  case "Internships": {
+                    setSelectedCategory("Jobs")
+                    return
+                  }
+                  case "Achievements": {
+                    setSelectedCategory("Internships")
+                    return
+                  }
+                  case "Study Materials": {
+                    setSelectedCategory("Achievements");
+                    return
+                  }
+                  default: {
+                    return
+                  }
                 }
-                case "Internships": {
-                  setSelectedCategory("Jobs")
-                  return
+              }}>
+              <img src={backIcon} alt="Back" className="w-5" />
+            </button>
+            <p className="px-3 flex-1 text-center">{selectedCategory}</p>
+            <button
+              className={`p-2 border-l border-gray-300 hover:bg-gray-50 rounded-r-lg ${selectedCategory === "Study Materials" ? "opacity-50" : "cursor-pointer"}`}
+              onClick={() => {
+                switch (selectedCategory) {
+                  case "Jobs": {
+                    setSelectedCategory("Internships")
+                    return;
+                  }
+                  case "Internships": {
+                    setSelectedCategory("Achievements");
+                    return
+                  }
+                  case "Achievements": {
+                    setSelectedCategory("Study Materials");
+                    return
+                  }
+                  case "Study Materials": {
+                    return
+                  }
+                  default: {
+                    return
+                  }
                 }
-                case "Achievements": {
-                  setSelectedCategory("Internships")
-                  return
-                }
-                case "Study Materials": {
-                  setSelectedCategory("Achievements");
-                  return
-                }
-                default: {
-                  return
-                }
-              }
-            }}>
-            <img src={backIcon} alt="Back" className="w-5" />
-          </button>
-          <p className="px-3 flex-1 text-center">{selectedCategory}</p>
-          <button
-            className="p-2 border-l border-gray-300 hover:bg-gray-50 opacity-50 rounded-r-lg" disabled
-          >
-            <img src={nextIcon} alt="Next" className="w-5" />
-          </button>
-        </div>
+              }}
+            >
+              <img src={nextIcon} alt="Next" className="w-5" />
+            </button>
+          </div>
 
-        <div className="flex-1 px-6 flex flex-col space-y-3">
-          {
-            paginate({Jobs: jobs, Internships: internships, Achievements: achievements, StudyMaterials: studyMaterials}[selectedCategory]).map((achievement, key) => <ItemCard item={{ ...achievement }} type={selectedCategory.toLowerCase()} key={key} />)
-          }
-        </div>
+          <div className="flex-1 px-6 flex flex-col space-y-3">
+            {
+              paginate({ Jobs: jobs, Internships: internships, Achievements: achievements, 'Study Materials': studyMaterials }[selectedCategory]).map((achievement, key) => <ItemCard item={{ ...achievement }} type={selectedCategory.toLowerCase()} key={key} />)
+            }
+          </div>
 
-        <div>
+          <div>
 
+          </div>
+        </section>
+        <div className="px-6">
+          <Pagination currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={{ Jobs: jobs.length, Internships: internships.length, Achievements: achievements.length, StudyMaterials: studyMaterials.length }[selectedCategory]} onPageChange={setCurrentPage} />
         </div>
-      </section>
-      <div className="px-6">
-        <Pagination currentPage={currentPage} itemsPerPage={itemsPerPage} totalItems={{Jobs: jobs.length, Internships: internships.length, Achievements: achievements.length, StudyMaterials: studyMaterials.length}[selectedCategory]} onPageChange={setCurrentPage} />
       </div>
     </div>
   );
