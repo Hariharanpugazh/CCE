@@ -198,7 +198,7 @@ export default function StudyMaterialForm() {
       category: "",
       links: [{ type: "", link: "", topic: "", textContent: "" }],
     });
-    navigate(-1); // Navigate to the previous page
+    navigate('/superadmin-dashboard'); // Navigate to the previous page
   };
 
   return (
@@ -244,9 +244,9 @@ export default function StudyMaterialForm() {
             {/* Right Column - Form Fields */}
             <div className="md:col-span-3 space-y-6 rounded-lg p-4 bg-white shadow-sm border border-gray-300">
               <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-                <div className="flex flex-col">
+                <div className="flex flex-col flex-1">
 
-                <div className=" md:w-1/3">
+                <div className="w-full">
                   <label className="block text-sm font-semibold text-black">Material Title</label>
                   <input
                     type="text"
@@ -254,11 +254,11 @@ export default function StudyMaterialForm() {
                     value={formData.title}
                     onChange={handleChange}
                     required
-                    className=" mb-3 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                    className="w-full mb-3 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
                     placeholder="Enter the material title here"
                   />
                 </div>
-                <div className=" md:w-1/3">
+                <div className="w-full">
                   <label className="block text-sm font-semibold text-black">Category</label>
                   <CategoryInput
                     value={formData.category}
@@ -269,7 +269,7 @@ export default function StudyMaterialForm() {
                   />
                 </div>
                 </div>
-                <div className="w-full md:w-1/3">
+                <div className="w-full md:w-1/2">
                   <label className="block text-sm font-semibold text-black">Material Description</label>
                   <textarea
                     name="description"
