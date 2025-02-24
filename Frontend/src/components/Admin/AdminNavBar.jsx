@@ -196,12 +196,11 @@
 
 
 
-
 "use client"
 
 import { useState, useEffect } from "react"
 import Cookies from "js-cookie"
-import { FiMail, FiPlus, FiUser, FiHome, FiBriefcase, FiAward } from "react-icons/fi"
+import { FiMail, FiPlus, FiUser, FiHome, FiBriefcase, FiAward, FiMenu } from "react-icons/fi"
 import { IoMdNotifications } from "react-icons/io"
 import { MdWork } from "react-icons/md"
 import snslogo from "../../assets/images/snslogo.png"
@@ -210,6 +209,7 @@ export default function AdminSidebar() {
   const [isProfileMenuOpen, setProfileMenuOpen] = useState(false)
   const [isCreateMenuOpen, setCreateMenuOpen] = useState(false)
   const [isMailPopupOpen, setMailPopupOpen] = useState(false)
+  const [isMenuOpen, setMenuOpen] = useState(false)
   const [username, setUsername] = useState("")
 
   useEffect(() => {
@@ -231,8 +231,17 @@ export default function AdminSidebar() {
   const userInitials = username ? username.charAt(0).toUpperCase() : "S"
 
   return (
-    <div className="w-57">
-      <div className="bg-white shadow-lg h-screen fixed w-57 left-0 top-0 flex flex-col">
+    <div className="relative md:flex">
+      {/* Hamburger Menu Button */}
+      <button
+        onClick={() => setMenuOpen(!isMenuOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-full"
+      >
+        <FiMenu size={24} />
+      </button>
+
+      {/* Sidebar */}
+      <div className={`bg-white shadow-lg h-screen md:relative w-57 fixed left-0 top-0 flex flex-col transform ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out z-40`}>
         <div className="p-4 border-b">
           <img src={snslogo} alt="Logo" className="h-14 w-35 mx-auto" />
         </div>
@@ -242,8 +251,8 @@ export default function AdminSidebar() {
             {userInitials}
           </div>
           <div>
-            <p className="font-semibold text-gray-200">{username || "SuperAdmin"}</p>
-            <p className="text-sm text-gray-200"> Administrator</p>
+            <p className="font-semibold text-gray-200">{username || "Admin"}</p>
+            <p className="text-sm text-gray-200">Administrator</p>
           </div>
         </div>
 
@@ -276,7 +285,6 @@ export default function AdminSidebar() {
                   setCreateMenuOpen(!isCreateMenuOpen)
                   setProfileMenuOpen(false)
                   setMailPopupOpen(false)
-
                 }}
                 className="flex items-center p-2 hover:bg-yellow-200 rounded w-full text-left"
               >
@@ -332,11 +340,6 @@ export default function AdminSidebar() {
                       Student Management
                     </a>
                   </li>
-                  {/* <li>
-                  <a href="/Admin-Management" className="flex items-center p-2 hover:bg-yellow-200 rounded">
-                    Admin Management
-                  </a>
-                </li> */}
                 </ul>
               )}
             </li>
@@ -347,7 +350,6 @@ export default function AdminSidebar() {
               </a>
             </li>
           </ul>
-
         </nav>
 
         <div className="p-4 border-t">
@@ -375,6 +377,14 @@ export default function AdminSidebar() {
           </div>
         </div>
       </div>
+
+      {/* Overlay to close the menu on clicking outside */}
+      {isMenuOpen && (
+        <div
+          onClick={() => setMenuOpen(false)}
+          className="fixed inset-0 bg-black opacity-50 lg:hidden z-30"
+        ></div>
+      )}
     </div>
   )
 }
