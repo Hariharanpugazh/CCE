@@ -244,7 +244,7 @@ export default function AchievementDashboard() {
 
       {/* Header Section */}
       <div className="text-center my-6 py-4 relative">
-        <h1 className="text-5xl md:text-6xl tracking-[0.8px] font-bold">
+        <h1 className="text-5xl pt-8 md:text-6xl tracking-[0.8px] font-bold">
           <span className="">Celebrating</span>
           <span className="text-[#ffcc00]"> Student Excellence,</span>
           <br />
