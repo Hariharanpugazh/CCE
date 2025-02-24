@@ -18,6 +18,7 @@ export default function AchievementDashboard() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedFilter, setSelectedFilter] = useState("")
   const [selectedCompany, setSelectedCompany] = useState("")
+  const [userRole, setUserRole] = useState(null);
   const [isMobile, setIsMobile] = useState(false)
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false)
 
@@ -28,6 +29,7 @@ export default function AchievementDashboard() {
 
   const carouselRef = useRef(null)
   const animationRef = useRef(null)
+
 
   // Fetch data
   useEffect(() => {
@@ -40,7 +42,9 @@ export default function AchievementDashboard() {
         )
         setAchievements(sortedAchievements)
         setFilteredAchievements(sortedAchievements)
+        // setIsLoading(false)
       } catch (err) {
+        setIsLoading(false)
         console.error("Error fetching published achievements:", err)
         setError("Failed to load achievements.")
       } finally {
@@ -49,7 +53,7 @@ export default function AchievementDashboard() {
     }
 
     fetchPublishedAchievements()
-  }, [setIsLoading])
+  }, [])
 
   const filters = ["Internship", "Job Placement", "Certification", "Exam Cracked"]
 
@@ -125,8 +129,8 @@ export default function AchievementDashboard() {
       <StudentPageNavbar transparent={true} />
 
       {/* Header Section */}
-      <div className="text-center my-4 md:my-6 py-2 md:py-4 relative px-4">
-        <h1 className="text-3xl md:text-5xl lg:text-6xl tracking-[0.8px] font-bold">
+      <div className="text-center my-4 md:my-6 py-2 md:py-4 relative px-4 pt-16">
+        <h1 className="text-3xl pt-16 md:text-5xl lg:text-6xl tracking-[0.8px] font-bold">
           <span className="">Celebrating</span>
           <span className="text-[#ffcc00]"> Student Excellence,</span>
           <br className="hidden md:inline" />
@@ -136,43 +140,41 @@ export default function AchievementDashboard() {
 
       {/* Featured Achievements Carousel */}
       <div className="w-full overflow-hidden py-4 md:py-8 relative">
-        <div className="max-w-8xl mx-auto px-4">
-          <div className="relative">
-            <div
-              ref={carouselRef}
-              className="flex space-x-4 overflow-x-auto pb-4 snap-x snap-mandatory"
-              style={{
-                scrollBehavior: "smooth",
-                WebkitOverflowScrolling: "touch",
-              }}
-            >
-              {error ? (
-                <p className="text-red-600">{error}</p>
-              ) : recentAchievements.length === 0 ? (
-                <p className="text-gray-600">No achievements available at the moment.</p>
-              ) : (
-                recentAchievements.map((achievement, index) => (
-                  <div key={achievement._id} className="flex-shrink-0 w-[280px] md:w-[270px] snap-center">
-                    <div className="h-full bg-white rounded-xl shadow-md overflow-hidden">
-                      <div className="relative h-50 md:h-56">
-                        {achievement.photo && (
-                          <img
-                            src={`data:image/jpeg;base64,${achievement.photo}`}
-                            alt={achievement.name}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                      </div>
-                      <div className="p-3">
-                        <h3 className="font-semibold text-lg mb-1 truncate">{achievement.name}</h3>
-                        <p className="text-sm text-amber-500 mb-2">{achievement.batch}</p>
-                        <p className="text-sm text-gray-600 line-clamp-2">{achievement.achievement_description}</p>
-                      </div>
+        <div className="relative">
+          <div
+            ref={carouselRef}
+            className="flex w-full justify-center space-x-4 overflow-x-auto pb-4 snap-x snap-mandatory"
+            style={{
+              scrollBehavior: "smooth",
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
+            {error ? (
+              <p className="text-red-600">{error}</p>
+            ) : recentAchievements.length === 0 ? (
+              <p className="text-gray-600">No achievements available at the moment.</p>
+            ) : (
+              recentAchievements.map((achievement, index) => (
+                <div key={achievement._id} className="flex-shrink-0 w-[280px] md:w-[270px] snap-center">
+                  <div className="h-full bg-white rounded-xl shadow-md overflow-hidden">
+                    <div className="relative h-50 md:h-56">
+                      {achievement.photo && (
+                        <img
+                          src={`data:image/jpeg;base64,${achievement.photo}`}
+                          alt={achievement.name}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-semibold text-lg mb-1 truncate">{achievement.name}</h3>
+                      <p className="text-sm text-amber-500 mb-2">{achievement.batch}</p>
+                      <p className="text-sm text-gray-600 line-clamp-2">{achievement.achievement_description}</p>
                     </div>
                   </div>
-                ))
-              )}
-            </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -209,11 +211,10 @@ export default function AchievementDashboard() {
                 <button
                   key={filter}
                   onClick={() => setSelectedFilter(filter === selectedFilter ? "" : filter)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap hover:shadow-sm ${
-                    selectedFilter === filter
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap hover:shadow-sm ${selectedFilter === filter
                       ? "bg-amber-500 text-white hover:bg-amber-600"
                       : "bg-white border border-gray-300 hover:bg-amber-50"
-                  }`}
+                    }`}
                 >
                   {filter}
                 </button>
@@ -222,9 +223,8 @@ export default function AchievementDashboard() {
 
             {/* Mobile Filters Dropdown */}
             <div
-              className={`sm:hidden overflow-hidden transition-all duration-300 ${
-                isFilterMenuOpen ? "max-h-48" : "max-h-0"
-              }`}
+              className={`sm:hidden overflow-hidden transition-all duration-300 ${isFilterMenuOpen ? "max-h-48" : "max-h-0"
+                }`}
             >
               <div className="grid grid-cols-2 gap-2 py-2">
                 {filters.map((filter) => (
@@ -234,11 +234,10 @@ export default function AchievementDashboard() {
                       setSelectedFilter(filter === selectedFilter ? "" : filter)
                       setIsFilterMenuOpen(false)
                     }}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                      selectedFilter === filter
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${selectedFilter === filter
                         ? "bg-amber-500 text-white"
                         : "bg-white border border-gray-300 hover:bg-amber-50"
-                    }`}
+                      }`}
                   >
                     {filter}
                   </button>
