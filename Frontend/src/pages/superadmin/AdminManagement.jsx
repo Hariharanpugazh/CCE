@@ -71,21 +71,9 @@ export default function ManagementHomePage() {
     const inactiveAdmins = admins.filter(admin => admin.status === "Inactive").length;
 
     // Handle admin card click
-    const handleAdminClick = async (adminId) => {
-        const admin = admins.find((admin) => admin._id === adminId);
-        const updatedStatus = admin.status === "Active" ? "Inactive" : "Active";
-        try {
-            await axios.put(`http://localhost:8000/api/admins/${adminId}/update/`, { status: updatedStatus });
-            setAdmins(
-                admins.map((a) =>
-                    a._id === adminId ? { ...a, status: updatedStatus } : a
-                )
-            );
-            navigate(`/admin-details/${adminId}`);
-        } catch (error) {
-            console.error("Error updating admin status:", error);
-            setError("Failed to update admin status. Please try again.");
-        }
+    const handleAdminClick = (adminId) => {
+        console.log("Admin clicked:", adminId); // Debugging line
+        navigate(`/admin-details/${adminId}`);
     };
 
     const handleCreateUser = () => {
@@ -168,42 +156,41 @@ export default function ManagementHomePage() {
                             </button>
                         </div>
                     </div>
-
                     {/* Table */}
                     {error ? (
                         <p className="text-red-600 text-center">{error}</p>
                     ) : filteredAdmins.length === 0 ? (
                         <p className="text-gray-600 text-center">No admin details match your search.</p>
                     ) : (
-                        <div className="rounded-lg border border-gray-300 bg-white overflow-x-auto">
+                        <div className="rounded-lg border border-gray-300 bg-white overflow-x-auto border border-gray-500">
                             <table className="min-w-full">
                                 <thead>
                                     <tr>
                                         <th
-                                            className="py-3 px-4 border-b border-gray-300 text-left cursor-pointer"
+                                            className="py-3 px-4  border-b  border-gray-500 text-left cursor-pointer"
                                             onClick={() => requestSort('name')}
                                         >
                                             Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                         </th>
                                         <th
-                                            className="py-2 px-4 border-b border-gray-300 text-left cursor-pointer"
+                                            className="py-2 px-4 border-b border-gray-500 text-left cursor-pointer"
                                             onClick={() => requestSort('email')}
                                         >
-                                            Email {sortConfig.key === 'email' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                                            Email Address{sortConfig.key === 'email' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                         </th>
                                         <th
-                                            className="py-2 px-4 border-b border-gray-300 text-left cursor-pointer"
+                                            className="py-2 px-4 border-b border-gray-500 text-left cursor-pointer"
                                             onClick={() => requestSort('created_at')}
                                         >
                                             Date Created {sortConfig.key === 'created_at' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                         </th>
                                         <th
-                                            className="py-2 px-5 border-b border-gray-300 text-left cursor-pointer"
+                                            className="py-2 px-4 border-b border-gray-500 text-left cursor-pointer"
                                             onClick={() => requestSort('last_login')}
                                         >
-                                            Last Login {sortConfig.key === 'last_login' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
+                                            Last Logged in {sortConfig.key === 'last_login' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                         </th>
-                                        <th className="py-2 px-3 border-b border-gray-300 text-center">Status</th>
+                                        <th className="py-2 px-4 border-b border-gray-500 text-center">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
