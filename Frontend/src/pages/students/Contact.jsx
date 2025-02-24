@@ -112,8 +112,9 @@ const ContactForm = () => {
               name="name"
               value={formData.name}
               onChange={handleChange}
+              disabled
               placeholder="Name"
-              className="w-full p-3 border rounded-lg bg-yellow-100"
+              className="opacity-75 w-full p-3 border rounded-lg bg-yellow-100"
               
             />
             <input
@@ -121,8 +122,9 @@ const ContactForm = () => {
               name="student_email"
               value={formData.student_email}
               onChange={handleChange}
+              disabled
               placeholder="E-mail Id"
-              className="w-full p-3 border rounded-lg bg-yellow-100"
+              className="opacity-75 w-full p-3 border rounded-lg bg-yellow-100"
               
             />
             <textarea
