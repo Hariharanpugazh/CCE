@@ -221,70 +221,68 @@ export default function StudyMaterialForm() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Left Column - Type, Subject, Topic */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">          
-            <div >
-            {["Exam", "Subject", "Topic"].map((type) => (
-              <div
-                key={type}
-                onClick={() => handleTypeSelect(type)}
-                className={`relative border mb-2 border-gray-300 rounded-lg p-4 bg-white shadow-sm cursor-pointer transition-colors ${
-                  selectedType === type ? "border-l-4 border-yellow-500" : "border-l-8 border-gray-500"
-                }`}
-              >
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="md:col-span-1 space-y-4">
+              {["Exam", "Subject", "Topic"].map((type) => (
                 <div
-                  className={`absolute top-0 left-0 h-full w-1 bg-yellow-500 rounded-l-lg ${
-                    selectedType === type ? "opacity-100" : "opacity-0"
-                  } transition-opacity`}
-                ></div>
-                <h3 className="text-lg font-semibold text-black mb-2">{type}</h3>
-              </div>
-            ))}
-          </div>
+                  key={type}
+                  onClick={() => handleTypeSelect(type)}
+                  className={`relative border border-gray-300 rounded-lg p-4 bg-white shadow-sm cursor-pointer transition-colors ${
+                    selectedType === type ? "border-l-4 border-yellow-500" : "border-l-8 border-gray-500"
+                  }`}
+                >
+                  <div
+                    className={`absolute top-0 left-0 h-full w-1 bg-yellow-500 rounded-l-lg ${
+                      selectedType === type ? "opacity-100" : "opacity-0"
+                    } transition-opacity`}
+                  ></div>
+                  <h3 className="text-lg font-semibold text-black mb-2">{type}</h3>
+                </div>
+              ))}
+            </div>
 
             {/* Right Column - Form Fields */}
-            <div className="md:col-span-3 space-y-6 rounded-lg p-4 bg-white shadow-sm border border-gray-300">  
-              <div className="flex justify-between">
-              <div >
+            <div className="md:col-span-3 space-y-6 rounded-lg p-4 bg-white shadow-sm border border-gray-300">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                <div className="flex flex-col">
 
-              <div>
-                <label className="block text-sm font-semibold text-black">Material Title</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleChange}
-                  required
-                  className="w-130 mb-5 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
-                  placeholder="Enter the material title here"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-black">Category</label>
-                <CategoryInput
-                  value={formData.category}
-                  onChange={(value) =>
-                    setFormData((prevData) => ({ ...prevData, category: value }))
-                  }
-                  selectedType={formData.type || "Exam"} // Default to "Exam"
-                />
-              </div>
+                <div className=" md:w-1/3">
+                  <label className="block text-sm font-semibold text-black">Material Title</label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    required
+                    className=" mb-3 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                    placeholder="Enter the material title here"
+                  />
+                </div>
+                <div className=" md:w-1/3">
+                  <label className="block text-sm font-semibold text-black">Category</label>
+                  <CategoryInput
+                    value={formData.category}
+                    onChange={(value) =>
+                      setFormData((prevData) => ({ ...prevData, category: value }))
+                    }
+                    selectedType={formData.type || "Exam"} // Default to "Exam"
+                  />
+                </div>
+                </div>
+                <div className="w-full md:w-1/3">
+                  <label className="block text-sm font-semibold text-black">Material Description</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    required
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                    rows="4"
+                    placeholder="Enter the material description here"
+                  ></textarea>
+                </div>
               </div>
 
-
-              <div>
-                <label className="block text-sm font-semibold text-black">Material Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  required
-                  className="w-120 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
-                  rows="4"
-                  placeholder="Enter the material description here"
-                ></textarea>
-              </div>
-
-              </div>
               <div>
                 <label className="block text-sm font-semibold text-black">Source Link</label>
                 {formData.links.map((link, index) => (
@@ -366,7 +364,7 @@ export default function StudyMaterialForm() {
               <div className="flex justify-center gap-4">
                 <button
                   type="submit"
-                  className="w-120 bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-600 transition-colors"
+                  className="w-full md:w-auto bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-600 transition-colors"
                 >
                   Post Study Material
                 </button>
