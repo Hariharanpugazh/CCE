@@ -31,25 +31,20 @@ import { FiMail, FiPhone } from "react-icons/fi";
 import mentor1 from '../../assets/images/mentors (1).jpeg'
 import mentor2 from '../../assets/images/mentors (2).jpeg'
 import mentor3 from '../../assets/images/mentors (3).png'
+import { jwtDecode } from "jwt-decode";
 
-const ContactSection = () => {
-  const [formData, setFormData] = useState({ name: "", contact: "", message: "" });
+const ContactSection = ({formData, setFormData, handleSubmit}) => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form Submitted", formData);
-
-    if (formData.contact.length <= 4 || formData.name.length <= 4 || formData.name.length <= 4) {
-      toast.error("Please enter a valid message")
-      return
-    }
-
-    toast.success("Message Sent Successfully")
-  };
+  // const [formData, setFormData] = useState({
+  //   name: "",
+  //   student_id: "",
+  //   student_email: "",
+  //   message: "",
+  // });
 
   return (
     <div className="flex flex-col md:flex-row items-center space-x-12 justify-stretch py-8 pt-22 relative">
@@ -92,18 +87,20 @@ const ContactSection = () => {
               <input
                 type="text"
                 name="name"
+                disabled
                 placeholder="Your Name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full p-3 rounded bg-yellow-100 focus:outline-none"
+                className="w-full p-3 opacity-75 rounded bg-yellow-100 focus:outline-none"
               />
               <input
-                type="text"
-                name="contact"
-                placeholder="Your contact"
-                value={formData.contact}
+                type="email"
+                name="email"
+                disabled
+                placeholder="Your email"
+                value={formData.student_email}
                 onChange={handleChange}
-                className="w-full p-3 rounded bg-yellow-100 focus:outline-none"
+                className="w-full p-3 opacity-75 rounded bg-yellow-100 focus:outline-none"
               />
               <textarea
                 name="message"
@@ -114,7 +111,7 @@ const ContactSection = () => {
               ></textarea>
               <button
                 type="submit"
-                className="w-full bg-yellow-400 text-black font-semibold py-3 rounded hover:bg-yellow-500 transition"
+                className="w-full cursor-pointer bg-yellow-400 text-black font-semibold py-3 rounded hover:bg-yellow-500 transition"
               >
                 Send message
               </button>
@@ -335,7 +332,7 @@ const Insights = () => {
   </section>
 }
 
-const ThatOnePainInTheA__ = ({ avatars }) => {
+const ThatOnePainInTheA__ = ({ achieversImages }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   useEffect(() => {
@@ -355,20 +352,20 @@ const ThatOnePainInTheA__ = ({ avatars }) => {
     <div className="w-2/3 flex justify-end">
       <div className="h-[600px] aspect-square border-dashed border border-[#ffcc00] rounded-full flex items-center justify-center relative">
         {/* outer circle avatars */}
-        <img src={avatars[0].photo} alt="" className="w-16 rounded-full object-cover aspect-square absolute -top-8" />
-        <img src={avatars[1].photo} alt="" className="w-16 rounded-full object-cover aspect-square absolute bottom-18 right-10" />
-        <img src={avatars[2].photo} alt="" className="w-16 rounded-full object-cover aspect-square absolute bottom-18 left-12" />
-        <img src={avatars[3].photo} alt="" className="w-16 rounded-full object-cover aspect-square absolute top-30 left-0" />
-        <img src={avatars[4].photo} alt="" className="w-16 rounded-full object-cover aspect-square absolute top-30 right-0" />
+        <img src={!achieversImages[0] ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg" : ` data:image/jpeg;base64,${achieversImages[0]}`} alt="" className="w-16 rounded-full object-cover aspect-square absolute -top-8" />
+        <img src={!achieversImages[1] ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg" : ` data:image/jpeg;base64,${achieversImages[1]}`} alt="" className="w-16 rounded-full object-cover aspect-square absolute bottom-18 right-10" />
+        <img src={!achieversImages[2] ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg" : ` data:image/jpeg;base64,${achieversImages[2]}`} alt="" className="w-16 rounded-full object-cover aspect-square absolute bottom-18 left-12" />
+        <img src={!achieversImages[3] ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg" : ` data:image/jpeg;base64,${achieversImages[3]}`} alt="" className="w-16 rounded-full object-cover aspect-square absolute top-30 left-0" />
+        <img src={!achieversImages[4] ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg" : ` data:image/jpeg;base64,${achieversImages[4]}`} alt="" className="w-16 rounded-full object-cover aspect-square absolute top-30 right-0" />
 
         <div className="h-[300px] aspect-square border-dashed border border-[#ffcc00] rounded-full flex items-center justify-center relative">
           {/* inner cirlce images */}
-          <img src={avatars[5].photo} alt="" className="w-16 rounded-full object-cover aspect-square absolute -top-7 " />
-          <img src={avatars[6].photo} alt="" className="w-16 rounded-full object-cover aspect-square absolute bottom-7 left-0" />
-          <img src={avatars[7].photo} alt="" className="w-16 rounded-full object-cover aspect-square absolute bottom-7 right-0 " />
+          <img src={!achieversImages[5] ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg" : ` data:image/jpeg;base64,${achieversImages[5]}`} alt="" className="w-16 rounded-full object-cover aspect-square absolute -top-7 " />
+          <img src={!achieversImages[6] ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg" : ` data:image/jpeg;base64,${achieversImages[6]}`} alt="" className="w-16 rounded-full object-cover aspect-square absolute bottom-7 left-0" />
+          <img src={!achieversImages[7] ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg" : ` data:image/jpeg;base64,${achieversImages[7]}`} alt="" className="w-16 rounded-full object-cover aspect-square absolute bottom-7 right-0 " />
 
           {/* center image */}
-          <img src={avatars[8].photo} alt="" className="w-16 rounded-full object-cover aspect-square" />
+          <img src={!achieversImages[8] ? "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg" : ` data:image/jpeg;base64,${achieversImages[8]}`} alt="" className="w-16 rounded-full object-cover aspect-square" />
         </div>
       </div>
     </div>
@@ -612,6 +609,63 @@ export default function HomeDashboard() {
     { 'photo': "https://m.media-amazon.com/images/M/MV5BNGJmMWEzOGQtMWZkNS00MGNiLTk5NGEtYzg1YzAyZTgzZTZmXkEyXkFqcGdeQXVyMTE1MTYxNDAw._V1_FMjpg_UX1000_.jpg", 'name': "Reeves" }
   ]
 
+  const [formData, setFormData] = useState({
+    name: "",
+    student_id: "",
+    student_email: "",
+    message: "",
+  });
+
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        const studentId = decodedToken.student_user;
+        const storedEmail = localStorage.getItem("student.email");
+        const storedName = Cookies.get("username");
+
+        // Only update state if the values are different
+        if (storedName && storedEmail && studentId) {
+          setFormData((prevData) => ({
+            ...prevData,
+            name: storedName,
+            student_email: storedEmail,
+            student_id: studentId,
+          }));
+        }
+      } catch (error) {
+        console.error("Invalid token format.", error);
+      }
+    }
+  }, []); // Empty dependency array ensures this runs only once
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true)
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/contact-us/",
+        formData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      setIsLoading(false);
+      toast.success(response.data.message || "Message sent successfully!");
+
+      setTimeout(() => {
+        window.location.reload(); // Refresh page after success
+      }, 1500); // Wait 1.5 seconds before refreshing
+    } catch (error) {
+      setIsLoading(false)
+      toast.error(error.response?.data.error || "Something went wrong!");
+    } finally {
+      setIsLoading(false); // Reset button text
+    }
+  };
+
   return (
     <div className="flex flex-col items-center">
       <Header jobs={jobs} />
@@ -659,13 +713,13 @@ export default function HomeDashboard() {
         </div>
       </section>
 
-      <ThatOnePainInTheA__ avatars={mentors} />
+      <ThatOnePainInTheA__ achieversImages={[...(achievements.map((achiever) => achiever.photo))]} />
 
       <AboutCCE mentors={mentors} />
 
       <FAQSection />
 
-      <ContactSection />
+      <ContactSection formData={formData} setFormData={setFormData} handleSubmit={handleSubmit} />
 
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-[#1e2939a8] z-60">

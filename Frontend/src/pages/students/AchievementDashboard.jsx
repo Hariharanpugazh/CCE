@@ -176,7 +176,7 @@ export default function AchievementDashboard() {
     };
 
     fetchPublishedAchievements();
-  }, [setIsLoading]);
+  }, []);
 
   const filters = [
     "Internship",
