@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavbar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import JobTable from "../../components/SuperAdmin/ManagementTable/JobTable";
 import AchievementTable from "../../components/SuperAdmin/ManagementTable/AchievementTable";
 import InternshipTable from "../../components/SuperAdmin/ManagementTable/InternshipTable";
