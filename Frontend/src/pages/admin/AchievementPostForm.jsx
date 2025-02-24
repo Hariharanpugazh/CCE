@@ -145,7 +145,7 @@ export default function AchievementPostForm() {
       if (userRole === "admin") {
         navigate("/admin/home");
       } else if (userRole === "superadmin") {
-        navigate("/superadmin");
+        navigate("/superadmin-dashboard");
       }
     } catch (err) {
       console.error("Error submitting achievement:", err);
