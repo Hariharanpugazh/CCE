@@ -11,7 +11,7 @@ import MailPage from "./pages/superadmin/Management";
 import JobPostForm from "./pages/admin/JobPostForm";
 import AchievementPostForm from "./pages/admin/AchievementPostForm";
 import InternshipForm from "./pages/admin/IntershipForm";
-import AchievementDashboard from "./pages/students/AchievementDashboard";
+import AchievementDashboard from "./pages/common/AchievementDashboard";
 import HomeDashboard from "./pages/students/HomeDashboard";
 import LandingPage from "./pages/common/Landing";
 import ContactForm from "./pages/students/Contact";
