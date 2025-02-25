@@ -211,12 +211,13 @@ export default function StudyMaterialForm() {
   };
 
   return (
-    <div className="flex justify-stretch m-3">
+    <div className="flex items-stretch min-h-screen">
       <ToastContainer />
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
-      <div className="flex-1 px-6 py-14 ml-3 bg-white rounded-lg shadow-lg">
+      <div className="flex-1 flex items-center p-4">
+      <div className="flex-1 px-6 py-14   bg-white rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-black">Post a Study Material</h2>
           <button
@@ -385,6 +386,7 @@ export default function StudyMaterialForm() {
             </div>
           </div>
         </form>
+      </div>
       </div>
     </div>
   );
