@@ -1866,7 +1866,6 @@ def manage_jobs(request):
         return JsonResponse({'error': 'Invalid request method'}, status=405)
        
 
-
 @csrf_exempt
 def get_jobs(request):
     if request.method == 'GET':
@@ -1881,20 +1880,40 @@ def get_jobs(request):
             admin_user = decoded_token.get('admin_user')
 
             jobs_list = []
+            achievements_list = []
+
+            # Counters for job & internship approvals, rejections, pending, and total achievements
+            total_jobs = 0
+            total_internships = 0
+            total_achievements = 0
+            approvals = 0
+            rejections = 0
+            pending = 0
 
             # Fetch jobs
             jobs = job_collection.find({'admin_id': admin_user})
             for job in jobs:
                 job['_id'] = str(job['_id'])
                 job['type'] = 'job'
+
                 # Rename 'job_location' to 'location' if it exists
                 if "job_data" in job and "job_location" in job["job_data"]:
                     job["job_data"]["location"] = job["job_data"].pop("job_location")
+
                 # Calculate total views for jobs
                 total_views = sum(view["count"] for view in job.get("views", []))
-                # Remove views field and add total_views
                 job.pop("views", None)
                 job["total_views"] = total_views
+
+                # Update approval status count
+                if job.get("is_publish") is True:
+                    approvals += 1
+                elif job.get("is_publish") is False:
+                    rejections += 1
+                else:
+                    pending += 1
+
+                total_jobs += 1
                 jobs_list.append(job)
 
             # Fetch internships
@@ -1902,14 +1921,41 @@ def get_jobs(request):
             for internship in internships:
                 internship['_id'] = str(internship['_id'])
                 internship['type'] = 'internship'
+
                 # Calculate total views for internships
                 total_views = sum(view["count"] for view in internship.get("views", []))
-                # Remove views field and add total_views
                 internship.pop("views", None)
                 internship["total_views"] = total_views
+
+                # Update approval status count
+                if internship.get("is_publish") is True:
+                    approvals += 1
+                elif internship.get("is_publish") is False:
+                    rejections += 1
+                else:
+                    pending += 1
+
+                total_internships += 1
                 jobs_list.append(internship)
 
-            return JsonResponse({'jobs': jobs_list}, status=200)
+            # Fetch achievements
+            achievements = achievement_collection.find({'admin_id': admin_user})
+            for achievement in achievements:
+                achievement['_id'] = str(achievement['_id'])
+                achievement['type'] = 'achievement'
+                achievements_list.append(achievement)
+                total_achievements += 1  # Count total achievements
+
+            return JsonResponse({
+                'jobs': jobs_list,
+                'achievements': achievements_list,
+                'approvals': approvals,
+                'rejections': rejections,
+                'pending': pending,
+                'total_jobs': total_jobs,
+                'total_internships': total_internships,
+                'total_achievements': total_achievements  # Added total achievements count
+            }, status=200)
 
         except jwt.ExpiredSignatureError:
             return JsonResponse({'error': 'JWT token has expired'}, status=401)
