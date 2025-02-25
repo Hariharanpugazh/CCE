@@ -52,7 +52,7 @@ export default function AchievementDashboard() {
     };
 
     fetchPublishedAchievements();
-  }, []);
+  }, [setIsLoading]);
 
   const filters = [
     "Internship",
@@ -92,7 +92,7 @@ export default function AchievementDashboard() {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      setItemsPerPage(mobile ? 5 : 10);
+      setItemsPerPage(mobile ? 5 : 8);
 
       // Check if there are any starred achievements
       const starredAchievements = achievements.filter(
@@ -116,7 +116,10 @@ export default function AchievementDashboard() {
     indexOfLastItem
   );
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Remove the window.scrollTo(0, 0) to prevent full page refresh
+  };
 
   // Recent achievements for carousel
   const recentAchievements = useMemo(() => {
@@ -153,7 +156,7 @@ export default function AchievementDashboard() {
 
       {/* Header Section */}
       <div className="text-center  my-4 md:my-6 py-2 md:py-4 relative px-4 ">
-        <h1 className="text-3xl md:text-5xl lg:text-6xl tracking-[0.8px] font-bold mt-10">
+        <h1 className="text-3xl md:text-5xl lg:text-6xl tracking-[0.8px] font-bold mt-15">
           <span className="">Celebrating</span>
           <span className="text-[#ffcc00]"> Student Excellence,</span>
           <br className="hidden md:inline" />
@@ -335,10 +338,10 @@ export default function AchievementDashboard() {
 
         {/* Pagination */}
         <Pagination
-          itemsPerPage={itemsPerPage}
-          totalItems={filteredAchievements.length}
-          paginate={paginate}
           currentPage={currentPage}
+          totalItems={filteredAchievements.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={paginate}
         />
 
         {/* Footer */}
