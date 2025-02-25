@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import Cookies from 'js-cookie';
+import AdminPageNavbar from '../../components/Admin/AdminNavBar';
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Pagination from "../../components/Admin/pagination";
 
 const StudentManagement = () => {
@@ -12,6 +14,7 @@ const StudentManagement = () => {
   const [editMode, setEditMode] = useState(false);
   const [editableStudent, setEditableStudent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [userRole, setUserRole] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const itemsPerPage = 10;
 
@@ -36,6 +39,15 @@ const StudentManagement = () => {
     const matchesStatus = statusFilter ? student.status === statusFilter : true;
     return matchesFilter && matchesStatus;
   });
+
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (token) {
+      const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+      console.log("Decoded JWT Payload:", payload); // Debugging line
+      setUserRole(!payload.student_user ? payload.role : "student"); // Assuming the payload has a 'role' field
+    }
+  }, []);
 
   const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
 
@@ -113,7 +125,9 @@ const StudentManagement = () => {
 
   return (
     <div>
-      <AdminPageNavbar />
+      {/* <div className="flex flex-col min-h-screen bg-gray-100"> */}
+      {userRole === "admin" && <AdminPageNavbar />}
+      {userRole === "superadmin" && <SuperAdminPageNavbar />}
       <div className="p-8  min-h-screen ml-62 mr-5">
         <h1 className="text-4xl font-bold  mb-3">Student Management</h1>
 
