@@ -174,11 +174,6 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
     window.location.href = "/";
   };
 
-  const handleStudyMaterialClick = (event) => {
-    event.preventDefault();
-    alert("Coming Soon!");
-  };
-
   const toggleDropdown = (itemLabel) => {
     if (openDropdown === itemLabel) {
       setOpenDropdown(null); // Close the dropdown if it's already open
@@ -202,7 +197,7 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
         { label: "Internships", href: AppPages.internShipDashboard.route },
       ],
     },
-    { label: "Study Material", onClick: handleStudyMaterialClick },
+    { label: "Study Material", href: "/study-material" },
     { label: "Achievements", href: "/achievements" },
     { label: "Contact", href: "/contact" },
   ];
