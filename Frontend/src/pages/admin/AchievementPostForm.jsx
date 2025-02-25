@@ -172,7 +172,7 @@ export default function AchievementPostForm() {
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
-      <div className="flex-1 p-6 max-w-6xl w-full mx-auto bg-white rounded-lg shadow-lg my-16">
+      <div className="flex-1 p-6 max-w-6xl w-full mx-auto bg-white rounded-lg shadow-lg my-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-black">Post an Achievement</h2>
           <button
