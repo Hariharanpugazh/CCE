@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { ChevronLeft, ChevronRight} from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { MdRemoveRedEye } from "react-icons/md";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import Pagination from "../../components/Admin/pagination"; // Assuming Pagination is in this path
@@ -21,12 +21,7 @@ export default function StudyMaterial() {
         const response = await fetch('http://127.0.0.1:8000/api/all-study-material/');
         const data = await response.json();
         setCards(data.study_materials);
-        // Extract unique categories from the data
-        const uniqueCategories = [...new Set(data.study_materials.map((item) => item.category))];
-        setCategories(uniqueCategories);
-        if (uniqueCategories.length > 0) {
-          setSelectedCategory(uniqueCategories[0]);
-        }
+        updateCategories(data.study_materials, selectedType);
       } catch (error) {
         console.error('Error fetching study materials:', error);
       } finally {
@@ -35,7 +30,16 @@ export default function StudyMaterial() {
     };
 
     fetchStudyMaterials();
-  }, [setIsLoading]);
+  }, [setIsLoading, selectedType]);
+
+  const updateCategories = (materials, type) => {
+    const filteredMaterials = materials.filter(material => material.type === type);
+    const uniqueCategories = [...new Set(filteredMaterials.map(item => item.category))].sort();
+    setCategories(uniqueCategories);
+    if (uniqueCategories.length > 0) {
+      setSelectedCategory(uniqueCategories[0]);
+    }
+  };
 
   const filteredCards = cards.filter((card) => {
     const categoryMatch = selectedCategory ? card.category === selectedCategory : true;
@@ -64,85 +68,89 @@ export default function StudyMaterial() {
     setCurrentPage(1); // Reset to the first page when changing types
   };
 
+  useEffect(() => {
+    updateCategories(cards, selectedType);
+  }, [selectedType, cards]);
+
   return (
     <div className="w-full h-screen">
       <StudentPageNavbar />
-        <div className='px-8'>
-      <div className="flex flex-col justify-between  py-6">
-        <h1 className="text-xl font-semibold">Study Material</h1>
-        <div className="flex items-center mt-4">
-          <button
-            className="h-9.5 w-10 flex items-center justify-center border border-gray-300 rounded-tl-[10px] rounded-bl-[10px]"
-            onClick={() => changeType(-1)}
-            disabled={false}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="text-sm border border-gray-300 p-2 text-center h-9.5">{selectedType} Material</span>
-          <button
-            className="h-9.5 w-10 flex items-center justify-center border border-gray-300 rounded-tr-[10px] rounded-br-[10px]"
-            onClick={() => changeType(1)}
-            disabled={false}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+      <div className='px-8'>
+        <div className="flex flex-col justify-between py-6">
+          <h1 className="text-xl font-semibold">Study Material</h1>
+          <div className="flex items-center mt-4">
+            <button
+              className="h-9.5 w-10 flex items-center justify-center border border-gray-300 rounded-tl-[10px] rounded-bl-[10px]"
+              onClick={() => changeType(-1)}
+              disabled={false}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="text-sm border border-gray-300 p-2 text-center h-9.5">{selectedType} Material</span>
+            <button
+              className="h-9.5 w-10 flex items-center justify-center border border-gray-300 rounded-tr-[10px] rounded-br-[10px]"
+              onClick={() => changeType(1)}
+              disabled={false}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="mb-8 flex overflow-x-auto custom-scrollbar space-x-4 gap-2 ">
-        {categories.map((category) => (
-          <button
-            key={category}
-            className={`flex-shrink-0 ${
-              selectedCategory === category ? 'border-b-[3px] border-yellow-500 text-black' : 'border-none text-gray-500'
-            }`}
-            onClick={() => setSelectedCategory(category)}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
+        <div className="mb-8 flex overflow-x-auto custom-scrollbar space-x-4 gap-2">
+          {categories.map((category) => (
+            <button
+              key={category}
+              className={`flex-shrink-0 px-3 py-1  ${
+                selectedCategory === category ? 'border-b-[3px] border-yellow-500 text-black font-medium' : 'border-none text-gray-500 font-medium'
+              }`}
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 px-10">
-        {currentCards.map((card, index) => (
-          <div key={index} className="p-4 border border-gray-400 rounded-lg hover:shadow-lg transition-shadow flex justify-between items-center">
-            <div className="mb-2">
-              <h3 className="font-medium">
-                {card.title}
-              </h3>
-              <p className="text-sm text-gray-600 mt-1">{card.description}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 px-10">
+          {currentCards.map((card, index) => (
+            <div key={index} className="p-3 border border-gray-400 rounded-lg hover:shadow-lg transition-shadow flex  justify-between items-center">
+              <div className="mb-2">
+                <h3 className="font-medium text-base">
+                  {card.title}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">{card.description}</p>
+                <div className="mt-2">
+                  {card.links.map((link, linkIndex) => (
+                    <a
+                      key={linkIndex}
+                      href={link.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline block mt-1 text-xs"
+                    >
+                      {link.topic} ({link.type})
+                    </a>
+                  ))}
+                </div>
+              </div>
               <div className="mt-2">
-                {card.links.map((link, linkIndex) => (
-                  <a
-                    key={linkIndex}
-                    href={link.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline block mt-1"
-                  >
-                    {link.topic} ({link.type})
-                  </a>
-                ))}
+                <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-3 py-1 flex items-center rounded-lg">
+                  View <MdRemoveRedEye className="ml-1 h-4 w-4" />
+                </button>
               </div>
             </div>
-            <div className="">
-              <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-4 py-2 flex items-center rounded-lg">
-                View <MdRemoveRedEye className="ml-1 h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Pagination Component */}
-      {filteredCards.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalItems={filteredCards.length}
-          itemsPerPage={cardsPerPage}
-          onPageChange={paginate}
-        />
-      )}
+        {/* Pagination Component */}
+        {filteredCards.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredCards.length}
+            itemsPerPage={cardsPerPage}
+            onPageChange={paginate}
+          />
+        )}
       </div>
     </div>
   );
