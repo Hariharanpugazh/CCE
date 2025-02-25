@@ -125,8 +125,8 @@ export default function AchievementDashboard() {
       <StudentPageNavbar transparent={true} />
 
       {/* Header Section */}
-      <div className="text-center my-4 md:my-6 py-2 md:py-4 relative px-4">
-        <h1 className="text-3xl md:text-5xl lg:text-6xl tracking-[0.8px] font-bold">
+      <div className="text-center  my-4 md:my-6 py-2 md:py-4 relative px-4 ">
+        <h1 className="text-3xl md:text-5xl lg:text-6xl tracking-[0.8px] font-bold mt-10">
           <span className="">Celebrating</span>
           <span className="text-[#ffcc00]"> Student Excellence,</span>
           <br className="hidden md:inline" />
