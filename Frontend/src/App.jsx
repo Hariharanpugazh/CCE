@@ -105,7 +105,6 @@ function App() {
           {/* Protected Admin Routes */}
           <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
           <Route path="/admin/mail" element={<ProtectedRoute> <AdminMail /> </ProtectedRoute>} />
-          <Route path="/admin/achievements" element={<ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
           <Route path="/jobs" element={<ProtectedRoute> <JobDashboard /> </ProtectedRoute>} />
           <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
           <Route path="/jobselection" element={<ProtectedRoute> <JobEntrySelection /> </ProtectedRoute>} />
@@ -128,7 +127,6 @@ function App() {
           <Route path={"/student-signup"} element={<StudentSignup />} />
           <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
           <Route path={"/Admin-Management"} element={<ProtectedRoute> <AdminManagement /> </ProtectedRoute>} />
-          <Route path={"/superadmin/manage-student"} element={<ProtectedRoute> <Student_Management_superadmin /> </ProtectedRoute>} />
           <Route path={"/admin-achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
           <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
           <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
