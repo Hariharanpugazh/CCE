@@ -371,10 +371,7 @@ def admin_details(request, id):
             admin['_id'] = str(admin['_id'])
 
             last_login = admin.get('last_login')
-            if last_login:
-                last_login = last_login.strftime('%Y-%m-%d %H:%M:%S')
-            else:
-                last_login = "Never logged in"
+            last_login = last_login.strftime('%Y-%m-%d %H:%M:%S') if last_login else "Never logged in"
 
             admin_data = {
                 '_id': admin['_id'],
@@ -387,16 +384,34 @@ def admin_details(request, id):
                 'last_login': last_login
             }
 
+            # Fetch jobs posted by this admin
             jobs = job_collection.find({'admin_id': str(admin['_id'])})
             jobs_list = []
             for job in jobs:
                 job['_id'] = str(job['_id'])
                 job_data = job.get('job_data', {})
                 job_data['_id'] = job['_id']
-                job_data['updated_at'] = job.get('updated_at')  # Include updated_at field
+                job_data['updated_at'] = job.get('updated_at', "N/A")  # Include updated_at field
                 jobs_list.append(job_data)
 
-            return JsonResponse({'admin': admin_data, 'jobs': jobs_list}, status=200)
+            # Fetch internships posted by this admin
+            internships = internship_collection.find({'admin_id': str(admin['_id'])})
+            internships_list = []
+            for internship in internships:
+                internship['_id'] = str(internship['_id'])
+                internship_data = internship.get('internship_data', {})
+                internship_data['_id'] = internship['_id']
+                internship_data['updated_at'] = internship.get('updated_at', "N/A")
+                internships_list.append(internship_data)
+
+            # Fetch achievements posted by this admin
+            achievements = achievement_collection.find({'admin_id': str(admin['_id'])})
+            achievements_list = []
+            for achievement in achievements:
+                achievement['_id'] = str(achievement['_id'])
+                achievements_list.append(achievement)
+
+            return JsonResponse({'admin': admin_data, 'jobs': jobs_list, 'internships': internships_list, 'achievements': achievements_list}, status=200)
 
         except Exception as e:
             return JsonResponse({'error': f'An error occurred: {str(e)}'}, status=400)
