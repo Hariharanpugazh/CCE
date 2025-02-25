@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
-import { useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import SuperAdminNavBar from "../../components/SuperAdmin/SuperAdminNavBar";
 import Pagination from "../../components/Admin/pagination";
-import { toast, ToastContainer } from "react-toastify"; // Import toast and ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // Import toastify CSS
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const StudentManagement_superadmin = () => {
   const [students, setStudents] = useState([]);
@@ -17,7 +16,6 @@ const StudentManagement_superadmin = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const itemsPerPage = 10;
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,18 +50,24 @@ const StudentManagement_superadmin = () => {
     setStudents(students.filter((student) => student._id !== id));
     setSelectedStudent(null);
     setShowDeleteConfirm(false);
-    toast.success("Student deleted successfully!"); // Show toast notification
+    toast.success("Student deleted successfully!");
   };
 
-  const handleToggleStatus = (student) => {
+  const handleToggleStatus = async (student) => {
     const updatedStatus = student.status === "active" ? "inactive" : "active";
-    setStudents(
-      students.map((s) =>
-        s._id === student._id ? { ...s, status: updatedStatus } : s
-      )
-    );
-    setSelectedStudent(null);
-    toast.success(`Student ${updatedStatus}d successfully!`); // Show toast notification
+    try {
+      await axios.put(`http://localhost:8000/api/students/${student._id}/update/`, { status: updatedStatus });
+      setStudents(
+        students.map((s) =>
+          s._id === student._id ? { ...s, status: updatedStatus } : s
+        )
+      );
+      setSelectedStudent(null);
+      toast.success(`Student ${updatedStatus}d successfully!`);
+    } catch (error) {
+      console.error("Error updating student status:", error);
+      toast.error("Failed to update student status. Please try again.");
+    }
   };
 
   const handleEditProfile = () => {
@@ -73,10 +77,7 @@ const StudentManagement_superadmin = () => {
 
   const handleSaveChanges = async () => {
     try {
-      // Send the updated student data to the backend
       await axios.put(`http://localhost:8000/api/students/${editableStudent._id}/update/`, editableStudent);
-  
-      // Update the local state with the new student data
       setStudents(
         students.map((student) =>
           student._id === editableStudent._id ? editableStudent : student
@@ -84,15 +85,13 @@ const StudentManagement_superadmin = () => {
       );
       setEditMode(false);
       setSelectedStudent(editableStudent);
-      
-      // Show toast notification
       toast.success("Student profile updated successfully!");
     } catch (error) {
       console.error("Error updating student:", error);
       toast.error("Failed to update student profile. Please try again.");
     }
   };
-  
+
   const handleCancelEdit = () => {
     setEditMode(false);
     setEditableStudent(null);
@@ -115,20 +114,18 @@ const StudentManagement_superadmin = () => {
 
   const buttonStyles = "px-4 py-3 w-32 text-white rounded-lg text-sm font-medium transition-colors duration-200";
 
-
-  const [sortOrder, setSortOrder] = useState("asc"); // "asc" for A-Z, "desc" for Z-A
+  const [sortOrder, setSortOrder] = useState("asc");
 
   const handleSort = () => {
     setSortOrder((prevSortOrder) => (prevSortOrder === "asc" ? "desc" : "asc"));
   };
 
-  // Sorting logic for "Name" column
   const sortedStudents = useMemo(() => {
     return [...paginatedStudents].sort((a, b) => {
       if (sortOrder === "asc") {
-        return a.name.localeCompare(b.name); // A-Z sorting
+        return a.name.localeCompare(b.name);
       } else {
-        return b.name.localeCompare(a.name); // Z-A sorting
+        return b.name.localeCompare(a.name);
       }
     });
   }, [paginatedStudents, sortOrder]);
@@ -136,73 +133,82 @@ const StudentManagement_superadmin = () => {
   return (
     <div>
       <SuperAdminNavBar />
-      <div className="p-8 bg-gray-100 min-h-screen ml-55">
-        <h1 className="text-4xl font-bold text-center mb-8">Student Management</h1>
+      <div className="p-8  min-h-screen ml-62 mr-5 ">
+        <h1 className="text-4xl font-bold  mb-8">Student Management</h1>
 
-        <div className="flex flex-wrap items-center mb-6 gap-4">
-          <input
-            type="text"
-            placeholder="Search by name or email..."
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="flex-1 p-3 border rounded-lg"
-          />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="p-3 border rounded-lg"
-          >
-            <option value="">Filter by Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-          <button
-            className={`${buttonStyles} bg-green-600 hover:bg-green-700`}
-            onClick={() => navigate("/student-signup")}
-          >
-            Create Student
-          </button>
+        <div className="flex flex-wrap items-center  mb-10 gap-4">
+          <div className="flex flex-1 items-center border rounded-lg border-gray-500 w-full">
+            <input
+              type="text"
+              placeholder="Search "
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="flex-1 px-3 outline-none w-full"
+            />
+            <button className="px-10 py-2 bg-yellow-400 rounded-tr rounded-br border-l border-gray-900">
+              <strong>Search</strong>
+            </button>
+          </div>
+
+          <div className="flex  items-center ml-60  border rounded-lg border-gray-500">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="flex-1  items-center p-3 border-r rounded-l-lg appearance-none"
+            >
+              <option value="">Filter by Status  ⮟</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <button
+              className="text-black px-3"
+              onClick={() => navigate("/student-signup")}
+            >
+              Create Student <strong>＋</strong>
+            </button>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow overflow-x-auto">
-        <table className="min-w-full table-auto">
-          <thead className="bg-gray-200">
-            <tr>
+        <div className="bg-white rounded-lg overflow-x-auto border border-gray-500">
+          <table className="min-w-full table-auto">
+            <thead className="border-b  border-gray-500">
+              <tr>
                 <th className="text-center p-4" onClick={handleSort}>
-              Name
-              <span className="ml-2">
-                {sortOrder === "asc" ? "↑" : "↓"} {/* Arrow indicators */}
-              </span>
-            </th>
-              <th className="text-center p-4">Department</th>
-              <th className="text-center p-4">Email</th>
-              <th className="text-center p-4">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedStudents.map((student) => (
-              <tr
-                key={student._id}
-                onClick={() => setSelectedStudent(student)}
-                className="cursor-pointer hover:bg-gray-100"
-              >
-                <td className="text-center p-4">{student.name}</td>
-                <td className="text-center p-4">{student.department}</td>
-                <td className="text-center p-4">{student.email}</td>
-                <td className="text-center p-4">
-                  <span
-                    className={`inline-block text-center w-24 px-3 py-1 rounded-full text-m font-semibold ${
-                      student.status === "active" ? "text-green-800" : "text-red-900"
-                    }`}
-                  >
-                    {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
+                  Name
+                  <span className="ml-2">
+                    {sortOrder === "asc" ? "↑" : "↓"}
                   </span>
-                </td>
+                </th>
+                <th className="text-center p-4">Department</th>
+                <th className="text-left p-4 w-1/4">Email Address</th>
+                <th className="text-center p-4">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {sortedStudents.map((student) => (
+                <tr
+                  key={student._id}
+                  onClick={() => setSelectedStudent(student)}
+                  className="cursor-pointer hover:bg-gray-100 border-b  border-gray-300" >
+                  <td className="text-center  p-4">{student.name}</td>
+                  <td className="text-center p-4">{student.department}</td>
+                  <td className="text-left p-4 w-2/9">{student.email}</td>
+                  <td className="text-center p-4">
+                    <span
+                      className={`inline-block text-center w-24 px-3 py-1 rounded-lg  text-m font-semibold ${
+                        student.status === "active"
+                          ? "bg-green-100 text-green-500"
+                          : "bg-red-100 text-red-500"
+                      }`}
+                    >
+                      {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <div className="mt-4">
           <Pagination
@@ -228,11 +234,11 @@ const StudentManagement_superadmin = () => {
               <h2 className="text-2xl font-bold mb-6">Student Details</h2>
               <div className="grid grid-cols-2 gap-4">
                 {["name", "email", "department", "year", "college_name"].map((field) => (
-                  <div key={field} className="bg-gray-100 p-4 rounded-lg">
+                  <div key={field} className="bg-gray-100 p-4 rounded-lg border border-gray-300">
                     <strong className="block text-sm font-semibold">
                       {field.replace("_", " ").toUpperCase()}:
                     </strong>
-                    {editMode && field !== "email" ? ( // Make email non-editable
+                    {editMode && field !== "email" ? (
                       <input
                         type="text"
                         name={field}
@@ -241,12 +247,11 @@ const StudentManagement_superadmin = () => {
                         className="w-full p-2 border rounded"
                       />
                     ) : (
-                      <span>{selectedStudent[field]}</span> // Email remains non-editable
+                      <span>{selectedStudent[field]}</span>
                     )}
                   </div>
                 ))}
               </div>
-
 
               <div className="mt-8 flex justify-center gap-6">
                 {editMode ? (

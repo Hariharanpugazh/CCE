@@ -96,93 +96,94 @@ const InternshipEntrySelection = () => {
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 px-4">
+    <div className="min-h-screen flex bg-gray-100 ">
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
-      <div className="border-2 border-dashed border-gray-500 rounded-lg ml-20 p-10 bg-white shadow-lg flex flex-col items-center space-y-6">
-        <h1 className="text-2xl font-bold mb-6 text-center">How do you want to enter internship details?</h1>
+      <div className="flex flex-1 justify-center items-center">
+        <div className="border-2 border-dashed border-gray-500 rounded-lg ml-20 p-10 bg-white shadow-lg flex flex-col items-center space-y-6">
+          <h1 className="text-2xl font-bold mb-6 text-center">How do you want to enter internship details?</h1>
 
-        <div className="w-full max-w-md flex flex-col items-center space-y-6">
-          {!uploading && !internshipData && (
+          <div className="w-full max-w-md flex flex-col items-center space-y-6">
+            {!uploading && !internshipData && (
+              <button
+                onClick={handleManualEntry}
+                className="w-full bg-[#111933] text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-[#111933] transition-all"
+              >
+                Manual Entry
+              </button>
+            )}
+
             <button
-              onClick={handleManualEntry}
-              className="w-full bg-[#111933] text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-[#111933] transition-all"
+              onClick={openModal}
+              className="w-full bg-[#ffcc00] text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-[#ffcc00] transition-all"
             >
-              Manual Entry
+              Upload File
             </button>
-          )}
 
-          <button
-            onClick={openModal}
-            className="w-full bg-[#ffcc00] text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-[#ffcc00] transition-all"
-          >
-            Upload File
-          </button>
-
-          {isModalOpen && (
-            <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-              <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold">Upload File</h2>
-                  <button onClick={closeModal} className="text-gray-600 hover:text-gray-800">
-                    &times;
-                  </button>
-                </div>
-
-                <div
-                  {...getRootProps()}
-                  className={`w-full border-2 ${
-                    isDragActive ? "border-[#ffcc00] bg-[#fff3cd] shadow-md scale-105" : "border-gray-300"
-                  } border-dashed rounded-lg p-6 text-center cursor-pointer transition-all hover:border-[#ffcc00] hover:bg-[#fff3cd]`}
-                >
-                  <input {...getInputProps()} />
-                  {selectedFile ? (
-                    <div className="flex flex-col items-center">
-                      <p className="text-gray-700 font-semibold">{selectedFile.name}</p>
-                      <button onClick={removeFile} className="text-red-500 mt-2 text-sm hover:underline">
-                        Remove File
-                      </button>
-                    </div>
-                  ) : isDragActive ? (
-                    <p className="text-[#ffcc00] font-semibold">Drop the file here...</p>
-                  ) : (
-                    <p className="text-gray-700">Drag & drop an image here, or click to select a file</p>
-                  )}
-                </div>
-
-                {uploading && (
-                  <div className="w-full max-w-md mt-8 flex flex-col items-center">
-                    <p className="text-lg text-gray-700 font-semibold mb-2">Processing Image...</p>
-                    <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative">
-                      <div
-                        className="bg-gradient-to-r from-[#ffcc00] to-[#e6b800] h-full transition-all duration-500 ease-in-out"
-                        style={{ width: `${progress}%` }}
-                      ></div>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-2">{progress}% Completed</p>
+            {isModalOpen && (
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold">Upload File</h2>
+                    <button onClick={closeModal} className="text-gray-600 hover:text-gray-800">
+                      &times;
+                    </button>
                   </div>
-                )}
 
-                {progress === 100 && (
-                  <div className="text-green-600 text-lg font-semibold text-center mt-4">
-                    AI Processing Complete!
-                  </div>
-                )}
-
-                {internshipData && (
-                  <button
-                    onClick={() => navigate("/internpost")}
-                    className="w-full bg-[#ffcc00] text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-[#e6b800] transition-all"
+                  <div
+                    {...getRootProps()}
+                    className={`w-full border-2 ${isDragActive ? "border-[#ffcc00] bg-[#fff3cd] shadow-md scale-105" : "border-gray-300"
+                      } border-dashed rounded-lg p-6 text-center cursor-pointer transition-all hover:border-[#ffcc00] hover:bg-[#fff3cd]`}
                   >
-                    Confirm & Proceed
-                  </button>
-                )}
+                    <input {...getInputProps()} />
+                    {selectedFile ? (
+                      <div className="flex flex-col items-center">
+                        <p className="text-gray-700 font-semibold">{selectedFile.name}</p>
+                        <button onClick={removeFile} className="text-red-500 mt-2 text-sm hover:underline">
+                          Remove File
+                        </button>
+                      </div>
+                    ) : isDragActive ? (
+                      <p className="text-[#ffcc00] font-semibold">Drop the file here...</p>
+                    ) : (
+                      <p className="text-gray-700">Drag & drop an image here, or click to select a file</p>
+                    )}
+                  </div>
 
-                {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+                  {uploading && (
+                    <div className="w-full max-w-md mt-8 flex flex-col items-center">
+                      <p className="text-lg text-gray-700 font-semibold mb-2">Processing Image...</p>
+                      <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden relative">
+                        <div
+                          className="bg-gradient-to-r from-[#ffcc00] to-[#e6b800] h-full transition-all duration-500 ease-in-out"
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-2">{progress}% Completed</p>
+                    </div>
+                  )}
+
+                  {progress === 100 && (
+                    <div className="text-green-600 text-lg font-semibold text-center mt-4">
+                      AI Processing Complete!
+                    </div>
+                  )}
+
+                  {internshipData && (
+                    <button
+                      onClick={() => navigate("/internpost")}
+                      className="w-full bg-[#ffcc00] text-white text-lg px-6 py-3 rounded-lg shadow-lg hover:bg-[#e6b800] transition-all"
+                    >
+                      Confirm & Proceed
+                    </button>
+                  )}
+
+                  {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
