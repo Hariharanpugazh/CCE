@@ -573,7 +573,7 @@ const InboxPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen ml-55">
+    <div className="flex">
       <SuperAdminPageNavbar />
       <div className="flex flex-1 p-4 space-x-4">
         <div className="w-1/4 max-w-[20%] space-y-4 shadow-md rounded-lg p-4 bg-white">

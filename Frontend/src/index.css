@@ -176,14 +176,14 @@ body {
   margin-right: 20px;
 }
 
-@keyframes marquee {
+/* @keyframes marquee {
   0% {
     transform: translateX(100%);
   }
   100% {
     transform: translateX(-230%);
   }
-}
+} */
 
 .achievement-card {
   width: 280px;
@@ -221,4 +221,4 @@ body {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
+} 
