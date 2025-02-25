@@ -740,89 +740,82 @@ def upload_job_image(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
-
-@csrf_exempt
-@api_view(["POST"])
-def job_post(request):
-    try:
-        data = json.loads(request.body)
-
-        role = data.get('role')
-        print(role)
-        auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-        is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
-
-        is_publish = None  # Default: Pending (null)
-        userid = data.get('userId')
-
-        if not userid:
-            return Response({"error": "Userid not found"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        if role == 'admin':
-            if is_auto_approval:
-                is_publish = True  # Auto-approve enabled, mark as approved
-
-        elif role == 'superadmin':
-            is_publish = True  # Superadmin posts are always approved
-
-        # Validate application_deadline
-        application_deadline_str = data.get('application_deadline')
-        if not application_deadline_str:
-            return Response({"error": "Please fill in the deadline field"}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            application_deadline = datetime.fromisoformat(application_deadline_str.replace('Z', '+00:00'))
-        except ValueError:
-            return Response({"error": "Invalid application deadline format"}, status=status.HTTP_400_BAD_REQUEST)
-
-        now = datetime.now(timezone.utc)
-        current_status = "Active" if application_deadline >= now else "expired"
-
-        # Prepare job data
-        job_post = {
-            "job_data": {
-                "title": data.get('title'),
-                "company_name": data.get('company_name'),
-                "company_overview": data.get('company_overview'),
-                "company_website": data.get('company_website'),
-                "job_description": data.get('job_description'),
-                "key_responsibilities": data.get('key_responsibilities'),
-                "required_skills": data.get('required_skills'),
-                "education_requirements": data.get('education_requirements'),
-                "experience_level": data.get('experience_level'),
-                "salary_range": data.get('salary_range'),
-                "benefits": data.get('benefits'),
-                "job_location": data.get('job_location'),
-                "work_type": data.get('work_type'),
-                "work_schedule": data.get('work_schedule'),
-                "application_instructions": data.get('application_instructions'),
-                "application_deadline": data.get('application_deadline'),
-                "contact_email": data.get('contact_email'),
-                "contact_phone": data.get('contact_phone'),
-                "job_link": data.get('job_link'),
-                "selectedCategory": data.get('selectedCategory'),
-                "selectedWorkType": data.get('selectedWorkType')
-            },
-            "admin_id" if role == "admin" else "superadmin_id": userid,
-            "is_publish": is_publish,
-            "status": current_status,
-            "updated_at": datetime.now()
-        }
-
-        # Insert the job post into the database
-        job_collection.insert_one(job_post)
-
-        return Response(
-            {
-                "message": "Job stored successfully",
-                "auto_approved": is_auto_approval
-            },
-            status=status.HTTP_201_CREATED
-        )
-    except Exception as e:
-        print(e)
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+@csrf_exempt
+def job_post(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.POST.get('data', '{}'))  # Extracting JSON data
+            image = request.FILES.get('image')
+            
+            role = data.get('role')
+            userid = data.get('userId')
+            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+            is_publish = True if role == 'superadmin' or (role == 'admin' and is_auto_approval) else None
+            
+            application_deadline_str = data.get('application_deadline')
+            if not application_deadline_str:
+                return JsonResponse({"error": "Missing required field: application_deadline"}, status=400)
+            
+            try:
+                application_deadline = datetime.strptime(application_deadline_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            except ValueError:
+                return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
+            
+            now = datetime.now(timezone.utc)
+            current_status = "Active" if application_deadline >= now else "Expired"
+            
+            required_fields = ['title', 'job_link', 'application_deadline', 'company_name']
+            for field in required_fields:
+                if field not in data:
+                    return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
+            
+            # Convert image to Base64 if provided
+            image_base64 = None
+            if image:
+                image_base64 = base64.b64encode(image.read()).decode('utf-8')
+            
+            job_post = {
+                "job_data": {
+                    "title": data['title'],
+                    "company_name": data['company_name'],
+                    "company_overview": data.get('company_overview', "NA"),
+                    "company_website": data.get('company_website', "NA"),
+                    "job_description": data.get('job_description', "NA"),
+                    "key_responsibilities": data.get('key_responsibilities', "NA"),
+                    "required_skills": data.get('required_skills', ""),
+                    "education_requirements": data.get('education_requirements', "NA"),
+                    "experience_level": data.get('experience_level', "NA"),
+                    "salary_range": data.get('salary_range', "NA"),
+                    "benefits": data.get('benefits', "NA"),
+                    "job_location": data.get('job_location', "NA"),
+                    "work_type": data.get('work_type', "NA"),
+                    "work_schedule": data.get('work_schedule', "NA"),
+                    "application_instructions": data.get('application_instructions', "NA"),
+                    "application_deadline": application_deadline,
+                    "contact_email": data.get('contact_email', "NA"),
+                    "contact_phone": data.get('contact_phone', "NA"),
+                    "job_link": data['job_link'],
+                    "selectedCategory": data.get('selectedCategory', "NA"),
+                    "selectedWorkType": data.get('selectedWorkType', "NA"),
+                    "image": image_base64  # Storing image as Base64
+                },
+                "admin_id" if role == "admin" else "superadmin_id": userid,
+                "is_publish": is_publish,
+                "status": current_status,
+                "updated_at": datetime.now(timezone.utc)
+            }
+            
+            job_collection.insert_one(job_post)
+            return JsonResponse({"message": "Job posted successfully, awaiting approval."}, status=200)
+        
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    
+    return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+
 @csrf_exempt
 @api_view(["POST"])
 def test_job_post(request):
