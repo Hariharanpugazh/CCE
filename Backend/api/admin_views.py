@@ -1136,18 +1136,19 @@ def delete_job(request, job_id):
             return JsonResponse({"error": str(e)}, status=500)
     else:
         return JsonResponse({"error": "Invalid method"}, status=405)
-    
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 def get_all_jobs_and_internships(request):
     """
-    Fetch all jobs and internships regardless of their publish status.
+    Fetch all jobs and internships and return their statistics.
     """
     try:
         # Fetch all jobs
         jobs = list(job_collection.find())
+        total_jobs = len(jobs)
+        job_pending_requests = sum(1 for job in jobs if job.get("is_publish") is None)  # Fixed logic
+        job_rejected_count = sum(1 for job in jobs if job.get("is_publish") is False)  # Now correctly counts rejections
+
         for job in jobs:
             job["_id"] = str(job["_id"])  # Convert ObjectId to string
             # Rename 'job_location' to 'location' if it exists
@@ -1155,24 +1156,36 @@ def get_all_jobs_and_internships(request):
                 job["job_data"]["location"] = job["job_data"].pop("job_location")
             # Calculate total views for jobs
             total_views = sum(view["count"] for view in job.get("views", []))
-            # Remove views field and add total_views
             job.pop("views", None)
             job["total_views"] = total_views
 
         # Fetch all internships
         internships = list(internship_collection.find())
+        total_internships = len(internships)
+        internship_pending_requests = sum(1 for internship in internships if internship.get("is_publish") is None)  # Fixed logic
+        internship_rejected_count = sum(1 for internship in internships if internship.get("is_publish") is False)  # Now correctly counts rejections
+
         for internship in internships:
             internship["_id"] = str(internship["_id"])  # Convert ObjectId to string
             # Calculate total views for internships
             total_views = sum(view["count"] for view in internship.get("views", []))
-            # Remove views field and add total_views
             internship.pop("views", None)
             internship["total_views"] = total_views
 
-        return JsonResponse({"jobs": jobs, "internships": internships}, status=200)
+        # Calculate total pending and rejected counts
+        pending_requests = job_pending_requests + internship_pending_requests
+        rejected_count = job_rejected_count + internship_rejected_count
+
+        return JsonResponse({
+            "jobs": jobs,
+            "internships": internships,
+            "total_jobs": total_jobs,
+            "total_internships": total_internships,
+            "pending_requests": pending_requests,
+            "rejected_count": rejected_count
+        }, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
-
 
 # ============================================================== ACHIEVEMENTS ======================================================================================
 

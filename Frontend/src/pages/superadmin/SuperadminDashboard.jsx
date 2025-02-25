@@ -27,6 +27,31 @@ const SuperAdminHome = () => {
   ];
 
   useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/get_all_student_chats/", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setChats(data); // Store data in state
+        console.log("Chats fetched successfully:", data);
+      } catch (error) {
+        console.error("Failed to fetch chats:", error);
+      }
+    };
+
+    fetchChats();
+  }, []);
+
+  useEffect(() => {
     const fetchAllJobsAndInternships = async () => {
       try {
         const response = await axios.get("http://localhost:8000/api/all-jobs-internships/");
