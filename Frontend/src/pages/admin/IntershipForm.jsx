@@ -17,27 +17,27 @@ const InternshipDetails = ({ formData, setFormData }) => {
       <div className='flex flex-col space-y-2'>
         <FormInputField
           label={"Internship Title"}
-          args={{ placeHolder: "Enter Internship Title", value: formData.title }}
+          args={{ placeholder: "Enter Internship Title", value: formData.title }}
           setter={(val) => setFormData(prev => ({ ...prev, title: val }))}
         />
         <FormInputField
           label={"Internship Location"}
-          args={{ placeHolder: "Enter Internship Location", value: formData.location }}
+          args={{ placeholder: "Enter Internship Location", value: formData.location }}
           setter={(val) => setFormData(prev => ({ ...prev, location: val }))}
         />
         <FormInputField
           label={"Industry Type"}
-          args={{ placeHolder: "Enter Industry Type", value: formData.industry_type }}
+          args={{ placeholder: "Enter Industry Type", value: formData.industry_type }}
           setter={(val) => setFormData(prev => ({ ...prev, industry_type: val }))}
         />
         <FormInputField
           label={"Internship Type"}
-          args={{ placeHolder: "Enter Internship Type", value: formData.internship_type }}
+          args={{ placeholder: "Enter Internship Type", value: formData.internship_type }}
           setter={(val) => setFormData(prev => ({ ...prev, internship_type: val }))}
         />
         <FormInputField
           label={"Company Name"}
-          args={{ placeHolder: "Enter Company Name", value: formData.company_name }}
+          args={{ placeholder: "Enter Company Name", value: formData.company_name }}
           setter={(val) => setFormData(prev => ({ ...prev, company_name: val }))}
         />
       </div>
@@ -45,22 +45,22 @@ const InternshipDetails = ({ formData, setFormData }) => {
       <div className='flex flex-col space-y-2'>
         <FormTextAreaField
           label={"Internship Description"}
-          args={{ placeHolder: "Enter a brief description of the internship", value: formData.job_description }}
+          args={{ placeholder: "Enter a brief description of the internship", value: formData.job_description }}
           setter={(val) => setFormData(prev => ({ ...prev, job_description: val }))}
         />
         <FormInputField
           label={"Company Website"}
-          args={{ placeHolder: "Enter Company Website URL", value: formData.company_website }}
+          args={{ placeholder: "Enter Company Website URL", value: formData.company_website }}
           setter={(val) => setFormData(prev => ({ ...prev, company_website: val }))}
         />
         <FormInputField
           label={"Duration"}
-          args={{ placeHolder: "Enter Duration (e.g., 3 months)", value: formData.duration }}
+          args={{ placeholder: "Enter Duration (e.g., 3 months)", value: formData.duration }}
           setter={(val) => setFormData(prev => ({ ...prev, duration: val }))}
         />
         <FormInputField
           label={"Stipend Range"}
-          args={{ placeHolder: "Enter Stipend Range (e.g., $500 - $1000)", value: formData.stipend }}
+          args={{ placeholder: "Enter Stipend Range (e.g., $500 - $1000)", value: formData.stipend }}
           setter={(val) => setFormData(prev => ({ ...prev, stipend: val }))}
         />
       </div>
@@ -74,17 +74,17 @@ const InternshipRequirements = ({ formData, setFormData }) => {
       <div className='flex flex-col space-y-2'>
         <FormInputField
           label={"Technical Skills Required"}
-          args={{ placeHolder: "Enter Technical Skills (comma-separated)", value: formData.technical_skills.join(',') }}
+          args={{ placeholder: "Enter Technical Skills (comma-separated)", value: formData.technical_skills.join(',') }}
           setter={(val) => setFormData(prev => ({ ...prev, technical_skills: val.split(',') }))}
         />
         <FormInputField
           label={"Soft Skills Required"}
-          args={{ placeHolder: "Enter Soft Skills (comma-separated)", value: formData.soft_skills.join(',') }}
+          args={{ placeholder: "Enter Soft Skills (comma-separated)", value: formData.soft_skills.join(',') }}
           setter={(val) => setFormData(prev => ({ ...prev, soft_skills: val.split(',') }))}
         />
         <FormInputField
           label={"Educational Requirement"}
-          args={{ placeHolder: "Enter Educational Requirement (e.g., Bachelor's Degree)", value: formData.education_requirements }}
+          args={{ placeholder: "Enter Educational Requirement (e.g., Bachelor's Degree)", value: formData.education_requirements }}
           setter={(val) => setFormData(prev => ({ ...prev, education_requirements: val }))}
         />
       </div>
@@ -92,12 +92,12 @@ const InternshipRequirements = ({ formData, setFormData }) => {
       <div className='flex flex-col space-y-2'>
         <FormTextAreaField
           label={"Documents Required"}
-          args={{ placeHolder: "List required documents (e.g., Resume, Cover Letter)", value: formData.documents_required }}
+          args={{ placeholder: "List required documents (e.g., Resume, Cover Letter)", value: formData.documents_required }}
           setter={(val) => setFormData(prev => ({ ...prev, documents_required: val }))}
         />
         <FormInputField
           label={"Additional Skills"}
-          args={{ placeHolder: "Enter Additional Skills (comma-separated)", value: formData.additional_skills.join(',') }}
+          args={{ placeholder: "Enter Additional Skills (comma-separated)", value: formData.additional_skills.join(',') }}
           setter={(val) => setFormData(prev => ({ ...prev, additional_skills: val.split(',') }))}
         />
       </div>
@@ -111,22 +111,22 @@ const ApplicationProcess = ({ formData, setFormData }) => {
       <div className='flex flex-col space-y-2'>
         <FormInputField
           label={"Internship Posting Date"}
-          args={{ placeHolder: "Enter Posting Date (YYYY-MM-DD)", type: "date", value: formData.internship_posting_date }}
+          args={{ placeholder: "Enter Posting Date (YYYY-MM-DD)", type: "date", value: formData.internship_posting_date }}
           setter={(val) => setFormData(prev => ({ ...prev, internship_posting_date: val }))}
         />
         <FormInputField
           label={"Application Deadline"}
-          args={{ placeHolder: "Enter Application Deadline (YYYY-MM-DD)", type: "date", value: formData.application_deadline }}
+          args={{ placeholder: "Enter Application Deadline (YYYY-MM-DD)", type: "date", value: formData.application_deadline }}
           setter={(val) => setFormData(prev => ({ ...prev, application_deadline: val }))}
         />
         <FormInputField
           label={"Interview Start Date (If Applicable)"}
-          args={{ placeHolder: "Enter Interview Start Date (YYYY-MM-DD)", type: "date", value: formData.interview_start_date }}
+          args={{ placeholder: "Enter Interview Start Date (YYYY-MM-DD)", type: "date", value: formData.interview_start_date }}
           setter={(val) => setFormData(prev => ({ ...prev, interview_start_date: val }))}
         />
         <FormTextAreaField
           label={"Steps to Apply"}
-          args={{ placeHolder: "Describe the steps candidates need to take to apply", value: formData.steps_to_apply }}
+          args={{ placeholder: "Describe the steps candidates need to take to apply", value: formData.steps_to_apply }}
           setter={(val) => setFormData(prev => ({ ...prev, steps_to_apply: val }))}
         />
       </div>
@@ -134,17 +134,17 @@ const ApplicationProcess = ({ formData, setFormData }) => {
       <div className='flex flex-col space-y-2'>
         <FormInputField
           label={"Interview End Date (If Applicable)"}
-          args={{ placeHolder: "Enter Interview End Date (YYYY-MM-DD)", type: "date", value: formData.interview_end_date }}
+          args={{ placeholder: "Enter Interview End Date (YYYY-MM-DD)", type: "date", value: formData.interview_end_date }}
           setter={(val) => setFormData(prev => ({ ...prev, interview_end_date: val }))}
         />
         <FormInputField
           label={"Internship Link"}
-          args={{ placeHolder: "Enter the application link", value: formData.internship_link }}
+          args={{ placeholder: "Enter the application link", value: formData.internship_link }}
           setter={(val) => setFormData(prev => ({ ...prev, internship_link: val }))}
         />
         <FormTextAreaField
           label={"Selection Process"}
-          args={{ placeHolder: "Describe the selection process for applicants", value: formData.selection_process }}
+          args={{ placeholder: "Describe the selection process for applicants", value: formData.selection_process }}
           setter={(val) => setFormData(prev => ({ ...prev, selection_process: val }))}
         />
       </div>
@@ -449,6 +449,7 @@ const InternPostForm = () => {
                 {
                   Object.entries(categories).map(([category, prop], key, array) =>
                     <div
+                      key={category}
                       className={`border-l-6 flex items-center p-2 border-b border-gray-300
                         ${key === 0 ? "rounded-tl-lg" : ""}
                         ${key === array.length - 1 ? "rounded-bl-lg border-b-transparent" : ""}
