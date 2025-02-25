@@ -2,7 +2,8 @@ import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import { LoaderContext } from "../../components/Common/Loader";
-import SuperAdminNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import Cookies from 'js-cookie';
 import bgimage from "../../assets/icons/Group 1.svg";
 import { FiSearch } from "react-icons/fi";
 
@@ -13,6 +14,7 @@ export default function AchievementDashboard() {
   const { isLoading, setIsLoading } = useContext(LoaderContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     const fetchPublishedAchievements = async () => {
@@ -30,6 +32,14 @@ export default function AchievementDashboard() {
     };
 
     fetchPublishedAchievements();
+  }, []);
+
+  useEffect(() => {
+      const token = Cookies.get("jwt");
+      if (token) {
+          const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+          setUserRole(payload.role); // Assuming the payload has a 'role' field
+      }
   }, []);
 
   const filters = ["Internship", "Job Placement", "Certification", "Exam Cracked"];
@@ -51,7 +61,9 @@ export default function AchievementDashboard() {
 
   return (
     <div className="flex">
-      <SuperAdminNavbar />
+      {/* <div className="flex flex-col min-h-screen bg-gray-100"> */}
+      {userRole === "admin" && <AdminPageNavbar />}
+      {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
       <div className="flex flex-col flex-1 items-stretch px-6">
         {/* Header Section */}
