@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import AdminPageNavbar from "../../components/Admin/AdminNavbar";
-import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavbar";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { GoChecklist } from "react-icons/go"; // Exam icon
+import { RiBookLine } from "react-icons/ri"; // Subject icon
+import { MdOutlineTopic } from "react-icons/md"; // Topic icon
 
 const CategoryInput = ({ value, onChange, selectedType }) => {
   const [inputValue, setInputValue] = useState(value);
@@ -73,7 +76,7 @@ const CategoryInput = ({ value, onChange, selectedType }) => {
 
 export default function StudyMaterialForm() {
   const [formData, setFormData] = useState({
-    type: "Exam", // Default to "Exam" since modal is removed
+    type: "Exam", // Default to "Exam"
     title: "",
     description: "",
     category: "",
@@ -201,13 +204,19 @@ export default function StudyMaterialForm() {
     navigate('/superadmin-dashboard'); // Navigate to the previous page
   };
 
+  const typeIcons = {
+    Exam: GoChecklist,
+    Subject: RiBookLine,
+    Topic: MdOutlineTopic,
+  };
+
   return (
-    <div className="flex justify-stretch m-6 mt-22">
+    <div className="flex justify-stretch m-3">
       <ToastContainer />
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
-      <div className="flex-1 px-6 py-14 bg-white rounded-lg shadow-lg">
+      <div className="flex-1 px-6 py-14 ml-3 bg-white rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-black">Post a Study Material</h2>
           <button
@@ -227,16 +236,21 @@ export default function StudyMaterialForm() {
                 <div
                   key={type}
                   onClick={() => handleTypeSelect(type)}
-                  className={`relative border border-gray-300 rounded-lg p-4 bg-white shadow-sm cursor-pointer transition-colors ${
-                    selectedType === type ? "border-l-4 border-yellow-500" : "border-l-8 border-gray-500"
-                  }`}
+                  className={`relative border border-gray-300 rounded-lg p-4 bg-white shadow-sm cursor-pointer transition-colors ${selectedType === type ? "border-l-4 border-yellow-500" : "border-l-8 border-gray-500"
+                    }`}
                 >
                   <div
-                    className={`absolute top-0 left-0 h-full w-1 bg-yellow-500 rounded-l-lg ${
-                      selectedType === type ? "opacity-100" : "opacity-0"
-                    } transition-opacity`}
+                    className={`absolute top-0 left-0 h-full w-1 bg-yellow-500 rounded-l-lg ${selectedType === type ? "opacity-100" : "opacity-0"
+                      } transition-opacity`}
                   ></div>
-                  <h3 className="text-lg font-semibold text-black mb-2">{type}</h3>
+                  <div className="flex items-center">
+                    <div className={`mr-2 text-2xl  ${selectedType === type ? "text-black-500" : "text-gray-500"
+                      }`}>
+                      {React.createElement(typeIcons[type])}
+                    </div>
+                    <h3 className={`text-lg font-semibold  ${selectedType === type ? "text-black" : "text-gray-500"
+                      }`}>{type}</h3>
+                  </div>
                 </div>
               ))}
             </div>
@@ -245,29 +259,28 @@ export default function StudyMaterialForm() {
             <div className="md:col-span-3 space-y-6 rounded-lg p-4 bg-white shadow-sm border border-gray-300">
               <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                 <div className="flex flex-col flex-1">
-
-                <div className="w-full">
-                  <label className="block text-sm font-semibold text-black">Material Title</label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    required
-                    className="w-full mb-3 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
-                    placeholder="Enter the material title here"
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="block text-sm font-semibold text-black">Category</label>
-                  <CategoryInput
-                    value={formData.category}
-                    onChange={(value) =>
-                      setFormData((prevData) => ({ ...prevData, category: value }))
-                    }
-                    selectedType={formData.type || "Exam"} // Default to "Exam"
-                  />
-                </div>
+                  <div className="w-full">
+                    <label className="block text-sm font-semibold text-black">Material Title</label>
+                    <input
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleChange}
+                      required
+                      className="w-full mb-3 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                      placeholder="Enter the material title here"
+                    />
+                  </div>
+                  <div className="w-full">
+                    <label className="block text-sm font-semibold text-black">Category</label>
+                    <CategoryInput
+                      value={formData.category}
+                      onChange={(value) =>
+                        setFormData((prevData) => ({ ...prevData, category: value }))
+                      }
+                      selectedType={formData.type || "Exam"} // Default to "Exam"
+                    />
+                  </div>
                 </div>
                 <div className="w-full md:w-1/2">
                   <label className="block text-sm font-semibold text-black">Material Description</label>
@@ -276,7 +289,7 @@ export default function StudyMaterialForm() {
                     value={formData.description}
                     onChange={handleChange}
                     required
-                    className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                    className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400  overflow-y-auto resize-none"
                     rows="4"
                     placeholder="Enter the material description here"
                   ></textarea>
@@ -364,7 +377,7 @@ export default function StudyMaterialForm() {
               <div className="flex justify-center gap-4">
                 <button
                   type="submit"
-                  className="w-full md:w-auto bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-600 transition-colors"
+                  className="w-full md:w-1/3 bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-600 transition-colors"
                 >
                   Post Study Material
                 </button>
