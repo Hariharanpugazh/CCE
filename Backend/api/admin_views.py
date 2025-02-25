@@ -2532,12 +2532,12 @@ def get_achievements_with_admin(request):
 
             # Fetch admin details using user_id
             admin_id = achievement.get("user_id")
-            admin_name = "Unknown Admin"
+            admin_name = "Super Admin"
 
             if admin_id:
                 admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
                 if admin:
-                    admin_name = admin.get("name", "Unknown Admin")
+                    admin_name = admin.get("name", "Super Admin")
 
             # Append achievement details with mapped admin name
             achievement_list.append({
@@ -2576,12 +2576,12 @@ def get_internships_with_admin(request):
 
             # Fetch admin details using admin_id
             admin_id = internship.get("admin_id")
-            admin_name = "Unknown Admin"
+            admin_name = "Super Admin"
 
             if admin_id:
                 admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
                 if admin:
-                    admin_name = admin.get("name", "Unknown Admin")
+                    admin_name = admin.get("name", "Super Admin")
 
             # Append internship details with all fields
             internship_list.append({
@@ -2626,12 +2626,12 @@ def get_study_materials_with_admin(request):
             study_material_data = material.get("study_material_data", {})  # Ensure this exists
 
             admin_id = material.get("admin_id")
-            admin_name = "Unknown Admin"
+            admin_name = "Super Admin"
 
             if admin_id:
                 admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
                 if admin:
-                    admin_name = admin.get("name", "Unknown Admin")
+                    admin_name = admin.get("name", "Super Admin")
 
             # Ensure all fields are correctly mapped
             study_material_list.append({
