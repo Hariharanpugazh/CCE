@@ -75,7 +75,7 @@ export default function SuperAdminSidebar() {
                 </a>
               </li>
               <li className="mb-2">
-                <a href="/superadmin/achievements" className="flex items-center p-2 hover:bg-yellow-200 rounded">
+                <a href="/admin-achievements" className="flex items-center p-2 hover:bg-yellow-200 rounded">
                   <FiAward className="mr-3" /> Achievements
                 </a>
               </li>
@@ -137,7 +137,7 @@ export default function SuperAdminSidebar() {
                 {isMailPopupOpen && (
                   <ul className="ml-6 mt-2">
                     <li>
-                      <a href="/superadmin/manage-student" className="flex items-center p-2 hover:bg-yellow-200 rounded">
+                      <a href="/manage-student" className="flex items-center p-2 hover:bg-yellow-200 rounded">
                         Student Management
                       </a>
                     </li>

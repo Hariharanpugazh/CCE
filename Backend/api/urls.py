@@ -87,8 +87,8 @@ urlpatterns = [
     
     #Internships
     path('internship/', get_internships, name='get_internship'),
-    path('upload_internship_image/', upload_internship_image, name='upload_internship_image'),
     path('review-internship/<str:internship_id>/', review_internship, name='review_internship'),
+    path("upload-internship-image/", upload_internship_image, name="upload_internship_image"),
     path('internship/<str:internship_id>/', get_internship_id, name='get_internship'),
     path('internship-edit/<str:internship_id>/', update_internship, name='update_internship'),
     path('internship-delete/<str:internship_id>/', delete_internship, name='delete_internship'),
@@ -134,7 +134,4 @@ urlpatterns = [
 
     #view count
      path('viewcount/<str:id>/', view_count, name='view_count'),
-
-
-     path("upload-internship-image/", upload_internship_image, name="upload_internship_image"),
 ]
