@@ -317,45 +317,71 @@ const InternPostForm = () => {
     e.preventDefault();
 
     if (formData.company_website && !validateUrl(formData.company_website)) {
-      setToastMessage('Invalid URL');
-      return;
+        setUrlError('Invalid URL');
+        return;
     }
 
+    // Validate Deadline
     if (!validateDeadline(formData.application_deadline)) {
-      setToastMessage('Application deadline must be a future date.');
-      return;
+        return;
     }
 
     setIsSubmitting(true);
     setMessage('');
+    setError('');
 
     try {
-      const token = Cookies.get('jwt');
-      if (!token) {
-        setError('No token found. Please log in.');
-        setIsSubmitting(false);
-        return;
-      }
+        const token = Cookies.get('jwt');
+        if (!token) {
+            setError('No token found. Please log in.');
+            setIsSubmitting(false);
+            return;
+        }
 
-      const formattedData = {
-        ...formData,
-        application_deadline: formData.application_deadline.toISOString().split('T')[0],
-      };
+        // Replace empty fields with "NA"
+        const formattedData = Object.keys(formData).reduce((acc, key) => {
+          acc[key] = formData[key] === '' ? 'NA' : formData[key];
+          return acc;
+        }, {});
 
-      const response = await axios.post(
-        'http://localhost:8000/api/internship_post/',
-        { ...formattedData, userId, role: userRole },
-      );
-      setMessage(response.data.message);
-      setError('');
-      window.location.href = `${window.location.origin}/internships`;
+        // Ensure application_deadline is properly formatted
+        formattedData.application_deadline =
+            formattedData.application_deadline instanceof Date
+            ? formattedData.application_deadline.toISOString().split('T')[0]
+            : formattedData.application_deadline; // If it's already a string, use it as is
+
+        console.log("Sending data to API:", formattedData); // Debugging
+
+        // API Call
+        const response = await axios.post(
+            'http://localhost:8000/api/post-internship/',
+            { ...formattedData, userId, role: userRole },
+            {
+                headers: { Authorization: `Bearer ${token}` }, // Ensure auth header
+            }
+        );
+
+        console.log("API Response:", response.data); // Debugging
+
+        setMessage(response.data.message);
+        window.location.href = `${window.location.origin}/internships`;
     } catch (error) {
-      setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
-      setMessage('');
+        console.error("API Error:", error); // Debugging
+        setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
+        setToastMessage(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
     } finally {
-      setIsSubmitting(false);
+        setIsSubmitting(false);
     }
-  };
+};
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => {
+        setToastMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
   useEffect(() => {
     if (toastMessage) {

@@ -1566,7 +1566,6 @@ def post_internship(request):
             if role == 'admin':
                 if is_auto_approval:
                     is_publish = True
-
             elif role == 'superadmin':
                 is_publish = True
 
@@ -1579,7 +1578,7 @@ def post_internship(request):
                 return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
 
             now = datetime.now(timezone.utc)
-            current_status = "Active" if application_deadline >= now else "expired"
+            current_status = "Active" if application_deadline >= now else "Expired"
 
             # Ensure required fields are present
             required_fields = [
@@ -1597,21 +1596,32 @@ def post_internship(request):
                     "title": data['title'],
                     "company_name": data['company_name'],
                     "location": data['location'],
+                    "industry_type": data.get('industry_type', "NA"),
                     "duration": data['duration'],
                     "stipend": data['stipend'],
                     "application_deadline": application_deadline,
                     "required_skills": data['skills_required'],
-                    "education_requirements": data.get('education_requirements', ""),
+                    "technical_skills": data.get('technical_skills', []),
+                    "soft_skills": data.get('soft_skills', []),
+                    "additional_skills": data.get('additional_skills', []),
+                    "education_requirements": data.get('education_requirements', "NA"),
                     "job_description": data['job_description'],
                     "company_website": data['company_website'],
-                    "job_link": data.get('job_link', ""),
                     "internship_type": data['internship_type'],
+                    "documents_required": data.get('documents_required', "NA"),
+                    "internship_posting_date": data.get('internship_posting_date', "NA"),
+                    "interview_start_date": data.get('interview_start_date', "NA"),
+                    "interview_end_date": data.get('interview_end_date', "NA"),
+                    "internship_link": data.get('internship_link', "NA"),
+                    "selection_process": data.get('selection_process', "NA"),
+                    "steps_to_apply": data.get('steps_to_apply', "NA")
                 },
                 "admin_id" if role == "admin" else "superadmin_id": userid,
                 "is_publish": is_publish,
                 "status": current_status,
-                "updated_at": datetime.now()
+                "updated_at": datetime.now(timezone.utc)
             }
+            print(internship_post)
 
             # Insert into MongoDB
             internship_collection.insert_one(internship_post)
@@ -1623,6 +1633,7 @@ def post_internship(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
 
 @csrf_exempt
 def manage_internships(request):
