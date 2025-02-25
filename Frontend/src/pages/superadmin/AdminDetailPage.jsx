@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import ApplicationCard from "../../components/Students/ApplicationCard"; // Import the new card component
+
 import Pagination from "../../components/Admin/pagination";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Adminjobposts from "../../components/Students/AdminJobPosts";
 
-function StylishInput({ label, value, readOnly, onChange }) {
+function StylishInput({ label, value, readOnly, onChange }) {   
     const [focused, setFocused] = useState(false);
 
     return (
@@ -334,7 +335,7 @@ export default function AdminDetailPage() {
                             <>
                                 <div className="flex flex-col gap-4"> {/* Changed to flex-col for column layout */}
                                     {currentJobs.map((job) => (
-                                        <ApplicationCard
+                                        <Adminjobposts
                                             key={job._id}
                                             application={job}
                                             handleCardClick={() => {}}
