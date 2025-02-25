@@ -20,8 +20,6 @@ export default function AchievementPostForm() {
   });
 
   const [imagePreview, setImagePreview] = useState(null);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -30,13 +28,13 @@ export default function AchievementPostForm() {
   useEffect(() => {
     const token = Cookies.get("jwt");
     if (!token) {
-      setError("No token found. Please log in.");
+      toast.error("No token found. Please log in.");
       return;
     }
 
     const decodedToken = jwtDecode(token);
     if (decodedToken.role !== "superadmin" && decodedToken.role !== "admin") {
-      setError("You do not have permission to access this page.");
+      toast.error("You do not have permission to access this page.");
       return;
     }
 
@@ -62,9 +60,8 @@ export default function AchievementPostForm() {
       if (file.type === "image/jpeg" || file.type === "image/png") {
         setFormData({ ...formData, photo: file });
         setImagePreview(URL.createObjectURL(file));
-        setError(""); // Clear any previous errors
       } else {
-        setError("Only JPG and PNG images are allowed.");
+        toast.error("Only JPG and PNG images are allowed.");
         setFormData({ ...formData, photo: null });
         setImagePreview(null);
       }
@@ -81,15 +78,15 @@ export default function AchievementPostForm() {
     today.setHours(0, 0, 0, 0); // Set time to midnight for accurate comparison
 
     if (selectedDate > today) {
-      setError("Date of achievement cannot be in the future.");
+      toast.error("Date of achievement cannot be in the future.");
       setLoading(false);
       return;
     }
 
-    // Validate batch field for special characters
-    const batchPattern = /^[a-zA-Z0-9\s]+$/;
+    // Validate batch field format
+    const batchPattern = /^[0-9]{4} - [0-9]{4}$/;
     if (!batchPattern.test(formData.batch)) {
-      setError("Batch should not contain special characters.");
+      toast.error("Batch should be in the format YYYY - YYYY. (e.g. 2020 - 2024)");
       setLoading(false);
       return;
     }
@@ -104,7 +101,7 @@ export default function AchievementPostForm() {
       !formData.batch ||
       !formData.photo
     ) {
-      setError("All fields are required.");
+      toast.error("All fields are required.");
       setLoading(false);
       return;
     }
@@ -113,7 +110,7 @@ export default function AchievementPostForm() {
       const token = Cookies.get("jwt");
 
       if (!token) {
-        setError("No token found. Please log in.");
+        toast.error("No token found. Please log in.");
         setLoading(false);
         return;
       }
@@ -170,12 +167,12 @@ export default function AchievementPostForm() {
   };
 
   return (
-    <div className="flex justify-stretch m-3">
+    <div className="flex justify-center min-h-screen bg-gray-100">
       <ToastContainer />
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
-      <div className="flex-1 px-6 py-14 ml-3 bg-white rounded-lg shadow-lg mt-12">
+      <div className="flex-1 p-6 max-w-6xl w-full mx-auto bg-white rounded-lg shadow-lg my-16">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-black">Post an Achievement</h2>
           <button
@@ -185,12 +182,14 @@ export default function AchievementPostForm() {
             Cancel
           </button>
         </div>
-        <hr className="border border-gray-300 mb-6" />
+        <hr className="border border-gray-300 mb-4" />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="w-full">
-              <label className="block text-sm font-semibold text-black">Name</label>
+            <div className="w-full space-y-2">
+              <label className="block text-sm font-semibold text-black">
+                Name <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="name"
@@ -202,8 +201,10 @@ export default function AchievementPostForm() {
               />
             </div>
 
-            <div className="w-full">
-              <label className="block text-sm font-semibold text-black">Company/Organization Name</label>
+            <div className="w-full space-y-2">
+              <label className="block text-sm font-semibold text-black">
+                Company/Organization Name <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="company_name"
@@ -214,12 +215,13 @@ export default function AchievementPostForm() {
                 placeholder="Enter the company/organization name here"
               />
             </div>
-
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="w-full">
-              <label className="block text-sm  font-semibold text-black">Achievement Type</label>
+            <div className="w-full space-y-2">
+              <label className="block text-sm font-semibold text-black">
+                Achievement Type <span className="text-red-500">*</span>
+              </label>
               <select
                 name="achievement_type"
                 value={formData.achievement_type}
@@ -235,8 +237,10 @@ export default function AchievementPostForm() {
               </select>
             </div>
 
-            <div className="w-full">
-              <label className="block text-sm font-semibold text-black">Date of Achievement</label>
+            <div className="w-full space-y-2">
+              <label className="block text-sm font-semibold text-black">
+                Date of Achievement <span className="text-red-500">*</span>
+              </label>
               <input
                 type="date"
                 name="date_of_achievement"
@@ -247,10 +251,13 @@ export default function AchievementPostForm() {
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex flex-col md:flex-col md:items-center ">
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-black">Batch</label>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+            <div className="flex flex-col md:flex-col md:items-center">
+              <div className="w-full space-y-2">
+                <label className="block text-sm font-semibold text-black">
+                  Batch <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   name="batch"
@@ -258,16 +265,16 @@ export default function AchievementPostForm() {
                   onChange={handleChange}
                   required
                   className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
-                  placeholder="Enter the batch here"
+                  placeholder="Enter the batch here (e.g. 2020 - 2024)"
                 />
               </div>
 
-              <div className="border-dashed border-2 border-gray-400 rounded-xl p-6 py-6 text-center bg-white mt-4">
+              <div className="border-dashed border-2 border-gray-400 rounded-xl pt-4 pb-2 px-2 text-center bg-white mt-4">
                 <label
                   htmlFor="photo"
                   className="cursor-pointer text-blue-600 font-semibold text-xl hover:underline"
                 >
-                  {imagePreview ? "Change Image" : "Upload an Achievement Photo"}
+                  {imagePreview ? "Change Image " : "Upload an Achievement Photo"}
                 </label>
                 <input
                   type="file"
@@ -283,30 +290,33 @@ export default function AchievementPostForm() {
                     <img
                       src={imagePreview}
                       alt="Uploaded"
-                      className="max-h-48 mx-auto rounded-lg shadow-md"
+                      className="max-h-30 mx-auto rounded-lg shadow-md"
                     />
                   </div>
                 )}
               </div>
             </div>
-            <div className="w-full">
-              <label className="block text-sm font-semibold text-black">Achievement Description</label>
+
+            <div className="w-full flex flex-col space-y-2">
+              <label className="block text-sm font-semibold text-black">
+                Achievement Description <span className="text-red-500">*</span>
+              </label>
               <textarea
                 name="achievement_description"
                 value={formData.achievement_description}
                 onChange={handleChange}
                 required
-                className="w-full h-42 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none"
+                className="w-full flex-1 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none"
                 rows="5"
                 placeholder="Enter the achievement description here"
               ></textarea>
             </div>
           </div>
-          <div className="flex justify-center">
 
+          <div className="flex justify-center mt-6">
             <button
               type="submit"
-              className="w-full md:w-1/3 bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-600 transition-colors "
+              className="w-full md:w-1/3 bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-600 transition-colors"
               disabled={loading}
             >
               {loading ? "Submitting..." : "Post Achievement"}
