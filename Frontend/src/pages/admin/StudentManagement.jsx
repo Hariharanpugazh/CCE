@@ -44,7 +44,6 @@ const StudentManagement = () => {
     const token = Cookies.get("jwt");
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-      console.log("Decoded JWT Payload:", payload); // Debugging line
       setUserRole(!payload.student_user ? payload.role : "student"); // Assuming the payload has a 'role' field
     }
   }, []);
@@ -57,11 +56,18 @@ const StudentManagement = () => {
     }
   }, [filter, statusFilter, totalPages]);
 
-  const handleDeleteStudent = (id) => {
-    setStudents(students.filter((student) => student._id !== id));
-    setSelectedStudent(null);
-    setShowDeleteConfirm(false);
+  const handleDeleteStudent = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8000/api/students/${id}/delete/`);
+      setStudents(students.filter((student) => student._id !== id));
+      setSelectedStudent(null);
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error("Error deleting student:", error.response ? error.response.data : error);
+      alert("Failed to delete student. Please try again.");
+    }
   };
+  
 
   const handleToggleStatus = async (student) => {
     const updatedStatus = student.status === "active" ? "inactive" : "active";
