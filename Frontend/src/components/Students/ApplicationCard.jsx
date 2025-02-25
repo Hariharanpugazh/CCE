@@ -43,6 +43,7 @@ export default function ApplicationCard({ application, handleCardClick, isSaved,
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
   const Viewscount = formatViewCount(application.total_views);
+  const tabs = ["Job", "Internship", "Achievement"]; // Added tabs array
 
   useEffect(() => {
     const token = Cookies.get("jwt");
@@ -69,70 +70,65 @@ export default function ApplicationCard({ application, handleCardClick, isSaved,
 
   return (
     <div
-      className={`flex-1 relative bg-white rounded-md shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-300 flex flex-col justify-between
+      className={`flex-2 relative bg-white   rounded-md shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-300 flex flex-col justify-between
         ${small ? "p-2 text-[10px]" : "p-5 text-base"}`}
       onClick={handleCardClick}
     >
-      <div className="flex flex-col">
-        {/* Header Section */}
-        <div className="flex justify-between items-start mb-1">
-          <div>
-            <h3 className={`font-semibold text-gray-900 mb-0.5 ${small ? "text-sm" : "text-xl"}`}>
-              {application.title}
-            </h3>
-            <div className={`flex items-center space-x-1 ${small ? "text-[9px]" : "text-sm"} text-gray-600`}>
-              <span className="flex items-center">
-                <i className="bi bi-building mr-1 opacity-75 text-[12px]"></i>
-                {application.company_name}
-              </span>
-              <span className="flex items-center">
-                <FiMapPin className="mr-1 opacity-75 text-[12px]" />
-                {application.location}
-              </span>
+      <div className="flex justify-between ">
+        {/* Left Container */}
+        <div className="flex-1">
+          <h3 className={`font-semibold text-gray-900 mb-0.5 mt-2 ${small ? "text-sm" : "text-s"}`}>
+            {application.title}
+          </h3>
+        </div>
+
+        {/* Divider */}
+        <div className="border-l border-gray-500 mx-2"></div>
+
+        {/* Center Container */}
+        <div className="flex-1 flex flex-col mt-4 items-start">
+          <div className={`flex flex-col items-start  ${small ? "text-[9px]" : "text-sm"} text-gray-600`}>
+            <span className="flex items-center">
+              {/* <i className="bi bi-building mr-1 opacity-75 text-[12px]"></i> */}
+             <strong>{application.company_name}</strong> 
+            </span>
+            <span className={`inline-flex items-center rounded-full font-medium 
+              ${small ? "text-[9px] py-0.5" : "text-xs py-1"} 
+              ${application.status === "Active" ? "text-green-800" : "text-red-800"}`}>
+              <span className="mr-1 inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: application.status === "Active" ? "green" : "red" }}></span>
+             <strong> {application.status === "Active" ? "ON GOING" : "CLOSED"}</strong>
+            </span>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-l border-black-300 mx-2"></div>
+
+        {/* Right Container */}
+        <div className="flex- flex flex-col items-start">
+          <div className={`flex flex-col mt-5 items-start text-gray-500 ${small ? "text-[9px]" : "text-sm"}`}>
+            <div className="flex items-center">
+              <FiClock className="mr-1 opacity-75 text-[12px]" />
+             <strong> {timeAgo(application.updated_at)}</strong>
+            </div>
+            <div className="flex items-center mt-1">
+              <FiEye className="mr-1 opacity-75 text-[12px]" />
+              <strong>{Viewscount} views</strong>
             </div>
           </div>
-          {isSaved !== undefined && (
-            <FiBookmark
-              className={`cursor-pointer p-1 hover:bg-gray-100 rounded-md 
-                ${small ? "text-lg" : "text-4xl"} 
-                ${isSaved ? "text-blue-600 fill-current" : "text-gray-400"}`}
-            />
-          )}
         </div>
 
-        {/* Description Section */}
-        <p className={`text-gray-600 mb-2 line-clamp-2 leading-snug ${small ? "text-[10px]" : "text-sm"}`}>
-          {application.job_description}
-        </p>
-        <div className={`flex items-center space-x-2 text-gray-500 ${small ? "text-[9px]" : "text-sm"}`}>
-          <div className="flex items-center">
-            <FiClock className="mr-1 opacity-75 text-[12px]" />
-            {timeAgo(application.updated_at)}
-          </div>
-          <div className="flex items-center">
-            <FiEye className="mr-1 opacity-75 text-[12px]" />
-            {Viewscount} views
-          </div>
-        </div>
-      </div>
+        {/* Divider */}
+        {/* <div className="border-l border-gray-300 mx-2"></div> */}
 
-      {/* Footer Section */}
-      <div className="flex flex-col sm:flex-row justify-between mt-1 items-start sm:items-center pt-1">
-        {/* Status Badge */}
-        <span className={`inline-flex items-center rounded-full font-medium 
-          ${small ? "text-[9px] py-0.5" : "text-xs py-1"} 
-          ${application.status === "Active" ? "text-green-800" : "text-red-800"}`}>
-          <span className="mr-1 inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: application.status === "Active" ? "green" : "red" }}></span>
-          {application.status === "Active" ? "ON GOING" : "CLOSED"}
-        </span>
-
-        <div className="flex items-center gap-1 w-full sm:w-auto">
+        {/* New Rightmost Container */}
+        <div className="flex-1 flex flex-col items-end">
           <button
-            className={`w-full sm:w-auto border border-gray-300 rounded-md hover:border-gray-400 transition-colors duration-200
+            className={`mt-2 w-full sm:w-auto mt-5 border border-gray-300 rounded-md hover:border-gray-400 transition-colors duration-200 bg-yellow-500 text-black
               ${small ? "text-[9px] py-1 px-2" : "text-sm py-2.5 px-4"}`}
             onClick={handleViewDetails}
           >
-            View Details
+           <strong>View Details</strong> 
           </button>
         </div>
       </div>
