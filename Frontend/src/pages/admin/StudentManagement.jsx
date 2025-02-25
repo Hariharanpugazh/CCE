@@ -62,7 +62,7 @@ const StudentManagement = () => {
       setStudents(students.filter((student) => student._id !== id));
       setSelectedStudent(null);
       setShowDeleteConfirm(false);
-    } catch (error) {
+    } catch (error) { 
       console.error("Error deleting student:", error.response ? error.response.data : error);
       alert("Failed to delete student. Please try again.");
     }
