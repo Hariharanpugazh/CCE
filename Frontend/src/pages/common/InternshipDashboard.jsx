@@ -250,7 +250,7 @@ export default function InternshipDashboard() {
 
 
             {/* jobs */}
-            <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="w-full self-start grid grid-cols-1 grid-cols-1 lg:grid-cols-3 gap-3">
               {error ? (
                 <p className="text-red-600">{error}</p>
               ) : internships.length === 0 ? (

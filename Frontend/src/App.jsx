@@ -11,7 +11,7 @@ import MailPage from "./pages/superadmin/Management";
 import JobPostForm from "./pages/admin/JobPostForm";
 import AchievementPostForm from "./pages/admin/AchievementPostForm";
 import InternshipForm from "./pages/admin/IntershipForm";
-import AchievementDashboard from "./pages/students/AchievementDashboard";
+import AchievementDashboard from "./pages/common/AchievementDashboard";
 import HomeDashboard from "./pages/students/HomeDashboard";
 import LandingPage from "./pages/common/Landing";
 import ContactForm from "./pages/students/Contact";
@@ -96,7 +96,6 @@ function App() {
         <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
         <Route path="/internship-preview/:id" element={<InternshipPreview />} />
-        <Route path="/student/internship-preview/:id" element={<StudentInternshipPreview />} />
         <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
         <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />
         <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />        

@@ -192,15 +192,19 @@ export default function JobDashboard() {
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
       <div className="flex flex-col flex-1">
         {userRole === "student" && <StudentPageNavbar />}
-        <header className="flex flex-col items-center justify-center py-14 container self-center">
-          <p className="text-6xl tracking-[0.8px]">Jobs</p>
-          <p className="text-lg mt-2 text-center">
-            Explore all the job opportunities in all the existing fields <br />around the globe.
+        <header className="flex flex-col items-center justify-center py-8 md:py-14 container self-center px-4 s">
+          <p className="text-4xl md:text-6xl tracking-[0.2px] md:tracking-[0.8px]">
+            Jobs
+          </p>
+          <p className="text-sm md:text-lg mt-3 md:mt-2 text-center">
+            Explore all the job opportunities in all the existing fields{" "}
+            <span className="hidden md:inline"><br /></span>
+            around the globe.
           </p>
         </header>
 
         {/* search */}
-        <div className="sticky ml-10 top-0 z-10 bg-white flex border border-gray-300 mr-11 mb-5">
+        <div className="sticky ml-10 top-0 z-0 bg-white flex border border-gray-300 ml- mb-5 ">
           <input
             type="text"
             value={searchPhrase}
