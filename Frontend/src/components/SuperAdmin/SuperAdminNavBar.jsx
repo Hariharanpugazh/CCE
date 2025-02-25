@@ -75,7 +75,7 @@ export default function SuperAdminSidebar() {
                 </a>
               </li>
               <li className="mb-2">
-                <a href="/superadmin/achievements" className="flex items-center p-2 hover:bg-yellow-200 rounded">
+                <a href="/admin-achievements" className="flex items-center p-2 hover:bg-yellow-200 rounded">
                   <FiAward className="mr-3" /> Achievements
                 </a>
               </li>

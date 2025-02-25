@@ -21,8 +21,6 @@ import InternshipEdit from "./pages/admin/InternshipEdit";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InternshipPreview from "./pages/students/InternshipPreview";
-import StudentInternshipPreview from "./pages/students/StudentInternshipPreview";
-import AdminAchievementDashboard from "./pages/admin/adminAchievementDashboard";
 import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashboard";
 import ManageJobs from "./pages/admin/ManageJobs";
 import InboxPage from "./pages/superadmin/InboxPage";
@@ -106,7 +104,6 @@ function App() {
           {/* Protected Admin Routes */}
           <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
           <Route path="/admin/mail" element={<ProtectedRoute> <AdminMail /> </ProtectedRoute>} />
-          <Route path="/admin/achievements" element={<ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
           <Route path="/jobs" element={ <ProtectedRoute> <JobDashboard /> </ProtectedRoute>} />
           <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
           <Route path="/jobselection" element={<ProtectedRoute> <JobEntrySelection /> </ProtectedRoute> } />
@@ -129,7 +126,7 @@ function App() {
           <Route path={"/student-signup"} element={<StudentSignup />} />
           <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
           <Route path={"/Admin-Management"} element={<ProtectedRoute> <AdminManagement /> </ProtectedRoute>} />
-          <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
+          <Route path={"/admin-achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
           <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
           <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
           <Route path={"/admin-details/:id"} element={<ProtectedRoute> <AdminDetailPage /> </ProtectedRoute>} />
