@@ -47,11 +47,7 @@ import { useState } from "react";
 import Student_Management_superadmin from "./pages/superadmin/StudentManagement_superadmin"
 import JobEntrySelection from "./pages/admin/JobEntrySelection";
 import InternshipEntrySelection from "./pages/admin/InternshipEntrySelection";
-import StudyMaterialCards from "./pages/students/StudyMaterialCards";
-import TopicsPage from "./pages/students/TopicsPage";
-import StudyMaterialsByCategory from './pages/students/StudyMaterialsByCategory';
-import CategoryPage from "./pages/students/CategoryPage";
-import MaterialsPage from "./pages/students/MaterialsPage";
+
 
 
 // Protected Route Component
@@ -106,11 +102,7 @@ function App() {
           <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />
           <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />
           <Route path="/applied-jobs" element={<ProtectedRoute> <AppliedJobs /> </ProtectedRoute>} />
-          <Route path="/study-material-cards" element={<ProtectedRoute> <StudyMaterialCards /> </ProtectedRoute>} />
-          <Route path="/topics/:type" element={<ProtectedRoute> <CategoryPage /> </ProtectedRoute>} />
-          <Route exact path="/topic/:category" element={<ProtectedRoute> <TopicsPage /> </ProtectedRoute>} />
-          <Route path="/category/:category" element={<ProtectedRoute> <StudyMaterialsByCategory /> </ProtectedRoute>} />
-          <Route path="/materials/:topic" element={<ProtectedRoute> <MaterialsPage /> </ProtectedRoute>} />
+          
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />
