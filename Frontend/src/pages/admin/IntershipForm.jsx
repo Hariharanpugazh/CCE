@@ -316,7 +316,6 @@ const InternPostForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate URL
     if (formData.company_website && !validateUrl(formData.company_website)) {
         setUrlError('Invalid URL');
         return;
@@ -374,6 +373,15 @@ const InternPostForm = () => {
         setIsSubmitting(false);
     }
 };
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => {
+        setToastMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
   useEffect(() => {
     if (toastMessage) {
