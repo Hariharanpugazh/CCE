@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import AdminPageNavbar from "../../components/Admin/AdminNavbar";
 import Pagination from "../../components/Admin/pagination";
 
 import backIcon from "../../assets/icons/back-icon.svg";

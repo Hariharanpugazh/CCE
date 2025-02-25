@@ -78,7 +78,11 @@ body {
   color: #007bff; /* Hover color for icons */
 }
 
-/* Add this to your CSS file or within a <style> tag in your component */
+.custom-scrollbar {
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #d1d5db #f3f4f6; /* For Firefox */
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px; /* Width of the scrollbar */
 }
