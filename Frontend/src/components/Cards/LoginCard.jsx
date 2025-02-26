@@ -424,7 +424,7 @@ export default function LoginCard({
             {/* Login Button */}
             <button
               type="submit"
-              className={`p-3 rounded-2xl w-full font-semibold ${
+              className={`p-3 rounded-lg w-full font-semibold ${
                 isLocked
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-[#FECC00] hover:bg-yellow-500 transition duration-300 flex items-center justify-center"
