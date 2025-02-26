@@ -128,49 +128,87 @@ def scrape_naukri_jobs(request):
         for job in job_cards:
             try:
                 # **Extract Job Title & Link**
-                title_element = job.find_element(By.XPATH, ".//a[contains(@class, 'title')]")
-                title = title_element.text.strip()
-                job_link = title_element.get_attribute("href")
-
-                # **Extract Company Name (Corrected XPath)**
                 try:
-                    company_element = job.find_element(By.XPATH, ".//a[contains(@class, 'comp-name')]")
-                    company = company_element.text.strip()
+                    title_element = job.find_element(By.XPATH, ".//h2/a")
+                    title = title_element.text.strip()
+                    job_link = title_element.get_attribute("href")
                 except:
-                    company = "Not Available"
+                    title, job_link = "N/A", "N/A"
 
-                # **Extract Job Location**
+                # **Extract Company Name**
                 try:
-                    location_element = job.find_element(By.XPATH, ".//li[contains(@class, 'location')]")
-                    location = location_element.text.strip()
+                    company_element = job.find_element(By.XPATH, ".//span/a[contains(@class, 'comp-name')]")
+                    company_name = company_element.text.strip()
                 except:
-                    location = "Not Specified"
+                    company_name = "Not Available"
 
-                # **Extract Salary (Handle Missing Elements)**
+                # **Extract Experience**
                 try:
-                    salary_element = job.find_element(By.XPATH, ".//li[contains(@class, 'salary')]")
-                    salary = salary_element.text.strip()
+                    experience_element = job.find_element(By.XPATH, ".//span[contains(@class, 'exp')]")
+                    experience = experience_element.text.strip()
                 except:
-                    salary = "N/A"
+                    experience = "N/A"
 
+                # **Extract Salary**
+                try:
+                    salary_element = job.find_element(By.XPATH, ".//span[contains(@class, 'salary')]")
+                    salary_range = salary_element.text.strip()
+                except:
+                    salary_range = "N/A"
+
+                # **Extract Location**
+                try:
+                    location_element = job.find_element(By.XPATH, ".//span[contains(@class, 'location')]")
+                    job_location = location_element.text.strip()
+                except:
+                    job_location = "Not Specified"
+
+                # **Extract Required Skills (As List)**
+                try:
+                    skills_elements = job.find_elements(By.XPATH, ".//ul[contains(@class, 'tags-gt')]/li")
+                    required_skills = [skill.text.strip() for skill in skills_elements if skill.text.strip()]
+                except:
+                    required_skills = []
+
+                # **Extract Job Description / Requirements**
+                try:
+                    desc_element = job.find_element(By.XPATH, ".//span[contains(@class, 'desc')]")
+                    job_description = desc_element.text.strip()
+                except:
+                    job_description = "N/A"
+
+                # **Formatted Job Data**
                 formatted_job = {
                     "title": title,
-                    "company_name": company,
-                    "company_website": None,
-                    "job_description": "N/A",  # Naukri does not show full description on list page
-                    "job_location": location,
-                    "salary_range": salary,
-                    "job_link": job_link,
-                    "work_schedule": "N/A",
-                    "selectedCategory": "IT & Development",
-                    "selectedWorkType": "Full-time",
+                    "job_data": {
+                        "company_name": company_name,
+                        "company_overview": None,  # Not available on listing page
+                        "company_website": None,
+                        "job_description": job_description,
+                        "key_responsibilities": None,  # No separate field
+                        "required_skills": required_skills,
+                        "education_requirements": None,  # No separate field
+                        "experience_level": experience,
+                        "salary_range": salary_range,
+                        "benefits": None,  # No separate field
+                        "job_location": job_location,
+                        "work_type": "",
+                        "work_schedule": "N/A",
+                        "application_instructions": None,
+                        "application_deadline": None,
+                        "contact_email": None,
+                        "contact_phone": None,
+                        "job_link": job_link,
+                        "selectedCategory": "IT & Development",
+                        "selectedWorkType": "Full-time"
+                    },
                     "is_publish": True,
                     "status": "Active",
                     "updated_at": datetime.utcnow().isoformat(),
                     "edited": "superadmin"
                 }
 
-                # Store in MongoDB
+                # **Store in MongoDB**
                 db.scraped_jobs.update_one(
                     {"job_link": job_link},
                     {"$set": formatted_job},
