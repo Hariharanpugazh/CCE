@@ -188,7 +188,7 @@ export default function SidePreview({ selectedItem, handleViewItem, setSelectedI
                     <div className="flex justify-between items-start p-3 px-5">
                         <div className='w-[85%] break-words'>
                             <p className="text-xl"> {dataFields.itemTitle} </p>
-                            <p className="text-xs text-yellow-300"> {dataFields.company_name} </p>
+                            <p className="text-sm text-gray-700"> {dataFields.company_name} </p>
                         </div>
 
                         {isSaved !== undefined && <FiBookmark className={`text-2xl cursor-pointer ${isSaved && "text-blue-500 fill-current"}`} onClick={isSaved ? handleUnbookmark : handleBookmark} />}
