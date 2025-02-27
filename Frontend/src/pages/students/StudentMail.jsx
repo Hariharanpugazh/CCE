@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { FaCheckDouble, FaCheck } from "react-icons/fa";
 import { Inbox } from "lucide-react";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
+import { IoIosSend } from "react-icons/io";
+import SeenTick from "../../assets/icons/charm_tick-double.png";
 
 const StudentMail = () => {
   const [messages, setMessages] = useState([]);
@@ -12,7 +14,7 @@ const StudentMail = () => {
   const [newMessage, setNewMessage] = useState("");
   const [status, setStatus] = useState(null);
   const [studentId, setStudentId] = useState(null);
-  const studentName = Cookies.get("username")
+  const studentName = Cookies.get("username");
 
   useEffect(() => {
     const token = Cookies.get("jwt");
@@ -34,14 +36,17 @@ const StudentMail = () => {
 
   const fetchMessages = async (student_id) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/get_student_messages/${student_id}/`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${Cookies.get("jwt")}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const response = await fetch(
+        `http://localhost:8000/api/get_student_messages/${student_id}/`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${Cookies.get("jwt")}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
       const data = await response.json();
       setMessages(data.messages || []);
@@ -53,14 +58,17 @@ const StudentMail = () => {
 
   const markMessagesAsSeenByStudent = async (student_id) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/mark_messages_as_seen_by_student/${student_id}/`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${Cookies.get("jwt")}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
+      const response = await fetch(
+        `http://localhost:8000/api/mark_messages_as_seen_by_student/${student_id}/`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${Cookies.get("jwt")}`,
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        }
+      );
 
       if (response.ok) {
         console.log("Messages marked as seen by student.");
@@ -85,14 +93,17 @@ const StudentMail = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:8000/api/student_send_message/", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${Cookies.get("jwt")}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(messageData),
-      });
+      const response = await fetch(
+        "http://localhost:8000/api/student_send_message/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${Cookies.get("jwt")}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(messageData),
+        }
+      );
 
       if (response.ok) {
         setStatus("Message sent successfully!");
@@ -153,7 +164,8 @@ const StudentMail = () => {
             messages.map((message, index) => {
               const dateLabel = formatDate(message.timestamp);
               const shouldShowDate =
-                index === 0 || formatDate(messages[index - 1].timestamp) !== dateLabel;
+                index === 0 ||
+                formatDate(messages[index - 1].timestamp) !== dateLabel;
 
               return (
                 <React.Fragment key={index}>
@@ -165,17 +177,21 @@ const StudentMail = () => {
                   <div className="flex items-start mb-4">
                     <div
                       className={`flex flex-col ${
-                        message.sender === "student" ? "items-end ml-auto" : "items-start mr-auto"
+                        message.sender === "student"
+                          ? "items-end ml-auto"
+                          : "items-start mr-auto"
                       }`}
                     >
                       <div
                         className={`flex items-start ${
-                          message.sender === "student" ? "justify-end" : "justify-start"
+                          message.sender === "student"
+                            ? "justify-end"
+                            : "justify-start"
                         }`}
                       >
                         {message.sender !== "student" && (
                           <div
-                            className={`w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg text-gray-700 mr-2`}
+                            className={`w-10 h-10 rounded-full bg-[#ffc800] flex items-center justify-center text-lg text-gray-700 mr-2`}
                           >
                             A
                           </div>
@@ -185,35 +201,46 @@ const StudentMail = () => {
                           animate={{ y: 0, opacity: 1 }}
                           transition={{ delay: index * 0.1 }}
                           className={`p-3 rounded-lg w-xs ${
-                            message.sender === "student" ? "bg-blue-500 text-white" : "bg-gray-200"
+                            message.sender === "student"
+                              ? "bg-[#f5f5f5] text-black"
+                              : "bg-[#ffc800]"
                           }`}
                         >
                           <p className="text-sm">{message.content}</p>
                           <div className="flex justify-end items-center mt-1 text-xs">
                             {message.sender === "student" && (
                               <>
-                                <span className="mr-1 text-white">
-                                  {new Date(message.timestamp).toLocaleTimeString([], {
+                                <span className="mr-1 text-gray-700">
+                                  {new Date(
+                                    message.timestamp
+                                  ).toLocaleTimeString([], {
                                     hour: "2-digit",
                                     minute: "2-digit",
                                   })}
                                 </span>
-                                {message.status === "seen" ? <FaCheckDouble /> : <FaCheck />}
+                                {message.status === "seen" ? (
+                                  <img src={SeenTick} alt="Seen" />
+                                ) : (
+                                  <FaCheck />
+                                )}
                               </>
                             )}
                             {message.sender !== "student" && (
-                              <span className="text-gray-500">
-                                {new Date(message.timestamp).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                              <span className="text-gray-700">
+                                {new Date(message.timestamp).toLocaleTimeString(
+                                  [],
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
                               </span>
                             )}
                           </div>
                         </motion.div>
                         {message.sender === "student" && (
                           <div
-                            className={`w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-lg ml-2`}
+                            className={`w-10 h-10 rounded-full bg-gray-600 text-white flex items-center justify-center text-lg ml-2`}
                           >
                             {studentName[0]}
                           </div>
@@ -242,12 +269,14 @@ const StudentMail = () => {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message"
-            className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+            className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-sm"
           />
           <button
             onClick={sendMessage}
-            className="ml-2 p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 shadow-sm"
+            className="flex items-center ml-2 p-3 bg-[#ffc800] text-black rounded-lg hover:bg-yellow-300 transition duration-300 shadow-sm"
           >
+            <IoIosSend className="mr-2" />{" "}
+            {/* Add margin to the right of the icon */}
             Send
           </button>
         </div>
