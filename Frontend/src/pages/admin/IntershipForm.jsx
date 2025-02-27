@@ -10,6 +10,7 @@ import { FaClipboardList, FaFileSignature, FaRegFileAlt, FaSuitcase } from 'reac
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { FormInputField, FormTextAreaField } from '../../components/Common/InputField';
+import { ToastContainer, toast } from 'react-toastify';
 
 const InternshipDetails = ({ formData, setFormData }) => {
   return (
@@ -17,11 +18,13 @@ const InternshipDetails = ({ formData, setFormData }) => {
       <div className='flex flex-col space-y-2'>
         <FormInputField
           label={"Internship Title"}
+          required={true}
           args={{ placeholder: "Enter Internship Title", value: formData.title }}
           setter={(val) => setFormData(prev => ({ ...prev, title: val }))}
         />
         <FormInputField
           label={"Internship Location"}
+          required={true}
           args={{ placeholder: "Enter Internship Location", value: formData.location }}
           setter={(val) => setFormData(prev => ({ ...prev, location: val }))}
         />
@@ -55,6 +58,7 @@ const InternshipDetails = ({ formData, setFormData }) => {
         />
         <FormInputField
           label={"Duration"}
+          required={true}
           args={{ placeholder: "Enter Duration (e.g., 3 months)", value: formData.duration }}
           setter={(val) => setFormData(prev => ({ ...prev, duration: val }))}
         />
@@ -116,6 +120,7 @@ const ApplicationProcess = ({ formData, setFormData }) => {
         />
         <FormInputField
           label={"Application Deadline"}
+          required={true}
           args={{ placeholder: "Enter Application Deadline (YYYY-MM-DD)", type: "date", value: formData.application_deadline }}
           setter={(val) => setFormData(prev => ({ ...prev, application_deadline: val }))}
         />
@@ -139,6 +144,7 @@ const ApplicationProcess = ({ formData, setFormData }) => {
         />
         <FormInputField
           label={"Internship Link"}
+          required={true}
           args={{ placeholder: "Enter the application link", value: formData.internship_link }}
           setter={(val) => setFormData(prev => ({ ...prev, internship_link: val }))}
         />
@@ -146,6 +152,77 @@ const ApplicationProcess = ({ formData, setFormData }) => {
           label={"Selection Process"}
           args={{ placeholder: "Describe the selection process for applicants", value: formData.selection_process }}
           setter={(val) => setFormData(prev => ({ ...prev, selection_process: val }))}
+        />
+      </div>
+    </>
+  );
+};
+
+const InternshipPreview = ({ formData, setFormData }) => {
+  return (
+    <>
+      <div className='flex flex-col space-y-2'>
+        <FormInputField
+          label={"Internship Title"}
+          required={true}
+          disabled={true}
+          args={{ placeholder: "Enter Internship Title", value: formData.title }}
+          setter={(val) => setFormData(prev => ({ ...prev, title: val }))}
+        />
+        <FormInputField
+          label={"Internship Location"}
+          required={true}
+          disabled={true}
+          args={{ placeholder: "Enter Internship Location", value: formData.location }}
+          setter={(val) => setFormData(prev => ({ ...prev, location: val }))}
+        />
+        <FormInputField
+          label={"Application Deadline"}
+          required={true}
+          disabled={true}
+          args={{ placeholder: "Enter Application Deadline (YYYY-MM-DD)", type: "date", value: formData.application_deadline }}
+          setter={(val) => setFormData(prev => ({ ...prev, application_deadline: val }))}
+        />
+        <FormInputField
+          label={"Internship Type"}
+          disabled={true}
+          args={{ placeholder: "Enter Internship Type", value: formData.internship_type }}
+          setter={(val) => setFormData(prev => ({ ...prev, internship_type: val }))}
+        />
+        <FormInputField
+          label={"Company Name"}
+          disabled={true}
+          args={{ placeholder: "Enter Company Name", value: formData.company_name }}
+          setter={(val) => setFormData(prev => ({ ...prev, company_name: val }))}
+        />
+      </div>
+
+      <div className='flex flex-col space-y-2'>
+        <FormTextAreaField
+          label={"Internship Description"}
+          disabled={true}
+          args={{ placeholder: "Enter a brief description of the internship", value: formData.job_description }}
+          setter={(val) => setFormData(prev => ({ ...prev, job_description: val }))}
+        />
+        <FormInputField
+          label={"Internship Link"}
+          required={true}
+          disabled={true}
+          args={{ placeholder: "Enter the application link", value: formData.internship_link }}
+          setter={(val) => setFormData(prev => ({ ...prev, internship_link: val }))}
+        />
+        <FormInputField
+          label={"Duration"}
+          required={true}
+          disabled={true}
+          args={{ placeholder: "Enter Duration (e.g., 3 months)", value: formData.duration }}
+          setter={(val) => setFormData(prev => ({ ...prev, duration: val }))}
+        />
+        <FormInputField
+          label={"Stipend Range"}
+          disabled={true}
+          args={{ placeholder: "Enter Stipend Range (e.g., $500 - $1000)", value: formData.stipend }}
+          setter={(val) => setFormData(prev => ({ ...prev, stipend: val }))}
         />
       </div>
     </>
@@ -317,13 +394,14 @@ const InternPostForm = () => {
     e.preventDefault();
 
     if (formData.company_website && !validateUrl(formData.company_website)) {
-        setUrlError('Invalid URL');
-        return;
+      toast.error('Invalid URL');
+      return;
     }
 
     // Validate Deadline
     if (!validateDeadline(formData.application_deadline)) {
-        return;
+      toast.error('please check the deadline');
+      return;
     }
 
     setIsSubmitting(true);
@@ -331,48 +409,48 @@ const InternPostForm = () => {
     setError('');
 
     try {
-        const token = Cookies.get('jwt');
-        if (!token) {
-            setError('No token found. Please log in.');
-            setIsSubmitting(false);
-            return;
-        }
-
-        // Replace empty fields with "NA"
-        const formattedData = Object.keys(formData).reduce((acc, key) => {
-          acc[key] = formData[key] === '' ? 'NA' : formData[key];
-          return acc;
-        }, {});
-
-        // Ensure application_deadline is properly formatted
-        formattedData.application_deadline =
-            formattedData.application_deadline instanceof Date
-            ? formattedData.application_deadline.toISOString().split('T')[0]
-            : formattedData.application_deadline; // If it's already a string, use it as is
-
-        console.log("Sending data to API:", formattedData); // Debugging
-
-        // API Call
-        const response = await axios.post(
-            'http://localhost:8000/api/post-internship/',
-            { ...formattedData, userId, role: userRole },
-            {
-                headers: { Authorization: `Bearer ${token}` }, // Ensure auth header
-            }
-        );
-
-        console.log("API Response:", response.data); // Debugging
-
-        setMessage(response.data.message);
-        window.location.href = `${window.location.origin}/internships`;
-    } catch (error) {
-        console.error("API Error:", error); // Debugging
-        setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
-        setToastMessage(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
-    } finally {
+      const token = Cookies.get('jwt');
+      if (!token) {
+        setError('No token found. Please log in.');
         setIsSubmitting(false);
+        return;
+      }
+
+      // Replace empty fields with "NA"
+      const formattedData = Object.keys(formData).reduce((acc, key) => {
+        acc[key] = formData[key] === '' ? 'NA' : formData[key];
+        return acc;
+      }, {});
+
+      // Ensure application_deadline is properly formatted
+      formattedData.application_deadline =
+        formattedData.application_deadline instanceof Date
+          ? formattedData.application_deadline.toISOString().split('T')[0]
+          : formattedData.application_deadline; // If it's already a string, use it as is
+
+      console.log("Sending data to API:", formattedData); // Debugging
+
+      // API Call
+      const response = await axios.post(
+        'http://localhost:8000/api/post-internship/',
+        { ...formattedData, userId, role: userRole },
+        {
+          headers: { Authorization: `Bearer ${token}` }, // Ensure auth header
+        }
+      );
+
+      console.log("API Response:", response.data); // Debugging
+
+      setMessage(response.data.message);
+      window.location.href = `${window.location.origin}/internships`;
+    } catch (error) {
+      console.error("API Error:", error); // Debugging
+      setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
+      setToastMessage(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
+    } finally {
+      setIsSubmitting(false);
     }
-};
+  };
 
   useEffect(() => {
     if (toastMessage) {
@@ -433,6 +511,8 @@ const InternPostForm = () => {
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
+      <ToastContainer />
+
       <div className='flex-1 flex items-center justify-center p-6'>
         <div className='flex-1 p-8 bg-white rounded-xl flex flex-col h-[80%]'>
           <div className='flex justify-between items-center text-2xl pb-4 border-b border-gray-300'>
@@ -462,25 +542,6 @@ const InternPostForm = () => {
                         ${key === 0 ? "rounded-tl-lg" : ""}
                         ${key === array.length - 1 ? "rounded-bl-lg border-b-transparent" : ""}
                         ${prop.status === "active" ? "border-l-yellow-400" : prop.status === "completed" ? "border-l-[#00B69B]" : "border-l-gray-300"}`}
-                      onClick={() => {
-                        setCategories(prevCategories => {
-                          const updatedCategories = {};
-                          let foundActive = false;
-
-                          Object.keys(prevCategories).forEach(k => {
-                            if (k === category) {
-                              updatedCategories[k] = { ...prevCategories[k], status: "active" };
-                              foundActive = true;
-                            } else if (foundActive) {
-                              updatedCategories[k] = { ...prevCategories[k], status: "unvisited" };
-                            } else {
-                              updatedCategories[k] = { ...prevCategories[k], status: prevCategories[k].status === "active" ? "completed" : prevCategories[k].status };
-                            }
-                          });
-
-                          return updatedCategories;
-                        });
-                      }}
                     >
                       <p className='text-gray-900 p-2 inline-block'>{prop.icon}</p>
                       <p>{category}</p>
@@ -523,9 +584,9 @@ const InternPostForm = () => {
                   "Internship Details": <InternshipDetails formData={formData} setFormData={setFormData} />,
                   "Internship Requirements": <InternshipRequirements formData={formData} setFormData={setFormData} />,
                   "Application Process": <ApplicationProcess formData={formData} setFormData={setFormData} />,
-                  "Summary": <InternshipDetails formData={formData} setFormData={setFormData} />,
+                  "Summary": <InternshipPreview formData={formData} setFormData={setFormData} />,
                 }[
-                  Object.entries(categories).find(([_, prop]) => prop.status === "active")?.[0]
+                Object.entries(categories).find(([_, prop]) => prop.status === "active")?.[0]
                 ]
               }
             </div>
