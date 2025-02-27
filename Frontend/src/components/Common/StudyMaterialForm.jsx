@@ -285,6 +285,7 @@ export default function StudyMaterialForm() {
                         value={formData.title}
                         onChange={handleChange}
                         required
+                        maxLength={100}
                         className="w-full mb-3 border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 outline-none focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
                         placeholder="Enter the material title here"
                       />
@@ -307,9 +308,10 @@ export default function StudyMaterialForm() {
                       value={formData.description}
                       onChange={handleChange}
                       required
+                      maxLength="200"
                       className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none outline-none"
                       rows="4"
-                      placeholder="Enter the material description here"
+                      placeholder="Enter the material description here (max 200 characters)"
                     ></textarea>
                   </div>
                 </div>
