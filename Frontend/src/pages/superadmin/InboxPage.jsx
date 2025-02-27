@@ -33,7 +33,6 @@ const InboxPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("Jobs");
   const [selectedItem, setSelectedItem] = useState(null);
   const [currentPage, setCurrentPage] = useState({
-    contactMessages: 1,
     achievements: 1,
     internships: 1,
     studyMaterials: 1,
@@ -254,12 +253,6 @@ const InboxPage = () => {
     const currentPageNumber = currentPage[selectedCategory];
 
     switch (selectedCategory) {
-      case "contactMessages":
-        itemsToDisplay = students.slice(
-          (currentPageNumber - 1) * itemsPerPage,
-          currentPageNumber * itemsPerPage
-        );
-        break;
       case "achievements":
         itemsToDisplay = achievements.slice(
           (currentPageNumber - 1) * itemsPerPage,
@@ -774,17 +767,6 @@ const InboxPage = () => {
             >
               <Trophy className="h-4 w-4" />
               Student Achievements
-            </button>
-            <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
-                selectedCategory === "contactMessages"
-                  ? "bg-yellow-50 text-yellow-600"
-                  : "hover:bg-gray-200"
-              }`}
-              onClick={() => setSelectedCategory("contactMessages")}
-            >
-              <Mail className="h-4 w-4" />
-              Contact Messages
             </button>
           </nav>
         </div>
