@@ -11,6 +11,27 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { FormInputField, FormTextAreaField } from '../../components/Common/InputField';
 import { ToastContainer, toast } from 'react-toastify';
+import { MultiStepLoader as Loader } from "../../components/ui/multi-step-loader";
+
+
+const loadingStates = [
+  {
+    text: "Gathering internship details",
+  },
+  {
+    text: "Checking application deadline",
+  },
+  {
+    text: "Preparing application process",
+  },
+  {
+    text: "Finalizing internship posting",
+  },
+  {
+    text: "Internship posted successfully",
+  },
+];
+
 
 const InternshipDetails = ({ formData, setFormData }) => {
   return (
@@ -277,6 +298,18 @@ const InternPostForm = () => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 10000); // 10000 milliseconds = 10 seconds
+
+      // Cleanup function to clear the timer if the component unmounts or loading changes
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   const [categories, setCategories] = useState({
     "Internship Details": { status: "active", icon: <FaSuitcase /> },
@@ -390,66 +423,73 @@ const InternPostForm = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (formData.company_website && !validateUrl(formData.company_website)) {
-      toast.error('Invalid URL');
-      return;
-    }
-
-    // Validate Deadline
-    if (!validateDeadline(formData.application_deadline)) {
-      toast.error('please check the deadline');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setMessage('');
-    setError('');
-
-    try {
-      const token = Cookies.get('jwt');
-      if (!token) {
-        setError('No token found. Please log in.');
-        setIsSubmitting(false);
+  const handleSubmit = async () => {
+    setLoading(true); // Start the loader
+  
+    // Simulate loader duration with setTimeout
+    setTimeout(async () => {
+      if (formData.company_website && !validateUrl(formData.company_website)) {
+        toast.error('Invalid URL');
+        setLoading(false); // Stop the loader if validation fails
         return;
       }
-
-      // Replace empty fields with "NA"
-      const formattedData = Object.keys(formData).reduce((acc, key) => {
-        acc[key] = formData[key] === '' ? 'NA' : formData[key];
-        return acc;
-      }, {});
-
-      // Ensure application_deadline is properly formatted
-      formattedData.application_deadline =
-        formattedData.application_deadline instanceof Date
-          ? formattedData.application_deadline.toISOString().split('T')[0]
-          : formattedData.application_deadline; // If it's already a string, use it as is
-
-      console.log("Sending data to API:", formattedData); // Debugging
-
-      // API Call
-      const response = await axios.post(
-        'http://localhost:8000/api/post-internship/',
-        { ...formattedData, userId, role: userRole },
-        {
-          headers: { Authorization: `Bearer ${token}` }, // Ensure auth header
+  
+      // Validate Deadline
+      if (!validateDeadline(formData.application_deadline)) {
+        toast.error('please check the deadline');
+        setLoading(false); // Stop the loader if validation fails
+        return;
+      }
+  
+      setIsSubmitting(true);
+      setMessage('');
+      setError('');
+  
+      try {
+        const token = Cookies.get('jwt');
+        if (!token) {
+          setError('No token found. Please log in.');
+          setIsSubmitting(false);
+          setLoading(false); // Stop the loader if no token is found
+          return;
         }
-      );
-
-      console.log("API Response:", response.data); // Debugging
-
-      setMessage(response.data.message);
-      window.location.href = `${window.location.origin}/internships`;
-    } catch (error) {
-      console.error("API Error:", error); // Debugging
-      setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
-      setToastMessage(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
-    } finally {
-      setIsSubmitting(false);
-    }
+  
+        // Replace empty fields with "NA"
+        const formattedData = Object.keys(formData).reduce((acc, key) => {
+          acc[key] = formData[key] === '' ? 'NA' : formData[key];
+          return acc;
+        }, {});
+  
+        // Ensure application_deadline is properly formatted
+        formattedData.application_deadline =
+          formattedData.application_deadline instanceof Date
+            ? formattedData.application_deadline.toISOString().split('T')[0]
+            : formattedData.application_deadline; // If it's already a string, use it as is
+  
+        console.log("Sending data to API:", formattedData); // Debugging
+  
+        // API Call
+        const response = await axios.post(
+          'http://localhost:8000/api/post-internship/',
+          { ...formattedData, userId, role: userRole },
+          {
+            headers: { Authorization: `Bearer ${token}` }, // Ensure auth header
+          }
+        );
+  
+        console.log("API Response:", response.data); // Debugging
+  
+        setMessage(response.data.message);
+        window.location.href = `${window.location.origin}/internships`;
+      } catch (error) {
+        console.error("API Error:", error); // Debugging
+        setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
+        setToastMessage(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
+      } finally {
+        setIsSubmitting(false);
+        setLoading(false); // Stop the loader after API call
+      }
+    }, 10000); // Adjust the duration to match your loader duration
   };
 
   useEffect(() => {
@@ -534,6 +574,7 @@ const InternPostForm = () => {
           <div className='flex items-stretch'>
             <div className='w-1/4 border-r border-gray-300 flex flex-col p-4'>
               <div className='border-y border-r border-gray-300 flex flex-col rounded-lg'>
+              <Loader loadingStates={loadingStates} loading={loading} duration={2000} />
                 {
                   Object.entries(categories).map(([category, prop], key, array) =>
                     <div
