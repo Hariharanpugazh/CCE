@@ -27,9 +27,6 @@ const loadingStates = [
   {
     text: "Finalizing internship posting",
   },
-  {
-    text: "Internship posted successfully",
-  },
 ];
 
 
