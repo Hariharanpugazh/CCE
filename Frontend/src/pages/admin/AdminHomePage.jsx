@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus, FaUsers } from "react-icons/fa";
+import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus, FaUsers, FaArrowRight, FaCircle, FaUser, FaUserAlt } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Cookies from "js-cookie";
 import ApplicationCard from "../../components/Students/ApplicationCard";
 import Pagination from "../../components/Admin/pagination"; // Import Pagination
+import { Link } from "react-router-dom";
 
 const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
@@ -34,14 +35,13 @@ const AdminHome = () => {
   const studentCount = students.length;
 
   const cardsData = [
-    { title: "Overall", count: jobs.length + internships.length, icon: <FaListAlt /> },
-    { title: "Total Job Listings", count: jobs.length, icon: <FaCheck /> },
-    { title: "Total Internship Listings", count: internships.length, icon: <FaBook /> },
-    { title: "Approved Jobs", count: approvedCount, icon: <FaCheck /> },
-    { title: "Rejected Jobs", count: rejectedCount, icon: <FaTrophy /> },
-    { title: "Pending Approvals", count: pendingCount, icon: <FaUserPlus /> },
-    { title: "Total Students", count: studentCount, icon: <FaUsers /> },
+    { title: "Total Job Listings", count: jobs.length, icon: <FaCheck />, Link: "/" },
+    { title: "Total Internship Listings", count: internships.length, icon: <FaBook />, Link: "/" },
+    { title: "Rejected Jobs", count: rejectedCount, icon: <FaTrophy />, Link: "/" },
+    { title: "Pending Approvals", count: pendingCount, icon: <FaUserPlus />, Link: "/" },
   ];
+
+  const [activeListing, setActiveListing] = useState("Jobs")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -156,77 +156,154 @@ const AdminHome = () => {
   };
 
   return (
-    <div className="flex w-full h-screen overflow-auto bg-gray-100">
+    <div className="flex w-full h-screen bg-gray-100 overflow-hidden"> {/* Prevents overflow */}
       <AdminPageNavbar />
-      <div className="flex-1 flex flex-col">
-        <header className="flex flex-col items-center justify-center py-10 container self-center">
-          <p className="text-4xl font-bold tracking-[0.8px]">Admin Dashboard</p>
-          <p className="text-lg mt-2 text-center text-gray-600">
-            Explore all the Postings in all the existing fields around the globe.
-          </p>
-        </header>
-        <div className="px-10 pb-14">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-            {cardsData.map((card, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col gap-1">
-                    <span className="font-normal text-sm text-gray-500">{card.title}</span>
-                    <span className="text-2xl font-semibold text-gray-800">{card.count}</span>
-                  </div>
-                  <div className="p-2 bg-yellow-500 text-white rounded flex items-center justify-center shadow-sm">
-                    {card.icon}
-                  </div>
+
+      <div className="flex flex-col space-y-4 p-4 flex-1 h-full"> {/* h-full to prevent double height issues */}
+        {/* Heading */}
+        <div>
+          <p className="text-3xl"> Welcome Back Admin! </p>
+          <p className="text-lg"> Here is your dashboard analytics. </p>
+        </div>
+
+        {/* Upload counts and recent requests */}
+        <div className="flex space-x-4 flex-1">
+          {/* Counts */}
+          <div className="grid grid-cols-2 gap-4">
+            {cardsData.map((category, key) => (
+              <div key={key} className="bg-white rounded-xl p-4 flex flex-col justify-between space-y-2">
+                <div className="flex space-x-2 items-center">
+                  <div className="p-2 border rounded"> {category.icon} </div>
+                  <p> {category.title} </p>
                 </div>
+                <p className="text-5xl pb-4 border-b border-gray-300"> {category.count} </p>
+                <button className="flex items-center text-yellow-400 text-xs space-x-1"
+                  onClick={() => window.location.href = category.Link}>
+                  <p className="text-sm"> View All </p> <FaArrowRight />
+                </button>
               </div>
             ))}
           </div>
 
-          {/* Filter Section with Yellow Navigation */}
-          <div className="flex justify-between items-center my-6">
-            <div className="flex text-sm gap-4">
-              {["All", "Approved", "Rejected", "Pending Approvals", "Jobs", "Internships"].map((status) => (
-                <button
-                  key={status}
-                  className={`px-4 rounded-full py-1 ${filter === status ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-                    }`}
-                  onClick={() => setFilter(status)}
-                >
-                  {status}
+          {/* Approval Requests Table */}
+          <div className="flex flex-col rounded-lg bg-white flex-1">
+            <div className="flex justify-between p-3 py-2">
+              <p className="font-semibold">Recent Approval Requests</p>
+              <p className="text-yellow-400 cursor-pointer">View All</p>
+            </div>
+
+            {/* Scrollable Table */}
+            <div className="overflow-y-auto max-h-[250px]"> {/* Restrict height */}
+              <table className="w-full rounded-lg">
+                <thead>
+                  <tr className="text-left border border-gray-400">
+                    <th className="px-3 py-2 font-normal text-sm"><input type="checkbox" /></th>
+                    <th className="px-3 py-2 font-normal text-sm">Title</th>
+                    <th className="px-3 py-2 font-normal text-sm">Company</th>
+                    <th className="px-3 py-2 font-normal text-sm">Staff Name</th>
+                    <th className="px-3 py-2 font-normal text-sm">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...jobs, ...internships].map((item, index) => (
+                    <tr key={index} className="text-left border-b border-gray-200 cursor-pointer" onClick={() => item.internship_data ? window.location.href = `/internship-preview/${item._id}` : window.location.href = `/job-preview/${item._id}`}>
+                      <td className="px-3 py-2 font-normal text-sm"><input type="checkbox" /></td>
+                      <td className="px-3 py-2 font-normal text-sm">{item.internship_data?.title ?? item.job_data?.title}</td>
+                      <td className="px-3 py-2 font-normal text-sm">{item.internship_data?.company_name ?? item.job_data?.company_name}</td>
+                      <td className="px-3 py-2 font-normal text-sm">{item.internship_data?.title ?? item.job_data?.title}</td>
+                      <td className="px-3 py-2 font-normal text-sm">{item.internship_data?.title ?? item.job_data?.title}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Listings and Inbox */}
+        <div className="flex space-x-4 flex-1 overflow-hidden"> {/* Prevents overflow */}
+          {/* Listings */}
+          <div className="flex-1 p-3 bg-white rounded-lg flex flex-col space-y-3 h-full overflow-hidden">
+            <div className="flex justify-between text-lg pb-2 border-b border-gray-300 px-1 items-center">
+              <p> All Listings </p>
+              <p className="text-sm text-yellow-400"> View All </p>
+            </div>
+
+            <div className="flex space-x-3">
+              {["Jobs", "Internships", "Achievements"].map(type => (
+                <button key={type}
+                  className={`px-3 py-1 rounded-lg cursor-pointer border ${activeListing === type ? "bg-yellow-200 border border-yellow-400" : "border-transparent"}`}
+                  onClick={() => setActiveListing(type)}>
+                  {type}
                 </button>
               ))}
             </div>
+
+            <div className="flex flex-col space-y-3 justify-between h-full overflow-y-auto max-h-[300px]"> {/* Scroll Fix */}
+              {
+                {
+                  Jobs: [...jobs],
+                  Internships: [...internships],
+                  Achievements: [...jobs]
+                }[activeListing].slice(0, 6).map((listing, key) => (
+                  <div key={key} className="flex space-x-2 items-stretch">
+                    <div className="flex items-center justify-between flex-1 border border-gray-400 rounded p-3 py-2">
+                      {/* Left Section */}
+                      <div className="flex items-center flex-1 space-x-2 min-w-0">
+                        <FaCircle color="#009946" size={6} />
+
+                        {/* Title */}
+                        <p className="font-semibold flex-1 text-center truncate min-w-0">
+                          {listing.internship_data?.title ?? listing.job_data?.title}
+                        </p>
+
+                        {/* Company Name */}
+                        <p className="text-sm text-gray-400 flex-1 truncate min-w-0">
+                          {listing.internship_data?.company_name ?? listing.job_data?.company_name}
+                        </p>
+                      </div>
+
+                      {/* Right Section */}
+                      <p className="text-xs text-right w-1/4 min-w-fit">Updated 2 days ago</p>
+                    </div>
+                    <button className="px-6 p-1 border rounded cursor-pointer border-gray-400 text-sm" onClick={() => listing.internship_data ? window.location.href = `/internship-edit/${listing._id}` : window.location.href = `/job-edit/${listing._id}`}>Edit</button>
+                    <button className="px-3 p-1 bg-yellow-400 rounded cursor-pointer text-sm" onClick={() => listing.internship_data ? window.location.href = `/internship-preview/${listing._id}` : window.location.href = `/job-preview/${listing._id}`}>View details</button>
+                  </div>
+                ))
+              }
+              <p className="text-yellow-400 text-center cursor-pointer"> Show all listings </p>
+            </div>
           </div>
 
-          {/* Displaying the Cards */}
-          <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-            {getPaginatedData(filteredJobs).map((job) => (
-              <ApplicationCard
-                key={job._id}
-                application={{ ...job, ...job.job_data, total_views: job.total_views }}
-                handleCardClick={() => { }}
-                isSaved={undefined}
-              />
-            ))}
-          </div>
-          <div className="w-full self-center mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 justify-stretch">
-            {getPaginatedData(filteredInterns).map((internship) => (
-              <ApplicationCard
-                key={internship._id}
-                application={{ ...internship, ...internship.internship_data, total_views: internship.total_views }}
-                handleCardClick={() => { }}
-                isSaved={undefined}
-              />
-            ))}
-          </div>
+          {/* Inbox */}
+          <div className="w-1/3 bg-white rounded-lg h-full p-3 overflow-y-auto space-y-4"> {/* Fixed height issue */}
+            <div className="flex justify-between  items-centertext-lg pb-2 border-b border-gray-300 px-1">
+              <p> Inbox </p>
+              <p className="text-sm text-yellow-400"> View All </p>
+            </div>
 
-          {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalItems={filteredJobs.length + filteredInterns.length}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
-          />
+            <div className="flex flex-col space-y-3">
+              {
+                [...jobs, ...internships].slice(0, 6).map((listing, key) =>
+                  (listing.is_publish !== null) && (
+                    <div key={key} className="border border-gray-300 rounded flex space-x-3 p-2 py-3 items-center">
+                      <span className="p-2"> <FaUserAlt /></span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center space-x-3 text-lg">
+                          <p>Super Admin</p>
+                          <FaCircle color={listing.is_publish ? "#009946" : "#EF3826"} size={6} />
+                        </div>
+                        <p className="text-xs">
+                          Your {listing.internship_data ? "Internship" : "Job"} listing <span className="font-semibold">{listing.internship_data?.title ?? listing.job_data?.title}</span> has been {listing.is_publish ? "Approved" : "Rejected"}.
+                        </p>
+                      </div>
+                    </div>
+                  )
+                )
+              }
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
