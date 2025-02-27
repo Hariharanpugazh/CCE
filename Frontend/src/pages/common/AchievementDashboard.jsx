@@ -5,6 +5,7 @@ import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import { LoaderContext } from "../../components/Common/Loader";
 import Squares from "../../components/ui/GridLogin";
 import Pagination from "../../components/Admin/pagination";
+import Footer from "../../components/Common/Footer"; 
 
 export default function AchievementDashboard() {
   // State management
@@ -345,67 +346,7 @@ export default function AchievementDashboard() {
         />
 
         {/* Footer */}
-        <footer className="w-full flex justify-center items-center min-h-[30vh] mt-20">
-          <div className="container p-4 md:p-10">
-            <div className="flex flex-col md:flex-row">
-              <div className="w-full md:w-2/5 mb-8 md:mb-0">
-                <h3 className="text-2xl md:text-3xl mb-5">
-                  Centre for Competitive Exams
-                </h3>
-                <div className="w-full md:w-3/4">
-                  <p className="text-xs md:text-sm">
-                    CCE focuses on constantly endeavor to identify the potential
-                    opportunities for our students to elevate their personality
-                    and professional competence, which in turn will enhance
-                    their socio-economic status
-                  </p>
-                  <hr className="border-1 border-black my-5" />
-                  <p className="text-xs md:text-sm mb-5">
-                    SNS Kalvi Nagar, Sathy Mani Road NH-209,
-                    <br />
-                    Vazhiyampalayam, Saravanampatti, Coimbatore,
-                    <br />
-                    Tamil Nadu
-                    <br />
-                    641035
-                  </p>
-                  <div className="flex space-x-7">
-                    <i className="bi bi-linkedin text-xl md:text-2xl"></i>
-                    <i className="bi bi-youtube text-xl md:text-2xl"></i>
-                    <i className="bi bi-instagram text-xl md:text-2xl"></i>
-                    <i className="bi bi-twitter text-xl md:text-2xl"></i>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full md:w-3/5 flex flex-wrap justify-between md:pl-20">
-                {["Products", "Resources", "Company", "Support"].map(
-                  (category) => (
-                    <div
-                      key={category}
-                      className="w-1/2 md:w-auto mb-6 md:mb-0"
-                    >
-                      <p className="font-bold mb-4 md:mb-10">{category}</p>
-                      <ul className="space-y-2 md:space-y-3">
-                        {[...Array(6)].map((_, index) => (
-                          <li key={index}>
-                            <p className="text-xs">Product</p>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-            <div className="my-6 md:my-10 space-y-5">
-              <hr className="border-1 border-black" />
-              <p className="text-xs md:text-sm">
-                &copy; {new Date().getFullYear()} SNS iHub Workplace. All Rights
-                Reserved
-              </p>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
       <style jsx>{`
         /* Hide scrollbar for Chrome, Safari and Opera */
