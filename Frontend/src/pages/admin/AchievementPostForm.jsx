@@ -308,7 +308,8 @@ export default function AchievementPostForm() {
                 required
                 className="w-full flex-1 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none"
                 rows="5"
-                placeholder="Enter the achievement description here"
+                maxLength={300}
+                placeholder="Enter the achievement description here (Max 300 characters)"
               ></textarea>
             </div>
           </div>
