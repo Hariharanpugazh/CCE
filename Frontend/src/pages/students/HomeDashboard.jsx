@@ -530,7 +530,7 @@ const AboutCCE = () => {
               "https://smitg.ukzn.ac.za/wp-content/uploads/2022/07/default-profie-image-m.jpg",
           },
           {
-            name: "Sindhuja",
+            name: "Mohana Priya",
             post: "M.Tech, Ph.D (Maths)",
             title: "CCE Support Staff",
             photo: mentor1,
