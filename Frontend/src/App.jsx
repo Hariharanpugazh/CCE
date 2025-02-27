@@ -44,6 +44,7 @@ import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
 import JobEntrySelection from "./pages/admin/JobEntrySelection";
 import InternshipEntrySelection from "./pages/admin/InternshipEntrySelection";
+import Message from "./pages/superadmin/Message";
 
 
 
@@ -131,6 +132,8 @@ function App() {
           <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
           <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
           <Route path={"/admin-details/:id"} element={<ProtectedRoute> <AdminDetailPage /> </ProtectedRoute>} />
+          <Route path={"/message"} element={<ProtectedRoute> <Message /> </ProtectedRoute>} />
+          
         </Routes>
       </LoaderContext.Provider>
     </BrowserRouter>

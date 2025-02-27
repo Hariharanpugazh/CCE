@@ -461,10 +461,10 @@
 
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import { FiMail, FiPlus, FiMenu } from "react-icons/fi";
+import { FiMail, FiPlus, FiMenu, FiBell } from "react-icons/fi";
 import snslogo from "../../assets/images/SNS Group Logo 1.png";
 import { RxDashboard } from "react-icons/rx";
-import { MdOutlineWorkOutline } from "react-icons/md";
+import { MdOutlineNotifications, MdOutlineWorkOutline } from "react-icons/md";
 import { PiStudent } from "react-icons/pi";
 import { GoTrophy } from "react-icons/go";
 import verifyIcon from "../../assets/icons/material-symbols_order-approve-outline-rounded.png";
@@ -593,6 +593,18 @@ export default function SuperAdminSidebar() {
               </li>
               <li className="mb-2">
                 <a
+                  href="/message"
+                  className={`flex items-center p-2 rounded ${
+                    currentPath === "/message"
+                      ? "bg-yellow-200"
+                      : "hover:bg-yellow-200"
+                  }`}
+                >
+                  <FiMail className="mr-3" /> Inbox
+                </a>
+              </li>
+              <li className="mb-2">
+                <a
                   href="/contact-inbox"
                   className={`flex items-center p-2 rounded ${
                     currentPath === "/contact-inbox"
@@ -600,7 +612,7 @@ export default function SuperAdminSidebar() {
                       : "hover:bg-yellow-200"
                   }`}
                 >
-                  <FiMail className="mr-3" /> Inbox
+                  <MdOutlineNotifications className="mr-3" /> Notifications
                 </a>
               </li>
 
