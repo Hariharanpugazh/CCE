@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { FaListAlt, FaCheck, FaBook, FaTrophy, FaUserPlus, FaUsers, FaArrowRight, FaCircle, FaUser, FaUserAlt } from "react-icons/fa";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import ApplicationCard from "../../components/Students/ApplicationCard";
 import Pagination from "../../components/Admin/pagination"; // Import Pagination
 import { Link } from "react-router-dom";
+import { LoaderContext } from "../../components/Common/Loader";
 
 const AdminHome = () => {
   const [jobs, setJobs] = useState([]);
@@ -16,6 +17,8 @@ const AdminHome = () => {
   const [searchPhrase, setSearchPhrase] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [filteredInterns, setFilteredInterns] = useState([]);
+
+  const { setIsLoading } = useContext(LoaderContext)
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,6 +48,7 @@ const AdminHome = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setIsLoading(true)
       try {
         const token = Cookies.get("jwt");
         if (!token) {
@@ -73,24 +77,26 @@ const AdminHome = () => {
         setInternships(internshipsData);
         setFilteredJobs(jobsData);
         setFilteredInterns(internshipsData);
+        setIsLoading(false)
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to load data.");
+        setIsLoading(false)
       }
     };
 
-    const fetchStudents = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/api/students/");
-        setStudents(response.data.students);
-      } catch (err) {
-        console.error("Error fetching students:", err);
-        setError("Failed to load student data.");
-      }
-    };
+    // const fetchStudents = async () => {
+    //   try {
+    //     const response = await axios.get("http://localhost:8000/api/students/");
+    //     setStudents(response.data.students);
+    //   } catch (err) {
+    //     console.error("Error fetching students:", err);
+    //     setError("Failed to load student data.");
+    //   }
+    // };
 
     fetchData();
-    fetchStudents();
+    // fetchStudents();
   }, []);
 
   useEffect(() => {
@@ -197,7 +203,6 @@ const AdminHome = () => {
               <table className="w-full rounded-lg">
                 <thead>
                   <tr className="text-left border border-gray-400">
-                    <th className="px-3 py-2 font-normal text-sm"><input type="checkbox" /></th>
                     <th className="px-3 py-2 font-normal text-sm">Title</th>
                     <th className="px-3 py-2 font-normal text-sm">Company</th>
                     <th className="px-3 py-2 font-normal text-sm">Staff Name</th>
@@ -207,7 +212,6 @@ const AdminHome = () => {
                 <tbody>
                   {[...jobs, ...internships].map((item, index) => (
                     <tr key={index} className="text-left border-b border-gray-200 cursor-pointer" onClick={() => item.internship_data ? window.location.href = `/internship-preview/${item._id}` : window.location.href = `/job-preview/${item._id}`}>
-                      <td className="px-3 py-2 font-normal text-sm"><input type="checkbox" /></td>
                       <td className="px-3 py-2 font-normal text-sm">{item.internship_data?.title ?? item.job_data?.title}</td>
                       <td className="px-3 py-2 font-normal text-sm">{item.internship_data?.company_name ?? item.job_data?.company_name}</td>
                       <td className="px-3 py-2 font-normal text-sm">{item.internship_data?.title ?? item.job_data?.title}</td>

@@ -6,8 +6,6 @@ export function LoaderLayout() {
     const { isLoading } = useContext(LoaderContext)
 
     useEffect(() => {
-        console.log(isLoading)
-
         if (isLoading) {
             document.body.style.overflow = "hidden"
         } else {
