@@ -167,7 +167,7 @@ export default function AchievementPostForm() {
   };
 
   return (
-    <div className="flex justify-center min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100">
       <ToastContainer />
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
@@ -269,7 +269,7 @@ export default function AchievementPostForm() {
                 />
               </div>
 
-              <div className="border-dashed border-2 border-gray-400 rounded-xl pt-4 pb-2 px-2 text-center bg-white mt-4">
+              <div className="border-dashed border-2 border-gray-400 rounded-xl pt-4 pb-2 px-2 text-center bg-white mt-4 w-full ">
                 <label
                   htmlFor="photo"
                   className="cursor-pointer text-blue-600 font-semibold text-xl hover:underline"
@@ -290,7 +290,7 @@ export default function AchievementPostForm() {
                     <img
                       src={imagePreview}
                       alt="Uploaded"
-                      className="max-h-30 mx-auto rounded-lg shadow-md"
+                      className="mx-auto rounded-lg shadow-md"
                     />
                   </div>
                 )}
