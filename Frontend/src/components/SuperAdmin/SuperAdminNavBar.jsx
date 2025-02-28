@@ -670,6 +670,19 @@ export default function SuperAdminSidebar() {
               <h2 className="text-gray-500 font-medium mb-4 ml-2">MANAGE</h2>
 
               <ul>
+              <li className="mb-2">
+                  <a
+                    href="/Admin-Management"
+                    className={`flex items-center p-2 rounded ${
+                      currentPath === "/Admin-Management"
+                        ? "bg-yellow-200"
+                        : "hover:bg-yellow-200"
+                    }`}
+                  >
+                    <img src={AdminIcon} alt="Manage Post" className="mr-2" />
+                    Admin Management
+                  </a>
+                </li>
                 <li className="mb-2">
                   <a
                     href="/manage-student"
@@ -685,19 +698,6 @@ export default function SuperAdminSidebar() {
                       className="mr-2"
                     />
                     Student Management
-                  </a>
-                </li>
-                <li className="mb-2">
-                  <a
-                    href="/Admin-Management"
-                    className={`flex items-center p-2 rounded ${
-                      currentPath === "/Admin-Management"
-                        ? "bg-yellow-200"
-                        : "hover:bg-yellow-200"
-                    }`}
-                  >
-                    <img src={AdminIcon} alt="Manage Post" className="mr-2" />
-                    Admin Management
                   </a>
                 </li>
                 <li className="mb-2">
