@@ -195,16 +195,6 @@ export default function StudyMaterialForm() {
     }
   }, []);
 
-  const handleClose = () => {
-    setFormData({
-      type: "Exam",
-      title: "",
-      description: "",
-      category: "",
-      links: [{ type: "", link: "", topic: "", textContent: "" }],
-    });
-    navigate('/superadmin-dashboard'); // Navigate to the previous page
-  };
 
 
   const options = [
