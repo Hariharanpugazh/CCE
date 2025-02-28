@@ -13,7 +13,7 @@ jobs:
     name: check_adminA
     runs-on: ubuntu-latest
     env:
-      ADMINS: "Hariharanpugazh, Ajaychakii"  # Add multiple admins separated by commas 
+      ADMINS: "Hariharanpugazh, Ajaychaki2004"  # Add multiple admins separated by commas 
     steps:
       - name: Check if actor is an admin
         run: |
