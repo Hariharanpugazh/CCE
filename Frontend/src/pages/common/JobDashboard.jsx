@@ -7,8 +7,14 @@ import { AppPages } from "../../utils/constants";
 import Cookies from "js-cookie";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
-import { FaCaretDown, FaCaretUp, FaCircle, FaWindowClose } from "react-icons/fa";
+import {
+  FaCaretDown,
+  FaCaretUp,
+  FaCircle,
+  FaWindowClose,
+} from "react-icons/fa";
 import { FiBookmark, FiCircle, FiSearch, FiX } from "react-icons/fi";
+import Footer from "../../components/Common/Footer";
 
 // icon imports
 import { useNavigate } from "react-router-dom";
@@ -59,7 +65,6 @@ export default function JobDashboard() {
     setFilteredJobs(jobs);
   }, [jobs]);
 
-
   useEffect(() => {
     if (searchPhrase === "") {
       clearFilters();
@@ -71,15 +76,16 @@ export default function JobDashboard() {
             job.job_data.title.toLowerCase().includes(searchPhrase) ||
             job.job_data.company_name.toLowerCase().includes(searchPhrase) ||
             job.job_data.job_description.toLowerCase().includes(searchPhrase) ||
-            job.job_data.required_skills.some((skill) => skill.toLowerCase().includes(searchPhrase)) ||
+            job.job_data.required_skills.some((skill) =>
+              skill.toLowerCase().includes(searchPhrase)
+            ) ||
             job.job_data.work_type.toLowerCase().includes(searchPhrase)
         )
       );
     }
-    
+
     setCurrentPage(1);
   }, [searchPhrase, jobs]);
-  
 
   const navigate = useNavigate(); // Initialize useNavigate for navigation
 
@@ -87,7 +93,9 @@ export default function JobDashboard() {
   useEffect(() => {
     const fetchPublishedJobs = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/published-jobs/");
+        const response = await axios.get(
+          "http://localhost:8000/api/published-jobs/"
+        );
         const jobsWithType = response.data.jobs.map((job) => ({
           ...job,
           type: "job",
@@ -118,7 +126,9 @@ export default function JobDashboard() {
     try {
       const token = Cookies.get("jwt");
       const userId = JSON.parse(atob(token.split(".")[1])).student_user;
-      const response = await axios.get(`http://localhost:8000/api/saved-jobs/${userId}/`);
+      const response = await axios.get(
+        `http://localhost:8000/api/saved-jobs/${userId}/`
+      );
       setSavedJobs(response.data.jobs.map((job) => job._id));
       console.log(response.data.jobs.map((job) => job._id));
     } catch (err) {
@@ -195,7 +205,8 @@ export default function JobDashboard() {
         <header className="flex flex-col items-center justify-center py-14 container self-center">
           <p className="text-6xl tracking-[0.8px]">Jobs</p>
           <p className="text-lg mt-2 text-center">
-            Explore all the job opportunities in all the existing fields <br />around the globe.
+            Explore all the job opportunities in all the existing fields <br />
+            around the globe.
           </p>
         </header>
 
@@ -204,28 +215,47 @@ export default function JobDashboard() {
           <input
             type="text"
             value={searchPhrase}
-            onChange={(e) => setSearchPhrase(e.target.value.toLocaleLowerCase())}
+            onChange={(e) =>
+              setSearchPhrase(e.target.value.toLocaleLowerCase())
+            }
             placeholder={`Search Jobs`}
             className={`w-full text-lg p-2 px-4 bg-white hover:border-gray-400 outline-none ${borderColor}`}
           />
           <div className="flex mr-5 justify-center items-center space-x-4">
-            <select name="salaryRange" onChange={handleFilterChange} className="p-2 border-l border-gray-300">
+            <select
+              name="salaryRange"
+              onChange={handleFilterChange}
+              className="p-2 border-l border-gray-300"
+            >
               <option value="">Salary</option>
               <option value="10000-50000">10k-50k</option>
               <option value="50000-100000">50k-100k</option>
             </select>
-            <select name="experience" onChange={handleFilterChange} className="p-2 border-l border-gray-300">
+            <select
+              name="experience"
+              onChange={handleFilterChange}
+              className="p-2 border-l border-gray-300"
+            >
               <option value="">Experience</option>
               <option value="0year-2year">0-2 years</option>
               <option value="2year-5year">2-5 years</option>
             </select>
-            <select name="employmentType" onChange={handleFilterChange} className="p-2 border-l border-gray-300">
+            <select
+              name="employmentType"
+              onChange={handleFilterChange}
+              className="p-2 border-l border-gray-300"
+            >
               <option value="">Employment Type</option>
               <option value="Full-time">Full-Time</option>
               <option value="Part-time">Part-Time</option>
             </select>
           </div>
-          <button className={`px-13 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}> Search </button>
+          <button
+            className={`px-13 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}
+          >
+            {" "}
+            Search{" "}
+          </button>
         </div>
 
         <div className="flex px-10 space-x-5 items-start">
@@ -239,9 +269,13 @@ export default function JobDashboard() {
               {error ? (
                 <p className="text-red-600">{error}</p>
               ) : jobs.length === 0 ? (
-                <p className="text-gray-600">No jobs available at the moment.</p>
+                <p className="text-gray-600">
+                  No jobs available at the moment.
+                </p>
               ) : currentJobs.length === 0 ? (
-                <p className="alert alert-danger w-full col-span-full text-center">!! No Jobs Found !!</p>
+                <p className="alert alert-danger w-full col-span-full text-center">
+                  !! No Jobs Found !!
+                </p>
               ) : (
                 currentJobs.map((job) => (
                   <ApplicationCard
@@ -250,7 +284,11 @@ export default function JobDashboard() {
                     handleCardClick={() => {
                       setSelectedJob(job);
                     }}
-                    isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedJobs.includes(job._id)}
+                    isSaved={
+                      userRole === "superadmin" || userRole === "admin"
+                        ? undefined
+                        : savedJobs.includes(job._id)
+                    }
                   />
                 ))
               )}
@@ -261,6 +299,8 @@ export default function JobDashboard() {
               itemsPerPage={itemsPerPage}
               onPageChange={handlePageChange}
             />
+            {/* Footer */}
+            <Footer />
           </div>
 
           {/* job preview */}
@@ -268,7 +308,11 @@ export default function JobDashboard() {
             selectedItem={selectedJob}
             handleViewItem={() => navigate(`/job-preview/${selectedJob._id}`)}
             setSelectedItem={setSelectedJob}
-            isSaved={userRole === "superadmin" || userRole === "admin" ? undefined : savedJobs.includes(selectedJob?._id)}
+            isSaved={
+              userRole === "superadmin" || userRole === "admin"
+                ? undefined
+                : savedJobs.includes(selectedJob?._id)
+            }
             fetchSavedJobs={fetchSavedJobs}
           />
         </div>

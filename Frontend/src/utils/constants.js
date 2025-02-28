@@ -66,11 +66,7 @@ const AppPages = {
     name: "resetPassword",
     displayName: "Reset Password",
   },
-  studyMaterial :{
-    route: "/study-material-cards",
-    name: "studyMaterial",
-    displayName: "Study Material",
-  }
+  
 };
 
 const apiEndpoints = {

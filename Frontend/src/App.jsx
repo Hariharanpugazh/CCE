@@ -11,7 +11,7 @@ import MailPage from "./pages/superadmin/Management";
 import JobPostForm from "./pages/admin/JobPostForm";
 import AchievementPostForm from "./pages/admin/AchievementPostForm";
 import InternshipForm from "./pages/admin/IntershipForm";
-import AchievementDashboard from "./pages/students/AchievementDashboard";
+import AchievementDashboard from "./pages/common/AchievementDashboard";
 import HomeDashboard from "./pages/students/HomeDashboard";
 import LandingPage from "./pages/common/Landing";
 import ContactForm from "./pages/students/Contact";
@@ -21,8 +21,6 @@ import InternshipEdit from "./pages/admin/InternshipEdit";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import InternshipPreview from "./pages/students/InternshipPreview";
-import StudentInternshipPreview from "./pages/students/StudentInternshipPreview";
-import AdminAchievementDashboard from "./pages/admin/adminAchievementDashboard";
 import SuperAchievementDashboard from "./pages/superadmin/superAchievementDashboard";
 import ManageJobs from "./pages/admin/ManageJobs";
 import InboxPage from "./pages/superadmin/InboxPage";
@@ -39,18 +37,15 @@ import StudyEdit from "./pages/admin/StudyEdit";
 import Profile from "./pages/common/profile";
 import SavedJobs from './pages/students/SavedJobs';
 import StudentStudyMaterial from "./pages/students/StudentStudyMaterial";
-import AppliedJobs from "./pages/students/AppliedJobs";import AchivementEdit from "./pages/admin/AchivementEdit";
+import AppliedJobs from "./pages/students/AppliedJobs"; import AchivementEdit from "./pages/admin/AchivementEdit";
 import StudentMail from "./pages/students/StudentMail";
 import AchievementPreview from "./pages/students/AchievementPreview";
 import { LoaderContext, LoaderLayout } from "./components/Common/Loader";
 import { useState } from "react";
-import Student_Management_superadmin from "./pages/superadmin/StudentManagement_superadmin"
 import JobEntrySelection from "./pages/admin/JobEntrySelection";
 import InternshipEntrySelection from "./pages/admin/InternshipEntrySelection";
-import StudyMaterialCards from "./pages/students/StudyMaterialCards";
-import TopicsPage from "./pages/students/TopicsPage";
-import StudyMaterialsByCategory from './pages/students/StudyMaterialsByCategory';
-import CategoryPage from "./pages/students/CategoryPage";
+import Message from "./pages/superadmin/Message";
+
 
 
 // Protected Route Component
@@ -86,7 +81,7 @@ function App() {
         <LoaderLayout />
         <Routes>
           <Route path={"/"} element={<LandingPage />} />
-          
+
 
           {/* Student Routes */}
           <Route path="/student" element={<StudentLogin />} />
@@ -100,15 +95,10 @@ function App() {
         <Route path="/student/mail" element={<ProtectedRoute> <StudentMail /> </ProtectedRoute>} />
         <Route path="/job-preview/:id" element={<JobPreview />} />
         <Route path="/internship-preview/:id" element={<InternshipPreview />} />
-        <Route path="/student/internship-preview/:id" element={<StudentInternshipPreview />} />
         <Route path="/studentachievement" element= {<ProtectedRoute><StudentAchievementPostForm /> </ProtectedRoute>} />
         <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />
         <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />        
         <Route path="/applied-jobs" element={<ProtectedRoute> <AppliedJobs /> </ProtectedRoute>} />
-        <Route path="/study-material-cards" element={<ProtectedRoute> <StudyMaterialCards /> </ProtectedRoute>} />
-        <Route path="/topics/:type" element={<ProtectedRoute> <CategoryPage /> </ProtectedRoute>} />
-        <Route exact path="/topic/:category" element={<ProtectedRoute> <TopicsPage /> </ProtectedRoute>} />
-        <Route path="/category/:category" element={<ProtectedRoute> <StudyMaterialsByCategory /> </ProtectedRoute>} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />
@@ -116,10 +106,9 @@ function App() {
           {/* Protected Admin Routes */}
           <Route path="/admin/home" element={<ProtectedRoute> <AdminHome /> </ProtectedRoute>} />
           <Route path="/admin/mail" element={<ProtectedRoute> <AdminMail /> </ProtectedRoute>} />
-          <Route path="/admin/achievements" element={<ProtectedRoute> <AdminAchievementDashboard /> </ProtectedRoute>} />
-          <Route path="/jobs" element={ <ProtectedRoute> <JobDashboard /> </ProtectedRoute>} />
+          <Route path="/jobs" element={<ProtectedRoute> <JobDashboard /> </ProtectedRoute>} />
           <Route path="/internships" element={<ProtectedRoute> <InternShipDashboard /></ProtectedRoute>} />
-          <Route path="/jobselection" element={<ProtectedRoute> <JobEntrySelection /> </ProtectedRoute> } />
+          <Route path="/jobselection" element={<ProtectedRoute> <JobEntrySelection /> </ProtectedRoute>} />
           <Route path="/jobpost" element={<ProtectedRoute> <JobPostForm /> </ProtectedRoute>} />
           <Route path="/achievementpost" element={<ProtectedRoute> <AchievementPostForm /> </ProtectedRoute>} />
           <Route path="/internpost" element={<ProtectedRoute> <InternshipForm /> </ProtectedRoute>} />
@@ -139,11 +128,12 @@ function App() {
           <Route path={"/student-signup"} element={<StudentSignup />} />
           <Route path={"/superadmin-dashboard"} element={<ProtectedRoute> <SuperadminDashboard /> </ProtectedRoute>} />
           <Route path={"/Admin-Management"} element={<ProtectedRoute> <AdminManagement /> </ProtectedRoute>} />
-          <Route path={"/superadmin/manage-student"} element={<ProtectedRoute> <Student_Management_superadmin/> </ProtectedRoute>} />
-          <Route path={"/superadmin/achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
+          <Route path={"/admin-achievements"} element={<ProtectedRoute> <SuperAchievementDashboard /> </ProtectedRoute>} />
           <Route path={"/superadmin-manage-jobs"} element={<ProtectedRoute> <MailPage /> </ProtectedRoute>} />
           <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
           <Route path={"/admin-details/:id"} element={<ProtectedRoute> <AdminDetailPage /> </ProtectedRoute>} />
+          <Route path={"/message"} element={<ProtectedRoute> <Message /> </ProtectedRoute>} />
+          
         </Routes>
       </LoaderContext.Provider>
     </BrowserRouter>

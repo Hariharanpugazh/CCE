@@ -6,7 +6,9 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { jwtDecode } from "jwt-decode";
+import { GoChecklist } from "react-icons/go"; // Exam icon
+import { RiBookLine } from "react-icons/ri"; // Subject icon
+import { MdOutlineTopic } from "react-icons/md"; // Topic icon
 
 const CategoryInput = ({ value, onChange, selectedType }) => {
   const [inputValue, setInputValue] = useState(value);
@@ -15,15 +17,21 @@ const CategoryInput = ({ value, onChange, selectedType }) => {
   useEffect(() => {
     const token = Cookies.get("jwt");
     if (token && inputValue) {
-      axios.get(`http://localhost:8000/api/get-categories/?type=${selectedType}&query=${inputValue}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }).then((response) => {
-        setSuggestions(response.data.categories);
-      }).catch((err) => {
-        console.error("Failed to fetch categories:", err);
-      });
+      axios
+        .get(
+          `http://localhost:8000/api/get-categories/?type=${selectedType}&query=${inputValue}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          setSuggestions(response.data.categories);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch categories:", err);
+        });
     } else {
       setSuggestions([]);
     }
@@ -46,16 +54,16 @@ const CategoryInput = ({ value, onChange, selectedType }) => {
         type="text"
         value={inputValue}
         onChange={handleChange}
-        className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
+        className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 outline-none"
         placeholder="Type to search categories"
       />
       {suggestions.length > 0 && (
-        <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto">
+        <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg">
           {suggestions.map((category, index) => (
             <li
               key={index}
               onClick={() => handleSelect(category)}
-              className="px-4 py-2 cursor-pointer hover:bg-gray-200"
+              className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-black"
             >
               {category}
             </li>
@@ -68,25 +76,33 @@ const CategoryInput = ({ value, onChange, selectedType }) => {
 
 export default function StudyMaterialForm() {
   const [formData, setFormData] = useState({
-    type: "",
+    type: "Exam", // Default to "Exam"
     title: "",
     description: "",
     category: "",
-    links: [{ type: "", link: "", topic: "" }],
+    links: [{ type: "", link: "", topic: "", textContent: "" }],
   });
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [selectedType, setSelectedType] = useState("Exam");
   const [userRole, setUserRole] = useState(null);
-  const [selectedType, setSelectedType] = useState(null);
-  const [showModal, setShowModal] = useState(true);
   const navigate = useNavigate();
+  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
+    }));
+  };
+
+  const handleTypeSelect = (type) => {
+    setSelectedType(type);
+    setFormData((prevData) => ({
+      ...prevData,
+      type: type,
     }));
   };
 
@@ -103,7 +119,7 @@ export default function StudyMaterialForm() {
   const addLinkField = () => {
     setFormData((prevData) => ({
       ...prevData,
-      links: [...prevData.links, { type: "", link: "" }],
+      links: [...prevData.links, { type: "", link: "", topic: "", textContent: "" }],
     }));
   };
 
@@ -159,14 +175,13 @@ export default function StudyMaterialForm() {
       });
 
       setFormData({
-        type: "",
+        type: "Exam", // Reset to default "Exam"
         title: "",
         description: "",
         category: "",
         links: [{ type: "", link: "", topic: "" }],
+
       });
-      setSelectedType(null);
-      setShowModal(true);
     } catch (err) {
       toast.error(err.response?.data?.error || "Something went wrong");
     }
@@ -174,20 +189,23 @@ export default function StudyMaterialForm() {
 
   useEffect(() => {
     const token = Cookies.get("jwt");
-    if (token && selectedType) {
+    if (token) {
       const payload = JSON.parse(atob(token.split(".")[1]));
       setUserRole(payload.role);
     }
-  }, [selectedType]);
+  }, []);
 
-  const handleTypeSelect = (type) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      type: type,
-    }));
-    setSelectedType(type);
-    setShowModal(false);
+  const handleClose = () => {
+    setFormData({
+      type: "Exam",
+      title: "",
+      description: "",
+      category: "",
+      links: [{ type: "", link: "", topic: "", textContent: "" }],
+    });
+    navigate('/superadmin-dashboard'); // Navigate to the previous page
   };
+
 
   const options = [
     { type: "exam", title: "Exam", description: "Select this for exam-related materials.", icon: "📚" },
@@ -207,171 +225,202 @@ export default function StudyMaterialForm() {
     });
     navigate(-1); // Navigate to the previous page
   };
-
   return (
-    <div className="flex justify-stretch">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       <ToastContainer />
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
-      {message && (
-        <div className="fixed top-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-lg">
-          {message}
-        </div>
-      )}
-      {error && (
-        <div className="fixed top-4 right-4 bg-red-600 text-white p-4 rounded-lg shadow-lg">
-          {error}
-        </div>
-      )}
+      <div className="flex-1 flex justify-center items-center p-6">
+        <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg">
+          <div className="flex justify-between items-center mb-1 p-6">
+            <h2 className="text-2xl font-bold text-black">Post a Study Material</h2>
+            <button
+              onClick={handleClose}
+              className="px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+          <hr className="border border-gray-300" />
 
-      {showModal && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity z-[9999]">
-          <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-              <div className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-                <div className="absolute right-0 top-0 pr-4 pt-4">
-                  <button
-                    onClick={handleClose}
-                    className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          <form onSubmit={handleSubmit} className="space-y-6 p-6">
+            {/* Left Column - Type, Subject, Topic */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="md:col-span-1 h-fit ">
+                {["Exam", "Subject", "Topic"].map((type) => (
+                  <div
+                    key={type}
+                    onClick={() => handleTypeSelect(type)}
+                    className={`relative border p-4 bg-white shadow-sm cursor-pointer transition-colors${
+                      selectedType === type
+                        ? "border-l border-yellow-500 "
+                        : "border-l-8 border-gray-300"
+                    } ${
+                      type === "Exam"
+                        ? "rounded-tl-lg rounded-tr-lg "
+                        : type === "Topic"
+                        ? "rounded-br-lg rounded-bl-lg"
+                        : ""
+                    }`}
                   >
-                    <span className="sr-only">Close</span>
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <div
+                      className={`absolute top-0 left-0 h-full ${
+                        selectedType === type
+                          ? "w-1 bg-yellow-500 opacity-100"
+                          : "w-1 bg-gray-500 opacity-100"
+                      }${
+                        type === "Exam"
+                          ? "rounded-tl-lg rounded-tr-lg "
+                          : type === "Topic"
+                          ? "rounded-br-lg rounded-bl-lg"
+                          : ""
+                      } transition-opacity`}
+                    ></div>
+                    <div className="flex items-center">
+                      <div className="mr-2 text-2xl text-gray-500">
+                        {React.createElement(typeIcons[type])}
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-500">{type}</h3>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Right Column - Form Fields */}
+              <div className="md:col-span-3 space-y-6 p-4 bg-white shadow-sm border border-gray-300 rounded-lg">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+                  <div className="flex flex-col flex-1">
+                    <div className="w-full">
+                      <label className="block text-sm font-semibold text-black">Material Title <span className="text-red-500">*</span></label>
+                      <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
+                        maxLength={100}
+                        className="w-full mb-3 border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 outline-none focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                        placeholder="Enter the material title here"
+                      />
+                    </div>
+                    <div className="w-full">
+                      <label className="block text-sm font-semibold text-black">Category <span className="text-red-500">*</span></label>
+                      <CategoryInput
+                        value={formData.category}
+                        onChange={(value) =>
+                          setFormData((prevData) => ({ ...prevData, category: value }))
+                        }
+                        selectedType={formData.type || "Exam"} // Default to "Exam"
+                      />
+                    </div>
+                  </div>
+                  <div className="w-full md:w-1/2">
+                    <label className="block text-sm font-semibold text-black">Material Description <span className="text-red-500">*</span></label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleChange}
+                      required
+                      maxLength="200"
+                      className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none outline-none"
+                      rows="4"
+                      placeholder="Enter the material description here (max 200 characters)"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-black">Source Link <span className="text-red-500">*</span></label>
+                  {formData.links.map((link, index) => (
+                    <div key={index} className="flex items-center gap-4 mb-4">
+                      <select
+                        name="type"
+                        value={link.type}
+                        onChange={(e) => handleLinkChange(index, e)}
+                        required
+                        className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+                      >
+                        <option value="">Select Link Type</option>
+                        <option value="Drive">Drive</option>
+                        <option value="YouTube">YouTube</option>
+                        <option value="Website">Website</option>
+                        <option value="TextContent">Text Content</option>
+                        <option value="Other">Other</option>
+                      </select>
+                      <input
+                        type="text"
+                        name="topic"
+                        value={link.topic}
+                        onChange={(e) => handleLinkChange(index, e)}
+                        required
+                        className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+                        placeholder="Enter topic"
+                      />
+                      {link.type === "TextContent" ? (
+                        <textarea
+                          name="textContent"
+                          value={link.textContent}
+                          onChange={(e) => handleLinkChange(index, e)}
+                          required
+                          className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+                          placeholder="Enter text content"
+                        ></textarea>
+                      ) : (
+                        <input
+                          type="text"
+                          name="link"
+                          value={link.link}
+                          onChange={(e) => handleLinkChange(index, e)}
+                          required
+                          className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+                          placeholder="Enter link"
+                        />
+                      )}
+                      {formData.links.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeLinkField(index)}
+                          className="text-red-600"
+                        >
+                          <svg
+                            className="h-6 w-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addLinkField}
+                    className="text-yellow-600 font-semibold hover:text-yellow-700"
+                  >
+                    + Add Link
                   </button>
                 </div>
 
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-semibold leading-6 text-gray-900">
-                    Select Material Type
-                  </h3>
-                </div>
-
-                <div className="mt-5 grid gap-4">
-                  {options.map((option) => (
-                    <button
-                      key={option.type}
-                      onClick={() => handleTypeSelect(option.type)}
-                      className="group relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white p-4 shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <div className="flex-shrink-0 text-2xl">{option.icon}</div>
-                      <div className="min-w-0 flex-1 text-left">
-                        <h3 className="font-medium text-gray-900">{option.title}</h3>
-                        <p className="text-sm text-gray-500">{option.description}</p>
-                      </div>
-                      <span className="pointer-events-none absolute right-4 text-gray-300 group-hover:text-gray-400">
-                        <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </span>
-                    </button>
-                  ))}
+                <div className="flex justify-center gap-4">
+                  <button
+                    type="submit"
+                    className="w-full md:w-1/3 bg-yellow-500 text-black font-semibold py-3 rounded-lg hover:bg-yellow-600 transition-colors"
+                  >
+                    Post Study Material
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {!showModal && selectedType && (
-        <div className="flex-1 px-6 py-14">
-          <h2 className="text-3xl font-bold mb-4 text-center">Post Study Material</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-semibold">Title</label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                required
-                className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold">Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-                className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                rows="4"
-              ></textarea>
-            </div>
-            <div className="relative">
-              <label className="block text-sm font-semibold">Category</label>
-              <CategoryInput
-                value={formData.category}
-                onChange={(value) => setFormData((prevData) => ({ ...prevData, category: value }))}
-                selectedType={selectedType}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold">Source Links</label>
-              {formData.links.map((link, index) => (
-                <div key={index} className="flex items-center gap-4 mb-4">
-                  <select
-                    name="type"
-                    value={link.type}
-                    onChange={(e) => handleLinkChange(index, e)}
-                    required
-                    className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Link Type</option>
-                    <option value="Drive">Drive</option>
-                    <option value="YouTube">YouTube</option>
-                    <option value="Other">Other</option>
-                  </select>
-                  <input
-                    type="text"
-                    name="link"
-                    value={link.link}
-                    onChange={(e) => handleLinkChange(index, e)}
-                    required
-                    className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter link"
-                  />
-                  <input
-                    type="text"
-                    name="topic"
-                    value={link.topic}
-                    onChange={(e) => handleLinkChange(index, e)}
-                    required
-                    className="w-full border px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter topic"
-                  />
-                  {formData.links.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeLinkField(index)}
-                      className="text-red-600"
-                    >
-                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addLinkField}
-                className="text-blue-600 font-semibold"
-              >
-                + Add Link
-              </button>
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700"
-            >
-              Submit Study Material
-            </button>
           </form>
         </div>
-      )}
+      </div>
     </div>
   );
 }
