@@ -6,12 +6,261 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { FaCalendarAlt } from 'react-icons/fa';
+import { FaSuitcase, FaClipboardList, FaFileSignature, FaRegFileAlt } from 'react-icons/fa';
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import { FormInputField, FormTextAreaField } from '../../components/Common/InputField';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { MultiStepLoader as Loader } from "../../components/ui/multi-step-loader";
+
+const loadingStates = [
+  { text: "Gathering job details" },
+  { text: "Checking application deadline" },
+  { text: "Preparing application process" },
+  { text: "Finalizing job posting" },
+];
+
+const JobDetails = ({ formData, setFormData }) => {
+  const workTypes = [
+    "Full-time",
+    "Part-time",
+    "Contract",
+    "Temporary",
+    "Internship",
+    "Volunteer",
+  ];
+
+  return (
+    <>
+      <div className="flex flex-col space-y-2">
+        <FormInputField
+          label="Job Title"
+          required={true}
+          args={{ placeholder: "Enter the job title here", value: formData.title }}
+          setter={(val) => setFormData(prev => ({ ...prev, title: val }))}
+        />
+        <FormTextAreaField
+          label="Job Description"
+          args={{ placeholder: "Enter the job description here", value: formData.job_description }}
+          setter={(val) => setFormData(prev => ({ ...prev, job_description: val }))}
+        />
+        <div className="flex flex-col space-y-2">
+          <label className="text-sm">Work Type</label>
+          <select
+            value={formData.work_type}
+            onChange={(e) => setFormData(prev => ({ ...prev, work_type: e.target.value }))}
+            className="w-full text-sm border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          >
+            <option value="">Select Work Type</option>
+            {workTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+        <FormInputField
+          label="Salary Range"
+          required={true}
+          args={{ placeholder: "Enter salary range here", value: formData.salary_range }}
+          setter={(val) => setFormData(prev => ({ ...prev, salary_range: val }))}
+        />
+        </div>
+        <div className='flex flex-col space-y-2'>
+        <FormInputField
+          label="Company Name"
+          required={true}
+          args={{ placeholder: "Enter the company name here", value: formData.company_name }}
+          setter={(val) => setFormData(prev => ({ ...prev, company_name: val }))}
+        />
+        <FormInputField
+          label="Company Website"
+          args={{ placeholder: "Enter the company website here", value: formData.company_website }}
+          setter={(val) => setFormData(prev => ({ ...prev, company_website: val }))}
+        />
+        <FormInputField
+          label="Company Overview"
+          args={{ placeholder: "Enter the company overview here", value: formData.company_overview }}
+          setter={(val) => setFormData(prev => ({ ...prev, company_overview: val }))}
+        />
+        <FormInputField
+          label="Job Location"
+          required={true}
+          args={{ placeholder: "Enter the Job location here", value: formData.job_location }}
+          setter={(val) => setFormData(prev => ({ ...prev, job_location: val }))}
+        />
+      
+      </div>
+    </>
+  );
+};
+const Requirement = ({ formData, setFormData }) => {
+  return (
+    <>
+      <div className="flex flex-col space-y-4">
+            <FormInputField
+              label="Educational Qualification"
+              args={{ placeholder: "Enter the educational qualification here", value: formData.education_requirements || "" }}
+              setter={(val) => setFormData(prev => ({ ...prev, education_requirements: val }))}
+            />
+            <FormInputField
+              label="Required Skills"
+              args={{ placeholder: "Enter the additional skills here", value: (formData.required_skills || []).join(',') }}
+              setter={(val) => setFormData(prev => ({ ...prev, required_skills: val.split(',') }))}
+            />
+            <FormInputField
+              label="Work Experience "
+              args={{ placeholder: "Enter the work experience here", type:'number', value: formData.experience_level }}
+              setter={(val) => setFormData(prev => ({ ...prev, experience_level: val }))}
+            />
+            </div>
+          
+    </>
+  );
+};
+
+const ApplicationProcess = ({ formData, setFormData }) => {
+  return (
+    <>
+          {/* Left Column */}
+          <div className="flex flex-col space-y-2">
+            <FormInputField
+              label="Benefits"
+              args={{ placeholder: "Enter the Benefits her",value: formData.benefits }}
+              setter={(val) => setFormData(prev => ({ ...prev, benefits: val }))}
+            />
+            <FormInputField
+              label="Job Link"
+              required={true}
+              args={{ placeholder: "Enter the job link here", value: formData.job_link }}
+              setter={(val) => setFormData(prev => ({ ...prev, job_link: val }))}
+            />
+    
+          </div>
+
+          {/* Right Column */}
+          <div className="flex flex-col space-y-2">
+            <FormInputField
+              label="Application Deadline"
+              required={true}
+              args={{ placeholder: "Enter the job level here", type: "date", value: formData.application_deadline ? formData.application_deadline.toISOString().split('T')[0] : "" }}
+              setter={(val) => {
+                const date = val ? new Date(val) : null;
+                setFormData(prev => ({ ...prev, application_deadline: date }));
+              }}
+            />
+            <FormInputField
+              label="Application Instructions"
+              args={{ placeholder: "Enter the application instructions here", value: formData.application_instructions }}
+              setter={(val) => setFormData(prev => ({ ...prev, application_instructions: val }))}
+            />
+          </div>
+    </>
+  );
+};
+
+const OtherInstructions = ({ formData, setFormData }) => {
+  return (
+    <>
+          {/* Left Column */}
+          <div className="flex flex-col space-y-2">
+            <FormInputField
+              label="Contact Email"
+              args={{ placeholder: "Enter the contact email here", value: formData.contact_email }}
+              setter={(val) => setFormData(prev => ({ ...prev, contact_email: val }))}
+            />
+            <FormInputField
+              label="Contact Phone"
+              args={{ placeholder: "Enter the contact email here", value: formData.contact_phone }}
+              setter={(val) => setFormData(prev => ({ ...prev, contact_phone: val }))}
+            />
+            <FormTextAreaField
+              label="Key Responsibilities"
+              args={{ placeholder: "Enter the key responsibilities here", value: formData.key_responsibilities.join(',') }}
+              setter={(val) => setFormData(prev => ({ ...prev, key_responsibilities: val.split(',') }))}
+            />
+          </div>
+
+          {/* Right Column */}
+          <div className="flex flex-col space-y-2">
+            <FormInputField
+              label="Select Category"
+              args={{ placeholder: "Enter the category here", value: formData.selectedCategory }}
+              setter={(val) => setFormData(prev => ({ ...prev, selectedCategory: val }))}
+            />
+            <FormInputField
+              label="Select WorkType"
+              args={{ placeholder: "Enter the WorkType here", value: formData.selectedWorkType }}
+              setter={(val) => setFormData(prev => ({ ...prev, selectedWorkType: val }))}
+            />
+
+            <FormInputField
+              label="Work Schedule"
+              args={{ placeholder: "Enter the work schedule here", value: formData.work_schedule }}
+              setter={(val) => setFormData(prev => ({ ...prev, work_schedule: val }))}
+            />  
+          </div>
+    </>
+  );
+};
+
+const Summary = ({ formData, setFormData }) => {
+  return (
+    <>
+      <div className="flex flex-col space-y-2">
+        <FormInputField
+          label="Job Title"
+          required={true}
+          disabled={true}
+          args={{ placeholder: "Enter the job title here", value: formData.title }}
+          setter={(val) => setFormData(prev => ({ ...prev, title: val }))}
+        />
+        <FormTextAreaField
+          label="Job Description"
+          disabled={true}
+          args={{ placeholder: "Enter the job description here", value: formData.job_description }}
+          setter={(val) => setFormData(prev => ({ ...prev, job_description: val }))}
+        />
+        <FormInputField
+          label="Work Type"
+          disabled={true}
+          args={{ placeholder: "Select Work Type", value: formData.work_type }}
+          setter={(val) => setFormData(prev => ({ ...prev, work_type: val }))}
+        />
+        <FormInputField
+          label="Company Name"
+          disabled={true}
+          args={{ placeholder: "Enter the company name here", value: formData.company_name }}
+          setter={(val) => setFormData(prev => ({ ...prev, company_name: val }))}
+        />
+
+        </div>
+        <div className="flex flex-col space-y-2">
+        <FormInputField
+          label="Company Website"
+          disabled={true}
+          args={{ placeholder: "Enter the company website here", value: formData.company_website }}
+          setter={(val) => setFormData(prev => ({ ...prev, company_website: val }))}
+        />
+        <FormInputField
+          label="Work Location"
+          disabled={true}
+          args={{ placeholder: "Enter the work location here", value: formData.job_location }}
+          setter={(val) => setFormData(prev => ({ ...prev, job_location: val }))}
+        />
+        <FormInputField
+          label="Salary Range"
+          disabled={true}
+          args={{ placeholder: "Enter salary range here", value: formData.salary_range }}
+          setter={(val) => setFormData(prev => ({ ...prev, salary_range: val }))}
+        />
+      </div>
+    </>
+  );
+};
 
 export default function JobPostForm() {
-  // Load AI-generated job data from sessionStorage
   const storedJobData = sessionStorage.getItem("jobData");
   const initialJobData = storedJobData ? JSON.parse(storedJobData) : {};
 
@@ -23,7 +272,6 @@ export default function JobPostForm() {
     job_description: initialJobData.job_description || "",
     key_responsibilities: initialJobData.key_responsibilities || [],
     required_skills: initialJobData.required_skills || [],
-    education_requirements: initialJobData.education_requirements || "",
     experience_level: initialJobData.experience_level || "",
     salary_range: initialJobData.salary_range || "",
     benefits: initialJobData.benefits || [],
@@ -32,280 +280,86 @@ export default function JobPostForm() {
     work_schedule: initialJobData.work_schedule || "",
     application_instructions: initialJobData.application_instructions || "",
     application_deadline: initialJobData.application_deadline && !isNaN(Date.parse(initialJobData.application_deadline))
-    ? new Date(initialJobData.application_deadline)
-    : null,
+      ? new Date(initialJobData.application_deadline)
+      : null,
     contact_email: initialJobData.contact_email || "",
     contact_phone: initialJobData.contact_phone || [],
     job_link: initialJobData.job_link || "",
+    selectedCategory: initialJobData.selectedCategory || "",
+    selectedWorkType: initialJobData.selectedWorkType ||
+      (initialJobData.work_type && initialJobData.work_type.toLowerCase().includes("full-time")
+        ? "Full Time"
+        : initialJobData.work_type && initialJobData.work_type.toLowerCase().includes("part-time")
+          ? "Part Time"
+          : ""),  
+    
   });
-
-  const [selectedCategory, setSelectedCategory] = useState(initialJobData.selectedCategory || "");
-  const [selectedWorkType, setSelectedWorkType] = useState(initialJobData.selectedWorkType || "");
   const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isWorkTypeOpen, setIsWorkTypeOpen] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
-  const [isPreview, setIsPreview] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [disableSubmit, setDisableSubmit] = useState(false);
+  const navigate = useNavigate();
 
-  const categories = [
-    "TNPC",
-    "Army and Defence",
-    "IT & Development",
-    "Civil",
-    "Banking",
-    "UPSC",
-    "Biomedical",
-    "TNPSC",
-    "Army and Defence Systems",
-  ];
+  const [formSections, setFormSections] = useState({
+    "Job Details": { status: "active", icon: <FaSuitcase /> },
+    "Job Requirement": { status: "unvisited", icon: <FaClipboardList /> },
+    "Application Process": { status: "unvisited", icon: <FaFileSignature /> },
+    "Other Instructions": { status: "unvisited", icon: <FaRegFileAlt /> },
+    "Summary": { status: "unvisited", icon: <FaRegFileAlt /> },
+  });
 
-  const workTypes = [
-    "Full-time",
-    "Part-time",
-    "Contract",
-    "Temporary",
-    "Internship",
-    "Volunteer",
-  ];
+  const sectionKeys = Object.keys(formSections);
+  const activeIndex = sectionKeys.findIndex(key => formSections[key].status === "active");
 
-  // Validate URL
   const validateUrl = (url) => {
     const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-    return true;
+    return urlPattern.test(url);
   };
 
-  // Validate Application Deadline
   const validateApplicationDeadline = (deadline) => {
     const now = new Date();
     return new Date(deadline) > now;
   };
 
-  const handleChange = (e) => {
-    console.log(`Field ${e.target.name} changed to ${e.target.value}`);
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-    setIsCategoryOpen(false);
-  };
-
-  const handleWorkTypeChange = (workType) => {
-    setSelectedWorkType(workType);
-    setIsWorkTypeOpen(false);
-  };
-
-  const handleDateChange = (date) => {
-    setFormData({
-      ...formData,
-      deadline: date,
-    });
-    validateDeadline(date);
-  };
-
-  const handleRequiredSkillsChange = (e) => {
-    if (e.key === "Enter" || e.key === ",") {
-      e.preventDefault();
-      const skill = e.target.value.trim();
-      if (skill && !formData.required_skills.includes(skill)) {
-        setFormData({
-          ...formData,
-          required_skills: [...formData.required_skills, skill],
-        });
-        e.target.value = "";
-      }
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setLoading(false);
+      }, 10000); // 10 seconds for loader
+      return () => clearTimeout(timer);
     }
-  };
+  }, [loading]);
 
-  const handleRemoveSkill = (skillToRemove) => {
-    setFormData({
-      ...formData,
-      required_skills: formData.required_skills.filter(skill => skill !== skillToRemove),
-    });
-  };
-
-  const handleNext = (e) => {
-    e.preventDefault();
-    switch (activeSection) {
-      case 'jobDetails':
-        if (!formData.jobTitle || !formData.jobLink || !formData.workType) {
-          setError("Please fill in all mandatory fields in Job Details.");
-          return;
-        }
-        setActiveSection('companyDetails');
-        break;
-      case 'companyDetails':
-        if (!formData.companyName || !formData.companyWebsite || !formData.companyLocation) {
-          setError("Please fill in all mandatory fields in Company Details.");
-          return;
-        }
-        setActiveSection('requirements');
-        break;
-      case 'requirements':
-        if (!formData.benefits || !formData.requiredSkills || !formData.keyResponsibilities || !formData.educationRequirement || !formData.experienceLevel) {
-          setError("Please fill in all mandatory fields in Requirements.");
-          return;
-        }
-        setActiveSection('deadline');
-        break;
-      case 'deadline':
-        if (!formData.deadline || !validateApplicationDeadline(formData.deadline) || !formData.workSchedule || !formData.applicationInstructions) {
-          setError("Please fill in all mandatory fields in Deadline and Application Details.");
-          return;
-        }
-        setActiveSection('summary');
-        break;
-      case 'summary':
-        if (!formData.contactEmail || !formData.contactPhone) {
-          setError("Please fill in all mandatory fields in Summary (Contact Information).");
-          return;
-        }
-        break;
-      default:
-        break;
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => {
+        setToastMessage("");
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-    setError("");
-  };
-
-  const handlePrevious = () => {
-    switch (activeSection) {
-      case 'companyDetails':
-        setActiveSection('jobDetails');
-        break;
-      case 'requirements':
-        setActiveSection('companyDetails');
-        break;
-      case 'deadline':
-        setActiveSection('requirements');
-        break;
-      case 'summary':
-        setActiveSection('deadline');
-        break;
-      default:
-        break;
-    }
-    setError("");
-  };
-
-  const isSectionCompleted = (section) => {
-    switch (section) {
-      case 'jobDetails':
-        return formData.jobTitle && formData.jobLink && formData.jobDescription && formData.workType && formData.salaryRange;
-      case 'companyDetails':
-        return formData.companyName && formData.companyWebsite && formData.companyLocation && formData.companyOverview;
-      case 'requirements':
-        return formData.benefits && formData.requiredSkills && formData.keyResponsibilities && formData.educationRequirement && formData.experienceLevel;
-      case 'deadline':
-        return formData.deadline && formData.workSchedule && formData.applicationInstructions;
-      case 'summary':
-        return formData.contactEmail && formData.contactPhone;
-      default:
-        return false;
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    console.log("Form submitted");
-    setDisableSubmit(true);
-    e.preventDefault();
-
-    // Validate mandatory fields
-    if (!formData.title || !formData.company_name || !selectedCategory || !formData.job_link) {
-      setError("Please fill in all mandatory fields.");
-      setShowWarning(true);
-      setDisableSubmit(false);
-      return;
-    }
-
-    // Validate Company Website URL
-    if (formData.company_website && !validateUrl(formData.company_website)) {
-      setError("Invalid URL for Company Website.");
-      setDisableSubmit(false);
-      return;
-    }
-
-    // Validate Application Deadline
-    if (formData.application_deadline && !validateApplicationDeadline(formData.application_deadline)) {
-      setError("Application Deadline must be a future date.");
-      setDisableSubmit(false);
-      return;
-    }
-
-    try {
-      const token = Cookies.get('jwt');
-      if (!token) {
-        setError('No token found. Please log in.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      const formattedData = new FormData();
-      formattedData.append('data', JSON.stringify({
-        ...formData,
-        application_deadline: formData.application_deadline.toISOString().split('T')[0],
-        userId,
-        role: userRole,
-      }));
-      if (formData.image) {
-        formattedData.append('image', formData.image);
-      }
-
-      const response = await axios.post(
-        "http://localhost:8000/api/job_post/",
-        { ...formData, selectedCategory, selectedWorkType, userId, role: userRole },
-      );
-
-      setMessage(response.data.message);
-      setError('');
-      window.location.href = `${window.location.origin}/jobs`;
-    } catch (error) {
-      setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
-      setMessage('');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handlePreview = () => {
-    setIsPreview(true);
-  };
-
-  const handleClose = () => {
-    setIsPreview(false); // Close the preview modal
-    setSelectedCategory(""); // Reset category
-    setFormData({
-      jobTitle: "",
-      jobLink: "",
-      jobDescription: "",
-      workType: "",
-      salaryRange: "",
-      companyName: "",
-      companyWebsite: "",
-      companyLocation: "",
-      companyOverview: "",
-      benefits: "",
-      requiredSkills: "",
-      keyResponsibilities: "",
-      educationRequirement: "",
-      deadline: null,
-      contactEmail: "",
-      contactPhone: "",
-      experienceLevel: "",
-      workSchedule: "",
-      applicationInstructions: "",
-    });
-    navigate(-1); // Navigate to the previous page
-  };
+  }, [toastMessage]);
 
   useEffect(() => {
     const token = Cookies.get("jwt");
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
+
+    const decodedToken = jwtDecode(token);
+    const currentTime = Date.now() / 1000;
+    if (decodedToken.exp < currentTime) {
+      setError("Token has expired. Please log in again.");
+      return;
+    }
+
+    if (decodedToken.role !== 'superadmin' && decodedToken.role !== 'admin') {
+      setError('You do not have permission to access this page.');
+    }
+
     if (token) {
       const payload = JSON.parse(atob(token.split(".")[1]));
       setUserRole(payload.role);
@@ -315,368 +369,217 @@ export default function JobPostForm() {
         setUserId(payload.superadmin_user);
       }
     }
-  }, []);
+  }, [navigate]);
+  const handleNavigation = (direction) => {
+    const currentSection = sectionKeys[activeIndex];
+    let isValid = true;
+  
+    // Only validate fields when navigating forward (next)
+    if (direction === "next") {
+      switch (currentSection) {
+        case "Job Details":
+          // || !formData.job_description || !formData.experience_level || !formData.company_name || !formData.job_location || !formData.salary_range || !formData.work_type
+          if (!formData.title ) {
+            toast.error("Please fill in all mandatory fields in Job Details.");
+            isValid = false;
+          }
+          break;
+        case "Requirement":
+          // || !formData.education_requirements || !formData.experience_level
+          if (!formData.technical_skills.length) {
+            toast.error("Please fill in all mandatory fields in Requirements.");
+            isValid = false;
+          }
+          break;
+        case "Application Process":
+          // || !formData.work_schedule || !formData.application_instructions
+          if (!formData.application_deadline ) {
+            toast.error("Please fill in all mandatory fields in Application Process.");
+            isValid = false;
+          }
+          break;
+        case "Other Instructions":
+          if (!formData.key_responsibilities) {
+            toast.error("Please fill in all mandatory fields in Other Instructions.");
+            isValid = false;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+  
+    if (!isValid) return;
+  
+    setFormSections(prevSections => {
+      const updatedSections = { ...prevSections };
+      if (activeIndex !== -1) {
+        const currentKey = sectionKeys[activeIndex];
+        const nextIndex = direction === "next" ? activeIndex + 1 : activeIndex - 1;
+  
+        if (nextIndex >= 0 && nextIndex < sectionKeys.length) {
+          const nextKey = sectionKeys[nextIndex];
+  
+          if (direction === "next") {
+            updatedSections[currentKey] = { ...updatedSections[currentKey], status: "completed" };
+          }
+  
+          updatedSections[nextKey] = { ...updatedSections[nextKey], status: "active" };
+  
+          if (direction === "prev") {
+            for (let i = nextIndex + 1; i < sectionKeys.length; i++) {
+              updatedSections[sectionKeys[i]] = { ...updatedSections[sectionKeys[i]], status: "unvisited" };
+            }
+          }
+        }
+      }
+      return updatedSections;
+    });
+  };
 
-  const handlePreview = () => {
-    console.log("Preview button clicked");
-    setIsPreview(true);
+  const handleSubmit = async () => {
+    setLoading(true);
+
+    setTimeout(async () => {
+      if (!formData.title || !formData.company_name || !formData.job_link) {
+        toast.error("Please fill in all mandatory fields.");
+        setLoading(false);
+        return;
+      }
+
+      if (formData.company_website && !validateUrl(formData.company_website)) {
+        toast.error("Invalid URL for Company Website.");
+        setLoading(false);
+        return;
+      }
+
+      if (formData.application_deadline && !validateApplicationDeadline(formData.application_deadline)) {
+        toast.error("Application Deadline must be a future date.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const token = Cookies.get('jwt');
+        if (!token) {
+          setError('No token found. Please log in.');
+          setLoading(false);
+          return;
+        }
+
+        const formattedData = Object.keys(formData).reduce((acc, key) => {
+          acc[key] = formData[key] === '' ? 'NA' : formData[key];
+          if (key === 'application_deadline' && formData[key] instanceof Date) {
+            acc[key] = formData[key].toISOString().split('T')[0];
+            console.log("Form Data before submission:", formData); // Format as YYYY-MM-DD
+          } else if (key === 'application_deadline' && typeof formData[key] === 'string') {
+            // Ensure the string is in YYYY-MM-DD format or parse it if needed
+            const date = new Date(formData[key]);
+            acc[key] = !isNaN(date.getTime()) ? date.toISOString().split('T')[0] : formData[key];
+          }
+          return acc;
+          
+        }, {});
+
+        const response = await axios.post(
+          "http://localhost:8000/api/job_post/",
+          { ...formattedData, userId, role: userRole },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        setMessage(response.data.message);
+        window.location.href = `${window.location.origin}/jobs`;
+      } catch (error) {
+        setError(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
+        toast.error(`Error: ${error.response?.data?.error || 'Something went wrong'}`);
+      } finally {
+        setIsSubmitting(false);
+        setLoading(false);
+      }
+    }, 2000); // Match loader duration
   };
 
   return (
-    <motion.div
-      className={`max-w mx-auto bg-white shadow-xl rounded-2xl relative ml-55 ${isPreview ? "overflow-hidden" : "overflow-auto"}`}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-    >
+    <motion.div className="flex bg-gray-100 min-h-screen">
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
-      <div className={`p-8`}>
-        <h2 className="text-3xl pt-4 font-bold mb-4 text-gray-800 text-center">Post a Job</h2>
 
-        {showWarning && (
-          <div className="absolute top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center">
-              <h3 className="text-lg font-semibold text-red-600">Warning</h3>
-              <p className="text-sm text-gray-700">The Job Link field is required. Please enter a valid URL.</p>
-              <button
-                onClick={() => setShowWarning(false)}
-                className="mt-4 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
+      <ToastContainer />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="col-span-1">
-            <label className="block text-sm font-semibold mb-2 capitalize">
-              Title <span className="text-red-500">*</span>
-            </label>
-            <motion.input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              whileHover={{ backgroundColor: "#e0f2ff" }}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-              placeholder="Enter title"
-            />
-          </div>
-
-          <div className="col-span-1">
-            <label className="block text-sm font-semibold mb-2 capitalize">
-              Company Name <span className="text-red-500">*</span>
-            </label>
-            <motion.input
-              type="text"
-              name="company_name"
-              value={formData.company_name}
-              onChange={handleChange}
-              whileHover={{ backgroundColor: "#e0f2ff" }}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-              placeholder="Enter company name"
-            />
-          </div>
-
-          <div className="col-span-1 relative">
-            <label className="block text-sm font-semibold mb-2">
-              Job Categories <span className="text-red-500">*</span>
-            </label>
-            <motion.div
-              className="cursor-pointer w-full border border-gray-300 p-2.5 rounded-lg flex justify-between items-center transition-all duration-300"
-              onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-              whileHover={{
-                backgroundColor: "#D1E7FF",
-                borderColor: "#3B82F6",
-              }}
-              style={{
-                borderColor: isCategoryOpen ? "#3B82F6" : "#D1D5DB",
-                backgroundColor: isCategoryOpen ? "#D1E7FF" : "white",
-              }}
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="flex-1 p-8 bg-white rounded-xl flex flex-col h-[80%]">
+          <div className="flex justify-between items-center text-2xl pb-4 border-b border-gray-300">
+            <p>Post a Job</p>
+            <button
+              className="px-3 p-1.5 border rounded-lg text-sm"
+              onClick={() => navigate(-1)}
             >
-              <span className="text-sm text-gray-700">
-                {selectedCategory || "Select Job Category"}
-              </span>
-              <motion.span
-                whileHover={{
-                  scale: 1.2,
-                }}
-                className="text-sm text-gray-700"
-              >
-                {isCategoryOpen ? "▲" : "▼"}
-              </motion.span>
-            </motion.div>
+              Cancel
+            </button>
+          </div>
 
-            {isCategoryOpen && (
-              <div className="absolute z-10 mt-2 space-y-2 p-3 border border-gray-300 rounded-lg w-full bg-white shadow-lg">
-                {categories.map((category) => (
-                  <div key={category} className="flex items-center">
-                    <input
-                      type="radio"
-                      name="job_category"
-                      value={category}
-                      checked={selectedCategory === category}
-                      onChange={() => handleCategoryChange(category)}
-                      className="mr-2"
-                    />
-                    <span>{category}</span>
+          {error && (
+            <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded shadow">
+              {error}
+            </div>
+          )}
+
+          <div className="flex items-stretch">
+            <div className="w-1/4 border-r border-gray-300 flex flex-col p-4">
+              <div className="border-y border-r border-gray-300 flex flex-col rounded-lg">
+                <Loader loadingStates={loadingStates} loading={loading} duration={2000} />
+                {Object.entries(formSections).map(([section, prop], key, array) => (
+                  <div
+                    key={section}
+                    className={`border-l-6 flex items-center p-2 border-b border-gray-300
+                      ${key === 0 ? "rounded-tl-lg" : ""}
+                      ${key === array.length - 1 ? "rounded-bl-lg border-b-transparent" : ""}
+                      ${prop.status === "active" ? "border-l-yellow-400" : prop.status === "completed" ? "border-l-[#00B69B]" : "border-l-gray-300"}`}
+                  >
+                    <p className="text-gray-900 p-2 inline-block">{prop.icon}</p>
+                    <p>{section}</p>
                   </div>
                 ))}
               </div>
-            )}
-          </div>
 
-          <div className="col-span-1">
-            <label className="block text-sm font-semibold mb-2">
-              Job Link <span className="text-red-500">*</span>
-            </label>
-            <motion.input
-              type="url"
-              name="job_link"
-              value={formData.job_link}
-              onChange={handleChange}
-              whileHover={{ backgroundColor: "#e0f2ff" }}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-              placeholder="Enter job link"
-            />
+              <div className="flex justify-between mt-4">
+                <button
+                  className="px-3 p-1 border rounded text-sm cursor-pointer"
+                  disabled={activeIndex === 0}
+                  onClick={() => handleNavigation("prev")}
+                >
+                  Previous
+                </button>
+
+                {activeIndex === sectionKeys.length - 1 ? (
+                  <button
+                    className="rounded bg-green-500 text-sm px-5 p-1 cursor-pointer"
+                    onClick={handleSubmit}
+                  >
+                    Finish
+                  </button>
+                ) : (
+                  <button
+                    className="rounded bg-yellow-400 text-sm px-5 p-1 cursor-pointer"
+                    disabled={activeIndex === sectionKeys.length - 1}
+                    onClick={() => handleNavigation("next")}
+                  >
+                    Next
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex-1 p-4 grid grid-cols-2 gap-4 items-stretch h-full">
+              {formSections["Job Details"].status === "active" && <JobDetails formData={formData} setFormData={setFormData} />}
+              {formSections["Job Requirement"].status === "active" && <Requirement formData={formData} setFormData={setFormData} />}
+              {formSections["Application Process"].status === "active" && <ApplicationProcess formData={formData} setFormData={setFormData} />}
+              {formSections["Other Instructions"].status === "active" && <OtherInstructions formData={formData} setFormData={setFormData} />}
+              {formSections["Summary"].status === "active" && <Summary formData={formData} setFormData={setFormData} />}
+            </div>
           </div>
         </div>
-
-        {message && <p className="text-green-600 mb-4 text-center">{message}</p>}
-        {error && <p className="text-red-600 mb-4 text-center">{error}</p>}
-
-        <form onSubmit={!disableSubmit ? handleSubmit : undefined} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="col-span-1">
-            <label className="block text-sm font-semibold mb-2 capitalize">
-              Required Skills
-            </label>
-            <motion.input
-              type="text"
-              name="required_skills"
-              onKeyDown={handleRequiredSkillsChange}
-              whileHover={{ backgroundColor: "#e0f2ff" }}
-              className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-              placeholder="Enter required skills and press Enter"
-            />
-            <div className="mt-2 flex flex-wrap gap-2">
-              {formData.required_skills.map((skill, index) => (
-                <div key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center gap-2">
-                  <span>{skill}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSkill(skill)}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    x
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="col-span-1 relative">
-            <label className="block text-sm font-semibold mb-2">
-              Work Type
-            </label>
-            <motion.div
-              className="cursor-pointer w-full border border-gray-300 p-2.5 rounded-lg flex justify-between items-center transition-all duration-300"
-              onClick={() => setIsWorkTypeOpen(!isWorkTypeOpen)}
-              whileHover={{
-                backgroundColor: "#D1E7FF",
-                borderColor: "#3B82F6",
-              }}
-              style={{
-                borderColor: isWorkTypeOpen ? "#3B82F6" : "#D1D5DB",
-                backgroundColor: isWorkTypeOpen ? "#D1E7FF" : "white",
-              }}
-            >
-              <span className="text-sm text-gray-700">
-                {selectedWorkType || "Select Work Type"}
-              </span>
-              <motion.span
-                whileHover={{
-                  scale: 1.2,
-                }}
-                className="text-sm text-gray-700"
-              >
-                {isWorkTypeOpen ? "▲" : "▼"}
-              </motion.span>
-            </motion.div>
-
-            {isWorkTypeOpen && (
-              <div className="absolute z-20 mt-2 space-y-2 p-3 border border-gray-300 rounded-lg w-full bg-white shadow-lg">
-                {workTypes.map((workType) => (
-                  <div key={workType} className="flex items-center">
-                    <input
-                      type="radio"
-                      name="work_type"
-                      value={workType}
-                      checked={selectedWorkType === workType}
-                      onChange={() => handleWorkTypeChange(workType)}
-                      className="mr-2"
-                    />
-                    <span>{workType}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {Object.keys(formData).map((field) => {
-            if (field === "title" || field === "company_name" || field === "job_link" || field === "work_type") {
-              return null;
-            }
-            if (field !== "application_deadline" && field !== "required_skills") {
-              return (
-                <div key={field} className="col-span-1">
-                  <label className="block text-sm font-semibold mb-2 capitalize">
-                    {field.replace(/_/g, " ")}
-                  </label>
-                  <motion.input
-                    type={field.includes("email")
-                      ? "email"
-                      : field.includes("phone")
-                        ? "tel"
-                        : "text"}
-                    name={field}
-                    value={formData[field]}
-                    onChange={handleChange}
-                    whileHover={{ backgroundColor: "#e0f2ff" }}
-                    className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow"
-                    placeholder={`Enter ${field.replace(/_/g, " ")}`}
-                  />
-                </div>
-              );
-            }
-            return null;
-          })}
-
-          <div className="col-span-1">
-            <label className="block text-sm font-semibold mb-2 capitalize">
-              Application Deadline
-            </label>
-            <div className="relative">
-              <DatePicker
-                selected={formData.application_deadline}
-                onChange={(date) => setFormData({ ...formData, application_deadline: date })}
-                dateFormat="MM/dd/yyyy"
-                className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow pl-10"
-                placeholderText="Select a date"
-                isClearable
-              />
-              <FaCalendarAlt
-                onClick={(e) => {
-                  e.target.previousSibling.focus();
-                }}
-                className="absolute left-3 top-3 text-gray-500 cursor-pointer"
-              />
-            </div>
-          </div>
-
-          <motion.button
-            type="button"
-            className="w-1/4 justify-self-center col-span-2 bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-transform shadow-lg"
-            whileHover={{ scale: 1.01 }}
-            onClick={handlePreview}
-          >
-            Preview Job
-          </motion.button>
-
-          <motion.button
-            type="submit"
-            className={` ${disableSubmit ? "cursor-disabled bg-blue-300" : "cursor-pointer bg-blue-600"} w-1/4 justify-self-center col-span-2 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-transform shadow-lg`}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Submit Job
-          </motion.button>
-        </form>
-
-        {isPreview && (
-          <motion.div
-            className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto relative">
-              <button
-                onClick={() => setIsPreview(false)}
-                className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-              <h2 className="text-2xl font-bold mb-4 text-gray-800 text-center">Job Preview</h2>
-              <PreviewField label="Title" value={formData.title} /><br />
-              <PreviewField label="Company Name" value={formData.company_name} /><br />
-              <PreviewField label="Company Overview" value={formData.company_overview} multiline /><br />
-              <PreviewField label="Company Website" value={formData.company_website || "N/A"} url /><br />
-              <PreviewField label="Job Description" value={formData.job_description} multiline /><br />
-              <PreviewField label="Key Responsibilities" value={formData.key_responsibilities} multiline /><br />
-              <PreviewField
-                label="Required Skills"
-                value={formData.required_skills.join(", ")}
-              /><br />
-              <PreviewField label="Education Requirements" value={formData.education_requirements} /><br />
-              <PreviewField label="Experience Level" value={formData.experience_level} /><br />
-              <PreviewField label="Salary Range" value={formData.salary_range} /><br />
-              <PreviewField label="Benefits" value={formData.benefits} multiline /><br />
-              <PreviewField label="Job Location" value={formData.job_location} /><br />
-              <PreviewField label="Work Type" value={selectedWorkType} /><br />
-              <PreviewField label="Work Schedule" value={formData.work_schedule} /><br />
-              <PreviewField label="Application Instructions" value={formData.application_instructions} multiline /><br />
-              <PreviewField label="Application Deadline" value={formData.application_deadline ? formData.application_deadline.toLocaleDateString() : "N/A"} /><br />
-              <PreviewField label="Contact Email" value={formData.contact_email || "N/A"} email /><br />
-              <PreviewField label="Contact Phone" value={formData.contact_phone || "N/A"} phone /><br />
-              <PreviewField label="Job Link" value={formData.job_link } url /><br />
-            </div>
-          </motion.div>
-        )}
       </div>
     </motion.div>
   );
 }
-
-const PreviewField = ({ label, value, multiline = false, url = false, email = false, phone = false }) => {
-  let formattedValue = value;
-
-  // Check if the value is a Date object and format it
-  if (value instanceof Date) {
-    formattedValue = value.toLocaleDateString(); // Format the date as a string
-  } else if (url) {
-    formattedValue = <a href={value} target="_blank" rel="noopener noreferrer">{value}</a>;
-  } else if (email) {
-    formattedValue = <a href={`mailto:${value}`}>{value}</a>;
-  } else if (phone) {
-    formattedValue = <a href={`tel:${value}`}>{value}</a>;
-  }
-
-  // Avoid showing "N/A" for specific fields
-  if (!formattedValue && (label === "Title" || label === "Company Name" || label === "Job Categories" || label === "Job Link")) {
-    formattedValue = "";
-  } else if (!formattedValue) {
-    formattedValue = "N/A";
-  }
-
-  return (
-    <div>
-      <strong>{label}:</strong>
-      {multiline ? <p>{formattedValue}</p> : <span>{formattedValue}</span>}
-    </div>
-  );
-};
