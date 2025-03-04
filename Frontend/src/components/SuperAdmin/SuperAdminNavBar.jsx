@@ -459,6 +459,9 @@
 //   );
 // }
 
+
+
+
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { FiMail, FiPlus, FiMenu, FiBell } from "react-icons/fi";
@@ -520,7 +523,7 @@ export default function SuperAdminSidebar() {
             isMenuOpen ? "translate-x-0" : "-translate-x-full"
           } lg:translate-x-0 transition-transform duration-300 ease-in-out z-40`}
         >
-          <div className="p-4 border-b border-gray-400 flex items-center justify-center bg-[#ffc800]">
+          <div className="p-4 border-b border-gray-400 flex items-center justify-center bg-[]">
             <img src={snslogo} alt="Logo" className="h-7 w-15 mr-2" />
             <h1 className="text-lg font-semibold">CCE</h1>
           </div>
@@ -529,7 +532,7 @@ export default function SuperAdminSidebar() {
             MAIN MENU
           </h2>
 
-          <nav className="flex-1 overflow-y-auto">
+          <nav className="flex-1 overflow-y-auto scrollbar-hide">
             <ul className="p-2">
               <li className="mb-2">
                 <a
@@ -623,44 +626,44 @@ export default function SuperAdminSidebar() {
                     setProfileMenuOpen(false);
                     setMailPopupOpen(false);
                   }}
-                  className="flex items-center justify-between w-full px-4 py-3 text-gray-400 font-medium border-t border-b border-gray-400"
+                  className="flex items-center justify-between w-full px-2 py-3 text-gray-500 font-medium border-t border-b border-gray-400"
                 >
                   <span className="">CREATE</span>
-                  <FiPlus className="text-gray-400" />
+                  <FiPlus className="text-gray-600" />
                 </button>
 
                 {isCreateMenuOpen && (
-                  <ul className="absolute z-10 bg-white shadow-md border border-gray-200 w-full mt-1 rounded">
+                  <ul className="flex flex-col mt-1">
                     <li>
                       <a
                         href="/jobselection"
-                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700"
+                        className="block px-4 py-2 text-black-700 flex items-center"
                       >
-                        Job Post
+                        <FiPlus className="text-BLACK-700 mr-2" /> Job Post
                       </a>
                     </li>
                     <li>
                       <a
                         href="/internshipselection"
-                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700"
+                        className="block px-4 py-2 text-black-700 flex items-center"
                       >
-                        Internship
+                        <FiPlus className="text-text-BLACK-700 mr-2" /> Internship
                       </a>
                     </li>
                     <li>
                       <a
                         href="/achievementpost"
-                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700"
+                        className="block px-4 py-2 text-black-700 flex items-center"
                       >
-                        Achievement Post
+                        <FiPlus className="text-BLACK-700 mr-2" /> Achievement Post
                       </a>
                     </li>
                     <li>
                       <a
                         href="/studymaterial-post"
-                        className="block px-4 py-2 hover:bg-gray-100 text-gray-700"
+                        className="block px-4 py-2 text-black-700 flex items-center"
                       >
-                        Study Material Post
+                        <FiPlus className="text-BLACK-700 mr-2" /> Study Material Post
                       </a>
                     </li>
                   </ul>
@@ -717,35 +720,11 @@ export default function SuperAdminSidebar() {
             </ul>
           </nav>
           <div className="p-4">
-            <div className="relative">
-              <button
-                onClick={() => setProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center p-2 hover:bg-yellow-200 rounded w-full px-0"
-              >
-                <RiSettings3Line className="mr-2 " /> Setting
-              </button>
-              <button
-                onClick={handleLogout}
-                className="w-full text-left flex items-center px-0 py-2 hover:bg-yellow-200"
-              >
-                <img src={LogoutIcon} alt="Logout" className="mr-2" />
-                Logout
-              </button>
-              <div className="border-t border-gray-400"></div>
-              {isProfileMenuOpen && (
-                <ul className="absolute bottom-full left-0 mb-2 bg-white shadow-lg rounded-lg w-full">
-                  <li>
-                    <a
-                      href="/profile"
-                      className="block px-4 py-2 hover:bg-yellow-200"
-                    >
-                      View Profile
-                    </a>
-                  </li>
-                </ul>
-              )}
-            </div>
-            <div className="flex items-center p-4 px-0">
+            <hr className="my-2 border-gray-400" />
+            <div
+              onClick={() => (window.location.href = "/profile")}
+              className="flex items-center p-4 px-0 cursor-pointer hover:bg-yellow-200 rounded"
+            >
               <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-300 text-[#000000] text-lg font-semibold mr-3">
                 {userInitials}
               </div>
@@ -756,6 +735,13 @@ export default function SuperAdminSidebar() {
                 <p className="text-sm text-[#000000]"> Super Administrator</p>
               </div>
             </div>
+            <button
+              onClick={handleLogout}
+              className="w-full text-left flex items-center px-0 py-2 hover:bg-yellow-200"
+            >
+              <img src={LogoutIcon} alt="Logout" className="mr-2" />
+              Logout
+            </button>
           </div>
         </div>
 
@@ -767,6 +753,17 @@ export default function SuperAdminSidebar() {
           ></div>
         )}
       </div>
+      <style>
+        {`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+          .scrollbar-hide {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+          }
+        `}
+      </style>
     </div>
   );
 }

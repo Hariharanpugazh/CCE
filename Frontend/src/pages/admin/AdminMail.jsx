@@ -381,7 +381,7 @@ export default function AdminMail() {
       <AdminPageNavbar />
       <div className="flex flex-1 p-4 space-x-4">
         {/* Sidebar */}
-        <div className="w-1/4 max-w-[20%] space-y-4 shadow-md rounded-lg p-4 bg-white">
+        <div className="w-1/4 max-w-[20%] space-y-4 shadow-md rounded-lg p-4 bg-white ml-55">
           <div className="flex items-center gap-2 mb-8">
             <Mail className="h-6 w-6" />
             <h1 className="text-xl font-semibold">Mail</h1>
