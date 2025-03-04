@@ -167,30 +167,30 @@ export default function ManagementHomePage() {
                                 <thead>
                                     <tr>
                                         <th
-                                            className="py-3 px-4  border-b  border-gray-500 text-left cursor-pointer"
+                                            className="py-3 px-4 border-b border-gray-500 text-center cursor-pointer"
                                             onClick={() => requestSort('name')}
                                         >
                                             Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                         </th>
                                         <th
-                                            className="py-2 px-4 border-b border-gray-500 text-left cursor-pointer"
+                                            className="py-2 px-4 border-b border-gray-500 text-center cursor-pointer"
                                             onClick={() => requestSort('email')}
                                         >
                                             Email Address{sortConfig.key === 'email' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                         </th>
                                         <th
-                                            className="py-2 px-4 border-b border-gray-500 text-left cursor-pointer"
+                                            className="py-2 px-4 border-b border-gray-500 text-center cursor-pointer"
                                             onClick={() => requestSort('created_at')}
                                         >
                                             Date Created {sortConfig.key === 'created_at' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                         </th>
                                         <th
-                                            className="py-2 px-4 border-b border-gray-500 text-left cursor-pointer"
+                                            className="py-2 px-4 border-b border-gray-500 text-center cursor-pointer"
                                             onClick={() => requestSort('last_login')}
                                         >
                                             Last Logged in {sortConfig.key === 'last_login' && (sortConfig.direction === 'ascending' ? '↑' : '↓')}
                                         </th>
-                                        <th className="py-2 px-4 border-b border-gray-500 text-center">Status</th>
+                                        <th className="py-2 px-4 border-b border-gray-500 text-center w-32">Status</th> {/* Fixed width for Status column */}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -200,13 +200,13 @@ export default function ManagementHomePage() {
                                             onClick={() => handleAdminClick(admin._id)}
                                             className="cursor-pointer hover:bg-gray-100"
                                         >
-                                            <td className="py-2 px-4 border-b border-gray-300">{admin.name || 'N/A'}</td>
-                                            <td className="py-2 px-4 border-b border-gray-300">{admin.email || 'N/A'}</td>
-                                            <td className="py-2 px-4 border-b border-gray-300">{admin.created_at ? new Date(admin.created_at).toLocaleString() : "N/A"}</td>
-                                            <td className="py-2 px-4 border-b border-gray-300">{admin.last_login ? new Date(admin.last_login).toLocaleString() : "N/A"}</td>
-                                            <td className="py-2 px-4 border-b border-gray-300">
+                                            <td className="py-2 px-4 border-b border-gray-300 text-center w-30">{admin.name || 'N/A'}</td>
+                                            <td className="py-2 px-4 border-b border-gray-300 text-center w-80">{admin.email || 'N/A'}</td>
+                                            <td className="py-2 px-4 border-b border-gray-300 text-center w-70">{admin.created_at ? new Date(admin.created_at).toLocaleString() : "N/A"}</td>
+                                            <td className="py-2 px-4 border-b border-gray-300 text-center w-80">{admin.last_login ? new Date(admin.last_login).toLocaleString() : "N/A"}</td>
+                                            <td className="py-2 px-4 border-b border-gray-300 text-center w-32"> {/* Fixed width for Status column */}
                                                 <span
-                                                    className={`inline-block text-center w-30 px-5 py-1  ml-12 rounded-lg text-m font-semibold ${admin.status === "Active" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500"
+                                                    className={`inline-block text-center w-24 px-3 py-1 rounded-lg text-m font-semibold ${admin.status === "Active" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500"
                                                         }`}
                                                 >
                                                     {admin.status || 'N/A'}

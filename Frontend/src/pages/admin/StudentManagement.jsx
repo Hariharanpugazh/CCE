@@ -62,12 +62,11 @@ const StudentManagement = () => {
       setStudents(students.filter((student) => student._id !== id));
       setSelectedStudent(null);
       setShowDeleteConfirm(false);
-    } catch (error) { 
+    } catch (error) {
       console.error("Error deleting student:", error.response ? error.response.data : error);
       alert("Failed to delete student. Please try again.");
     }
   };
-  
 
   const handleToggleStatus = async (student) => {
     const updatedStatus = student.status === "active" ? "inactive" : "active";
@@ -93,7 +92,7 @@ const StudentManagement = () => {
     try {
       // Send the updated student data to the backend with the correct URL
       await axios.put(`http://localhost:8000/api/students/${editableStudent._id}/update/`, editableStudent);
-  
+
       // Update the local state with the new student data
       setStudents(
         students.map((student) =>
@@ -131,14 +130,13 @@ const StudentManagement = () => {
 
   return (
     <div>
-      {/* <div className="flex flex-col min-h-screen bg-gray-100"> */}
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
-      <div className="p-8  min-h-screen ml-62 mr-5">
-        <h1 className="text-4xl font-bold  mb-3">Student Management</h1>
+      <div className="p-8 min-h-screen ml-62 mr-5">
+        <h1 className="text-4xl font-bold mb-3">Student Management</h1>
 
         <div className="flex flex-wrap items-center py-5 mb-6 gap-4">
-          <div className="flex flex-1 items-center border rounded-lg border-gray-400   ">
+          <div className="flex flex-1 items-center border rounded-lg border-gray-400">
             <input
               type="text"
               placeholder="Search "
@@ -146,16 +144,16 @@ const StudentManagement = () => {
               onChange={(e) => setFilter(e.target.value)}
               className="flex-1 px-3 outline-none"
             />
-            <button className="px-10  py-2 bg-yellow-400 rounded-tr rounded-br border-l border-gray-500">
-             <strong> Search</strong> 
+            <button className="px-10 py-2 bg-yellow-400 rounded-tr rounded-br border-l border-gray-500">
+              <strong>Search</strong>
             </button>
           </div>
 
-          <div className="flex  items-center ml-60  border rounded-lg border-gray-500">
+          <div className="flex items-center ml-60 border rounded-lg border-gray-500">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="flex-1 p-3 border-r px-3  py-2 mr-3  rounded-l-lg  appearance-none"
+              className="flex-1 p-3 border-r px-3 py-2 mr-3 rounded-l-lg appearance-none"
             >
               <option value=""><center>Filter by Status ⮟</center></option>
               <option value="active">Active</option>
@@ -165,19 +163,20 @@ const StudentManagement = () => {
               className="text-black px-5"
               onClick={() => navigate("/student-signup")}
             >
-              Create Student <strong>＋</strong> 
+              Create Student <strong>＋</strong>
             </button>
           </div>
         </div>
 
         <div className="bg-white rounded-lg overflow-x-auto border border-gray-500">
-          <table className="min-w-full  table-auto ">
-            <thead className=" border-b border-gray-500">
+          <table className="min-w-full table-auto">
+            <thead className="border-b border-gray-500">
               <tr>
-                <th className="text-center p-4 ">Name</th>
-                <th className="text-center p-4 ">Department</th>
-                <th className="text-left w-1/4  p-4 ">Email Address</th>
-                <th className="text-center p-4 ">Status</th>
+                <th className="text-center p-4 w-40">Name</th>
+                <th className="text-center p-4 w-60">Department</th>
+                <th className="text-center p-4 w-2/6">Email Address</th>
+                <th className="text-center p-4 w-40">Phone Number</th> {/* Increased width for Phone Number column */}
+                <th className="text-center p-4 w-32">Status</th> {/* Fixed width for Status column */}
               </tr>
             </thead>
             <tbody>
@@ -185,12 +184,15 @@ const StudentManagement = () => {
                 <tr
                   key={student._id}
                   onClick={() => setSelectedStudent(student)}
-                  className="cursor-pointer hover:bg-gray-100 border-b  border-gray-300"
+                  className="cursor-pointer hover:bg-gray-100 border-b border-gray-300"
                 >
                   <td className="text-center p-4">{student.name}</td>
-                  <td className="text-center px-4">{student.department}</td>
-                  <td className="text-left p-4 w-2/9">{student.email}</td>
-                  <td className="text-center p-4">
+                  <td className="text-center p-4 W-50">{student.department}</td>
+                  <td className="text-center p-4 w-2/9">{student.email}</td>
+                  <td className="text-center p-4 w-60"> {/* Increased width for Phone Number column */}
+                    {student.phone_number ? student.phone_number : "N/A"}
+                  </td>
+                  <td className="text-center p-4 w-32"> {/* Fixed width for Status column */}
                     <span
                       className={`inline-block text-center w-24 px-3 py-1 rounded-lg text-m font-semibold ${
                         student.status === "active"
@@ -230,14 +232,14 @@ const StudentManagement = () => {
               </button>
               <h2 className="text-2xl font-bold mb-6">Student Details</h2>
               <div className="grid grid-cols-2 gap-4">
-                {["name", "email",    "department", "year", "college_name"].map((field) => (
+                {["name", "email", "phone_number", "department", "year", "college_name"].map((field) => ( // Added phone_number field
                   <div key={field} className="bg-gray-100 p-4 rounded-lg">
                     <strong className="block text-sm font-semibold">
                       {field.replace("_", " ").toUpperCase()}:
                     </strong>
                     {editMode && field !== "email" ? ( // Make email non-editable
                       <input
-                        type="text" 
+                        type="text"
                         name={field}
                         value={editableStudent[field] || ""}
                         onChange={handleInputChange}
@@ -322,3 +324,4 @@ const StudentManagement = () => {
 };
 
 export default StudentManagement;
+
