@@ -217,7 +217,7 @@ export default function AchievementEdit() {
                   </button>
                   <button
                     onClick={handleRemoveImage}
-                    className="bg-gray-300 text-black px-4 py-2 rounded-md relative -top-8"
+                    className="bg-gray-300 text-black px-4 py-2 rounded-md  relative -top-8"
                   >
                     Remove picture
                   </button>
@@ -229,7 +229,7 @@ export default function AchievementEdit() {
                 <div className="space-y-5  ">
                   <div className="flex space-x-20 ">
                     <div className="flex-1">
-                      <div className="relative border-2 border-gray-400 rounded-md w-full mb-5  ">
+                      <div className="relative border-2 border-gray-400 rounded-lg w-full mb-5  ">
                         <input
                           type="text"
                           id="name"
@@ -243,7 +243,7 @@ export default function AchievementEdit() {
                       </div>
                     </div>
                     <div className="flex-1 ">
-                      <div className="relative border-2 border-gray-400 rounded-md w-full  mb-5 ">
+                      <div className="relative border-2 border-gray-400 rounded-lg w-full  mb-5 ">
                         <select
                           id="achievement_type"
                           name="achievement_type"
@@ -267,7 +267,7 @@ export default function AchievementEdit() {
 
                   <div className="flex space-x-6 ">
                     <div className="flex-1  mr-20">
-                      <div className="relative border-2 border-gray-400 rounded-md w-full  mb-5 ">
+                      <div className="relative border-2 border-gray-400 rounded-lg w-full  mb-5 ">
                         <input
                           type="text"
                           id="company_name"
@@ -281,7 +281,7 @@ export default function AchievementEdit() {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <div className="relative border-2 border-gray-400 rounded-md w-full mb-5">
+                      <div className="relative border-2 border-gray-400 rounded-lg w-full mb-5">
                         <input
                           type="date"
                           id="date_of_achievement"
@@ -297,7 +297,7 @@ export default function AchievementEdit() {
                   </div>
 
                   <div>
-                    <div className="relative border-2 border-gray-400 rounded-md w-full mb-5">
+                    <div className="relative border-2 border-gray-400 rounded-lg w-full mb-5">
                       <textarea
                         id="achievement_description"
                         name="achievement_description"
@@ -311,7 +311,7 @@ export default function AchievementEdit() {
                   </div>
 
                   <div>
-                    <div className="relative   mr-125  border-2 border-gray-400 rounded-md    ">
+                    <div className="relative   mr-125  border-2 border-gray-400 rounded-lg    ">
                       <input
                         type="text"
                         id="batch"
