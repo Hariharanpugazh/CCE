@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 export default function AchievementEdit() {
   const { id } = useParams();
@@ -187,19 +188,20 @@ export default function AchievementEdit() {
 
       {/* Content */}
       <div className="flex-1 p-6">
-        <div className="w-full h-[700px]  bg-white shadow-lg rounded-lg p-8 border border-gray-300">
+        <div className="w-full h-[700px] mx-auto bg-white shadow-lg rounded-lg p-8 border border-gray-300">
           <h1 className="text-2xl font-bold mb-4">Edit Achievements</h1>
           {achievement && (
             <div>
-              <div className="flex items-center mb-6">
+              <div className="relative flex items-center ml-15 mb-6">
                 {imagePreview && (
                   <img
                     src={imagePreview}
                     alt="Achievement"
-                    className="w-24 h-24 object-cover rounded-full mr-6"
+                    className="w-[150px] h-[150px] object-cover rounded-full"
+                    style={{ position: "absolute", top: "20px", left: "20px" }}
                   />
                 )}
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 ml-[180px] mt-[165px]  ">
                   <input
                     type="file"
                     accept="image/*"
@@ -209,122 +211,127 @@ export default function AchievementEdit() {
                   />
                   <button
                     onClick={() => fileInputRef.current.click()}
-                    className="bg-yellow-500 text-black px-4 py-2 rounded-md"
+                    className="bg-yellow-500 text-black px-4 py-2 rounded-md ml-4 mr-8 relative -top-8"
                   >
                     Upload picture
                   </button>
                   <button
                     onClick={handleRemoveImage}
-                    className="bg-gray-300 text-black px-4 py-2 rounded-md"
+                    className="bg-gray-300 text-black px-4 py-2 rounded-md  relative -top-8"
                   >
                     Remove picture
                   </button>
                 </div>
               </div>
-              <hr className="mb-6 border-gray-300" />
+              <hr className="mb-6 border-gray-300 relative -top-5 mr-40 ml-15" />
 
-              <form className="space-y-4">
-                <div className="flex space-x-4">
-                  <div className="flex-1">
-                    <div className="relative border-2 border-gray-400 rounded-md w-full">
+              <form className="space-y-6 mr-55 ml-22 ">
+                <div className="space-y-5  ">
+                  <div className="flex space-x-20 ">
+                    <div className="flex-1">
+                      <div className="relative border-2 border-gray-400 rounded-lg w-full mb-5  ">
+                        <input
+                          type="text"
+                          id="name"
+                          name="name"
+                          value={editedAchievement.name}
+                          onChange={handleChange}
+                          className="w-full py-2 px-1 text-gray-700 focus:outline-none focus:border-blue-500 rounded-sm"
+                          placeholder=" "
+                        />
+                        <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1">Name</label>
+                      </div>
+                    </div>
+                    <div className="flex-1 ">
+                      <div className="relative border-2 border-gray-400 rounded-lg w-full  mb-5 ">
+                        <select
+                          id="achievement_type"
+                          name="achievement_type"
+                          value={editedAchievement.achievement_type}
+                          onChange={handleChange}
+                          className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500 rounded-sm appearance-none" // Added appearance-none
+                        >
+                          <option value="">Select Achievement Type</option>
+                          <option value="Job Placement">Job Placement</option>
+                          <option value="Internship">Internship</option>
+                          <option value="Certification">Certification</option>
+                          <option value="Exam Cracked">Exam Cracked</option>
+                        </select>
+                        <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1">Achievement Type</label>
+                        <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                          ▼
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex space-x-6 ">
+                    <div className="flex-1  mr-20">
+                      <div className="relative border-2 border-gray-400 rounded-lg w-full  mb-5 ">
+                        <input
+                          type="text"
+                          id="company_name"
+                          name="company_name"
+                          value={editedAchievement.company_name}
+                          onChange={handleChange}
+                          className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500 rounded-sm"
+                          placeholder=" "
+                        />
+                        <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1">Company Name</label>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="relative border-2 border-gray-400 rounded-lg w-full mb-5">
+                        <input
+                          type="date"
+                          id="date_of_achievement"
+                          name="date_of_achievement"
+                          value={editedAchievement.date_of_achievement}
+                          onChange={handleChange}
+                          className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500 rounded-sm"
+                          placeholder=" "
+                        />
+                        <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1">Date of Achievement</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="relative border-2 border-gray-400 rounded-lg w-full mb-5">
+                      <textarea
+                        id="achievement_description"
+                        name="achievement_description"
+                        value={editedAchievement.achievement_description}
+                        onChange={handleChange}
+                        className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500 rounded-sm"
+                        placeholder=" "
+                      ></textarea>
+                      <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1 ">Achievement Description</label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="relative   mr-125  border-2 border-gray-400 rounded-lg    ">
                       <input
                         type="text"
-                        id="name"
-                        name="name"
-                        value={editedAchievement.name}
+                        id="batch"
+                        name="batch"
+                        value={editedAchievement.batch}
                         onChange={handleChange}
-                        className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500"
+                        className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500 rounded-sm"
                         placeholder=" "
                       />
-                      <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1">Name</label>
+                      <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1 ">Batch</label>
                     </div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="relative border-2 border-gray-400 rounded-md w-full">
-                      <select
-                        id="achievement_type"
-                        name="achievement_type"
-                        value={editedAchievement.achievement_type}
-                        onChange={handleChange}
-                        className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500"
-                      >
-                        <option value="">Select Achievement Type</option>
-                        <option value="Job Placement">Job Placement</option>
-                        <option value="Internship">Internship</option>
-                        <option value="Certification">Certification</option>
-                        <option value="Exam Cracked">Exam Cracked</option>
-                      </select>
-                      <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1">Achievement Type</label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex space-x-4">
-                  <div className="flex-1">
-                    <div className="relative border-2 border-gray-400 rounded-md w-full">
-                      <input
-                        type="text"
-                        id="company_name"
-                        name="company_name"
-                        value={editedAchievement.company_name}
-                        onChange={handleChange}
-                        className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500"
-                        placeholder=" "
-                      />
-                      <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1">Company Name</label>
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="relative border-2 border-gray-400 rounded-md w-full">
-                      <input
-                        type="date"
-                        id="date_of_achievement"
-                        name="date_of_achievement"
-                        value={editedAchievement.date_of_achievement}
-                        onChange={handleChange}
-                        className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500"
-                        placeholder=" "
-                      />
-                      <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1">Date of Achievement</label>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="relative border-2 border-gray-400 rounded-md w-full">
-                    <textarea
-                      id="achievement_description"
-                      name="achievement_description"
-                      value={editedAchievement.achievement_description}
-                      onChange={handleChange}
-                      className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500"
-                      placeholder=" "
-                    ></textarea>
-                    <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1">Achievement Description</label>
-                  </div>
-                </div>
-
-                <div>
-                  <div className="relative border-2 border-gray-400 rounded-md w-full">
-                    <input
-                      type="text"
-                      id="batch"
-                      name="batch"
-                      value={editedAchievement.batch}
-                      onChange={handleChange}
-                      className="w-full py-2 px-2 text-gray-700 focus:outline-none focus:border-blue-500"
-                      placeholder=" "
-                    />
-                    <label className="absolute top-[-10px] left-2 bg-white text-sm text-gray-600 px-1">Batch</label>
                   </div>
                 </div>
               </form>
             </div>
           )}
-          <div className="text-right mt-4">
+          <div className="text-right ">
             <button
               onClick={handleSave}
-              className="bg-yellow-500 text-black px-4 py-2 rounded-md"
+              className="bg-yellow-500 text-black px-4 py-2 rounded-md mb-8"
             >
               Save Changes
             </button>
