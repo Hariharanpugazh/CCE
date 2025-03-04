@@ -6,7 +6,7 @@ import { MdOutlineWorkOutline } from "react-icons/md";
 import { PiStudent } from "react-icons/pi";
 import { GoTrophy } from "react-icons/go";
 import { HiOutlineBookOpen } from "react-icons/hi2";
-import { RiSettings3Line } from "react-icons/ri";
+import { RiNotification3Line } from "react-icons/ri";
 import { useLocation } from "react-router-dom";
 
 // Assume these imports are correct for your project structure
@@ -51,7 +51,7 @@ export default function AdminSidebar() {
   );
 
   return (
-    <div className="relative w-57 z-[9999]">
+    <div className="relative w-65 z-[9999]">
       <div className="fixed md:flex">
         <button
           onClick={() => setMenuOpen(!isMenuOpen)}
@@ -61,7 +61,7 @@ export default function AdminSidebar() {
         </button>
 
         <div
-          className={`bg-white shadow-lg h-screen md:relative w-57 fixed left-0 top-0 flex flex-col transform ${
+          className={`bg-white shadow-lg h-screen md:relative w-65 fixed left-0 top-0 flex flex-col transform ${
             isMenuOpen ? "translate-x-0" : "-translate-x-full"
           } lg:translate-x-0 transition-transform duration-300 ease-in-out z-40`}
         >
@@ -80,34 +80,34 @@ export default function AdminSidebar() {
 
           <nav className="flex-1 overflow-y-auto scrollbar-hide">
             <ul className="p-2">
-              <li className="mb-2">
+              <li className="mb-0">
                 <NavLink href="/admin/home">
                   <RxDashboard className="mr-3" /> Dashboard
                 </NavLink>
               </li>
-              <li className="mb-2">
+              <li className="mb-0">
                 <NavLink href="/jobs">
                   <MdOutlineWorkOutline className="mr-3" /> Jobs
                 </NavLink>
               </li>
-              <li className="mb-2">
+              <li className="mb-0">
                 <NavLink href="/internships">
                   <PiStudent className="mr-3" /> Internships
                 </NavLink>
               </li>
-              <li className="mb-2">
+              <li className="mb-0">
                 <NavLink href="/study-material">
                   <HiOutlineBookOpen className="mr-3" /> Study Material
                 </NavLink>
               </li>
-              <li className="mb-2">
+              <li className="mb-0">
                 <NavLink href="/admin-achievements">
                   <GoTrophy className="mr-3" /> Achievements
                 </NavLink>
               </li>
-              <li className="mb-2">
+              <li className="mb-0">
                 <NavLink href="/admin/mail">
-                  <FiMail className="mr-3" /> Inbox
+                <RiNotification3Line className="mr-3" /> Notification
                 </NavLink>
               </li>
 
@@ -166,7 +166,7 @@ export default function AdminSidebar() {
               <h2 className="text-gray-500 font-medium mb-4 ml-2">MANAGE</h2>
 
               <ul>
-                <li className="mb-2">
+                <li >
                   <NavLink href="/manage-student">
                     <img
                       src={Managementverify || "/placeholder.svg"}
@@ -176,7 +176,7 @@ export default function AdminSidebar() {
                     Student Management
                   </NavLink>
                 </li>
-                <li className="mb-2">
+                <li >
                   <NavLink href="/manage-jobs">
                     <img
                       src={verifyIcon || "/placeholder.svg"}

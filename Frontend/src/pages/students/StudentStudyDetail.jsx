@@ -1,19 +1,23 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { LoaderContext } from "../../components/Common/Loader"; // Import Loader Context
-import { FaGoogle, FaYoutube, FaGoogleDrive } from 'react-icons/fa'; // Import icons
-import ReactPlayer from 'react-player'; // Import ReactPlayer
+import { LoaderContext } from "../../components/Common/Loader";
+import { FaGoogle, FaYoutube, FaGoogleDrive } from 'react-icons/fa';
+import ReactPlayer from 'react-player';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 // Utility function to extract YouTube video ID
 const getYouTubeVideoId = (url) => {
   try {
     const parsedUrl = new URL(url);
     if (parsedUrl.hostname === 'youtu.be') {
-      return parsedUrl.pathname.substring(1); // Extract from short URL
+      return parsedUrl.pathname.substring(1);
     } else {
-      return parsedUrl.searchParams.get('v'); // Extract from full URL
+      return parsedUrl.searchParams.get('v');
     }
   } catch (error) {
     console.error('Invalid YouTube URL:', url);
@@ -25,16 +29,24 @@ export default function StudentStudyDetail() {
   const location = useLocation();
   const { card } = location.state;
 
-  // Add state and handler functions for the new section
   const [selectedType, setSelectedType] = useState('Exam');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [categories, setCategories] = useState([]);
   const { isLoading, setIsLoading } = useContext(LoaderContext);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setUserRole(!decodedToken.student_user ? decodedToken.role : "student");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchStudyMaterials = async () => {
-      setIsLoading(true); // Show loader when fetching data
+      setIsLoading(true);
       try {
         const response = await fetch('http://127.0.0.1:8000/api/all-study-material/');
         const data = await response.json();
@@ -42,7 +54,7 @@ export default function StudentStudyDetail() {
       } catch (error) {
         console.error('Error fetching study materials:', error);
       } finally {
-        setIsLoading(false); // Hide loader after data fetch
+        setIsLoading(false);
       }
     };
 
@@ -77,24 +89,25 @@ export default function StudentStudyDetail() {
   }, [selectedType, card.links]);
 
   return (
-    <div className="w-full h-screen">
-      <StudentPageNavbar />
-      <div className='px-8'>
+    <div className="flex">
+      {userRole === "admin" && <AdminPageNavbar />}
+      {userRole === "superadmin" && <SuperAdminPageNavbar />}
+      <div className="flex flex-col flex-1">
+      {userRole === "student" && <StudentPageNavbar />}
+        <div className='px-8'>
         <div className="flex flex-col justify-between py-6">
           <h1 className="text-xl font-semibold">Study Material</h1>
-
         </div>
 
-
-        {/* Existing content */}
         <div className='flex justify-center'>
-          <div className='relative border border-gray-300 p-6 w-full max-w-8xl mr- rounded-lg'> {/* Added rounded-lg for small curve */}
+          <div className='relative border border-gray-300 p-6 w-full max-w-8xl mr- rounded-lg'>
             <div className='flex justify-between items-center'>
               <h1 className="text-xl font-semibold">{card.title}</h1>
-              <div className='flex space-x-4 ml-4'> {/* Increased space between icons and title */}
-                {/* <FaGoogle className='text-[#4285F4] text-2xl' />  Increased icon size */} 
-                {/* <FaYoutube className='text-[#FF0000] text-2xl' />  Increased icon size */} 
-                {/* <FaGoogleDrive className='text-[#34A853] text-2xl' /> Increased icon size */}
+              <div className='flex space-x-4 ml-4'>
+                {/* Icons can be uncommented if needed */}
+                {/* <FaGoogle className='text-[#4285F4] text-2xl' /> */}
+                {/* <FaYoutube className='text-[#FF0000] text-2xl' /> */}
+                {/* <FaGoogleDrive className='text-[#34A853] text-2xl' /> */}
               </div>
             </div>
             <p className="text-sm text-gray-600 mt-7">{card.description}</p>
@@ -110,7 +123,6 @@ export default function StudentStudyDetail() {
                 </a>
               ))}
             </div>
-            {/* Add YouTube video container */}
             <div className="mt-6 flex justify-center">
               {card.links
                 .filter(link => link.type === 'YouTube')
@@ -129,6 +141,7 @@ export default function StudentStudyDetail() {
                 })}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

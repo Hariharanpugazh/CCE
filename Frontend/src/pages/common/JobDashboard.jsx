@@ -61,7 +61,6 @@ export default function JobDashboard() {
   const itemsPerPage = 12;
 
   useEffect(() => {
-    // Set filteredJobs to all jobs without any filtering
     setFilteredJobs(jobs);
   }, [jobs]);
 
