@@ -4,6 +4,7 @@ import { MdRemoveRedEye } from "react-icons/md";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
 import Pagination from "../../components/Admin/pagination"; // Assuming Pagination is in this path
 import { LoaderContext } from "../../components/Common/Loader"; // Import Loader Context
+import { useNavigate } from 'react-router-dom';
 
 export default function StudyMaterial() {
   const [cards, setCards] = useState([]);
@@ -13,6 +14,7 @@ export default function StudyMaterial() {
   const [selectedType, setSelectedType] = useState('Exam'); // Default to 'Exam'
   const cardsPerPage = 6;
   const { isLoading, setIsLoading } = useContext(LoaderContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStudyMaterials = async () => {
@@ -71,6 +73,10 @@ export default function StudyMaterial() {
   useEffect(() => {
     updateCategories(cards, selectedType);
   }, [selectedType, cards]);
+
+  const handleViewClick = (card) => {
+    navigate('/student-study-detail', { state: { card } });
+  };
 
   return (
     <div className="w-full h-screen">
@@ -134,7 +140,10 @@ export default function StudyMaterial() {
                 </div>
               </div>
               <div className="mt-2">
-                <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-3 py-1 flex items-center rounded-lg">
+                <button
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-3 py-1 flex items-center rounded-lg"
+                  onClick={() => handleViewClick(card)}
+                >
                   View <MdRemoveRedEye className="ml-1 h-4 w-4" />
                 </button>
               </div>
