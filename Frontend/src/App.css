@@ -2,9 +2,19 @@
   margin: 0;
 }
 
-body {
-  background-color: #FFFAFA;
+@font-face {
+    font-family: 'Britti Sans Trial';
+    src: url('path-to-font/BrittiSansTrial-Regular.woff2') format('woff2'),
+         url('path-to-font/BrittiSansTrial-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
 }
+
+body {
+    font-family: 'Britti Sans Trial', sans-serif;
+    background-color: #FFFAFA;
+}
+
 
 input[type="range"] {
   -webkit-appearance: none;

@@ -167,13 +167,14 @@ export default function AchievementPostForm() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex">
       <ToastContainer />
-      {userRole === "admin" && <AdminPageNavbar />}
-      {userRole === "superadmin" && <SuperAdminPageNavbar />}
+      {userRole === "admin" && <AdminPageNavbar className="fixed left-0 top-0 h-full" />}
+      {userRole === "superadmin" && <SuperAdminPageNavbar className="fixed left-0 top-0 h-full" />}
 
-      <div className="flex-1 p-6 max-w-6xl w-full mx-auto bg-white rounded-lg shadow-lg my-auto md:m-10">
-        <div className="flex justify-between items-center mb-6">
+      <div className="flex-1 p-6 max-w-6xl w-full mx-auto bg-white rounded-lg shadow-lg my-auto md:m-10 ml-64">
+        {/* Adjusted margin-left to account for the fixed navbar */}
+        <div className="flex justify-between items-center mb-5">
           <h2 className="text-2xl font-bold text-black">Post an Achievement</h2>
           <button
             onClick={() => navigate(-1)}
