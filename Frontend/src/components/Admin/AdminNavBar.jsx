@@ -202,7 +202,7 @@ export default function AdminSidebar() {
                           <p className="font-semibold text-[#000000]">
                             {username || "SuperAdmin"}
                           </p>
-                          <p className="text-sm text-[#000000]"> Super Administrator</p>
+                          <p className="text-sm text-[#000000]">Administrator</p>
                         </div>
                       </div>
                       <button

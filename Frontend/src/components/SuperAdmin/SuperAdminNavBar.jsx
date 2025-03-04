@@ -507,8 +507,8 @@ export default function SuperAdminSidebar() {
   const userInitials = username ? username.charAt(0).toUpperCase() : "S";
 
   return (
-    <div className="relative w-64 z-[9999]">
-      <div className="fixed md:flex">
+    <div className="relative w-57 z-[9999]">
+      <div className="fixed md:flex w-64">
         {/* Hamburger Menu Button */}
         <button
           onClick={() => setMenuOpen(!isMenuOpen)}
