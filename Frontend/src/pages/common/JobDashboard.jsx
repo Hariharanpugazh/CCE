@@ -58,7 +58,7 @@ export default function JobDashboard() {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 12;
 
   useEffect(() => {
     // Set filteredJobs to all jobs without any filtering

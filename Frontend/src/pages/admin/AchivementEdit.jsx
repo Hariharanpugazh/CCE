@@ -188,8 +188,8 @@ export default function AchievementEdit() {
 
       {/* Content */}
       <div className="flex-1 p-6">
-        <div className="w-full h-[700px] mx-auto bg-white shadow-lg rounded-lg p-8 border border-gray-300">
-          <h1 className="text-2xl font-bold mb-4">Edit Achievements</h1>
+        <div className="w-full h-[700px] mt-12 mx-auto bg-white shadow-lg rounded-lg p-8 border border-gray-300">
+          <h1 className="text-2xl font-semibold mb-4">Edit Achievements</h1>
           {achievement && (
             <div>
               <div className="relative flex items-center ml-15 mb-6">
