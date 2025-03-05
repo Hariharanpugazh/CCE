@@ -746,6 +746,7 @@ def job_post(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.POST.get('data', '{}'))  # Extracting JSON data
+            print("harlee:",data)
             image = request.FILES.get('image')
             
             role = data.get('role')

@@ -86,7 +86,9 @@ export default function AchievementPostForm() {
     // Validate batch field format
     const batchPattern = /^[0-9]{4} - [0-9]{4}$/;
     if (!batchPattern.test(formData.batch)) {
-      toast.error("Batch should be in the format YYYY - YYYY. (e.g. 2020 - 2024)");
+      toast.error(
+        "Batch should be in the format YYYY - YYYY. (e.g. 2020 - 2024)"
+      );
       setLoading(false);
       return;
     }
@@ -117,7 +119,10 @@ export default function AchievementPostForm() {
 
       const formDataObj = new FormData();
       formDataObj.append("name", formData.name);
-      formDataObj.append("achievement_description", formData.achievement_description);
+      formDataObj.append(
+        "achievement_description",
+        formData.achievement_description
+      );
       formDataObj.append("achievement_type", formData.achievement_type);
       formDataObj.append("company_name", formData.company_name);
       formDataObj.append("date_of_achievement", formData.date_of_achievement);
@@ -167,17 +172,22 @@ export default function AchievementPostForm() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex">
       <ToastContainer />
-      {userRole === "admin" && <AdminPageNavbar />}
-      {userRole === "superadmin" && <SuperAdminPageNavbar />}
+      {userRole === "admin" && (
+        <AdminPageNavbar className="fixed left-0 top-0 h-full" />
+      )}
+      {userRole === "superadmin" && (
+        <SuperAdminPageNavbar className="fixed left-0 top-0 h-full" />
+      )}
 
-      <div className="flex-1 p-6 max-w-6xl w-full mx-auto bg-white rounded-lg shadow-lg my-auto md:m-10">
-        <div className="flex justify-between items-center mb-6">
+      <div className="flex-1 p-6 max-w-6xl w-full mx-auto bg-white rounded-lg shadow-lg my-auto md:m-10 ml-64">
+        {/* Adjusted margin-left to account for the fixed navbar */}
+        <div className="flex justify-between items-center mb-5">
           <h2 className="text-2xl font-bold text-black">Post an Achievement</h2>
           <button
             onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300 transition-colors"
+            className="px-4 py-2 border-1 text-black rounded-lg hover:bg-gray-300 transition-colors"
           >
             Cancel
           </button>
@@ -196,14 +206,15 @@ export default function AchievementPostForm() {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full mb-3 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                className="w-full mb-3 border-2 border-gray-300/80 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
                 placeholder="Enter the name here"
               />
             </div>
 
             <div className="w-full space-y-2">
               <label className="block text-sm font-semibold text-black">
-                Company/Organization Name <span className="text-red-500">*</span>
+                Company/Organization Name{" "}
+                <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -211,7 +222,7 @@ export default function AchievementPostForm() {
                 value={formData.company_name}
                 onChange={handleChange}
                 required
-                className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                className="w-full  border-2 border-gray-300/80 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
                 placeholder="Enter the company/organization name here"
               />
             </div>
@@ -227,7 +238,7 @@ export default function AchievementPostForm() {
                 value={formData.achievement_type}
                 onChange={handleChange}
                 required
-                className="w-full border border-gray-300 px-4 py-2 mb-3 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                className="w-full  border-2 border-gray-300/80 px-4 py-2 mb-3 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
               >
                 <option value="">Select Achievement Type</option>
                 <option value="Job Placement">Job Placement</option>
@@ -247,7 +258,7 @@ export default function AchievementPostForm() {
                 value={formData.date_of_achievement}
                 onChange={handleChange}
                 required
-                className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                className="w-full  border-2 border-gray-300/80 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
               />
             </div>
           </div>
@@ -264,17 +275,19 @@ export default function AchievementPostForm() {
                   value={formData.batch}
                   onChange={handleChange}
                   required
-                  className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                  className="w-full  border-2 border-gray-300/80 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
                   placeholder="Enter the batch here (e.g. 2020 - 2024)"
                 />
               </div>
 
-              <div className="border-dashed border-2 border-gray-400 rounded-xl pt-4 pb-2 px-2 text-center bg-white mt-4 w-full ">
+              <div className=" border-2 border-gray-300/80 rounded-xl pt-4 pb-2 px-2 text-center bg-white mt-4 w-full ">
                 <label
                   htmlFor="photo"
                   className="cursor-pointer text-blue-600 font-semibold text-xl hover:underline"
                 >
-                  {imagePreview ? "Change Image " : "Upload an Achievement Photo"}
+                  {imagePreview
+                    ? "Change Image "
+                    : "Upload an Achievement Photo"}
                 </label>
                 <input
                   type="file"
@@ -306,7 +319,7 @@ export default function AchievementPostForm() {
                 value={formData.achievement_description}
                 onChange={handleChange}
                 required
-                className="w-full flex-1 border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none"
+                className="w-full flex-1  border-2 border-gray-300/80 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none"
                 rows="5"
                 maxLength={300}
                 placeholder="Enter the achievement description here (Max 300 characters)"
