@@ -20,7 +20,7 @@ export default function InternshipDashboard() {
   const [userRole, setUserRole] = useState(null);
   const [selectedIntern, setSelectedIntern] = useState();
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 12;
 
   const borderColor = "border-gray-300";
 
