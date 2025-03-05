@@ -22,6 +22,15 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import base64
+import pytz  # Add this import
+import logging
+import json
+from django.http import JsonResponse
+from datetime import datetime
+import base64
+from django.utils import timezone
+
+
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -51,6 +60,7 @@ achievement_collection = db['student_achievement']
 study_material_collection = db['studyMaterial']
 superadmin_collection = db['superadmin']
 message_collection = db['message']
+exam_collection = db['exam']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -883,3 +893,92 @@ def get_applied_jobs(request, userId):
         return JsonResponse({"jobs": applied_jobs})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+logger = logging.getLogger(__name__)
+
+@csrf_exempt
+def exam_post(request):
+    if request.method == 'POST':
+        try:
+            # Decode the raw request body
+            body = request.body.decode('utf-8')
+            logger.info("Raw body received: %s", body)
+            
+            # Parse JSON
+            parsed = json.loads(body)
+            logger.info("Parsed JSON: %s", parsed)
+            
+            # Use the entire parsed object (flat structure from frontend)
+            data = parsed
+            logger.info("Extracted data: %s", data)
+            
+            # Validate required fields
+            required_fields = ['exam_title', 'application_process', 'important_dates']
+            for field in required_fields:
+                if field not in data or not data[field]:
+                    return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
+            
+            # Extract role and userId
+            role = data.get('role')
+            if not role:
+                return JsonResponse({"error": "Missing required field: role"}, status=400)
+            userid = data.get('userId')
+            if not userid:
+                return JsonResponse({"error": "Missing required field: userId"}, status=400)
+            
+            # Auto-approval logic
+            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+            is_publish = True if role == 'superadmin' or (role == 'admin' and is_auto_approval) else None
+            
+            # Handle optional image upload if included
+            image = request.FILES.get('image')
+            image_base64 = None
+            if image:
+                image_base64 = base64.b64encode(image.read()).decode('utf-8')
+            
+            # Construct exam post document with all 21 fields, cutoff and exam_highlights as arrays
+            exam_post = {
+                "exam_data": {
+                    "exam_title": data.get('exam_title'),
+                    "about_exam": data.get('about_exam', ""),
+                    "exam_highlights": data.get('exam_highlights', []),  # Changed to array
+                    "eligibility_criteria": data.get('eligibility_criteria', ""),
+                    "application_process": data.get('application_process'),
+                    "documents_required": data.get('documents_required', ""),
+                    "exam_centers": data.get('exam_centers', ""),
+                    "exam_pattern": data.get('exam_pattern', ""),
+                    "mock_test": data.get('mock_test', ""),
+                    "admit_card": data.get('admit_card', ""),
+                    "preparation_tips": data.get('preparation_tips', ""),
+                    "result": data.get('result', ""),
+                    "answer_key": data.get('answer_key', ""),
+                    "exam_analysis": data.get('exam_analysis', ""),
+                    "cutoff": data.get('cutoff', []),  # Changed to array
+                    "selection_process": data.get('selection_process', ""),
+                    "question_paper": data.get('question_paper', ""),
+                    "faq": data.get('faq', ""),
+                    "important_dates": data.get('important_dates'),
+                    "syllabus": data.get('syllabus', ""),
+                    "participating_institutes": data.get('participating_institutes', ""),
+                    "image": image_base64
+                },
+                "admin_id" if role == "admin" else "superadmin_id": userid,
+                "is_publish": is_publish,
+                "status": "Pending" if is_publish is None else "Published",
+                "updated_at": timezone.now()
+            }
+            
+            # Log the array fields for verification
+            logger.info("cutoff stored as: %s", exam_post['exam_data']['cutoff'])
+            logger.info("exam_highlights stored as: %s", exam_post['exam_data']['exam_highlights'])
+            
+            # Insert into MongoDB exam_post_collection
+            exam_collection.insert_one(exam_post)
+            return JsonResponse({"message": "Exam posted successfully, awaiting approval if posted by admin."}, status=200)
+        
+        except Exception as e:
+            logger.error("Error: %s", str(e))
+            return JsonResponse({"error": str(e)}, status=500)
+    
+    return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)

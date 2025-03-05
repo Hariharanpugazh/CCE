@@ -188,6 +188,14 @@ export default function SuperAdminSidebar() {
                     </li>
                     <li>
                       <a
+                        href="/exam-post"
+                        className="block px-4 py-2 text-black-700 flex items-center"
+                      >
+                        <FiPlus className="text-text-BLACK-700 mr-2" /> Exam
+                      </a>
+                    </li>
+                    <li>
+                      <a
                         href="/achievementpost"
                         className="block px-4 py-2 text-black-700 flex items-center"
                       >

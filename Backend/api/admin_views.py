@@ -27,6 +27,14 @@ import cv2
 import numpy as np
 import google.generativeai as genai
 from PIL import Image, ImageEnhance, ImageFilter
+import json
+from django.http import JsonResponse
+from datetime import datetime
+import base64
+from django.utils import timezone
+import pytz  # Add this import
+import logging
+
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -741,13 +749,6 @@ def upload_job_image(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
     
-import json
-from django.http import JsonResponse
-from datetime import datetime
-import base64
-from django.utils import timezone
-import pytz  # Add this import
-import logging
 
 logger = logging.getLogger(__name__)
 
