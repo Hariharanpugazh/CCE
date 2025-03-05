@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -74,6 +75,47 @@ const CategoryInput = ({ value, onChange, selectedType }) => {
   );
 };
 
+const isValidLink = (link, type) => {
+  if (type === "YouTube") {
+    return /^(https?:\/\/)?(www\.youtube\.com|youtu\.be)(\/.+)?$/.test(link);
+  }
+  if (type === "Drive") {
+    const driveRegex = /^https:\/\/drive\.google\.com\/(file\/d\/[-\w]+|open\?id=|drive\/folders\/[-\w]+|document\/d\/[-\w]+)(\/view\?usp=sharing)?$/;
+    return driveRegex.test(link);
+  }
+  return true; // Other links are accepted
+};
+
+const handleFileUpload = async (index, file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const token = Cookies.get("jwt");
+    const response = await axios.post(
+      "http://localhost:8000/api/upload-drive-file/", // Backend endpoint for Drive upload
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    const newLinks = [...formData.links];
+    newLinks[index].link = response.data.driveLink; // Use the uploaded Drive link
+    setFormData((prevData) => ({
+      ...prevData,
+      links: newLinks,
+    }));
+
+    toast.success("File uploaded successfully!");
+  } catch (err) {
+    toast.error("Failed to upload file.");
+  }
+};
+
 export default function StudyMaterialForm() {
   const [formData, setFormData] = useState({
     type: "Exam", // Default to "Exam"
@@ -141,21 +183,15 @@ export default function StudyMaterialForm() {
         return;
       }
 
-      const isValidLink = (link) => {
-        const youtubeRegex = /^(https?:\/\/)?(www\.youtube\.com|youtu\.be)(\/.+)?$/;
-        const driveRegex = /^https:\/\/drive\.google\.com\/file\/d\/[-\w]+\/view\?usp=sharing$/;
-        return youtubeRegex.test(link) || driveRegex.test(link);
-      };
-
       for (const link of formData.links) {
-        if (link.type === "YouTube" && !isValidLink(link.link)) {
+        if (link.type === "YouTube" && !isValidLink(link.link, "YouTube")) {
           toast.error("Invalid YouTube link.");
           return;
         }
-        if (link.type === "Drive" && !isValidLink(link.link)) {
-          toast.error("Invalid Google Drive link.");
-          return;
-        }
+        // if (link.type === "Drive" && !isValidLink(link.link, "Drive")) {
+        //   toast.error("Invalid Drive link.");
+        //   return;
+        // }
       }
 
       const response = await axios.post(
@@ -343,26 +379,15 @@ export default function StudyMaterialForm() {
                         className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
                         placeholder="Enter topic"
                       />
-                      {link.type === "TextContent" ? (
-                        <textarea
-                          name="textContent"
-                          value={link.textContent}
-                          onChange={(e) => handleLinkChange(index, e)}
-                          required
-                          className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
-                          placeholder="Enter text content"
-                        ></textarea>
-                      ) : (
-                        <input
-                          type="text"
-                          name="link"
-                          value={link.link}
-                          onChange={(e) => handleLinkChange(index, e)}
-                          required
-                          className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
-                          placeholder="Enter link"
-                        />
-                      )}
+                      <input
+                        type="text"
+                        name="link"
+                        value={link.link}
+                        onChange={(e) => handleLinkChange(index, e)}
+                        required
+                        className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+                        placeholder="Enter link"
+                      />
                       {formData.links.length > 1 && (
                         <button
                           type="button"

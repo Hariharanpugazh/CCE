@@ -45,6 +45,8 @@ import { useState } from "react";
 import JobEntrySelection from "./pages/admin/JobEntrySelection";
 import InternshipEntrySelection from "./pages/admin/InternshipEntrySelection";
 import Message from "./pages/superadmin/Message";
+import StudentStudyDetail from './pages/students/StudentStudyDetail';
+
 
 
 
@@ -99,6 +101,7 @@ function App() {
         <Route path="/saved-jobs" element={<ProtectedRoute> <SavedJobs /> </ProtectedRoute>} />
         <Route path="/study-material" element={<ProtectedRoute> <StudentStudyMaterial /> </ProtectedRoute>} />        
         <Route path="/applied-jobs" element={<ProtectedRoute> <AppliedJobs /> </ProtectedRoute>} />
+        <Route path="/student-study-detail" element={<ProtectedRoute> <StudentStudyDetail /> </ProtectedRoute>} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />
