@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -74,6 +75,47 @@ const CategoryInput = ({ value, onChange, selectedType }) => {
   );
 };
 
+const isValidLink = (link, type) => {
+  if (type === "YouTube") {
+    return /^(https?:\/\/)?(www\.youtube\.com|youtu\.be)(\/.+)?$/.test(link);
+  }
+  if (type === "Drive") {
+    const driveRegex = /^https:\/\/drive\.google\.com\/(file\/d\/[-\w]+|open\?id=|drive\/folders\/[-\w]+|document\/d\/[-\w]+)(\/view\?usp=sharing)?$/;
+    return driveRegex.test(link);
+  }
+  return true; // Other links are accepted
+};
+
+const handleFileUpload = async (index, file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const token = Cookies.get("jwt");
+    const response = await axios.post(
+      "http://localhost:8000/api/upload-drive-file/", // Backend endpoint for Drive upload
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    const newLinks = [...formData.links];
+    newLinks[index].link = response.data.driveLink; // Use the uploaded Drive link
+    setFormData((prevData) => ({
+      ...prevData,
+      links: newLinks,
+    }));
+
+    toast.success("File uploaded successfully!");
+  } catch (err) {
+    toast.error("Failed to upload file.");
+  }
+};
+
 export default function StudyMaterialForm() {
   const [formData, setFormData] = useState({
     type: "Exam", // Default to "Exam"
@@ -141,21 +183,15 @@ export default function StudyMaterialForm() {
         return;
       }
 
-      const isValidLink = (link) => {
-        const youtubeRegex = /^(https?:\/\/)?(www\.youtube\.com|youtu\.be)(\/.+)?$/;
-        const driveRegex = /^https:\/\/drive\.google\.com\/file\/d\/[-\w]+\/view\?usp=sharing$/;
-        return youtubeRegex.test(link) || driveRegex.test(link);
-      };
-
       for (const link of formData.links) {
-        if (link.type === "YouTube" && !isValidLink(link.link)) {
+        if (link.type === "YouTube" && !isValidLink(link.link, "YouTube")) {
           toast.error("Invalid YouTube link.");
           return;
         }
-        if (link.type === "Drive" && !isValidLink(link.link)) {
-          toast.error("Invalid Google Drive link.");
-          return;
-        }
+        // if (link.type === "Drive" && !isValidLink(link.link, "Drive")) {
+        //   toast.error("Invalid Drive link.");
+        //   return;
+        // }
       }
 
       const response = await axios.post(
@@ -222,12 +258,12 @@ export default function StudyMaterialForm() {
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
 
       <div className="flex-1 flex justify-center items-center p-6">
-        <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg">
+        <div className="w-full max-w-7xl bg-white rounded-lg shadow-lg">
           <div className="flex justify-between items-center mb-1 p-6">
             <h2 className="text-2xl font-bold text-black">Post a Study Material</h2>
             <button
               onClick={handleClose}
-              className="px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300 transition-colors"
+              className="px-4 py-2 border-1 bg-gray-200/50 text-black rounded-lg hover:bg-gray-300 transition-colors"
             >
               Cancel
             </button>
@@ -282,7 +318,7 @@ export default function StudyMaterialForm() {
                 <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                   <div className="flex flex-col flex-1">
                     <div className="w-full">
-                      <label className="block text-sm font-semibold text-black">Material Title <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-semibold text-black mb-2">Material Title <span className="text-red-500">*</span></label>
                       <input
                         type="text"
                         name="title"
@@ -290,12 +326,12 @@ export default function StudyMaterialForm() {
                         onChange={handleChange}
                         required
                         maxLength={100}
-                        className="w-full mb-3 border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 outline-none focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                        className="w-full mb-4 border border-gray-300 px-4 py-4 rounded-lg focus:ring-1 outline-none focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
                         placeholder="Enter the material title here"
                       />
                     </div>
                     <div className="w-full">
-                      <label className="block text-sm font-semibold text-black">Category <span className="text-red-500">*</span></label>
+                      <label className="block text-sm font-semibold text-black mb-2">Category <span className="text-red-500">*</span></label>
                       <CategoryInput
                         value={formData.category}
                         onChange={(value) =>
@@ -306,14 +342,14 @@ export default function StudyMaterialForm() {
                     </div>
                   </div>
                   <div className="w-full md:w-1/2">
-                    <label className="block text-sm font-semibold text-black">Material Description <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-semibold text-black mb-2">Material Description <span className="text-red-500">*</span></label>
                     <textarea
                       name="description"
                       value={formData.description}
                       onChange={handleChange}
                       required
                       maxLength="200"
-                      className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none outline-none"
+                      className="w-full border border-gray-300 px-4 py-5.5 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none outline-none"
                       rows="4"
                       placeholder="Enter the material description here (max 200 characters)"
                     ></textarea>
@@ -321,7 +357,7 @@ export default function StudyMaterialForm() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-black">Source Link <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-semibold text-black mb-2">Source Link <span className="text-red-500">*</span></label>
                   {formData.links.map((link, index) => (
                     <div key={index} className="flex items-center gap-4 mb-4">
                       <select
@@ -347,26 +383,15 @@ export default function StudyMaterialForm() {
                         className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
                         placeholder="Enter topic"
                       />
-                      {link.type === "TextContent" ? (
-                        <textarea
-                          name="textContent"
-                          value={link.textContent}
-                          onChange={(e) => handleLinkChange(index, e)}
-                          required
-                          className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
-                          placeholder="Enter text content"
-                        ></textarea>
-                      ) : (
-                        <input
-                          type="text"
-                          name="link"
-                          value={link.link}
-                          onChange={(e) => handleLinkChange(index, e)}
-                          required
-                          className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
-                          placeholder="Enter link"
-                        />
-                      )}
+                      <input
+                        type="text"
+                        name="link"
+                        value={link.link}
+                        onChange={(e) => handleLinkChange(index, e)}
+                        required
+                        className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500"
+                        placeholder="Enter link"
+                      />
                       {formData.links.length > 1 && (
                         <button
                           type="button"
