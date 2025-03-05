@@ -21,189 +21,242 @@ const loadingStates = [
   { text: "Finalizing job posting" },
 ];
 
-const JobDetails = ({ formData, setFormData }) => {
-  const workTypes = [
-    "Full-time",
-    "Part-time",
-    "Contract",
-    "Temporary",
-    "Internship",
-    "Volunteer",
-  ];
+  const JobDetails = ({ formData, setFormData }) => {
+    const workTypes = [
+      "Full-time",
+      "Part-time",
+      "Contract",
+      "Temporary",
+      "Internship",
+      "Volunteer",
+    ];
+  
+    return (
+      <>
+            {/* Left Column */}
+            <div className="flex flex-col space-y-2">
+              <FormInputField
+                label="Job Title"
+                required={true}
+                args={{ placeholder: "Enter the job title here", value: formData.title }}
+                setter={(val) => setFormData(prev => ({ ...prev, title: val }))}
+              />
+              <FormInputField
+                label="Job Level"
+                required={true}
+                args={{ placeholder: "Enter the job level here", value: formData.experience_level }}
+                setter={(val) => setFormData(prev => ({ ...prev, experience_level: val }))}
+              />
+              <FormInputField
+                label="Industry Type"
+                args={{ placeholder: "Enter the industry type here", value: formData.industry_type }}
+                setter={(val) => setFormData(prev => ({ ...prev, industry_type: val }))}
+              />
+              <FormInputField
+                label="Company Name"
+                required={true}
+                args={{ placeholder: "Enter the company name here", value: formData.company_name }}
+                setter={(val) => setFormData(prev => ({ ...prev, company_name: val }))}
+              />
+              <FormInputField
+                label="Work Location"
+                required={true}
+                args={{ placeholder: "Enter the work location here", value: formData.job_location }}
+                setter={(val) => setFormData(prev => ({ ...prev, job_location: val }))}
+              />
+            </div>
+  
+            {/* Right Column */}
+            <div className="flex flex-col space-y-2">
+              <FormTextAreaField
+                label="Job Description"
+                args={{ placeholder: "Enter the job description here", value: formData.job_description }}
+                setter={(val) => setFormData(prev => ({ ...prev, job_description: val }))}
+              />
+              <div className="flex flex-col space-y-2">
+                <label className="text-sm">Employment Type</label>
+                <select
+                  value={formData.work_type}
+                  onChange={(e) => setFormData(prev => ({ ...prev, work_type: e.target.value }))}
+                  className="w-full text-sm border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  <option value="">Select Employment Type</option>
+                  {workTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <FormInputField
+                label="Company Website"
+                args={{ placeholder: "Enter the company website here", value: formData.company_website }}
+                setter={(val) => setFormData(prev => ({ ...prev, company_website: val }))}
+              />
+              <FormInputField
+                label="Salary Range"
+                required={true}
+                args={{ placeholder: "Enter the salary range here", value: formData.salary_range }}
+                setter={(val) => setFormData(prev => ({ ...prev, salary_range: val }))}
+              />
+            </div>
+      </>
+    );
+  };
 
-  return (
-    <>
-      <div className="flex flex-col space-y-2">
-        <FormInputField
-          label="Job Title"
-          required={true}
-          args={{ placeholder: "Enter the job title here", value: formData.title }}
-          setter={(val) => setFormData(prev => ({ ...prev, title: val }))}
-        />
-        <FormTextAreaField
-          label="Job Description"
-          args={{ placeholder: "Enter the job description here", value: formData.job_description }}
-          setter={(val) => setFormData(prev => ({ ...prev, job_description: val }))}
-        />
-        <div className="flex flex-col space-y-2">
-          <label className="text-sm">Work Type</label>
-          <select
-            value={formData.work_type}
-            onChange={(e) => setFormData(prev => ({ ...prev, work_type: e.target.value }))}
-            className="w-full text-sm border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          >
-            <option value="">Select Work Type</option>
-            {workTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-        <FormInputField
-          label="Salary Range"
-          required={true}
-          args={{ placeholder: "Enter salary range here", value: formData.salary_range }}
-          setter={(val) => setFormData(prev => ({ ...prev, salary_range: val }))}
-        />
-        </div>
-        <div className='flex flex-col space-y-2'>
-        <FormInputField
-          label="Company Name"
-          required={true}
-          args={{ placeholder: "Enter the company name here", value: formData.company_name }}
-          setter={(val) => setFormData(prev => ({ ...prev, company_name: val }))}
-        />
-        <FormInputField
-          label="Company Website"
-          args={{ placeholder: "Enter the company website here", value: formData.company_website }}
-          setter={(val) => setFormData(prev => ({ ...prev, company_website: val }))}
-        />
-        <FormInputField
-          label="Company Overview"
-          args={{ placeholder: "Enter the company overview here", value: formData.company_overview }}
-          setter={(val) => setFormData(prev => ({ ...prev, company_overview: val }))}
-        />
-        <FormInputField
-          label="Job Location"
-          required={true}
-          args={{ placeholder: "Enter the Job location here", value: formData.job_location }}
-          setter={(val) => setFormData(prev => ({ ...prev, job_location: val }))}
-        />
-      
-      </div>
-    </>
-  );
-};
-const Requirement = ({ formData, setFormData }) => {
-  return (
-    <>
-      <div className="flex flex-col space-y-4">
-            <FormInputField
-              label="Educational Qualification"
-              args={{ placeholder: "Enter the educational qualification here", value: formData.education_requirements || "" }}
-              setter={(val) => setFormData(prev => ({ ...prev, education_requirements: val }))}
-            />
-            <FormInputField
-              label="Required Skills"
-              args={{ placeholder: "Enter the additional skills here", value: (formData.required_skills || []).join(',') }}
-              setter={(val) => setFormData(prev => ({ ...prev, required_skills: val.split(',') }))}
-            />
-            <FormInputField
-              label="Work Experience "
-              args={{ placeholder: "Enter the work experience here", type:'number', value: formData.experience_level }}
-              setter={(val) => setFormData(prev => ({ ...prev, experience_level: val }))}
-            />
+  const Requirement = ({ formData, setFormData }) => {
+    return (
+      <>
+            {/* Left Column */}
+            <div className="flex flex-col space-y-2">
+              <FormInputField
+                label="Educational Qualification"
+                args={{ placeholder: "Enter the educational qualification here", value: formData.education_requirements }}
+                setter={(val) => setFormData(prev => ({ ...prev, education_requirements: val }))}
+              />
+              <FormInputField
+                label="Professional Certifications"
+                args={{ placeholder: "Enter the professional certifications here", value: formData.professional_certifications }}
+                setter={(val) => setFormData(prev => ({ ...prev, professional_certifications: val }))}
+              />
+              <FormInputField
+                label="Technical Skills Required"
+                args={{ placeholder: "Enter the required technical skills here", value: (formData.technical_skills || []).join(',') }}
+                setter={(val) => setFormData(prev => ({ ...prev, technical_skills: val.split(',') }))}
+              />
+              <FormInputField
+                label="Age Limit"
+                args={{ placeholder: "Enter the age limit here", value: formData.age_limit }}
+                setter={(val) => setFormData(prev => ({ ...prev, age_limit: val }))}
+              />
+              <FormInputField
+                label="Additional Skills"
+                args={{ placeholder: "Enter the additional skills here", value: (formData.additional_skills || []).join(',') }}
+                setter={(val) => setFormData(prev => ({ ...prev, additional_skills: val.split(',') }))}
+              />
+            </div>
+  
+            {/* Right Column */}
+            <div className="flex flex-col space-y-2">
+              <FormInputField
+                label="Work Experience Requirement"
+                args={{ placeholder: "Enter the required work experience here", value: formData.work_experience_requirement }}
+                setter={(val) => setFormData(prev => ({ ...prev, work_experience_requirement: val }))}
+              />
+              <FormInputField
+                label="Minimum Marks Requirement"
+                args={{ placeholder: "Enter the required minimum marks here", value: formData.minimum_marks_requirement }}
+                setter={(val) => setFormData(prev => ({ ...prev, minimum_marks_requirement: val }))}
+              />
+              <FormInputField
+                label="Soft Skills Required"
+                args={{ placeholder: "Enter the required soft skills here", value: (formData.soft_skills || []).join(',') }}
+                setter={(val) => setFormData(prev => ({ ...prev, soft_skills: val.split(',') }))}
+              />
+              <FormTextAreaField
+                label="Documents Required"
+                args={{ placeholder: "Enter the required documents here", value: formData.documents_required }}
+                setter={(val) => setFormData(prev => ({ ...prev, documents_required: val }))}
+              />
+            </div>
+      </>
+    );
+  };
+  const ApplicationProcess = ({ formData, setFormData }) => {
+    return (
+      <>
+            {/* Left Column */}
+            <div className="flex flex-col space-y-2">
+              <FormInputField
+                label="Job Posting Date"
+                args={{ placeholder: "Enter the job posting date here", type: "date", value: formData.job_posting_date }}
+                setter={(val) => setFormData(prev => ({ ...prev, job_posting_date: val }))}
+              />
+              <FormInputField
+                label="Interview Start Date"
+                args={{ placeholder: "Enter the interview start date here", type: "date", value: formData.interview_start_date }}
+                setter={(val) => setFormData(prev => ({ ...prev, interview_start_date: val }))}
+              />
+              <FormInputField
+                label="Job Link"
+                required={true}
+                args={{ placeholder: "Enter the job link here", value: formData.job_link }}
+                setter={(val) => setFormData(prev => ({ ...prev, job_link: val }))}
+              />
+              <FormTextAreaField
+                label="Selection Process"
+                args={{ placeholder: "Enter the selection process here", value: formData.selection_process }}
+                setter={(val) => setFormData(prev => ({ ...prev, selection_process: val }))}
+              />
+            </div>
+  
+            {/* Right Column */}
+            <div className="flex flex-col space-y-2">
+              <FormInputField
+                label="Application Deadline"
+                required={true}
+                args={{ placeholder: "Enter the job level here", type: "date", value: formData.application_deadline }}
+                setter={(val) => setFormData(prev => ({ ...prev, application_deadline: val }))}
+              />
+              <FormInputField
+                label="Interview End Date"
+                args={{ placeholder: "Enter the salary range here", type: "date", value: formData.interview_end_date }}
+                setter={(val) => setFormData(prev => ({ ...prev, interview_end_date: val }))}
+              />
+              <FormTextAreaField
+                label="Steps to Apply"
+                args={{ placeholder: "Enter the steps to apply here", value: formData.steps_to_apply }}
+                setter={(val) => setFormData(prev => ({ ...prev, steps_to_apply: val }))}
+              />
+            </div>
+      </>
+    );
+  };
+
+  const OtherInstructions = ({ formData, setFormData }) => {
+    return (
+      <>
+            {/* Left Column */}
+            <div className="flex flex-col space-y-2">
+              <FormInputField
+                label="Relocation Assistance"
+                args={{ placeholder: "Enter the relocation assistance here", value: formData.relocation_assistance }}
+                setter={(val) => setFormData(prev => ({ ...prev, relocation_assistance: val }))}
+              />
+              <FormInputField
+                label="Expected Joining Date"
+                args={{ placeholder: "Enter the expected joining date here", type: "date", value: formData.expected_joining_date }}
+                setter={(val) => setFormData(prev => ({ ...prev, expected_joining_date: val }))}
+              />
+              <FormTextAreaField
+                label="Key Responsibilities"
+                args={{ placeholder: "Enter the key responsibilities here", value: (formData.key_responsibilities || []).join(',') }}
+                setter={(val) => setFormData(prev => ({ ...prev, key_responsibilities: val.split(',') }))}
+              />
+            </div>
+  
+            {/* Right Column */}
+            <div className="flex flex-col space-y-2">
+              <FormInputField
+                label="Remote Work Availability"
+                args={{ placeholder: "Enter the remote work availability here", value: formData.remote_work_availability }}
+                setter={(val) => setFormData(prev => ({ ...prev, remote_work_availability: val }))}
+              />
+              <FormInputField
+                label="Work Schedule"
+                args={{ placeholder: "Enter the work schedule here", value: formData.work_schedule }}
+                setter={(val) => setFormData(prev => ({ ...prev, work_schedule: val }))}
+              />
+              <FormTextAreaField
+                label="Preparation Tips"
+                args={{ placeholder: "Enter the preparation tips here", value: formData.preparation_tips }}
+                setter={(val) => setFormData(prev => ({ ...prev, preparation_tips: val }))}
+              />
             </div>
           
-    </>
-  );
-};
-
-const ApplicationProcess = ({ formData, setFormData }) => {
-  return (
-    <>
-          {/* Left Column */}
-          <div className="flex flex-col space-y-2">
-            <FormInputField
-              label="Benefits"
-              args={{ placeholder: "Enter the Benefits her",value: formData.benefits }}
-              setter={(val) => setFormData(prev => ({ ...prev, benefits: val }))}
-            />
-            <FormInputField
-              label="Job Link"
-              required={true}
-              args={{ placeholder: "Enter the job link here", value: formData.job_link }}
-              setter={(val) => setFormData(prev => ({ ...prev, job_link: val }))}
-            />
-    
-          </div>
-
-          {/* Right Column */}
-          <div className="flex flex-col space-y-2">
-            <FormInputField
-              label="Application Deadline"
-              required={true}
-              args={{ placeholder: "Enter the job level here", type: "date", value: formData.application_deadline ? formData.application_deadline.toISOString().split('T')[0] : "" }}
-              setter={(val) => {
-                const date = val ? new Date(val) : null;
-                setFormData(prev => ({ ...prev, application_deadline: date }));
-              }}
-            />
-            <FormInputField
-              label="Application Instructions"
-              args={{ placeholder: "Enter the application instructions here", value: formData.application_instructions }}
-              setter={(val) => setFormData(prev => ({ ...prev, application_instructions: val }))}
-            />
-          </div>
-    </>
-  );
-};
-
-const OtherInstructions = ({ formData, setFormData }) => {
-  return (
-    <>
-          {/* Left Column */}
-          <div className="flex flex-col space-y-2">
-            <FormInputField
-              label="Contact Email"
-              args={{ placeholder: "Enter the contact email here", value: formData.contact_email }}
-              setter={(val) => setFormData(prev => ({ ...prev, contact_email: val }))}
-            />
-            <FormInputField
-              label="Contact Phone"
-              args={{ placeholder: "Enter the contact email here", value: formData.contact_phone }}
-              setter={(val) => setFormData(prev => ({ ...prev, contact_phone: val }))}
-            />
-            <FormTextAreaField
-              label="Key Responsibilities"
-              args={{ placeholder: "Enter the key responsibilities here", value: formData.key_responsibilities.join(',') }}
-              setter={(val) => setFormData(prev => ({ ...prev, key_responsibilities: val.split(',') }))}
-            />
-          </div>
-
-          {/* Right Column */}
-          <div className="flex flex-col space-y-2">
-            <FormInputField
-              label="Select Category"
-              args={{ placeholder: "Enter the category here", value: formData.selectedCategory }}
-              setter={(val) => setFormData(prev => ({ ...prev, selectedCategory: val }))}
-            />
-            <FormInputField
-              label="Select WorkType"
-              args={{ placeholder: "Enter the WorkType here", value: formData.selectedWorkType }}
-              setter={(val) => setFormData(prev => ({ ...prev, selectedWorkType: val }))}
-            />
-
-            <FormInputField
-              label="Work Schedule"
-              args={{ placeholder: "Enter the work schedule here", value: formData.work_schedule }}
-              setter={(val) => setFormData(prev => ({ ...prev, work_schedule: val }))}
-            />  
-          </div>
-    </>
-  );
-};
+      </>
+    );
+  };
 
 const Summary = ({ formData, setFormData }) => {
   return (
@@ -265,34 +318,54 @@ export default function JobPostForm() {
   const initialJobData = storedJobData ? JSON.parse(storedJobData) : {};
 
   const [formData, setFormData] = useState({
-    title: initialJobData.title || "",
-    company_name: initialJobData.company_name || "",
-    company_overview: initialJobData.company_overview || "",
-    company_website: initialJobData.company_website || "",
-    job_description: initialJobData.job_description || "",
-    key_responsibilities: initialJobData.key_responsibilities || [],
-    required_skills: initialJobData.required_skills || [],
-    experience_level: initialJobData.experience_level || "",
-    salary_range: initialJobData.salary_range || "",
-    benefits: initialJobData.benefits || [],
-    job_location: initialJobData.job_location || "",
-    work_type: initialJobData.work_type || "",
-    work_schedule: initialJobData.work_schedule || "",
-    application_instructions: initialJobData.application_instructions || "",
+    // JobDetails Section (9 fields)
+    title: initialJobData.title || "", // "Job Title" (FormInputField, required, placeholder: "Enter the job title here")
+    job_description: initialJobData.job_description || "", // "Job Description" (FormTextAreaField, placeholder: "Enter the job description here")
+    experience_level: initialJobData.experience_level || "", // "Job Level" (FormInputField, required, placeholder: "Enter the job level here")
+    industry_type: initialJobData.industry_type || "", // "Industry Type" (FormInputField, placeholder: "Enter the industry type here")
+    work_type: initialJobData.work_type || "", // "Employment Type" (select, placeholder: "Select Employment Type")
+    company_name: initialJobData.company_name || "", // "Company Name" (FormInputField, required, placeholder: "Enter the company name here")
+    company_website: initialJobData.company_website || "", // "Company Website" (FormInputField, placeholder: "Enter the company website here")
+    job_location: initialJobData.job_location || "", // "Work Location" (FormInputField, required, placeholder: "Enter the work location here")
+    salary_range: initialJobData.salary_range || "", // "Salary Range" (FormInputField, required, placeholder: "Enter the salary range here")
+  
+    // Requirement Section (9 fields)
+    education_requirements: initialJobData.education_requirements || "", // "Educational Qualification" (FormInputField, placeholder: "Enter the educational qualification here")
+    work_experience_requirement: initialJobData.work_experience_requirement || "", // "Work Experience Requirement" (FormInputField, placeholder: "Enter the required work experience here")
+    professional_certifications: initialJobData.professional_certifications || "", // "Professional Certifications" (FormInputField, placeholder: "Enter the professional certifications here")
+    minimum_marks_requirement: initialJobData.minimum_marks_requirement || "", // "Minimum Marks Requirement" (FormInputField, placeholder: "Enter the required minimum marks here")
+    technical_skills: initialJobData.technical_skills || [], // "Technical Skills Required" (FormInputField, placeholder: "Enter the required technical skills here", comma-separated array)
+    soft_skills: initialJobData.soft_skills || [], // "Soft Skills Required" (FormInputField, placeholder: "Enter the required soft skills here", comma-separated array)
+    age_limit: initialJobData.age_limit || "", // "Age Limit" (FormInputField, placeholder: "Enter the age limit here")
+    documents_required: initialJobData.documents_required || "", // "Documents Required" (FormTextAreaField, placeholder: "Enter the required documents here")
+    additional_skills: initialJobData.additional_skills || [], // "Additional Skills" (FormInputField, placeholder: "Enter the additional skills here", comma-separated array)
+  
+    // ApplicationProcess Section (7 fields)
+    job_posting_date: initialJobData.job_posting_date && !isNaN(Date.parse(initialJobData.job_posting_date))
+      ? new Date(initialJobData.job_posting_date)
+      : null, // "Job Posting Date" (FormInputField, type: "date", placeholder: "Enter the job posting date here")
     application_deadline: initialJobData.application_deadline && !isNaN(Date.parse(initialJobData.application_deadline))
       ? new Date(initialJobData.application_deadline)
-      : null,
-    contact_email: initialJobData.contact_email || "",
-    contact_phone: initialJobData.contact_phone || [],
-    job_link: initialJobData.job_link || "",
-    selectedCategory: initialJobData.selectedCategory || "",
-    selectedWorkType: initialJobData.selectedWorkType ||
-      (initialJobData.work_type && initialJobData.work_type.toLowerCase().includes("full-time")
-        ? "Full Time"
-        : initialJobData.work_type && initialJobData.work_type.toLowerCase().includes("part-time")
-          ? "Part Time"
-          : ""),  
-    
+      : null, // "Application Deadline" (FormInputField, required, type: "date", placeholder: "Enter the job level here")
+    interview_start_date: initialJobData.interview_start_date && !isNaN(Date.parse(initialJobData.interview_start_date))
+      ? new Date(initialJobData.interview_start_date)
+      : null, // "Interview Start Date" (FormInputField, type: "date", placeholder: "Enter the interview start date here")
+    interview_end_date: initialJobData.interview_end_date && !isNaN(Date.parse(initialJobData.interview_end_date))
+      ? new Date(initialJobData.interview_end_date)
+      : null, // "Interview End Date" (FormInputField, type: "date", placeholder: "Enter the salary range here")
+    job_link: initialJobData.job_link || "", // "Job Link" (FormInputField, required, placeholder: "Enter the job link here")
+    selection_process: initialJobData.selection_process || "", // "Selection Process" (FormTextAreaField, placeholder: "Enter the selection process here")
+    steps_to_apply: initialJobData.steps_to_apply || "", // "Steps to Apply" (FormTextAreaField, placeholder: "Enter the steps to apply here")
+  
+    // OtherInstructions Section (6 fields)
+    relocation_assistance: initialJobData.relocation_assistance || "", // "Relocation Assistance" (FormInputField, placeholder: "Enter the relocation assistance here")
+    remote_work_availability: initialJobData.remote_work_availability || "", // "Remote Work Availability" (FormInputField, placeholder: "Enter the remote work availability here")
+    expected_joining_date: initialJobData.expected_joining_date && !isNaN(Date.parse(initialJobData.expected_joining_date))
+      ? new Date(initialJobData.expected_joining_date)
+      : null, // "Expected Joining Date" (FormInputField, type: "date", placeholder: "Enter the expected joining date here")
+    work_schedule: initialJobData.work_schedule || "", // "Work Schedule" (FormInputField, placeholder: "Enter the work schedule here")
+    key_responsibilities: initialJobData.key_responsibilities || [], // "Key Responsibilities" (FormTextAreaField, placeholder: "Enter the key responsibilities here", comma-separated array)
+    preparation_tips: initialJobData.preparation_tips || "", // "Preparation Tips" (FormTextAreaField, placeholder: "Enter the preparation tips here")
   });
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
