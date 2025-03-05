@@ -115,8 +115,9 @@ export default function StudentStudyDetail() {
               {card.links.map((link, index) => (
                 <a
                   key={index}
-                  href="#"
-                  onClick={() => setSelectedVideo(link.link)}
+                  href={link.link} // Update href to use the provided link
+                  target="_blank" // Open link in a new tab
+                  rel="noopener noreferrer" // Security measure for external links
                   className="text-blue-500 hover:underline block mt-1"
                 >
                   {link.topic} ({link.type})
