@@ -309,7 +309,7 @@ export default function StudyMaterialForm() {
                       onChange={handleChange}
                       required
                       maxLength="200"
-                      className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none outline-none"
+                      className="w-full border border-gray-300 px-4 py-5.5 rounded-lg focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none outline-none"
                       rows="4"
                       placeholder="Enter the material description here (max 200 characters)"
                     ></textarea>
