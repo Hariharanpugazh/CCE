@@ -206,7 +206,7 @@ export default function AchievementPostForm() {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full mb-3 border-2 border-gray-300/80 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                className="w-full mb-3 border-2 border-gray-300 px-4 py-2 rounded-lg outline-transparent focus:outline-yellow-300 placeholder-gray-400"
                 placeholder="Enter the name here"
               />
             </div>
@@ -222,7 +222,7 @@ export default function AchievementPostForm() {
                 value={formData.company_name}
                 onChange={handleChange}
                 required
-                className="w-full  border-2 border-gray-300/80 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                className="w-full  border-2 border-gray-300/80 px-4 py-2 rounded-lg outline-transparent focus:outline-yellow-300 placeholder-gray-400"
                 placeholder="Enter the company/organization name here"
               />
             </div>
@@ -238,7 +238,7 @@ export default function AchievementPostForm() {
                 value={formData.achievement_type}
                 onChange={handleChange}
                 required
-                className="w-full  border-2 border-gray-300/80 px-4 py-2 mb-3 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                className="w-full  border-2 border-gray-300/80 px-4 py-2 mb-3 rounded-lg outline-transparent focus:outline-yellow-300"
               >
                 <option value="">Select Achievement Type</option>
                 <option value="Job Placement">Job Placement</option>
@@ -258,7 +258,7 @@ export default function AchievementPostForm() {
                 value={formData.date_of_achievement}
                 onChange={handleChange}
                 required
-                className="w-full  border-2 border-gray-300/80 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                className="w-full  border-2 border-gray-300/80 px-4 py-2 rounded-lg outline-transparent focus:outline-yellow-300 placeholder-gray-400"
               />
             </div>
           </div>
@@ -275,19 +275,19 @@ export default function AchievementPostForm() {
                   value={formData.batch}
                   onChange={handleChange}
                   required
-                  className="w-full  border-2 border-gray-300/80 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400"
+                  className="w-full  border-2 border-gray-300/80 px-4 py-2 rounded-lg outline-transparent focus:outline-yellow-300 placeholder-gray-400"
                   placeholder="Enter the batch here (e.g. 2020 - 2024)"
                 />
               </div>
 
-              <div className=" border-2 border-gray-300/80 rounded-xl pt-4 pb-2 px-2 text-center bg-white mt-4 w-full ">
+              <div className="border-2 border-gray-300 border-dashed rounded-xl p-4 text-center bg-white mt-8 w-full">
                 <label
                   htmlFor="photo"
-                  className="cursor-pointer text-blue-600 font-semibold text-xl hover:underline"
+                  className="cursor-pointer text-gray-500 text-lg"
                 >
                   {imagePreview
-                    ? "Change Image "
-                    : "Upload an Achievement Photo"}
+                    ? "Change Image"
+                    : "Upload an achievement’s or an achiever’s photo"}
                 </label>
                 <input
                   type="file"
@@ -295,7 +295,7 @@ export default function AchievementPostForm() {
                   name="photo"
                   accept="image/jpeg, image/png"
                   onChange={handleImageChange}
-                  className="mt-2"
+                  className="hidden"
                   required
                 />
                 {imagePreview && (
@@ -319,7 +319,7 @@ export default function AchievementPostForm() {
                 value={formData.achievement_description}
                 onChange={handleChange}
                 required
-                className="w-full flex-1  border-2 border-gray-300/80 px-4 py-2 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 placeholder-gray-400 overflow-y-auto resize-none"
+                className="w-full flex-1  border-2 border-gray-300/80 px-4 py-2 rounded-lg outline-transparent focus:outline-yellow-300 placeholder-gray-400 overflow-y-auto resize-none"
                 rows="5"
                 maxLength={300}
                 placeholder="Enter the achievement description here (Max 300 characters)"
