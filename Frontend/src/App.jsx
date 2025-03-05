@@ -46,6 +46,7 @@ import JobEntrySelection from "./pages/admin/JobEntrySelection";
 import InternshipEntrySelection from "./pages/admin/InternshipEntrySelection";
 import Message from "./pages/superadmin/Message";
 import StudentStudyDetail from './pages/students/StudentStudyDetail';
+import AdminInbox from "./pages/admin/Admininbox";
 
 
 
@@ -123,6 +124,7 @@ function App() {
           <Route path="/manage-student" element={<ProtectedRoute> <StudentManagement /> </ProtectedRoute>} />
           <Route path="/studymaterial-post" element={<ProtectedRoute> <StudyMaterialForm /> </ProtectedRoute>} />
           <Route path="/internshipselection" element={<ProtectedRoute> <InternshipEntrySelection /> </ProtectedRoute>} />
+          <Route path="/admin/inbox" element={<ProtectedRoute> <AdminInbox /> </ProtectedRoute>} />
 
 
           {/* Super Admin Login */}

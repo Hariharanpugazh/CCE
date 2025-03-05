@@ -106,10 +106,16 @@ export default function AdminSidebar() {
                 </NavLink>
               </li>
               <li className="mb-0">
+                <NavLink href="/admin/inbox">
+                  <FiMail className="mr-3" /> Inbox
+                </NavLink>
+              </li>
+              <li className="mb-0">
                 <NavLink href="/admin/mail">
                 <RiNotification3Line className="mr-3" /> Notification
                 </NavLink>
               </li>
+
 
               <li className="mb-2 relative">
                 <button
