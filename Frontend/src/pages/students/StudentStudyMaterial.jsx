@@ -2,21 +2,36 @@ import React, { useState, useEffect, useContext } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { MdRemoveRedEye } from "react-icons/md";
 import StudentPageNavbar from "../../components/Students/StudentPageNavbar";
-import Pagination from "../../components/Admin/pagination"; // Assuming Pagination is in this path
-import { LoaderContext } from "../../components/Common/Loader"; // Import Loader Context
+import AdminPageNavbar from "../../components/Admin/AdminNavBar";
+import SuperAdminPageNavbar from "../../components/SuperAdmin/SuperAdminNavBar";
+import Pagination from "../../components/Admin/pagination";
+import { LoaderContext } from "../../components/Common/Loader";
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 export default function StudyMaterial() {
   const [cards, setCards] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedType, setSelectedType] = useState('Exam'); // Default to 'Exam'
+  const [selectedType, setSelectedType] = useState('Exam');
   const cardsPerPage = 6;
   const { isLoading, setIsLoading } = useContext(LoaderContext);
+  const navigate = useNavigate();
+  const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    const token = Cookies.get("jwt");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setUserRole(!decodedToken.student_user ? decodedToken.role : "student");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchStudyMaterials = async () => {
-      // setIsLoading(true); // Show loader when fetching data
+      setIsLoading(true);
       try {
         const response = await fetch('http://127.0.0.1:8000/api/all-study-material/');
         const data = await response.json();
@@ -25,7 +40,7 @@ export default function StudyMaterial() {
       } catch (error) {
         console.error('Error fetching study materials:', error);
       } finally {
-        setIsLoading(false); // Hide loader after data fetch
+        setIsLoading(false);
       }
     };
 
@@ -65,17 +80,24 @@ export default function StudyMaterial() {
     }
 
     setSelectedType(types[newIndex]);
-    setCurrentPage(1); // Reset to the first page when changing types
+    setCurrentPage(1);
   };
 
   useEffect(() => {
     updateCategories(cards, selectedType);
   }, [selectedType, cards]);
 
+  const handleViewClick = (card) => {
+    navigate('/student-study-detail', { state: { card } });
+  };
+
   return (
-    <div className="w-full h-screen">
-      <StudentPageNavbar />
-      <div className='px-8'>
+    <div className="flex">
+      {userRole === "admin" && <AdminPageNavbar />}
+      {userRole === "superadmin" && <SuperAdminPageNavbar />}
+      <div className="flex flex-col flex-1">
+      {userRole === "student" && <StudentPageNavbar />}
+        <div className='px-8'>
         <div className="flex flex-col justify-between py-6">
           <h1 className="text-xl font-semibold">Study Material</h1>
           <div className="flex items-center mt-4">
@@ -134,7 +156,10 @@ export default function StudyMaterial() {
                 </div>
               </div>
               <div className="mt-2">
-                <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-3 py-1 flex items-center rounded-lg">
+                <button
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-3 py-1 flex items-center rounded-lg"
+                  onClick={() => handleViewClick(card)}
+                >
                   View <MdRemoveRedEye className="ml-1 h-4 w-4" />
                 </button>
               </div>
@@ -142,7 +167,6 @@ export default function StudyMaterial() {
           ))}
         </div>
 
-        {/* Pagination Component */}
         {filteredCards.length > 0 && (
           <Pagination
             currentPage={currentPage}
@@ -151,6 +175,7 @@ export default function StudyMaterial() {
             onPageChange={paginate}
           />
         )}
+        </div>
       </div>
     </div>
   );

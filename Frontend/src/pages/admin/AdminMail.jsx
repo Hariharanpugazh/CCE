@@ -24,7 +24,7 @@ export default function AdminMail() {
   const [studyMaterials, setStudyMaterials] = useState([]);
   const [error, setError] = useState(null);
   const [reviews, setReviews] = useState([]);
-  const [activeTab, setActiveTab] = useState("jobs");
+  const [activeTab, setActiveTab] = useState("notifications"); // Set default tab to notifications
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -117,18 +117,6 @@ export default function AdminMail() {
     let itemsToDisplay = [];
 
     switch (activeTab) {
-      case "jobs":
-        itemsToDisplay = jobs;
-        break;
-      case "internships":
-        itemsToDisplay = internships;
-        break;
-      case "achievements":
-        itemsToDisplay = achievements;
-        break;
-      case "study_materials":
-        itemsToDisplay = studyMaterials;
-        break;
       case "notifications":
         itemsToDisplay = reviews;
         break;
@@ -379,72 +367,9 @@ export default function AdminMail() {
   return (
     <div className="flex flex-col h-screen">
       <AdminPageNavbar />
-      <div className="flex flex-1 p-4 space-x-4">
-        {/* Sidebar */}
-        <div className="w-1/4 max-w-[20%] space-y-4 shadow-md rounded-lg p-4 bg-white ml-55">
-          <div className="flex items-center gap-2 mb-8">
-            <Mail className="h-6 w-6" />
-            <h1 className="text-xl font-semibold">Mail</h1>
-          </div>
-
-          <nav className="space-y-2">
-            <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === "jobs"
-                ? "bg-yellow-50 text-yellow-600"
-                : "hover:bg-gray-200"
-                }`}
-              onClick={() => setActiveTab("jobs")}
-            >
-              <Briefcase className="h-4 w-4" />
-              Jobs
-            </button>
-            <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === "internships"
-                ? "bg-yellow-50 text-yellow-600"
-                : "hover:bg-gray-200"
-                }`}
-              onClick={() => setActiveTab("internships")}
-            >
-              <GraduationCap className="h-4 w-4" />
-              Internships
-            </button>
-            <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === "study_materials"
-                ? "bg-yellow-50 text-yellow-600"
-                : "hover:bg-gray-200"
-                }`}
-              onClick={() => setActiveTab("study_materials")}
-            >
-              <BookOpen className="h-4 w-4" />
-              Study Materials
-            </button>
-            <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === "achievements"
-                ? "bg-yellow-50 text-yellow-600"
-                : "hover:bg-gray-200"
-                }`}
-              onClick={() => setActiveTab("achievements")}
-            >
-              <Trophy className="h-4 w-4" />
-              Achievements
-            </button>
-            <button
-              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${activeTab === "notifications"
-                ? "bg-yellow-50 text-yellow-600"
-                : "hover:bg-gray-200"
-                }`}
-              onClick={() => setActiveTab("notifications")}
-            >
-              <Bell className="h-4 w-4" />
-              Notifications
-            </button>
-          </nav>
-
-          <div className="mt-4" />
-        </div>
-
+      <div className="flex flex-1 p-4 space-x-4 ml-62 mr-5 ">
         {/* Email List */}
-        <div className="w-3/4 flex flex-col">
+        <div className="w-3/3 flex flex-col ">
           <div className="mb-4">
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
