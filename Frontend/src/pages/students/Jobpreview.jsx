@@ -219,7 +219,7 @@ const JobPreview = () => {
         </div>
       )}
 
-      <div className="flex-grow p-4 sm:p-6 max-w-5xl mx-auto w-full">
+      <div className="flex-grow p-4 sm:p-6 max-w-8xl mx-auto w-full">
         {/* Job Overview Card */}
         <div className="bg-white shadow-lg rounded-lg overflow-hidden mb-6 border border-gray-100">
           <div className="flex flex-col md:flex-row">
@@ -333,7 +333,7 @@ const JobPreview = () => {
         {/* Job Details Cards - One by one vertical listing */}
         <div className="space-y-6">
           {/* Job Description Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -348,7 +348,7 @@ const JobPreview = () => {
           </div>
 
           {/* Key Responsibilities Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -372,7 +372,7 @@ const JobPreview = () => {
           </div>
 
           {/* Required Skills Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -394,7 +394,7 @@ const JobPreview = () => {
           </div>
 
           {/* Additional Skills Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -414,7 +414,7 @@ const JobPreview = () => {
           </div>
 
           {/* Soft Skills Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -434,7 +434,7 @@ const JobPreview = () => {
           </div>
 
           {/* Education and Experience Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -488,7 +488,7 @@ const JobPreview = () => {
           </div>
 
           {/* Job Details Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -537,7 +537,7 @@ const JobPreview = () => {
           </div>
 
           {/* Selection Process Card - Clean Design */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -565,7 +565,7 @@ const JobPreview = () => {
           </div>
 
           {/* Application Process Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center">
                 <div className="bg-yellow-100 p-3 rounded-full mr-4">
@@ -609,7 +609,7 @@ const JobPreview = () => {
           </div>
 
           {/* Important Dates Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -656,7 +656,7 @@ const JobPreview = () => {
           </div>
 
           {/* Preparation Tips Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -671,7 +671,7 @@ const JobPreview = () => {
           </div>
 
           {/* Company Information Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
@@ -710,7 +710,7 @@ const JobPreview = () => {
           </div>
 
           {/* Apply Now Card at the bottom */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center">
                 <div className="bg-yellow-100 p-2 rounded-full mr-3">
