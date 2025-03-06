@@ -45,6 +45,7 @@ const JobPreview = () => {
   const [job, setJob] = useState(null);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState(null);
   const [saved, setSaved] = useState(false);
   const [showApplySuccess, setShowApplySuccess] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
@@ -128,23 +129,22 @@ const JobPreview = () => {
   };
 
   useEffect(() => {
-    const checkIfJobIsSaved = async () => {
-      if (userId) {
+    const fetchAllJobs = async () => {
+      if (userId && userRole !== "admin" && userRole !== "superadmin") {
         try {
           const response = await axios.get(
-            `http://localhost:8000/api/get-saved-jobs/${userId}/`
+            `http://localhost:8000/api/published-jobs/`
           );
-          const savedJobs = response.data.jobs || [];
-          const isJobSaved = savedJobs.some((job) => job._id === id);
-          setSaved(isJobSaved);
+          // You might want to do something with the response here
         } catch (error) {
           console.error("Error checking if job is saved:", error);
         }
       }
     };
-
-    checkIfJobIsSaved();
-  }, [userId, id]);
+  
+    fetchAllJobs();
+  }, [userId, userRole]);
+  
 
   if (loading) {
     return (
