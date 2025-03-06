@@ -15,12 +15,9 @@ import {
 } from "react-icons/fa";
 import { FiBookmark, FiCircle, FiSearch, FiX } from "react-icons/fi";
 import Footer from "../../components/Common/Footer";
-
-// icon imports
 import { useNavigate } from "react-router-dom";
-import Filters from "../../components/Common/Filters";
 import SidePreview from "../../components/Common/SidePreview";
-import Pagination from "../../components/Admin/pagination"; // Import Pagination component
+import Pagination from "../../components/Admin/pagination";
 
 export default function JobDashboard() {
   const [jobs, setJobs] = useState([]);
@@ -28,37 +25,25 @@ export default function JobDashboard() {
   const [error, setError] = useState("");
   const [searchPhrase, setSearchPhrase] = useState("");
   const [userRole, setUserRole] = useState(null);
-
   const [selectedJob, setSelectedJob] = useState();
-
   const [isSalaryOpen, setIsSalaryOpen] = useState(false);
   const [isExperienceOpen, setIsExperienceOpen] = useState(false);
   const [isEmployTypeOpen, setIsEmployTypeOpen] = useState(false);
   const [isWorkModeOpen, setIsWorkModeOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
-
   const [savedJobs, setSavedJobs] = useState([]);
-
   const [salaryRangeIndex, setSalaryRangeIndex] = useState(0);
-
   const [filters, setFilters] = useState({
     salaryRange: { min: 10000, max: 1000000 },
     experience: { value: 0, category: "under" },
-    employmentType: {
-      onSite: false,
-      remote: false,
-      hybrid: false,
-    },
-    workingMode: {
-      online: false,
-      offline: false,
-      hybrid: false,
-    },
+    employmentType: { onSite: false, remote: false, hybrid: false },
+    workingMode: { online: false, offline: false, hybrid: false },
     sortBy: "Relevance",
   });
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     setFilteredJobs(jobs);
@@ -70,25 +55,24 @@ export default function JobDashboard() {
       setFilteredJobs(jobs);
     } else {
       setFilteredJobs(
-        jobs.filter(
-          (job) =>
+        jobs.filter((job) => {
+          const skills = job.job_data.required_skills;
+          const isArray = Array.isArray(skills);
+  
+          return (
             job.job_data.title.toLowerCase().includes(searchPhrase) ||
             job.job_data.company_name.toLowerCase().includes(searchPhrase) ||
             job.job_data.job_description.toLowerCase().includes(searchPhrase) ||
-            job.job_data.required_skills.some((skill) =>
-              skill.toLowerCase().includes(searchPhrase)
-            ) ||
+            (isArray && skills.some((skill) => skill.toLowerCase().includes(searchPhrase))) ||
             job.job_data.work_type.toLowerCase().includes(searchPhrase)
-        )
+          );
+        })
       );
     }
-
     setCurrentPage(1);
   }, [searchPhrase, jobs]);
+  
 
-  const navigate = useNavigate(); // Initialize useNavigate for navigation
-
-  // Fetch published jobs from the backend
   useEffect(() => {
     const fetchPublishedJobs = async () => {
       try {
@@ -98,26 +82,24 @@ export default function JobDashboard() {
         const jobsWithType = response.data.jobs.map((job) => ({
           ...job,
           type: "job",
-          status: job.status, // Add status field
-          updated_at: job.updated_at, // // Add type field
+          status: job.status,
+          updated_at: job.updated_at,
         }));
-        setJobs(jobsWithType); // Set jobs with type
-        setFilteredJobs(jobsWithType); // Update filtered jobs
+        setJobs(jobsWithType);
+        setFilteredJobs(jobsWithType);
       } catch (err) {
         console.error("Error fetching published jobs:", err);
         setError("Failed to load jobs.");
       }
     };
-
     fetchPublishedJobs();
   }, []);
 
   useEffect(() => {
     const token = Cookies.get("jwt");
     if (token) {
-      const payload = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-      console.log("Decoded JWT Payload:", payload); // Debugging line
-      setUserRole(!payload.student_user ? payload.role : "student"); // Assuming the payload has a 'role' field
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setUserRole(!payload.student_user ? payload.role : "student");
     }
   }, []);
 
@@ -129,7 +111,6 @@ export default function JobDashboard() {
         `http://localhost:8000/api/saved-jobs/${userId}/`
       );
       setSavedJobs(response.data.jobs.map((job) => job._id));
-      console.log(response.data.jobs.map((job) => job._id));
     } catch (err) {
       console.error("Error fetching saved jobs:", err);
     }
@@ -143,42 +124,14 @@ export default function JobDashboard() {
     setFilters({
       salaryRange: { min: 10000, max: 1000000 },
       experience: { value: 0, category: "under" },
-      employmentType: {
-        onSite: false,
-        remote: false,
-        hybrid: false,
-      },
-      workingMode: {
-        online: false,
-        offline: false,
-        hybrid: false,
-      },
+      employmentType: { onSite: false, remote: false, hybrid: false },
+      workingMode: { online: false, offline: false, hybrid: false },
       sortBy: "Relevance",
     });
   };
 
-  const filterArgs = {
-    searchPhrase,
-    clearFilters,
-    isSalaryOpen,
-    setIsSalaryOpen,
-    salaryRangeIndex,
-    setSalaryRangeIndex,
-    filters,
-    setFilters,
-    isExperienceOpen,
-    setIsExperienceOpen,
-    isEmployTypeOpen,
-    setIsEmployTypeOpen,
-    isWorkModeOpen,
-    setIsWorkModeOpen,
-    isSortOpen,
-    setIsSortOpen,
-  };
-
   const borderColor = "border-gray-300";
 
-  // Corrected Pagination logic
   const indexOfLastJob = currentPage * itemsPerPage;
   const indexOfFirstJob = indexOfLastJob - itemsPerPage;
   const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
@@ -196,81 +149,76 @@ export default function JobDashboard() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex flex-col min-h-screen">
+      {/* Navbar */}
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
+      {userRole === "student" && <StudentPageNavbar />}
+
       <div className="flex flex-col flex-1">
-        {userRole === "student" && <StudentPageNavbar />}
-        <header className="flex flex-col items-center justify-center py-14 container self-center">
-          <p className="text-6xl tracking-[0.8px]">Jobs</p>
-          <p className="text-lg mt-2 text-center">
+        {/* Header */}
+        <header className="flex flex-col items-center justify-center py-8 px-4 sm:py-14 container mx-auto text-center">
+          <p className="text-3xl sm:text-6xl tracking-[0.8px]">Jobs</p>
+          <p className="text-base sm:text-lg mt-2">
             Explore all the job opportunities in all the existing fields <br />
             around the globe.
           </p>
         </header>
 
-        {/* search */}
-        <div className="sticky ml-10 top-0 z-10 bg-white flex border border-gray-300 mr-11 mb-5">
-          <input
-            type="text"
-            value={searchPhrase}
-            onChange={(e) =>
-              setSearchPhrase(e.target.value.toLocaleLowerCase())
-            }
-            placeholder={`Search Jobs`}
-            className={`w-full text-lg p-2 px-4 bg-white hover:border-gray-400 outline-none ${borderColor}`}
-          />
-          <div className="flex mr-5 justify-center items-center space-x-4">
-            <select
-              name="salaryRange"
-              onChange={handleFilterChange}
-              className="p-2 border-l border-gray-300"
-            >
-              <option value="">Salary</option>
-              <option value="10000-50000">10k-50k</option>
-              <option value="50000-100000">50k-100k</option>
-            </select>
-            <select
-              name="experience"
-              onChange={handleFilterChange}
-              className="p-2 border-l border-gray-300"
-            >
-              <option value="">Experience</option>
-              <option value="0year-2year">0-2 years</option>
-              <option value="2year-5year">2-5 years</option>
-            </select>
-            <select
-              name="employmentType"
-              onChange={handleFilterChange}
-              className="p-2 border-l border-gray-300"
-            >
-              <option value="">Employment Type</option>
-              <option value="Full-time">Full-Time</option>
-              <option value="Part-time">Part-Time</option>
-            </select>
+        {/* Search Bar */}
+        <div className="sticky top-0 z-10 bg-white px-4 sm:px-10 mb-5">
+          <div className="flex flex-col sm:flex-row border border-gray-300">
+            <input
+              type="text"
+              value={searchPhrase}
+              onChange={(e) => setSearchPhrase(e.target.value.toLowerCase())}
+              placeholder="Search Jobs"
+              className="w-full text-base sm:text-lg p-2 px-4 bg-white hover:border-gray-400 outline-none border-b sm:border-b-0 border-gray-300"
+            />
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 p-2 sm:border-l border-gray-300">
+              <select
+                name="salaryRange"
+                onChange={handleFilterChange}
+                className="p-2 w-full sm:w-auto border-b sm:border-b-0 border-gray-300"
+              >
+                <option value="">Salary</option>
+                <option value="10000-50000">10k-50k</option>
+                <option value="50000-100000">50k-100k</option>
+              </select>
+              <select
+                name="experience"
+                onChange={handleFilterChange}
+                className="p-2 w-full sm:w-auto border-b sm:border-b-0 border-gray-300"
+              >
+                <option value="">Experience</option>
+                <option value="0year-2year">0-2 years</option>
+                <option value="2year-5year">2-5 years</option>
+              </select>
+              <select
+                name="employmentType"
+                onChange={handleFilterChange}
+                className="p-2 w-full sm:w-auto border-b sm:border-b-0 border-gray-300"
+              >
+                <option value="">Employment Type</option>
+                <option value="Full-time">Full-Time</option>
+                <option value="Part-time">Part-Time</option>
+              </select>
+              <button className="px-4 py-2 bg-yellow-400 rounded sm:rounded-tr sm:rounded-br border border-gray-300 mt-2 sm:mt-0">
+                Search
+              </button>
+            </div>
           </div>
-          <button
-            className={`px-13 bg-yellow-400 rounded-tr rounded-br ${borderColor} border`}
-          >
-            {" "}
-            Search{" "}
-          </button>
         </div>
 
-        <div className="flex px-10 space-x-5 items-start">
-          {/* filters */}
-          {/* <Filters args={filterArgs} /> */}
-
-          {/* Job cards */}
+        {/* Main Content */}
+        <div className="flex flex-col sm:flex-row px-4 sm:px-10 space-y-5 sm:space-y-0 sm:space-x-5">
+          {/* Job Cards */}
           <div className="flex-1 flex flex-col space-y-3">
-            {/* jobs */}
-            <div className="w-full self-start grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {error ? (
                 <p className="text-red-600">{error}</p>
               ) : jobs.length === 0 ? (
-                <p className="text-gray-600">
-                  No jobs available at the moment.
-                </p>
+                <p className="text-gray-600">No jobs available at the moment.</p>
               ) : currentJobs.length === 0 ? (
                 <p className="alert alert-danger w-full col-span-full text-center">
                   !! No Jobs Found !!
@@ -280,9 +228,7 @@ export default function JobDashboard() {
                   <ApplicationCard
                     application={{ ...job, ...job.job_data }}
                     key={job._id}
-                    handleCardClick={() => {
-                      setSelectedJob(job);
-                    }}
+                    handleCardClick={() => setSelectedJob(job)}
                     isSaved={
                       userRole === "superadmin" || userRole === "admin"
                         ? undefined
@@ -298,23 +244,53 @@ export default function JobDashboard() {
               itemsPerPage={itemsPerPage}
               onPageChange={handlePageChange}
             />
-            {/* Footer */}
-            <Footer />
           </div>
 
-          {/* job preview */}
-          <SidePreview
-            selectedItem={selectedJob}
-            handleViewItem={() => navigate(`/job-preview/${selectedJob._id}`)}
-            setSelectedItem={setSelectedJob}
-            isSaved={
-              userRole === "superadmin" || userRole === "admin"
-                ? undefined
-                : savedJobs.includes(selectedJob?._id)
-            }
-            fetchSavedJobs={fetchSavedJobs}
-          />
+          {/* Side Preview (Hidden on Mobile) */}
+          {/* <div className="hidden sm:block">
+            <SidePreview
+              selectedItem={selectedJob}
+              handleViewItem={() => navigate(`/job-preview/${selectedJob._id}`)}
+              setSelectedItem={setSelectedJob}
+              isSaved={
+                userRole === "superadmin" || userRole === "admin"
+                  ? undefined
+                  : savedJobs.includes(selectedJob?._id)
+              }
+              fetchSavedJobs={fetchSavedJobs}
+            />
+          </div> */}
+
+          {/* Mobile Job Preview Modal */}
+          {/* {selectedJob && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center sm:hidden">
+              <div className="bg-white w-full max-w-md p-4 rounded-lg relative">
+                <button
+                  onClick={() => setSelectedJob(null)}
+                  className="absolute top-2 right-2 text-gray-600"
+                >
+                  <FiX size={24} />
+                </button>
+                <SidePreview
+                  selectedItem={selectedJob}
+                  handleViewItem={() =>
+                    navigate(`/job-preview/${selectedJob._id}`)
+                  }
+                  setSelectedItem={setSelectedJob}
+                  isSaved={
+                    userRole === "superadmin" || userRole === "admin"
+                      ? undefined
+                      : savedJobs.includes(selectedJob?._id)
+                  }
+                  fetchSavedJobs={fetchSavedJobs}
+                />
+              </div>
+            </div> */}
+          
         </div>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   );

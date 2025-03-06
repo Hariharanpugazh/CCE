@@ -18,7 +18,7 @@ export default function StudentPageNavbar({ currentPage, transparent, tag }) {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState(null); // State to manage dropdown
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
     const user = Cookies.get("username");
