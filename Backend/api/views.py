@@ -896,6 +896,8 @@ def get_applied_jobs(request, userId):
 
 logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
+
 @csrf_exempt
 def exam_post(request):
     if request.method == 'POST':
@@ -908,14 +910,24 @@ def exam_post(request):
             parsed = json.loads(body)
             logger.info("Parsed JSON: %s", parsed)
             
-            # Use the entire parsed object (flat structure from frontend)
+            # Use the entire parsed object
             data = parsed
             logger.info("Extracted data: %s", data)
             
+            # Extract exam_data if present, default to empty dict if not
+            exam_data = data.get('exam_data', {})
+            logger.info("exam_data: %s", exam_data)
+            
+            # Extract exam_title from exam_data, fallback to top-level
+            exam_title = exam_data.get('exam_title', data.get('exam_title'))
+            logger.info("exam_title extracted: %s", exam_title)
+            
             # Validate required fields
-            required_fields = ['exam_title', 'application_process', 'important_dates']
-            for field in required_fields:
-                if field not in data or not data[field]:
+            required_fields = {
+                'exam_title': exam_title,
+            }
+            for field, value in required_fields.items():
+                if value is None or value == "":
                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
             
             # Extract role and userId
@@ -937,14 +949,30 @@ def exam_post(request):
             if image:
                 image_base64 = base64.b64encode(image.read()).decode('utf-8')
             
-            # Construct exam post document with all 21 fields, cutoff and exam_highlights as arrays
+            # Transform cutoff array of objects into a dictionary
+            cutoff_array = data.get('cutoff', [])
+            cutoff_dict = {}
+            for item in cutoff_array:
+                if isinstance(item, dict):
+                    cutoff_dict.update(item)  # Merge each object's key-value pair
+            logger.info("cutoff transformed: %s", cutoff_dict)
+            
+            # Transform exam_highlights array of objects into a dictionary
+            highlights_array = data.get('exam_highlights', [])
+            highlights_dict = {}
+            for item in highlights_array:
+                if isinstance(item, dict):
+                    highlights_dict.update(item)  # Merge each object's key-value pair
+            logger.info("exam_highlights transformed: %s", highlights_dict)
+            
+            # Construct exam post document with all fields
             exam_post = {
                 "exam_data": {
-                    "exam_title": data.get('exam_title'),
+                    "exam_title": exam_title,
                     "about_exam": data.get('about_exam', ""),
-                    "exam_highlights": data.get('exam_highlights', []),  # Changed to array
+                    "exam_highlights": highlights_dict,
                     "eligibility_criteria": data.get('eligibility_criteria', ""),
-                    "application_process": data.get('application_process'),
+                    "application_process": data.get('application_process', ""),
                     "documents_required": data.get('documents_required', ""),
                     "exam_centers": data.get('exam_centers', ""),
                     "exam_pattern": data.get('exam_pattern', ""),
@@ -954,11 +982,11 @@ def exam_post(request):
                     "result": data.get('result', ""),
                     "answer_key": data.get('answer_key', ""),
                     "exam_analysis": data.get('exam_analysis', ""),
-                    "cutoff": data.get('cutoff', []),  # Changed to array
+                    "cutoff": cutoff_dict,
                     "selection_process": data.get('selection_process', ""),
                     "question_paper": data.get('question_paper', ""),
                     "faq": data.get('faq', ""),
-                    "important_dates": data.get('important_dates'),
+                    "important_dates": data.get('important_dates', ""),
                     "syllabus": data.get('syllabus', ""),
                     "participating_institutes": data.get('participating_institutes', ""),
                     "image": image_base64
@@ -969,16 +997,43 @@ def exam_post(request):
                 "updated_at": timezone.now()
             }
             
-            # Log the array fields for verification
-            logger.info("cutoff stored as: %s", exam_post['exam_data']['cutoff'])
-            logger.info("exam_highlights stored as: %s", exam_post['exam_data']['exam_highlights'])
+            # Log the full document before insertion
+            logger.info("Full exam_post document: %s", json.dumps(exam_post, default=str))
             
-            # Insert into MongoDB exam_post_collection
+            # Insert into MongoDB exam_post_collection (corrected from exam_collection)
             exam_collection.insert_one(exam_post)
+            logger.info("Data inserted into exam_post_collection with _id: %s", str(exam_post['_id']))
+            
             return JsonResponse({"message": "Exam posted successfully, awaiting approval if posted by admin."}, status=200)
         
+        except json.JSONDecodeError as e:
+            logger.error("JSON parsing error: %s", str(e))
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
         except Exception as e:
             logger.error("Error: %s", str(e))
             return JsonResponse({"error": str(e)}, status=500)
     
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+@csrf_exempt
+def get_published_exams(request):
+    try:
+        # Find all published exams
+        exams = exam_collection.find({"is_publish": True, "status": "Published"})
+        exam_list = []
+        for exam in exams:
+            exam["_id"] = str(exam["_id"]) 
+             # Convert ObjectId to string
+            total_views = sum(view["count"] for view in exam.get("views", []))
+            exam.pop("views", None)
+            exam["total_views"] = total_views
+ 
+            exam_list.append(exam)
+
+        if not exam_list:
+            return JsonResponse({"error": "No published exams found"}, status=404)
+
+        return JsonResponse({"exams": exam_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
