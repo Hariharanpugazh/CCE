@@ -51,8 +51,8 @@ export default function AdminSidebar() {
   );
 
   return (
-    <div className="relative w-65 z-[9999]">
-      <div className="fixed md:flex">
+    <div className="lg:relative lg:w-65 z-[9999]">
+      <div className="fixed lg:flex">
         <button
           onClick={() => setMenuOpen(!isMenuOpen)}
           className="lg:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-full"
@@ -106,10 +106,16 @@ export default function AdminSidebar() {
                 </NavLink>
               </li>
               <li className="mb-0">
+                <NavLink href="/admin/inbox">
+                  <FiMail className="mr-3" /> Inbox
+                </NavLink>
+              </li>
+              <li className="mb-0">
                 <NavLink href="/admin/mail">
                 <RiNotification3Line className="mr-3" /> Notification
                 </NavLink>
               </li>
+
 
               <li className="mb-2 relative">
                 <button

@@ -13,7 +13,7 @@ import {
   FaCircle,
   FaWindowClose,
 } from "react-icons/fa";
-import { FiBookmark, FiCircle, FiSearch, FiX } from "react-icons/fi";
+import { FiBookmark, FiMenu, FiSearch, FiX } from "react-icons/fi";
 import Footer from "../../components/Common/Footer";
 import { useNavigate } from "react-router-dom";
 import SidePreview from "../../components/Common/SidePreview";
@@ -29,6 +29,7 @@ export default function JobDashboard() {
   const [isSalaryOpen, setIsSalaryOpen] = useState(false);
   const [isExperienceOpen, setIsExperienceOpen] = useState(false);
   const [isEmployTypeOpen, setIsEmployTypeOpen] = useState(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [isWorkModeOpen, setIsWorkModeOpen] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [savedJobs, setSavedJobs] = useState([]);
@@ -149,11 +150,12 @@ export default function JobDashboard() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="sm:flex">
       {/* Navbar */}
       {userRole === "admin" && <AdminPageNavbar />}
       {userRole === "superadmin" && <SuperAdminPageNavbar />}
-      {userRole === "student" && <StudentPageNavbar />}
+      <div className="flex flex-col flex-1">
+              {userRole === "student" && <StudentPageNavbar />}
 
       <div className="flex flex-col flex-1">
         {/* Header */}
@@ -168,6 +170,7 @@ export default function JobDashboard() {
         {/* Search Bar */}
         <div className="sticky top-0 z-10 bg-white px-4 sm:px-10 mb-5">
           <div className="flex flex-col sm:flex-row border border-gray-300">
+          <div className="flex items-center w-full">
             <input
               type="text"
               value={searchPhrase}
@@ -175,7 +178,21 @@ export default function JobDashboard() {
               placeholder="Search Jobs"
               className="w-full text-base sm:text-lg p-2 px-4 bg-white hover:border-gray-400 outline-none border-b sm:border-b-0 border-gray-300"
             />
-            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 p-2 sm:border-l border-gray-300">
+            {/* Hamburger Button - Visible only on mobile */}
+            <button 
+              className="sm:hidden p-2"
+              onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+            >
+              {isMobileFiltersOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
+          </div>
+
+            {/* Filters - Original desktop layout preserved */}
+              <div className={`
+                ${isMobileFiltersOpen ? 'block' : 'hidden'} 
+                sm:flex sm:flex-row sm:items-center sm:space-x-4 
+                p-2 sm:border-l border-gray-300
+              `}>
               <select
                 name="salaryRange"
                 onChange={handleFilterChange}
@@ -291,6 +308,7 @@ export default function JobDashboard() {
 
         {/* Footer */}
         <Footer />
+      </div>
       </div>
     </div>
   );

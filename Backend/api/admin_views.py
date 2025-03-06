@@ -27,6 +27,8 @@ import cv2
 import numpy as np
 import google.generativeai as genai
 from PIL import Image, ImageEnhance, ImageFilter
+import logging
+import pytz
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -741,81 +743,203 @@ def upload_job_image(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
     
+# @csrf_exempt
+# def job_post(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.POST.get('data', '{}'))  # Extracting JSON data
+#             print("harlee:",data)
+#             image = request.FILES.get('image')
+            
+#             role = data.get('role')
+#             userid = data.get('userId')
+#             auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+#             is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+#             is_publish = True if role == 'superadmin' or (role == 'admin' and is_auto_approval) else None
+            
+#             application_deadline_str = data.get('application_deadline')
+#             if not application_deadline_str:
+#                 return JsonResponse({"error": "Missing required field: application_deadline"}, status=400)
+            
+#             try:
+#                 application_deadline = datetime.strptime(application_deadline_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+#             except ValueError:
+#                 return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
+            
+#             now = datetime.now(timezone.utc)
+#             current_status = "Active" if application_deadline >= now else "Expired"
+            
+#             required_fields = ['title', 'job_link', 'application_deadline', 'company_name']
+#             for field in required_fields:
+#                 if field not in data:
+#                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
+            
+#             # Convert image to Base64 if provided
+#             image_base64 = None
+#             if image:
+#                 image_base64 = base64.b64encode(image.read()).decode('utf-8')
+            
+#             job_post = {
+#                 "job_data": {
+#                     "title": data['title'],
+#                     "company_name": data['company_name'],
+#                     "company_overview": data.get('company_overview', "NA"),
+#                     "company_website": data.get('company_website', "NA"),
+#                     "job_description": data.get('job_description', "NA"),
+#                     "key_responsibilities": data.get('key_responsibilities', "NA"),
+#                     "required_skills": data.get('required_skills', ""),
+#                     "education_requirements": data.get('education_requirements', "NA"),
+#                     "experience_level": data.get('experience_level', "NA"),
+#                     "salary_range": data.get('salary_range', "NA"),
+#                     "benefits": data.get('benefits', "NA"),
+#                     "job_location": data.get('job_location', "NA"),
+#                     "work_type": data.get('work_type', "NA"),
+#                     "work_schedule": data.get('work_schedule', "NA"),
+#                     "application_instructions": data.get('application_instructions', "NA"),
+#                     "application_deadline": application_deadline,
+#                     "contact_email": data.get('contact_email', "NA"),
+#                     "contact_phone": data.get('contact_phone', "NA"),
+#                     "job_link": data['job_link'],
+#                     "selectedCategory": data.get('selectedCategory', "NA"),
+#                     "selectedWorkType": data.get('selectedWorkType', "NA"),
+#                     "image": image_base64  # Storing image as Base64
+#                 },
+#                 "admin_id" if role == "admin" else "superadmin_id": userid,
+#                 "is_publish": is_publish,
+#                 "status": current_status,
+#                 "updated_at": datetime.now(timezone.utc)
+#             }
+            
+#             job_collection.insert_one(job_post)
+#             return JsonResponse({"message": "Job posted successfully, awaiting approval."}, status=200)
+        
+#         except Exception as e:
+#             return JsonResponse({"error": str(e)}, status=500)
+    
+#     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+
 @csrf_exempt
 def job_post(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.POST.get('data', '{}'))  # Extracting JSON data
-            print("harlee:",data)
-            image = request.FILES.get('image')
+            body = request.body.decode('utf-8')
+            logger.info("Raw body received: %s", body)
             
-            role = data.get('role')
-            userid = data.get('userId')
-            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
-            is_publish = True if role == 'superadmin' or (role == 'admin' and is_auto_approval) else None
+            parsed = json.loads(body)
+            logger.info("Parsed JSON: %s", parsed)
+            
+            data = parsed
+            logger.info("Extracted data: %s", data)
             
             application_deadline_str = data.get('application_deadline')
+            logger.info("application_deadline_str: %s", application_deadline_str)
+
             if not application_deadline_str:
                 return JsonResponse({"error": "Missing required field: application_deadline"}, status=400)
             
             try:
-                application_deadline = datetime.strptime(application_deadline_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                if 'T' in application_deadline_str:
+                    application_deadline_str = application_deadline_str.split('T')[0]
+                application_deadline = datetime.strptime(application_deadline_str, "%Y-%m-%d").replace(tzinfo=pytz.utc)
             except ValueError:
                 return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
             
-            now = datetime.now(timezone.utc)
+            def parse_date(date_str):
+                if not date_str:
+                    return None
+                if 'T' in date_str:
+                    date_str = date_str.split('T')[0]
+                return datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=pytz.utc)
+            
+            job_posting_date = parse_date(data.get('job_posting_date'))
+            interview_start_date = parse_date(data.get('interview_start_date'))
+            interview_end_date = parse_date(data.get('interview_end_date'))
+            expected_joining_date = parse_date(data.get('expected_joining_date'))
+            
+            now = timezone.now()
             current_status = "Active" if application_deadline >= now else "Expired"
             
             required_fields = ['title', 'job_link', 'application_deadline', 'company_name']
             for field in required_fields:
-                if field not in data:
+                if field not in data or not data[field]:
                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
             
-            # Convert image to Base64 if provided
+            image = request.FILES.get('image')
             image_base64 = None
             if image:
                 image_base64 = base64.b64encode(image.read()).decode('utf-8')
             
+            role = data.get('role')
+            if not role:
+                return JsonResponse({"error": "Missing required field: role"}, status=400)
+            
+            userid = data.get('userId')
+            if not userid:
+                return JsonResponse({"error": "Missing required field: userId"}, status=400)
+            
+            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+            is_publish = True if role == 'superadmin' or (role == 'admin' and is_auto_approval) else None
+            
             job_post = {
                 "job_data": {
-                    "title": data['title'],
-                    "company_name": data['company_name'],
-                    "company_overview": data.get('company_overview', "NA"),
-                    "company_website": data.get('company_website', "NA"),
-                    "job_description": data.get('job_description', "NA"),
-                    "key_responsibilities": data.get('key_responsibilities', "NA"),
-                    "required_skills": data.get('required_skills', ""),
-                    "education_requirements": data.get('education_requirements', "NA"),
-                    "experience_level": data.get('experience_level', "NA"),
-                    "salary_range": data.get('salary_range', "NA"),
-                    "benefits": data.get('benefits', "NA"),
-                    "job_location": data.get('job_location', "NA"),
-                    "work_type": data.get('work_type', "NA"),
-                    "work_schedule": data.get('work_schedule', "NA"),
-                    "application_instructions": data.get('application_instructions', "NA"),
+                    # JobDetails Section (9 fields)
+                    "title": data.get('title'),
+                    "job_description": data.get('job_description', ""),
+                    "experience_level": data.get('experience_level', ""),
+                    "industry_type": data.get('industry_type', ""),
+                    "work_type": data.get('work_type', ""),
+                    "company_name": data.get('company_name'),
+                    "company_website": data.get('company_website', ""),
+                    "job_location": data.get('job_location', ""),
+                    "salary_range": data.get('salary_range', ""),
+
+                    # Requirement Section (9 fields)
+                    "education_requirements": data.get('education_requirements', ""),
+                    "work_experience_requirement": data.get('work_experience_requirement', ""),
+                    "professional_certifications": data.get('professional_certifications', ""),
+                    "minimum_marks_requirement": data.get('minimum_marks_requirement', ""),
+                    "technical_skills": data.get('technical_skills', []), 
+                    "soft_skills": data.get('soft_skills', []), 
+                    "age_limit": data.get('age_limit', ""),
+                    "documents_required": data.get('documents_required', ""),
+                    "additional_skills": data.get('additional_skills', []),
+
+                    # ApplicationProcess Section (7 fields)
+                    "job_posting_date": job_posting_date,
                     "application_deadline": application_deadline,
-                    "contact_email": data.get('contact_email', "NA"),
-                    "contact_phone": data.get('contact_phone', "NA"),
-                    "job_link": data['job_link'],
-                    "selectedCategory": data.get('selectedCategory', "NA"),
-                    "selectedWorkType": data.get('selectedWorkType', "NA"),
-                    "image": image_base64  # Storing image as Base64
+                    "interview_start_date": interview_start_date,
+                    "interview_end_date": interview_end_date,
+                    "job_link": data.get('job_link'),
+                    "selection_process": data.get('selection_process', ""),
+                    "steps_to_apply": data.get('steps_to_apply', ""),
+
+                    # OtherInstructions Section (6 fields)
+                    "relocation_assistance": data.get('relocation_assistance', ""),
+                    "remote_work_availability": data.get('remote_work_availability', ""),
+                    "expected_joining_date": expected_joining_date,
+                    "work_schedule": data.get('work_schedule', ""),
+                    "key_responsibilities": data.get('key_responsibilities', []), 
+                    "preparation_tips": data.get('preparation_tips', ""),
+
+                    # Additional field for image (optional)
+                    "image": image_base64
                 },
                 "admin_id" if role == "admin" else "superadmin_id": userid,
                 "is_publish": is_publish,
                 "status": current_status,
-                "updated_at": datetime.now(timezone.utc)
+                "updated_at": timezone.now()
             }
             
             job_collection.insert_one(job_post)
             return JsonResponse({"message": "Job posted successfully, awaiting approval."}, status=200)
         
         except Exception as e:
+            logger.error("Error: %s", str(e))
             return JsonResponse({"error": str(e)}, status=500)
     
     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
-
 
 @csrf_exempt
 @api_view(["POST"])
