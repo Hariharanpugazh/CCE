@@ -896,8 +896,6 @@ def get_applied_jobs(request, userId):
 
 logger = logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
-
 @csrf_exempt
 def exam_post(request):
     if request.method == 'POST':
@@ -1032,6 +1030,48 @@ def get_published_exams(request):
 
         if not exam_list:
             return JsonResponse({"error": "No published exams found"}, status=404)
+
+        return JsonResponse({"exams": exam_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def get_exams_with_admin(request):
+    """
+    Fetch all exams and map them with admin names.
+    """
+    try:
+        # Fetch all exam from the exams collection
+        exams = exam_collection.find({}, {"_id": 1, "admin_id": 1, "superadmin_id": 1, "exam_data": 1, "updated_at": 1})
+
+        exam_list = []
+        
+        for exam in exams:
+            exam["_id"] = str(exam["_id"])  # Convert ObjectId to string
+            exam["updated_at"] = exam.get("updated_at", "N/A")
+
+            # Fetch admin details using admin_id
+            admin_id = exam.get("admin_id")
+            superadmin_id = exam.get("superadmin_id")
+            
+            if admin_id:
+                admin = admin_collection.find_one({"_id": ObjectId(admin_id)}, {"name": 1})
+                admin_name = admin.get("name", "Unknown Admin") if admin else "Unknown Admin"
+            elif superadmin_id:
+                superadmin = superadmin_collection.find_one({"_id": ObjectId(superadmin_id)}, {"name": 1})
+                admin_name = superadmin.get("name", "Unknown Superadmin") if superadmin else "Unknown Superadmin"
+            else:
+                admin_name = "Unknown Admin"
+            
+      
+            # Append job details with mapped admin name
+            exam_list.append({
+                "admin_name": admin_name,
+                "message": f"{admin_name} posted a exam",
+                "exam_data": exam.get("exam_data", {}),
+                "timestamp": exam["updated_at"]
+            })
 
         return JsonResponse({"exams": exam_list}, status=200)
 

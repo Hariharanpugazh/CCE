@@ -2561,7 +2561,7 @@ def get_jobs_with_admin(request):
     """
     try:
         # Fetch all jobs from the jobs collection
-        jobs = job_collection.find({}, {"_id": 1, "admin_id": 1, "job_data": 1, "updated_at": 1})
+        jobs = job_collection.find({}, {"_id": 1, "admin_id": 1, "superadmin_id": 1, "job_data": 1, "updated_at": 1})
 
         job_list = []
 
@@ -2571,12 +2571,15 @@ def get_jobs_with_admin(request):
 
             # Fetch admin details using admin_id
             admin_id = job.get("admin_id")
-            admin_name = "Unknown Admin"
-
+            superadmin_id = job.get("superadmin_id")
             if admin_id:
-                admin = admin_collection.find_one({"_id": ObjectId(admin_id)})
-                if admin:
-                    admin_name = admin.get("name", "Unknown Admin")
+                admin = admin_collection.find_one({"_id": ObjectId(admin_id)}, {"name": 1})
+                admin_name = admin.get("name", "Unknown Admin") if admin else "Unknown Admin"
+            elif superadmin_id:
+                superadmin = superadmin_collection.find_one({"_id": ObjectId(superadmin_id)}, {"name": 1})
+                admin_name = superadmin.get("name", "Unknown Superadmin") if superadmin else "Unknown Superadmin"
+            else:
+                admin_name = "Unknown Admin"
 
             # Append job details with mapped admin name
             job_list.append({
@@ -2638,7 +2641,7 @@ def get_internships_with_admin(request):
     Fetch all internships and correctly map them with admin names.
     """
     try:
-        internships = internship_collection.find({}, {"_id": 1, "admin_id": 1, "internship_data": 1, "updated_at": 1})
+        internships = internship_collection.find({}, {"_id": 1, "admin_id": 1,  "internship_data": 1, "updated_at": 1})
 
         internship_list = []
 

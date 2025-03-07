@@ -138,4 +138,5 @@ urlpatterns = [
     #exam
     path('exam_post/', exam_post, name='exam_post'),
     path('published-exams/', get_published_exams, name='get_published_exams'),
+    path('get_exams_with_admin/', get_exams_with_admin, name='get_exams_with_admin'),
 ]

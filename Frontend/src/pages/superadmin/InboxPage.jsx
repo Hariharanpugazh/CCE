@@ -27,6 +27,7 @@ const InboxPage = () => {
   const [adminId, setAdminId] = useState(null);
   const [achievements, setAchievements] = useState([]);
   const [jobs, setJobs] = useState([]);
+  const [exams, setExams] = useState([]);
   const [internships, setInternships] = useState([]);
   const [studyMaterials, setStudyMaterials] = useState([]);
   const [studentAchievements, setStudentAchievements] = useState([]);
@@ -37,6 +38,7 @@ const InboxPage = () => {
     internships: 1,
     studyMaterials: 1,
     Jobs: 1,
+    Exams: 1,
     studentAchievements: 1,
   });
   const [replyText, setReplyText] = useState({});
@@ -71,6 +73,7 @@ const InboxPage = () => {
     fetchMessages(selectedStudent);
     fetchAchievements();
     fetchJobs();
+    fetchExams();
     fetchInternships();
     fetchStudyMaterials();
     fetchStudentAchievements();
@@ -199,6 +202,25 @@ const InboxPage = () => {
       console.error("Error fetching jobs:", err);
     }
   };
+  
+  const fetchExams = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8000/api/get_exams_with_admin/"
+      );
+      let examsData = response.data.exams || [];
+      if (Array.isArray(examsData)) {
+        examsData = examsData.sort(
+          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+        );
+        setExams(examsData);
+      } else {
+        console.error("Unexpected data format:", examsData);
+      }
+    } catch (err) {
+      console.error("Error fetching exams:", err);
+    }
+  };
 
   const fetchInternships = async () => {
     try {
@@ -273,6 +295,12 @@ const InboxPage = () => {
         break;
       case "Jobs":
         itemsToDisplay = jobs.slice(
+          (currentPageNumber - 1) * itemsPerPage,
+          currentPageNumber * itemsPerPage
+        );
+        break;
+      case "Exams":
+        itemsToDisplay = exams.slice(
           (currentPageNumber - 1) * itemsPerPage,
           currentPageNumber * itemsPerPage
         );
@@ -511,6 +539,7 @@ const InboxPage = () => {
 
     const {
       job_data,
+      exam_data,
       internship_data,
       study_material_data,
       item_type,
@@ -583,6 +612,7 @@ const InboxPage = () => {
             <div className="flex-1">
               <h2 className="text-xl font-semibold">
                 {job_data?.title ||
+                  exam_data?.title ||
                   internship_data?.title ||
                   selectedItem.name ||
                   study_material_data?.title ||
@@ -591,6 +621,7 @@ const InboxPage = () => {
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span>
                   {job_data?.company_name ||
+                    exam_data?.exam_title ||
                     internship_data?.company_name ||
                     "Company Name"}
                 </span>
@@ -600,10 +631,27 @@ const InboxPage = () => {
           <div className="border-t my-4" />
           <div className="whitespace-pre-wrap text-sm text-gray-700">
             {job_data?.job_description ||
+              exam_data?.about_exam ||
               internship_data?.job_description ||
               study_material_data?.description ||
               `Feedback: ${selectedItem.feedback}`}
           </div>
+          {exam_data && (
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <p className="text-gray-600 font-semibold">Highlights:</p>
+                <p className="text-sm">{exam_data.exam_highlights}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-semibold">Location:</p>
+                <p className="text-sm">{exam_data.exam_centers}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-semibold">Cut Off:</p>
+                <p className="text-sm">{exam_data.cutoff}</p>
+              </div>
+            </div>
+          )}
           {job_data && (
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div>
@@ -620,7 +668,7 @@ const InboxPage = () => {
               </div>
               <div>
                 <p className="text-gray-600 font-semibold">Work Type:</p>
-                <p className="text-sm">{job_data.selectedWorkType}</p>
+                <p className="text-sm">{job_data.work_type}</p>
               </div>
             </div>
           )}
@@ -723,6 +771,17 @@ const InboxPage = () => {
             >
               <Briefcase className="h-4 w-4" />
               Jobs
+            </button>
+            <button
+              className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
+                selectedCategory === "Exams"
+                  ? "bg-yellow-50 text-yellow-600"
+                  : "hover:bg-gray-200"
+              }`}
+              onClick={() => setSelectedCategory("Exams")}
+            >
+              <Briefcase className="h-4 w-4" />
+              Exams
             </button>
             <button
               className={`w-full flex items-center gap-2 p-2 rounded transition duration-300 ${
