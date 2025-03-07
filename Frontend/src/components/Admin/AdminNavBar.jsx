@@ -51,8 +51,8 @@ export default function AdminSidebar() {
   );
 
   return (
-    <div className="relative w-65 z-[9999]">
-      <div className="fixed md:flex">
+    <div className="lg:relative lg:w-65 z-[9999]">
+      <div className="fixed lg:flex">
         <button
           onClick={() => setMenuOpen(!isMenuOpen)}
           className="lg:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-full"
