@@ -6,6 +6,9 @@ import AdminPageNavbar from "../../components/Admin/AdminNavBar";
 import Pagination from "../../components/Admin/pagination";
 import backIcon from "../../assets/icons/back-icon.svg";
 import nextIcon from "../../assets/icons/next-icon.svg";
+import approvedIcon from "../../assets/icons/Approved 1.png";
+import rejectedIcon from "../../assets/icons/rejected 1.png";
+import pendingIcon from "../../assets/icons/pending 1.png"; // Corrected import for pending icon
 
 import {
   Briefcase,
@@ -22,7 +25,8 @@ import {
   MapPin,
   FileText,
 } from "lucide-react";
-import { FaCheck, FaClock, FaCross, FaEye, FaMinus } from "react-icons/fa";
+import { FaClock, FaEye, FaMinus } from "react-icons/fa";
+import { IoMdCheckboxOutline } from "react-icons/io";
 
 const ItemCard = ({ item, type }) => {
   const navigate = useNavigate();
@@ -35,13 +39,13 @@ const ItemCard = ({ item, type }) => {
     jobLocation = item.job_data?.job_location || "Not Specified";
     status = item.is_publish;
     selectedCategory = item.job_data?.selectedCategory || "No Category required";
-    previewPath = `/job-preview/${itemId}`;
+    previewPath = `/job-edit/${itemId}`;
 
   } else if (type === "study materials") {
     title = item.study_material_data?.title || "No Title";
     company = item.study_material_data?.category || "Unknown Category";
     status = item.is_publish;
-    previewPath = `/study-material/${itemId}`;
+    previewPath = `/study-edit/${itemId}`;
 
   } else if (type === "internships") {
     title = item.internship_data?.title || "No Title";
@@ -49,39 +53,39 @@ const ItemCard = ({ item, type }) => {
     status = item.is_publish;
     jobLocation = item.internship_data?.location || "Not Specified";
     selectedCategory = item.internship_data?.selectedCategory || "Internship";
-    previewPath = `/internship-preview/${itemId}`;
+    previewPath = `/internship-edit/${itemId}`;
 
   } else {
     title = item.name || "No Title";
     company = item.company_name || "No Company";
     description = item.achievement_description || "No Skills required";
-    previewPath = `/achievement-preview/${itemId}`;
+    previewPath = `/achievement-edit/${itemId}`;
   }
 
   return (
-    <div className="border rounded-xl p-4 shadow-sm flex items-center justify-between bg-white">
-      <div>
-        <h3 className="font-semibold text-lg mb-0.5">{title}</h3>
-        <p className="text-sm text-gray-700 flex space-x-3">
+    <div className="border border-gray-300 rounded-xl p-4 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between bg-white flex-wrap mb-4">
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-lg md:text-xl mb-0.5">{title}</h3>
+        <p className="text-sm text-gray-700 flex space-x-3 flex-wrap">
           <span className="font-semibold">Company: <span className="font-normal"> {company} &nbsp;  </span> </span>
           <span className="font-semibold">Location: <span className="font-normal"> {jobLocation} &nbsp; </span> </span>
           <span className="font-semibold">Category: <span className="font-normal"> {selectedCategory}  </span> </span>
         </p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-left mt-4 md:mt-0">
         {(status === true) && (
           <span className="bg-teal-500 text-white px-4 py-2 rounded-lg text-sm flex items-center">
-            <FaCheck className="mr-2 text-xs" /> Approved
+            Approved <img src={approvedIcon} alt="Approved" className="ml-1 text-xs" width={20} height={10} />
           </span>
         )}
         {(status === false) && (
-          <span className="bg-red-400 text-white px-4 py-2 rounded-lg text-sm flex items-center">
-            <FaCross className="mr-2 text-xs" /> Rejected
+          <span className="bg-red-500 text-white px-4 py-2  rounded-lg text-sm flex items-center">
+            Rejected  <img src={rejectedIcon} alt="Rejected" className="ml-1 text-xs mr-1" width={20} height={10} />  
           </span>
         )}
         {(status === null) && (
-          <span className="bg-yellow-400 text-white px-4 py-2 rounded-lg text-sm flex items-center">
-            <FaClock className="mr-2 text-xs" /> Pending
+          <span className="bg-yellow-500 text-black px-5 py-2 ml-1 rounded-lg text-sm flex items-center">
+            Pending <img src={pendingIcon} alt="Pending" className="ml-1 text-xs" width={20} height={10} /> 
           </span>
         )}
         <button
@@ -92,7 +96,7 @@ const ItemCard = ({ item, type }) => {
               alert("Error: Invalid ObjectId. Please check backend response.");
             }
           }}
-          className="text-black border px-3 py-1 rounded-lg text-sm flex items-center gap-1"
+          className="text-black border px-3 py-2 rounded-lg text-sm flex items-center gap-1"
         >
           View
           <FaEye size={14} />
@@ -182,13 +186,13 @@ const ManageJobs = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 flex-col md:flex-row pt-5">
       <AdminPageNavbar />
       <div className="flex-1 flex flex-col items-stretch">
         <section className="flex flex-col">
-          <div className="flex rounded-lg border border-gray-300 items-center  my-10 mx-6 max-w-55">
+          <div className="flex rounded-lg border border-gray-300 items-center my-10 mx-6 max-w-full md:max-w-55">
             <button
-              className={`p-2 border-r border-gray-300  rounded-l-lg ${selectedCategory === "Jobs" ? "opacity-50" : "cursor-pointer"}`}
+              className={`p-2 border-r border-gray-300 rounded-l-lg ${selectedCategory === "Jobs" ? "opacity-50" : "cursor-pointer"}`}
               onClick={() => {
                 switch (selectedCategory) {
                   case "Jobs": {
@@ -244,10 +248,12 @@ const ManageJobs = () => {
             </button>
           </div>
 
-          <div className="flex-1 px-6 flex flex-col space-y-3">
-            {paginate({ Jobs: jobs, Internships: internships, Achievements: achievements, 'Study Materials': studyMaterials }[selectedCategory]).map((achievement, key) => (
-              <ItemCard item={{ ...achievement }} type={selectedCategory.toLowerCase()} key={key} />
-            ))}
+          <div className="flex-1 px-6 flex flex-col  space-y-3 ">
+            <div className="border border-gray-300 rounded-lg p-5 shadow-sm bg-white ">
+              {paginate({ Jobs: jobs, Internships: internships, Achievements: achievements, 'Study Materials': studyMaterials }[selectedCategory]).map((achievement, key) => (
+                <ItemCard item={{ ...achievement }} type={selectedCategory.toLowerCase()} key={key} />
+              ))}
+            </div>
           </div>
         </section>
         <div className="px-6">
