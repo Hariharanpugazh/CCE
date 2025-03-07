@@ -160,33 +160,25 @@ export default function AdminMail() {
               <motion.div
                 key={item._id || item.review_id}
                 className="p-2 bg-white shadow-md rounded-lg hover:shadow-lg transition duration-300 cursor-pointer border border-gray-400"
+                onClick={() => setSelectedItem(item)}
               >
                 <div className="flex justify-between items-center">
-                  <div className="flex-1">
-                    <span className="font-semibold text-lg">
-                      {item.job_data?.title ||
-                        item.internship_data?.title ||
-                        item.name ||
-                        item.study_material_data?.title ||
-                        item.item_name ||
-                        "Notification"}
-                      {item.item_type && (
-                        <span className="ml-2 text-xs px-2 py-1 rounded bg-gray-200 text-black-400">
-                          {item.item_type}
-                        </span>
-                      )}
-                    </span>
-                    <p className="text-gray-700">
-                      {item.job_data?.company_name ||
-                        item.internship_data?.company_name ||
-                        item.achievement_description ||
-                        item.study_material_data?.description ||
-                        ` Feedback: ${item.feedback}`}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end space-y-2">
-                    {activeTab !== "notifications" && (
-                      <>
+                  <span className="font-semibold text-lg">
+                    {item.job_data?.title ||
+                      item.internship_data?.title ||
+                      item.name ||
+                      item.study_material_data?.title ||
+                      item.item_name ||
+                      "Notification"}
+                    {item.item_type && (
+                      <span className="ml-2 text-xs px-2 py-1 rounded bg-gray-200 text-black-400">
+                        {item.item_type}
+                      </span>
+                    )}
+                  </span>
+                  {item.study_material_data ? null : (
+                    <div className="flex space-x-2">
+                      {activeTab !== "notifications" && <>
                         <span className="text-xs px-2 py-1 rounded bg-gray-200 text-gray-700">
                           {item.status}
                         </span>
@@ -204,21 +196,26 @@ export default function AdminMail() {
                               ? "Rejected"
                               : "Pending"}
                         </span>
-                      </>
-                    )}
-                    <div className="flex justify-center items-center space-x-2 ">
-                      <span className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm flex items-center w-24 justify-center">
-                      <img src={rejectedIcon} alt="Rejected" className="ml-1 text-xs mr-1" width={20} height={10} /> Rejected 
-                      </span>
-                      <button
-                      className="text-black border px-3 py-2 rounded-lg text-sm flex items-center gap-1"     onClick={() => setSelectedItem(item)}
-                      >
-                        View
-                        <FaEye size={14} />
-                      </button>
+                      </>}
                     </div>
+                  )}
+                  <div className="flex justify-center items-center space-x-2 mt-2">
+                      <span className="bg-red-500 text-white px-4 py-2  rounded-lg text-sm flex items-center">
+                        Rejected  <img src={rejectedIcon} alt="Rejected" className="ml-1 text-xs mr-1" width={20} height={10} />  
+                      </span>
+                    <button className="text-black border px-3 py-2 rounded-lg text-sm flex items-center gap-1">
+                      View
+                      <FaEye size={14} />
+                    </button>
                   </div>
                 </div>
+                <p className="text-gray-700 ">
+                  {item.job_data?.company_name ||
+                    item.internship_data?.company_name ||
+                    item.achievement_description ||
+                    item.study_material_data?.description ||
+                    ` Feedback: ${item.feedback}`}
+                </p>
               </motion.div>
             ))
           ) : (
@@ -280,11 +277,11 @@ export default function AdminMail() {
                         : "Pending"}
                   </span>
                 </>}
-              </div>  
+              </div>
               {/* Feedback Section */}
               {feedback && (
-                <div className="mt-2 text-sm text-black bg-gray-100 p-2 rounded">
-                  <strong className="font-bold text-black">Feedback:</strong> {feedback}
+                <div className="mt-2 text-sm text-gray-700 bg-gray-100 p-2 rounded">
+                  <strong>Feedback:</strong> {feedback}
                 </div>
               )}
             </div>
@@ -391,22 +388,15 @@ export default function AdminMail() {
         {/* Email List */}
         <div className="w-3/3 flex flex-col space-y-6">
           <div className="mb-4">
-            <div className="relative flex">
+            <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder=""
+                placeholder="Search by title..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 px-4 py-2 border border-gray-400 rounded-l-md w-3/4 " // Change border to gray
-                
+                className="pl-8 px-4 py-2 border rounded-md w-full"
               />
-              <button
-                onClick={() => {/* Add search functionality if needed */}}
-                className="px-7 py-2 bg-yellow-500 text-black border border-gray-400 rounded-r-md" // Change border to gray
-              >
-                Search
-              </button>
             </div>
           </div>
           <div className=" p-6 rounded-lg shadow-lg border border-gray-400">
