@@ -105,6 +105,18 @@ export default function SuperAdminSidebar() {
                 >
                   <PiStudent className="mr-3" /> Internships
                 </a>
+                </li>
+              <li className="mb-0">
+                <a
+                  href="/exams"
+                  className={`flex items-center p-2 rounded ${
+                    currentPath === "/exams"
+                      ? "bg-yellow-200"
+                      : "hover:bg-yellow-200"
+                  }`}
+                >
+                  <PiStudent className="mr-3" /> Exams
+                </a>
               </li>
               <li className="mb-0">
                 <a
@@ -184,6 +196,14 @@ export default function SuperAdminSidebar() {
                         className="block px-4 py-2 text-black-700 flex items-center"
                       >
                         <FiPlus className="text-text-BLACK-700 mr-2" /> Internship
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="/exam-post"
+                        className="block px-4 py-2 text-black-700 flex items-center"
+                      >
+                        <FiPlus className="text-text-BLACK-700 mr-2" /> Exam
                       </a>
                     </li>
                     <li>

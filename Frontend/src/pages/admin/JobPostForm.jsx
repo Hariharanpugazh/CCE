@@ -233,7 +233,6 @@ const loadingStates = [
                 args={{ placeholder: "Enter the key responsibilities here", value: (formData.key_responsibilities || []).join(',') }}
                 setter={(val) => setFormData(prev => ({ ...prev, key_responsibilities: val.split(',') }))}
               />
-              
             </div>
   
             {/* Right Column */}

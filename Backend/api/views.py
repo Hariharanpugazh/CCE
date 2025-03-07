@@ -22,6 +22,15 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import base64
+import pytz  # Add this import
+import logging
+import json
+from django.http import JsonResponse
+from datetime import datetime
+import base64
+from django.utils import timezone
+
+
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -51,6 +60,7 @@ achievement_collection = db['student_achievement']
 study_material_collection = db['studyMaterial']
 superadmin_collection = db['superadmin']
 message_collection = db['message']
+exam_collection = db['exam']
 
 # Dictionary to track failed login attempts
 failed_login_attempts = {}
@@ -883,3 +893,147 @@ def get_applied_jobs(request, userId):
         return JsonResponse({"jobs": applied_jobs})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+logger = logging.getLogger(__name__)
+
+logger = logging.getLogger(__name__)
+
+@csrf_exempt
+def exam_post(request):
+    if request.method == 'POST':
+        try:
+            # Decode the raw request body
+            body = request.body.decode('utf-8')
+            logger.info("Raw body received: %s", body)
+            
+            # Parse JSON
+            parsed = json.loads(body)
+            logger.info("Parsed JSON: %s", parsed)
+            
+            # Use the entire parsed object
+            data = parsed
+            logger.info("Extracted data: %s", data)
+            
+            # Extract exam_data if present, default to empty dict if not
+            exam_data = data.get('exam_data', {})
+            logger.info("exam_data: %s", exam_data)
+            
+            # Extract exam_title from exam_data, fallback to top-level
+            exam_title = exam_data.get('exam_title', data.get('exam_title'))
+            logger.info("exam_title extracted: %s", exam_title)
+            
+            # Validate required fields
+            required_fields = {
+                'exam_title': exam_title,
+            }
+            for field, value in required_fields.items():
+                if value is None or value == "":
+                    return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
+            
+            # Extract role and userId
+            role = data.get('role')
+            if not role:
+                return JsonResponse({"error": "Missing required field: role"}, status=400)
+            userid = data.get('userId')
+            if not userid:
+                return JsonResponse({"error": "Missing required field: userId"}, status=400)
+            
+            # Auto-approval logic
+            auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
+            is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
+            is_publish = True if role == 'superadmin' or (role == 'admin' and is_auto_approval) else None
+            
+            # Handle optional image upload if included
+            image = request.FILES.get('image')
+            image_base64 = None
+            if image:
+                image_base64 = base64.b64encode(image.read()).decode('utf-8')
+            
+            # Transform cutoff array of objects into a dictionary
+            cutoff_array = data.get('cutoff', [])
+            cutoff_dict = {}
+            for item in cutoff_array:
+                if isinstance(item, dict):
+                    cutoff_dict.update(item)  # Merge each object's key-value pair
+            logger.info("cutoff transformed: %s", cutoff_dict)
+            
+            # Transform exam_highlights array of objects into a dictionary
+            highlights_array = data.get('exam_highlights', [])
+            highlights_dict = {}
+            for item in highlights_array:
+                if isinstance(item, dict):
+                    highlights_dict.update(item)  # Merge each object's key-value pair
+            logger.info("exam_highlights transformed: %s", highlights_dict)
+            
+            # Construct exam post document with all fields
+            exam_post = {
+                "exam_data": {
+                    "exam_title": exam_title,
+                    "about_exam": data.get('about_exam', ""),
+                    "exam_highlights": highlights_dict,
+                    "eligibility_criteria": data.get('eligibility_criteria', ""),
+                    "application_process": data.get('application_process', ""),
+                    "documents_required": data.get('documents_required', ""),
+                    "exam_centers": data.get('exam_centers', ""),
+                    "exam_pattern": data.get('exam_pattern', ""),
+                    "mock_test": data.get('mock_test', ""),
+                    "admit_card": data.get('admit_card', ""),
+                    "preparation_tips": data.get('preparation_tips', ""),
+                    "result": data.get('result', ""),
+                    "answer_key": data.get('answer_key', ""),
+                    "exam_analysis": data.get('exam_analysis', ""),
+                    "cutoff": cutoff_dict,
+                    "selection_process": data.get('selection_process', ""),
+                    "question_paper": data.get('question_paper', ""),
+                    "faq": data.get('faq', ""),
+                    "important_dates": data.get('important_dates', ""),
+                    "syllabus": data.get('syllabus', ""),
+                    "participating_institutes": data.get('participating_institutes', ""),
+                    "image": image_base64
+                },
+                "admin_id" if role == "admin" else "superadmin_id": userid,
+                "is_publish": is_publish,
+                "status": "Pending" if is_publish is None else "Published",
+                "updated_at": timezone.now()
+            }
+            
+            # Log the full document before insertion
+            logger.info("Full exam_post document: %s", json.dumps(exam_post, default=str))
+            
+            # Insert into MongoDB exam_post_collection (corrected from exam_collection)
+            exam_collection.insert_one(exam_post)
+            logger.info("Data inserted into exam_post_collection with _id: %s", str(exam_post['_id']))
+            
+            return JsonResponse({"message": "Exam posted successfully, awaiting approval if posted by admin."}, status=200)
+        
+        except json.JSONDecodeError as e:
+            logger.error("JSON parsing error: %s", str(e))
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+        except Exception as e:
+            logger.error("Error: %s", str(e))
+            return JsonResponse({"error": str(e)}, status=500)
+    
+    return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
+
+@csrf_exempt
+def get_published_exams(request):
+    try:
+        # Find all published exams
+        exams = exam_collection.find({"is_publish": True, "status": "Published"})
+        exam_list = []
+        for exam in exams:
+            exam["_id"] = str(exam["_id"]) 
+             # Convert ObjectId to string
+            total_views = sum(view["count"] for view in exam.get("views", []))
+            exam.pop("views", None)
+            exam["total_views"] = total_views
+ 
+            exam_list.append(exam)
+
+        if not exam_list:
+            return JsonResponse({"error": "No published exams found"}, status=404)
+
+        return JsonResponse({"exams": exam_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

@@ -96,6 +96,11 @@ export default function AdminSidebar() {
                 </NavLink>
               </li>
               <li className="mb-0">
+                <NavLink href="/exams">
+                  <PiStudent className="mr-3" /> Exams
+                </NavLink>
+              </li>
+              <li className="mb-0">
                 <NavLink href="/study-material">
                   <HiOutlineBookOpen className="mr-3" /> Study Material
                 </NavLink>
@@ -146,6 +151,14 @@ export default function AdminSidebar() {
                         className="block px-4 py-2 text-black-700 flex items-center"
                       >
                         <FiPlus className="text-text-BLACK-700 mr-2" /> Internship
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="/exam-post"
+                        className="block px-4 py-2 text-black-700 flex items-center"
+                      >
+                        <FiPlus className="text-text-BLACK-700 mr-2" /> Exams
                       </a>
                     </li>
                     <li>
