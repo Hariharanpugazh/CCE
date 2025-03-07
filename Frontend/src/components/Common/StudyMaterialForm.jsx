@@ -215,7 +215,8 @@ export default function StudyMaterialForm() {
         title: "",
         description: "",
         category: "",
-        links: [{ type: "", link: "", topic: "", textContent: "" }],
+        links: [{ type: "", link: "", topic: "" }],
+
       });
     } catch (err) {
       toast.error(err.response?.data?.error || "Something went wrong");
@@ -230,23 +231,26 @@ export default function StudyMaterialForm() {
     }
   }, []);
 
+
+
+  const options = [
+    { type: "exam", title: "Exam", description: "Select this for exam-related materials.", icon: "📚" },
+    { type: "Subject", title: "Subject", description: "Select this for subject-related materials.", icon: "📓" },
+    { type: "topic", title: "Topic", description: "Select this for topic-specific materials.", icon: "📂" },
+  ];
+
   const handleClose = () => {
+    setShowModal(false);
+    setSelectedType(null);
     setFormData({
-      type: "Exam",
+      type: "",
       title: "",
       description: "",
       category: "",
-      links: [{ type: "", link: "", topic: "", textContent: "" }],
+      links: [{ type: "", link: "", topic: "" }],
     });
-    navigate('/superadmin-dashboard'); // Navigate to the previous page
+    navigate(-1); // Navigate to the previous page
   };
-
-  const typeIcons = {
-    Exam: GoChecklist,
-    Subject: RiBookLine,
-    Topic: MdOutlineTopic,
-  };
-
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       <ToastContainer />

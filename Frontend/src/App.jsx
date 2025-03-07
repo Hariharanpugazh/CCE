@@ -46,7 +46,10 @@ import JobEntrySelection from "./pages/admin/JobEntrySelection";
 import InternshipEntrySelection from "./pages/admin/InternshipEntrySelection";
 import Message from "./pages/superadmin/Message";
 import StudentStudyDetail from './pages/students/StudentStudyDetail';
+import ExamPostForm from "./pages/superadmin/ExamPostForm";
+import ExamDashboard from "./pages/common/ExamDashboard";
 import AdminInbox from "./pages/admin/Admininbox";
+
 
 
 
@@ -138,6 +141,8 @@ function App() {
           <Route path={"/contact-inbox"} element={<ProtectedRoute> <InboxPage /> </ProtectedRoute>} />
           <Route path={"/admin-details/:id"} element={<ProtectedRoute> <AdminDetailPage /> </ProtectedRoute>} />
           <Route path={"/message"} element={<ProtectedRoute> <Message /> </ProtectedRoute>} />
+          <Route path={"/exam-post"} element={<ProtectedRoute> <ExamPostForm /> </ProtectedRoute>} />
+          <Route path={"/exams"} element={<ProtectedRoute> <ExamDashboard /> </ProtectedRoute>} />
           
         </Routes>
       </LoaderContext.Provider>

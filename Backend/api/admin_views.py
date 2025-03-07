@@ -27,8 +27,14 @@ import cv2
 import numpy as np
 import google.generativeai as genai
 from PIL import Image, ImageEnhance, ImageFilter
+import json
+from django.http import JsonResponse
+from datetime import datetime
+import base64
+from django.utils import timezone
 import logging
 import pytz
+
 
 # Create your views here.
 JWT_SECRET = "secret"
@@ -743,6 +749,8 @@ def upload_job_image(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
     
+    
+logger = logging.getLogger(__name__)
 # @csrf_exempt
 # def job_post(request):
 #     if request.method == 'POST':
@@ -819,6 +827,7 @@ def upload_job_image(request):
 #     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
 
 
+
 @csrf_exempt
 def job_post(request):
     if request.method == 'POST':
@@ -832,34 +841,47 @@ def job_post(request):
             data = parsed
             logger.info("Extracted data: %s", data)
             
+            # Use the entire parsed object (flat structure from frontend)
+            data = parsed
+            logger.info("Extracted data: %s", data)
+            
+            # Extract and validate application_deadline
             application_deadline_str = data.get('application_deadline')
             logger.info("application_deadline_str: %s", application_deadline_str)
-
+            
             if not application_deadline_str:
                 return JsonResponse({"error": "Missing required field: application_deadline"}, status=400)
             
+            # Handle date string (could be "2025-03-21" or "2025-03-21T00:00:00.000Z")
             try:
                 if 'T' in application_deadline_str:
                     application_deadline_str = application_deadline_str.split('T')[0]
-                application_deadline = datetime.strptime(application_deadline_str, "%Y-%m-%d").replace(tzinfo=pytz.utc)
+
+                application_deadline = datetime.strptime(application_deadline_str, "%Y-%m-%d").replace(tzinfo=pytz.utc)  # Use pytz.utc
             except ValueError:
                 return JsonResponse({"error": "Invalid date format for application_deadline. Use YYYY-MM-DD."}, status=400)
             
+            # Handle other date fields similarly
             def parse_date(date_str):
                 if not date_str:
                     return None
                 if 'T' in date_str:
                     date_str = date_str.split('T')[0]
-                return datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=pytz.utc)
+                return datetime.strptime(date_str, "%Y-%m-%d").replace(tzinfo=pytz.utc)  # Use pytz.utc
+
             
             job_posting_date = parse_date(data.get('job_posting_date'))
             interview_start_date = parse_date(data.get('interview_start_date'))
             interview_end_date = parse_date(data.get('interview_end_date'))
             expected_joining_date = parse_date(data.get('expected_joining_date'))
             
-            now = timezone.now()
+
+            # Check current status based on deadline
+            now = timezone.now()  # Still use timezone.now() for current time
+
             current_status = "Active" if application_deadline >= now else "Expired"
             
+            # Validate required fields
             required_fields = ['title', 'job_link', 'application_deadline', 'company_name']
             for field in required_fields:
                 if field not in data or not data[field]:
@@ -870,10 +892,11 @@ def job_post(request):
             if image:
                 image_base64 = base64.b64encode(image.read()).decode('utf-8')
             
+            # Extract role and userId
             role = data.get('role')
             if not role:
                 return JsonResponse({"error": "Missing required field: role"}, status=400)
-            
+        
             userid = data.get('userId')
             if not userid:
                 return JsonResponse({"error": "Missing required field: userId"}, status=400)
@@ -906,6 +929,7 @@ def job_post(request):
                     "documents_required": data.get('documents_required', ""),
                     "additional_skills": data.get('additional_skills', []),
 
+
                     # ApplicationProcess Section (7 fields)
                     "job_posting_date": job_posting_date,
                     "application_deadline": application_deadline,
@@ -929,9 +953,11 @@ def job_post(request):
                 "admin_id" if role == "admin" else "superadmin_id": userid,
                 "is_publish": is_publish,
                 "status": current_status,
+
                 "updated_at": timezone.now()
             }
             
+            # Insert into MongoDB collection
             job_collection.insert_one(job_post)
             return JsonResponse({"message": "Job posted successfully, awaiting approval."}, status=200)
         
@@ -2326,78 +2352,6 @@ def get_categories(request):
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Invalid request method. Only GET is allowed."}, status=405)
 
-
-# @csrf_exempt
-# @api_view(['POST'])
-# def post_study_material(request):
-#     if request.method == 'POST':
-#         try:
-#             # Get JWT token from Authorization Header
-#             auth_header = request.headers.get('Authorization')
-#             if not auth_header or not auth_header.startswith("Bearer "):
-#                 return JsonResponse({"error": "No token provided"}, status=401)
-
-#             jwt_token = auth_header.split(" ")[1]
-
-#             # Decode JWT token
-#             try:
-#                 decoded_token = jwt.decode(jwt_token, 'secret', algorithms=["HS256"])
-#             except jwt.ExpiredSignatureError:
-#                 return JsonResponse({"error": "Token expired"}, status=401)
-#             except jwt.InvalidTokenError:
-#                 return JsonResponse({"error": "Invalid token"}, status=401)
-
-#             role = decoded_token.get('role')
-#             auto_approval_setting = superadmin_collection.find_one({"key": "auto_approval"})
-#             is_auto_approval = auto_approval_setting.get("value", False) if auto_approval_setting else False
-
-#             if role == 'admin':
-#                 admin_id = decoded_token.get('admin_user')
-#                 if not admin_id:
-#                     return JsonResponse({"error": "Invalid token"}, status=401)
-#                 is_publish = True
-
-#             elif role == 'superadmin':
-#                 superadmin_id = decoded_token.get('superadmin_user')
-#                 if not superadmin_id:
-#                     return JsonResponse({"error": "Invalid token"}, status=401)
-#                 is_publish = True
-
-#             # Parse incoming JSON data
-#             data = json.loads(request.body)
-
-#             # Ensure required fields are present
-#             required_fields = ['exam', 'title', 'description', 'source_links']
-#             for field in required_fields:
-#                 if field not in data:
-#                     return JsonResponse({"error": f"Missing required field: {field}"}, status=400)
-
-#             study_material_post = {
-#                 "type": "exam",
-#                 "exam": data['exam'],
-#                 "title": data['title'],
-#                 "description": data['description'],
-#                 "source_links": data['source_links'].split(','),  # Assuming links are comma-separated
-#                 "admin_id" if role == "admin" else "superadmin_id": admin_id if role == "admin" else superadmin_id,
-#                 "is_publish": is_publish,
-#                 "updated_at": datetime.utcnow()
-#             }
-
-#             # Insert into MongoDB
-#             study_material_collection.insert_one(study_material_post)
-
-#             return JsonResponse({"message": "Exam Material posted successfully"}, status=200)
-
-#         except json.JSONDecodeError:
-#             return JsonResponse({"error": "Invalid JSON format."}, status=400)
-#         except Exception as e:
-#             return JsonResponse({"error": str(e)}, status=500)
-
-#     return JsonResponse({"error": "Invalid request method. Only POST is allowed."}, status=405)
-
-# @csrf_exempt
-# def exam_topic(request):
-#     if request.method == 'GET'
 @csrf_exempt
 def get_categories(request):
     if request.method == 'GET':
