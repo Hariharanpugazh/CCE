@@ -31,6 +31,7 @@ import {
 } from "react-icons/fa";
 // Import a placeholder image directly
 import placeholderImage from "../../assets/images/Null.png";
+import ApplicationCard from "../../components/Students/ApplicationCard";
 
 export const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -49,6 +50,8 @@ const JobPreview = () => {
   const [saved, setSaved] = useState(false);
   const [showApplySuccess, setShowApplySuccess] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const [publishedJobs, setPublishedJobs] = useState([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
 
   useEffect(() => {
     const token = Cookies.get("jwt");
@@ -76,6 +79,41 @@ const JobPreview = () => {
         console.error("Error fetching job:", error);
         setLoading(false);
       });
+  }, [id]);
+
+  useEffect(() => {
+    const fetchPublishedJobs = async () => {
+      setLoadingJobs(true);
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/api/published-jobs/"
+        );
+        console.log("Published jobs API response:", response.data);
+
+        // Check if response.data is an array or if it has a specific property containing the jobs
+        const jobsData = Array.isArray(response.data)
+          ? response.data
+          : response.data.jobs || response.data.data || [];
+
+        // Filter out the current job from the list - use a more flexible approach
+        const currentJobId = id;
+        const filteredJobs = jobsData.filter((job) => {
+          const jobId = job._id || job.id;
+          return jobId !== currentJobId;
+        });
+
+        console.log("Filtered jobs:", filteredJobs);
+
+        // Show all jobs
+        setPublishedJobs(filteredJobs);
+        setLoadingJobs(false);
+      } catch (error) {
+        console.error("Error fetching published jobs:", error);
+        setLoadingJobs(false);
+      }
+    };
+
+    fetchPublishedJobs();
   }, [id]);
 
   const handleApplyClick = async () => {
@@ -128,23 +166,9 @@ const JobPreview = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchAllJobs = async () => {
-      if (userId && userRole !== "admin" && userRole !== "superadmin") {
-        try {
-          const response = await axios.get(
-            `http://localhost:8000/api/published-jobs/`
-          );
-          // You might want to do something with the response here
-        } catch (error) {
-          console.error("Error checking if job is saved:", error);
-        }
-      }
-    };
-  
-    fetchAllJobs();
-  }, [userId, userRole]);
-  
+  const handleCardClick = (jobId) => {
+    window.location.href = `/job-preview/${jobId}`;
+  };
 
   if (loading) {
     return (
@@ -203,7 +227,7 @@ const JobPreview = () => {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <StudentPageNavbar />
 
-      {/* Success notification for applying */}
+      {/* Success notifications */}
       {showApplySuccess && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-200 text-green-800 px-6 py-3 rounded-lg shadow-lg flex items-center">
           <FaCheck className="mr-2" />
@@ -211,7 +235,6 @@ const JobPreview = () => {
         </div>
       )}
 
-      {/* Success notification for saving */}
       {showSaveSuccess && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-200 text-green-800 px-6 py-3 rounded-lg shadow-lg flex items-center">
           <FaCheck className="mr-2" />
@@ -330,422 +353,512 @@ const JobPreview = () => {
           </div>
         </div>
 
-        {/* Job Details Cards - One by one vertical listing */}
-        <div className="space-y-6">
-          {/* Job Description Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaBriefcase className="text-yellow-600" />
-                </div>
-                Job Description
-              </h2>
-              <p className="text-gray-700 whitespace-pre-line leading-relaxed text-justify ">
-                {job.job_data.job_description}
-              </p>
-            </div>
-          </div>
-
-          {/* Key Responsibilities Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaClipboardList className="text-yellow-600" />
-                </div>
-                Key Responsibilities
-              </h2>
-              <ul className="space-y-3 text-gray-700 text-justify">
-                {job.job_data.key_responsibilities.map(
-                  (responsibility, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="inline-flex items-center justify-center bg-yellow-100 text-yellow-800 w-6 h-6 rounded-full mr-3 flex-shrink-0 text-sm text-justify">
-                        {index + 1}
-                      </span>
-                      <span className="leading-relaxed">{responsibility}</span>
-                    </li>
-                  )
-                )}
-              </ul>
-            </div>
-          </div>
-
-          {/* Required Skills Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaCode className="text-yellow-600" />
-                </div>
-                Required Skills
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {job.job_data.technical_skills.map((skill, index) => (
-                  <span
-                    key={index}
-                    className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium border border-blue-100"
-                  >
-                    {skill}
-                  </span>
-                ))}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Main Content - Job Details */}
+          <div className="space-y-6 w-full lg:w-[70%]">
+            {/* Job Description Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaBriefcase className="text-yellow-600" />
+                  </div>
+                  Job Description
+                </h2>
+                <p className="text-gray-700 whitespace-pre-line leading-relaxed text-justify ">
+                  {job.job_data.job_description}
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* Additional Skills Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaPlus className="text-yellow-600" />
-                </div>
-                Additional Skills
-              </h2>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
-                {job.job_data.additional_skills.map((skill, index) => (
-                  <li key={index} className="flex items-center">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
-                    {skill}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Soft Skills Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaSmile className="text-yellow-600" />
-                </div>
-                Soft Skills
-              </h2>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
-                {job.job_data.soft_skills.map((skill, index) => (
-                  <li key={index} className="flex items-center">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
-                    {skill}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Education and Experience Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaGraduationCap className="text-yellow-600" />
-                </div>
-                Education and Experience
-              </h2>
-              <div className="space-y-1">
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Education:
+            {/* Key Responsibilities Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaClipboardList className="text-yellow-600" />
                   </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {job.job_data.education_requirements}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Minimum Marks:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {job.job_data.minimum_marks_requirement}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Experience:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {job.job_data.work_experience_requirement}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Age Limit:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {job.job_data.age_limit}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Certifications:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {job.job_data.professional_certifications}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Job Details Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaBriefcase className="text-yellow-600" />
-                </div>
-                Job Details
-              </h2>
-              <div className="space-y-1">
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Industry:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {job.job_data.industry_type}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    <FaClock className="inline-block mr-1 text-gray-500" />
-                    Work Hours:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {job.job_data.work_schedule} hours
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    <FaLaptop className="inline-block mr-1 text-gray-500" />
-                    Remote Work:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded text-justify">
-                    {job.job_data.remote_work_availability}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    <FaTruckMoving className="inline-block mr-1 text-gray-500" />
-                    Relocation:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded text-justify">
-                    {job.job_data.relocation_assistance}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Selection Process Card - Clean Design */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaClipboardList className="text-yellow-600" />
-                </div>
-                Selection Process
-              </h2>
-
-              <div className="mt-4 space-y-4">
-                {job.job_data.selection_process
-                  .split("\n")
-                  .filter((step) => step.trim())
-                  .map((step, index) => (
-                    <div key={index} className="flex items-start">
-                      <div className="flex-shrink-0 w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center border border-yellow-200 mr-3 mt-0.5">
-                        <span className="text-yellow-700 font-medium text-sm">
+                  Key Responsibilities
+                </h2>
+                <ul className="space-y-3 text-gray-700 text-justify">
+                  {job.job_data.key_responsibilities.map(
+                    (responsibility, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="inline-flex items-center justify-center bg-yellow-100 text-yellow-800 w-6 h-6 rounded-full mr-3 flex-shrink-0 text-sm text-justify">
                           {index + 1}
                         </span>
-                      </div>
-                      <p className="text-gray-700 leading-relaxed">{step}</p>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Application Process Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center">
-                <div className="bg-yellow-100 p-3 rounded-full mr-4">
-                  <FaFileAlt className="text-yellow-600 text-xl" />
-                </div>
-                Application Process
-              </h2>
-              <div className="space-y-6">
-                <div className="bg-gradient-to-r from-yellow-50 to-white p-4 rounded-lg border border-yellow-200">
-                  <h3 className="font-semibold text-lg mb-3 text-gray-800 flex items-center">
-                    <FaListOl className="mr-2 text-yellow-600" />
-                    Steps to Apply
-                  </h3>
-                  <ol className="list-decimal list-inside space-y-2 text-gray-700">
-                    {job.job_data.steps_to_apply
-                      .split("\n")
-                      .map((step, index) => (
-                        <li key={index} className="pl-2">
-                          {step.trim()}
-                        </li>
-                      ))}
-                  </ol>
-                </div>
-                <div className="bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg border border-blue-200">
-                  <h3 className="font-semibold text-lg mb-3 text-gray-800 flex items-center">
-                    <FaFileAlt className="mr-2 text-blue-600" />
-                    Documents Required
-                  </h3>
-                  <ul className="list-disc list-inside space-y-2 text-gray-700">
-                    {job.job_data.documents_required
-                      .split(",")
-                      .map((doc, index) => (
-                        <li key={index} className="pl-2">
-                          {doc.trim()}
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Important Dates Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaRegCalendarAlt className="text-yellow-600" />
-                </div>
-                Important Dates
-              </h2>
-              <div className="space-y-1">
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Posted On:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {formatDate(job.job_data.job_posting_date)}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Apply By:
-                  </div>
-                  <div className="text-red-600 font-medium w-full sm:w-2/3 bg-red-50 p-2 rounded border border-red-100">
-                    {formatDate(job.job_data.application_deadline)}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Interviews:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {formatDate(job.job_data.interview_start_date)} to{" "}
-                    {formatDate(job.job_data.interview_end_date)}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Joining Date:
-                  </div>
-                  <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {formatDate(job.job_data.expected_joining_date)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Preparation Tips Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaLightbulb className="text-yellow-600" />
-                </div>
-                Preparation Tips
-              </h2>
-              <div className="text-gray-700 whitespace-pre-line leading-relaxed bg-blue-50 p-4 rounded-lg border border-blue-100 text-justify">
-                {job.job_data.preparation_tips}
-              </div>
-            </div>
-          </div>
-
-          {/* Company Information Card */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaBuilding className="text-yellow-600" />
-                </div>
-                Company Information
-              </h2>
-              <div className="space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    Company:
-                  </div>
-                  <div className="text-gray-700 font-medium w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    {job.job_data.company_name}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center py-2">
-                  <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
-                    <FaGlobe className="inline-block mr-1 text-gray-500" />
-                    Website:
-                  </div>
-                  <div className="w-full sm:w-2/3 bg-gray-50 p-2 rounded">
-                    <a
-                      href={job.job_data.company_website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline flex items-center"
-                    >
-                      {job.job_data.company_website}
-                      <FaExternalLinkAlt className="ml-2 text-xs" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Apply Now Card at the bottom */}
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100 w-[70%]">
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center">
-                <div className="bg-yellow-100 p-2 rounded-full mr-3">
-                  <FaFileAlt className="text-yellow-600" />
-                </div>
-                Ready to Apply?
-              </h2>
-              <p className="text-gray-600 mb-4">
-                Don't miss this opportunity! Apply before the deadline.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <button
-                  onClick={handleApplyClick}
-                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out flex items-center justify-center shadow-md hover:shadow-lg"
-                >
-                  Apply Now <FaExternalLinkAlt className="ml-2 text-sm" />
-                </button>
-                <button
-                  onClick={handleSaveJob}
-                  className={`flex-1 ${
-                    saved
-                      ? "bg-gray-100 text-gray-800"
-                      : "border-2 border-gray-300 text-gray-700"
-                  } font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition duration-300 ease-in-out flex items-center justify-center`}
-                >
-                  {saved ? (
-                    <>
-                      Saved <FaBookmark className="ml-2 text-yellow-500" />
-                    </>
-                  ) : (
-                    <>
-                      Save Job <FaBookmark className="ml-2" />
-                    </>
+                        <span className="leading-relaxed">
+                          {responsibility}
+                        </span>
+                      </li>
+                    )
                   )}
-                </button>
+                </ul>
+              </div>
+            </div>
+
+            {/* Required Skills Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaCode className="text-yellow-600" />
+                  </div>
+                  Required Skills
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {job.job_data.technical_skills.map((skill, index) => (
+                    <span
+                      key={index}
+                      className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium border border-blue-100"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Skills Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaPlus className="text-yellow-600" />
+                  </div>
+                  Additional Skills
+                </h2>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
+                  {job.job_data.additional_skills.map((skill, index) => (
+                    <li key={index} className="flex items-center">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                      {skill}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Soft Skills Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaSmile className="text-yellow-600" />
+                  </div>
+                  Soft Skills
+                </h2>
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 text-gray-700">
+                  {job.job_data.soft_skills.map((skill, index) => (
+                    <li key={index} className="flex items-center">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                      {skill}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Education and Experience Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaGraduationCap className="text-yellow-600" />
+                  </div>
+                  Education and Experience
+                </h2>
+                <div className="space-y-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Education:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {job.job_data.education_requirements}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Minimum Marks:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {job.job_data.minimum_marks_requirement}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Experience:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {job.job_data.work_experience_requirement}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Age Limit:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {job.job_data.age_limit}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Certifications:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {job.job_data.professional_certifications}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Job Details Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaBriefcase className="text-yellow-600" />
+                  </div>
+                  Job Details
+                </h2>
+                <div className="space-y-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Industry:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {job.job_data.industry_type}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      <FaClock className="inline-block mr-1 text-gray-500" />
+                      Work Hours:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {job.job_data.work_schedule} hours
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      <FaLaptop className="inline-block mr-1 text-gray-500" />
+                      Remote Work:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded text-justify">
+                      {job.job_data.remote_work_availability}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      <FaTruckMoving className="inline-block mr-1 text-gray-500" />
+                      Relocation:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded text-justify">
+                      {job.job_data.relocation_assistance}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Selection Process Card - Clean Design */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaClipboardList className="text-yellow-600" />
+                  </div>
+                  Selection Process
+                </h2>
+
+                <div className="mt-4 space-y-4">
+                  {job.job_data.selection_process
+                    .split("\n")
+                    .filter((step) => step.trim())
+                    .map((step, index) => (
+                      <div key={index} className="flex items-start">
+                        <div className="flex-shrink-0 w-8 h-8 bg-yellow-50 rounded-full flex items-center justify-center border border-yellow-200 mr-3 mt-0.5">
+                          <span className="text-yellow-700 font-medium text-sm">
+                            {index + 1}
+                          </span>
+                        </div>
+                        <p className="text-gray-700 leading-relaxed">{step}</p>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Application Process Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-6 text-gray-800 flex items-center">
+                  <div className="bg-yellow-100 p-3 rounded-full mr-4">
+                    <FaFileAlt className="text-yellow-600 text-xl" />
+                  </div>
+                  Application Process
+                </h2>
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-yellow-50 to-white p-4 rounded-lg border border-yellow-200">
+                    <h3 className="font-semibold text-lg mb-3 text-gray-800 flex items-center">
+                      <FaListOl className="mr-2 text-yellow-600" />
+                      Steps to Apply
+                    </h3>
+                    <ol className="list-decimal list-inside space-y-2 text-gray-700">
+                      {job.job_data.steps_to_apply
+                        .split("\n")
+                        .map((step, index) => (
+                          <li key={index} className="pl-2">
+                            {step.trim()}
+                          </li>
+                        ))}
+                    </ol>
+                  </div>
+                  <div className="bg-gradient-to-r from-blue-50 to-white p-4 rounded-lg border border-blue-200">
+                    <h3 className="font-semibold text-lg mb-3 text-gray-800 flex items-center">
+                      <FaFileAlt className="mr-2 text-blue-600" />
+                      Documents Required
+                    </h3>
+                    <ul className="list-disc list-inside space-y-2 text-gray-700">
+                      {job.job_data.documents_required
+                        .split(",")
+                        .map((doc, index) => (
+                          <li key={index} className="pl-2">
+                            {doc.trim()}
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Important Dates Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaRegCalendarAlt className="text-yellow-600" />
+                  </div>
+                  Important Dates
+                </h2>
+                <div className="space-y-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Posted On:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {formatDate(job.job_data.job_posting_date)}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Apply By:
+                    </div>
+                    <div className="text-red-600 font-medium w-full sm:w-2/3 bg-red-50 p-2 rounded border border-red-100">
+                      {formatDate(job.job_data.application_deadline)}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Interviews:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {formatDate(job.job_data.interview_start_date)} to{" "}
+                      {formatDate(job.job_data.interview_end_date)}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Joining Date:
+                    </div>
+                    <div className="text-gray-700 w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {formatDate(job.job_data.expected_joining_date)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Preparation Tips Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaLightbulb className="text-yellow-600" />
+                  </div>
+                  Preparation Tips
+                </h2>
+                <div className="text-gray-700 whitespace-pre-line leading-relaxed bg-blue-50 p-4 rounded-lg border border-blue-100 text-justify">
+                  {job.job_data.preparation_tips}
+                </div>
+              </div>
+            </div>
+
+            {/* Company Information Card */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 border-b pb-2 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaBuilding className="text-yellow-600" />
+                  </div>
+                  Company Information
+                </h2>
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2 border-b border-gray-100">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      Company:
+                    </div>
+                    <div className="text-gray-700 font-medium w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      {job.job_data.company_name}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center py-2">
+                    <div className="font-medium w-full sm:w-1/3 text-gray-600 mb-1 sm:mb-0">
+                      <FaGlobe className="inline-block mr-1 text-gray-500" />
+                      Website:
+                    </div>
+                    <div className="w-full sm:w-2/3 bg-gray-50 p-2 rounded">
+                      <a
+                        href={job.job_data.company_website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline flex items-center"
+                      >
+                        {job.job_data.company_website}
+                        <FaExternalLinkAlt className="ml-2 text-xs" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Apply Now Card at the bottom */}
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-100">
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                    <FaFileAlt className="text-yellow-600" />
+                  </div>
+                  Ready to Apply?
+                </h2>
+                <p className="text-gray-600 mb-4">
+                  Don't miss this opportunity! Apply before the deadline.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <button
+                    onClick={handleApplyClick}
+                    className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out flex items-center justify-center shadow-md hover:shadow-lg"
+                  >
+                    Apply Now <FaExternalLinkAlt className="ml-2 text-sm" />
+                  </button>
+                  <button
+                    onClick={handleSaveJob}
+                    className={`flex-1 ${
+                      saved
+                        ? "bg-gray-100 text-gray-800"
+                        : "border-2 border-gray-300 text-gray-700"
+                    } font-semibold py-3 px-6 rounded-lg hover:bg-gray-100 transition duration-300 ease-in-out flex items-center justify-center`}
+                  >
+                    {saved ? (
+                      <>
+                        Saved <FaBookmark className="ml-2 text-yellow-500" />
+                      </>
+                    ) : (
+                      <>
+                        Save Job <FaBookmark className="ml-2" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Sidebar - Similar Jobs */}
+          <div className="w-full lg:w-[35%] space-y-4">
+            <div className="bg-transparent  rounded-lg overflow-hidden border border-gray-100 lg:sticky lg:top-20">
+              <div className="p-4 border-b border-gray-100 ">
+                <h2 className="text-xl font-semibold text-gray-800 flex items-center">
+                  <div className="bg-yellow-100 p-2 rounded-full mr-2">
+                    <FaBriefcase className="text-yellow-600" />
+                  </div>
+                  You might also like
+                </h2>
+              </div>
+
+              <div className="p-4 max-h-[calc(100vh-200px)] overflow-y-auto lg:space-y-4">
+                {loadingJobs ? (
+                  <div className="animate-pulse flex flex-row lg:flex-col gap-4 overflow-x-auto pb-4 lg:pb-0">
+                    {[1, 2, 3, 4, 5].map((item) => (
+                      <div
+                        key={item}
+                        className="bg-gray-100 h-32 w-full min-w-[90%] sm:min-w-[300px] lg:min-w-0 rounded-lg flex-shrink-0 lg:flex-shrink"
+                      ></div>
+                    ))}
+                  </div>
+                ) : publishedJobs.length > 0 ? (
+                  <div className="flex flex-row lg:flex-col gap-4 overflow-x-auto pb-4 lg:pb-0 snap-x snap-mandatory">
+                    {publishedJobs.map((job) => {
+                      const jobId = job._id || job.id;
+                      const jobTitle =
+                        job.title ||
+                        job.job_data?.title ||
+                        job.name ||
+                        "Job Title";
+                      const companyName =
+                        job.company_name ||
+                        job.job_data?.company_name ||
+                        job.company ||
+                        "Company";
+                      const location =
+                        job.job_location ||
+                        job.job_data?.location ||
+                        job.location ||
+                        "Location";
+                      const description =
+                        job.job_description ||
+                        job.job_data?.job_description ||
+                        job.description ||
+                        "";
+                      const updatedAt =
+                        job.updated_at ||
+                        job.job_data?.job_posting_date ||
+                        job.date ||
+                        new Date().toISOString();
+                      const status = job.status || "Active";
+                      const views = job.total_views || job.views || 0;
+
+                      return (
+                        <div
+                          key={jobId}
+                          className="w-full min-w-[100%] sm:min-w-[300px] lg:min-w-0 flex-shrink-0 lg:flex-shrink snap-start"
+                        >
+                          <ApplicationCard 
+                            application={{
+                              id: jobId,
+                              title: jobTitle,
+                              company_name: companyName,
+                              location: location,
+                              job_description: description,
+                              updated_at: updatedAt,
+                              status: status,
+                              total_views: views,
+                            }}
+                            handleCardClick={() => handleCardClick(jobId)}
+                            small={true}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-gray-500">
+                    No similar jobs found. Please check the API response.
+                  </div>
+                )}
               </div>
             </div>
           </div>

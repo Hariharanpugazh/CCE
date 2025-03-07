@@ -153,13 +153,13 @@ export default function ApplicationCard({
           <div className="flex-1">
             <h3
               className={`font-semibold text-gray-900 mb-1 line-clamp-2
-                ${small ? "text-xs" : "text-base sm:text-lg md:text-xl"}`}
+                ${small ? "text-sm" : "text-base sm:text-lg md:text-xl"}`}
             >
               {application.title}
             </h3>
             <div
               className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-600
-                ${small ? "text-[9px]" : "text-xs sm:text-sm"}`}
+                ${small ? "text-[13px]" : "text-xs sm:text-sm"}`}
             >
               <span className="flex items-center">
                 <i className="bi bi-building mr-1 opacity-75 text-[12px] sm:text-[14px]"></i>
@@ -185,20 +185,20 @@ export default function ApplicationCard({
         {/* Description Section */}
         <p
           className={`text-gray-600 mb-2 line-clamp-2 leading-snug
-            ${small ? "text-[9px]" : "text-xs sm:text-sm"}`}
+            ${small ? "text-[13px]" : "text-xs sm:text-sm"}`}
         >
           {application.job_description}
         </p>
         <div
           className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-gray-500
-            ${small ? "text-[9px]" : "text-xs sm:text-sm"}`}
+            ${small ? "text-[13px]" : "text-xs sm:text-sm"}`}
         >
           <div className="flex items-center">
             <FiClock className="mr-1 opacity-75 text-[12px] sm:text-[14px]" />
             {timeAgo(application.updated_at)}
           </div>
           <div className="flex items-center">
-            <FiEye className="mr-1 opacity-75 text-[12px] sm:text-[14px]" />
+            <FiEye className="mr-1 opacity-75 text-[12px] sm:text-[15px]" />
             {viewCount} views
           </div>
         </div>
@@ -211,7 +211,7 @@ export default function ApplicationCard({
           className={`inline-flex items-center rounded-full font-medium
             ${
               small
-                ? "text-[8px] py-0.5 px-1"
+                ? "text-[10px] py-0.5 px-1"
                 : "text-[10px] sm:text-xs py-1 px-2"
             }
             ${
@@ -236,7 +236,7 @@ export default function ApplicationCard({
             className={`w-full sm:w-auto border border-gray-300 rounded-md hover:border-gray-400 transition-colors duration-200
               ${
                 small
-                  ? "text-[9px] py-1 px-2"
+                  ? "text-[11px] py-1 px-2"
                   : "text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4"
               }`}
             onClick={handleViewDetails}
